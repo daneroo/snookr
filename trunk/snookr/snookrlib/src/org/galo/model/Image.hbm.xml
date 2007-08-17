@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping
+>
+    <class
+        name="org.galo.model.Image"
+        table="image"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+            unsaved-value="null"
+        >
+            <generator class="increment">
+              <!--  
+                  To add non XDoclet generator parameters, create a file named 
+                  hibernate-generator-params-Media.xml 
+                  containing the additional parameters and place it in your merge dir. 
+              --> 
+            </generator>
+        </id>
+
+        <property
+            name="fileName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="fileName"
+        />
+
+        <property
+            name="stamp"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="stamp"
+        />
+
+        <property
+            name="fileSize"
+            type="long"
+            update="true"
+            insert="true"
+            column="fileSize"
+        />
+
+        <property
+            name="lastModified"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="lastModified"
+        />
+
+        <property
+            name="md5"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="md5"
+        />
+
+        <property
+            name="exifDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="exifDate"
+        />
+
+        <property
+            name="width"
+            type="int"
+            update="true"
+            insert="true"
+            column="width"
+        />
+
+        <property
+            name="height"
+            type="int"
+            update="true"
+            insert="true"
+            column="height"
+        />
+
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-Media.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>
