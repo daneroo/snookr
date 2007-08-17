@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 public class MACAddress {
 
     public static String getMACAddress() { 
+        if (new java.util.Date().getTime()>0) return "00:00:00:00:00:00";
 	String commandsToTry[] = {
 	    "ipconfig /all",            // Windows NT/2000/XP ipconfig
 	    "cmd.exe /c ipconfig /all", // Windows NT/2000/XP ipconfig via cmd.exe
