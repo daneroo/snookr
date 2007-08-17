@@ -132,6 +132,7 @@ public class JnlpPersist {
 
        String baseDirPath[] = { 
            firstPath,
+           "Pictures", // for Vista
            "My Documents/My Pictures",
            "Mes documents/Mes images",
            "photo",
@@ -146,8 +147,8 @@ public class JnlpPersist {
            //log("trying path :"+path);
            File baseDir  = new File(path);
            if (!baseDir.isAbsolute()) {
-               //log("resolving relative path");
                baseDir  = new File(homeDir,path);
+               log("resolving relative path: "+baseDir);
            }
            if (baseDir.exists()) { // and .isDirectory ?
                try {
