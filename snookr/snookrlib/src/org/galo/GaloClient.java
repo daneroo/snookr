@@ -34,9 +34,7 @@ import com.drew.metadata.exif.ExifDirectory;
 public final class GaloClient implements Runnable {
     
     public static void main(String[] aArguments) throws FileNotFoundException {
-        //String basedirPath = getProperties().getProperty("galo.basedir");
-        String basedirPath = getBundle().getString("galo.basedir");
-        File baseDir = new File(basedirPath);
+        File baseDir = new File(JnlpPersist.baseDir());
         GaloClient galoClient = new GaloClient(baseDir);
         galoClient.run();
     }
@@ -207,36 +205,5 @@ public final class GaloClient implements Runnable {
             System.out.println(""+image);
         }
     }
-    
-    
-    /*
-      ClassLoader.getResourceAsStream ("some/pkg/resource.properties");
-     */
-    static Properties getProperties() {
-        try {
-            
-            ResourceBundle.getBundle("galo");
-            
-            Properties p = new Properties();
-            p.load(GaloClient.class.getClassLoader().getResourceAsStream("galo.properties"));
-            return p;
-            
-        } catch (IOException ioe) {
-            // what ?
-        }
-        return null;
-    }
-    
-    /*
-      ResourceBundle.getBundle ("some.pkg.resource");
-     */
-    static ResourceBundle getBundle() {
-        try {
-            // Throws unchecked java.util.MissingResourceException
-            return ResourceBundle.getBundle("galo");
-        } catch (MissingResourceException mre) {
-            // what ?
-        }
-        return null;
-    }
+   
 }
