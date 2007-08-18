@@ -12,6 +12,7 @@ import org.galo.filesystem.BaseWalker;
 import org.galo.filesystem.IFileHandler;
 import org.galo.filesystem.ListingFileHandler;
 import org.galo.model.Image;
+import org.galo.dao.ImageDAO;
 
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
@@ -127,9 +128,18 @@ public class LongTask {
                 setMessage("Found  "+files.size()+" files, "+dirs.size()+" dirs  in "+tt.diff()+"s ("+tt.rate(files.size()+dirs.size())+" [file|dir]/s) for basedir: "+baseDir );  
                 
                 applyCommand(new MapperCmd());
+                applyCommand(new PredictorMapperCmd());
                 applyCommand(new ExiferCmd());
                 applyCommand(new DigesterCmd());
                 
+                JSONTest jsonT = new JSONTest();
+                jsonT.writeTest(imageForFile);
+                jsonT.readTest();
+
+		db4oTest();
+                wsTest();
+                //httpPostTest();
+              
             } catch (Exception e) {
                 e.printStackTrace();
                 log(e.getMessage());
@@ -196,7 +206,36 @@ public class LongTask {
             }
         }
 
-    
+        Map predictorForFile = null; // set by jsonReadTest
+        class PredictorMapperCmd implements ImageCommand {
+            public String getName() { return "Predictor"; }
+            public void exec(Image image,File f) {
+                if (predictorForFile==null) {
+		    log(" Getting JSON Predictor "+new Date());
+		    predictorForFile = new JSONTest().readTest();
+		    log(" Got     JSON Predictor "+new Date());
+		}
+                if (predictorForFile==null) predictorForFile = new TreeMap();
+
+                Image predictor = (Image)predictorForFile.get(""+f);
+                if (predictor!=null) {
+                    // digester
+                    image.setMd5(predictor.getMd5());
+                    // exifer
+                    Date ed = predictor.getExifDate();
+                    if (ed!=null) {
+                        image.setExifDate( ed  );
+                        image.setStamp( ed );
+                        image.setWidth( image.getWidth() );
+                        image.setHeight( image.getHeight() );
+                    }
+
+                } else {
+                    log("no predictor for:"+f);
+                }
+            }
+        }
+
         class ExiferCmd implements ImageCommand {
             public String getName() { return "Exifer"; }
             public void exec(Image image,File f) {
@@ -255,6 +294,82 @@ public class LongTask {
                     //image.setMd5(MD5.getImplementation(MD5.NATIVE).digest(new FileInputStream(f)));
                     //image.setMd5(MD5.getImplementation(MD5.OSTERMILLER).digest(new FileInputStream(f)));
                 } catch (IOException ioe) {}
+            }
+        }
+        
+
+
+        public void db4oTest() {
+            Timer tt = new Timer();
+	    new Db4oTest().test(imageForFile);
+            setMessage("db4o: time:"+tt.diff()+"s ("+tt.rate(files.size())+" images/s)" );
+	}
+        public void wsTest() {
+            RemotingTest rt = new RemotingTest();
+            int iterPerLength=2;
+            for (int l=1;l<=1000;l*=10) {
+                List ll = new ArrayList();
+                for (int i=0;i<l;i++) {
+                    ll.add(files.get(i).toString());
+                }
+                Timer tt = new Timer();
+                for (int i=0;i<iterPerLength;i++) {
+                    rt.test(ll);
+                }
+                setMessage( "ws:echoList time:"+tt.diff()+"s l="+l+" ("+tt.rate(iterPerLength*l)+" images/s)" );        
+            }
+            Timer tt = new Timer();
+            rt.test(files);
+            setMessage( "ws:echoList time:"+tt.diff()+"s ("+tt.rate(files.size())+" images/s)" );        
+            tt.restart();
+            rt.test((Object)files);
+            setMessage( "ws:echoObject time:"+tt.diff()+"s ("+tt.rate(files.size())+" images/s)" );        
+            tt.restart();
+            rt.test(imageForFile);
+            setMessage( "ws:echoObject time:"+tt.diff()+"s ("+tt.rate(imageForFile.keySet().size())+" images/s)" );        
+
+            // now for the real service:
+            tt.restart();
+            List li = new ArrayList();
+            for (Iterator it=files.iterator(); it.hasNext(); ) {
+                Image ima = (Image)imageForFile.get(it.next());
+                li.add(ima);
+            }
+            rt.saveImageList(li);
+            setMessage( "ws:saveImageList time:"+tt.diff()+"s ("+tt.rate(li.size())+" images/s)" );        
+        }
+
+
+        public void httpPostTest() {
+            int iterPerLength=2;
+            for (int l=1;l<=1000;l*=10) {
+                String json = "[\"a\",\"b\",\"c\"]";
+                
+                try {
+                    List ll = new ArrayList();
+                    for (int i=0;i<l;i++) {
+                        ll.add(imageForFile.get(files.get(i)));
+                    }
+                    json=JSONTest.toJSON(ll);
+                    
+                    
+                } catch (Exception e) {}
+                
+                //json = "[\"a\",\"b\",\"c\"]";
+                //json = "{\"foo\":\"bang\", \"pathtotihng\":\"098340598309485\"}";
+                
+                //String jsonMethod = "{ \"method\": \"galo.echoObject\", \"params\": ["+json+"], \"id\": 2}";
+                String jsonMethod = "{ \"method\": \"echo\", \"params\": ["+json+"], \"id\": 2}";
+                
+                //System.out.println(jsonMethod);
+                Timer tt = new Timer();
+                HttpPostTest htp = new HttpPostTest();
+                //htp.login();
+                for (int i=0;i<iterPerLength;i++) {
+                    htp.test(jsonMethod);
+                }
+                //setMessage( "Http post time:"+tt.diff()+"s l="+l+" ("+tt.rate(iterPerLength)+" posts/s)" );
+                setMessage( "Http post time:"+tt.diff()+"s l="+l+" ("+tt.rate(iterPerLength*l)+" images/s)" );
             }
         }
     }
