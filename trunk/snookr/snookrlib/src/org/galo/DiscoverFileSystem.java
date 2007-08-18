@@ -15,8 +15,6 @@ import org.galo.filesystem.BaseWalker;
 import org.galo.filesystem.IFileHandler;
 import org.galo.filesystem.ListingFileHandler;
 
-import org.galo.dao.ImageDAO;
-
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 //import com.drew.metadata.Directory;
@@ -35,16 +33,16 @@ import org.galo.model.Image;
 
 /** Uses a SwingWorker to perform a time-consuming (and utterly fake) task. */
 
-/* 
+/*
  * LongTask.java is used by:
  *   ProgressBarDemo.java
  *   ProgressBarDemo2.java
  *   ProgressMonitorDemo
  */
 public class DiscoverFileSystem {
-
+    
     static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+    
     public static void main(String[] args) {
         File baseDir = new File(JnlpPersist.baseDir());
         //new DiscoverFileSystem().myComparer(baseDir);
@@ -58,7 +56,7 @@ public class DiscoverFileSystem {
         log(msg);
     }
     
-
+    
     class UniqueingContext { // pattern for findOrCreate...
         // these express the natural key unqieness constraint idea.
         Map ctxmap = new HashMap();
@@ -73,22 +71,22 @@ public class DiscoverFileSystem {
             return (Host)unique(key,host);
         }
         Directory getDirectory(Directory dir) {
-            Object key = "directory:"+dir.getFileName(); 
+            Object key = "directory:"+dir.getFileName();
             return (Directory)unique(key,dir);
         }
         MediaFile getMediaFile(MediaFile mf) {
-            Object key = "mediafile:"+mf.getFileName(); 
+            Object key = "mediafile:"+mf.getFileName();
             return (MediaFile)unique(key,mf);
         }
         /*
         Image getImage(Image ima) { // would love to put md5, and or exifDate,...
             // but not available...
-            Object key = "image:"+ima.getFileName(); 
+            Object key = "image:"+ima.getFileName();
             return (Directory)unique(key,ima);
         }
-        */
+         */
     }
-
+    
     public void myComparer(File baseDir) {
         ListingFileHandler ref = new ListingFileHandler();
         IFileHandler fh[]  = new IFileHandler[] {
@@ -144,15 +142,14 @@ public class DiscoverFileSystem {
             
             Timer tt = new Timer();
             getFilesAndDirs(getHost(),baseDir);
-            //setMessage("Found  "+files.size()+" files, "+dirs.size()+" dirs  in "+tt.diff()+"s ("+tt.rate(files.size()+dirs.size())+" [file|dir]/s) for basedir: "+baseDir );  
-            setMessage("Found  "+mediaFiles.size()+" files in "+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" file/s) for basedir: "+baseDir );  
+            //setMessage("Found  "+files.size()+" files, "+dirs.size()+" dirs  in "+tt.diff()+"s ("+tt.rate(files.size()+dirs.size())+" [file|dir]/s) for basedir: "+baseDir );
+            setMessage("Found  "+mediaFiles.size()+" files in "+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" file/s) for basedir: "+baseDir );
             
             applyCommand(new PredictorMapperCmd());
             applyCommand(new ExiferCmd());
             applyCommand(new DigesterCmd());
             
             db4oTest();
-            wsTest();
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,18 +170,18 @@ public class DiscoverFileSystem {
         setMessage("Host  "+host);
         return host;
     }
-
+    
     List mediaFiles = null;
     public void getFilesAndDirs(Host host,File baseDir) {
         List realFiles = new java.util.Vector();
         mediaFiles = new java.util.Vector();
-
+        
         // maybe this whole thing should be a handler !
-
+        
         new BaseWalker(null,new ListingFileHandler(realFiles)).execute(baseDir);
-
+        
         //while (files.size()>1000) files.remove(files.size()-1);
-
+        
         UniqueingContext ctx = new UniqueingContext();
         host = ctx.getHost(host);
         Iterator iter = realFiles.iterator();
@@ -192,15 +189,15 @@ public class DiscoverFileSystem {
             // count++; progress bar
             File f = (File)iter.next();
             File d = f.getParentFile();
-
+            
             Directory directory = new Directory();
             directory.setFileName(d.toURI().getPath());
             directory = ctx.getDirectory(directory);
             directory.setLastModified(new Date(d.lastModified()));
-
+            
             Image image = new Image();
             image.setFileSize(f.length());
-
+            
             MediaFile mf = new MediaFile();
             mf.setFileName(f.toURI().getPath());
             //mf.setFileName(""+f);
@@ -230,10 +227,10 @@ public class DiscoverFileSystem {
             
             // Progress bar update
             // current = count*1000/size;
-        }        
+        }
         setMessage( mfc.getName()+" "+mediaFiles.size()+" files in "+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" files/s)");
     }
-
+    
     // might not be what we want as default behaviour....
     public Image castContentToImageOrCreate(MediaFile mf) {
         IMediaContent mc = mf.getContent();
@@ -246,10 +243,10 @@ public class DiscoverFileSystem {
             log("overriding with new Image ");
             mf.setContent(new Image());
             return (Image)mf.getContent();
-
+            
         }
     }
-
+    
     Map predictorForFile = null; // read by jsonReadTest
     class PredictorMapperCmd implements MediaFileCommand {
         public String getName() { return "Predictor"; }
@@ -271,9 +268,9 @@ public class DiscoverFileSystem {
             }
             if (predictorForFile==null) predictorForFile = new TreeMap();
             Image predictor = (Image)predictorForFile.get(mf.getFileName());
-
+            
             Image image = castContentToImageOrCreate(mf);
-
+            
             if (predictor!=null) {
                 // digester
                 image.setMd5(predictor.getMd5());
@@ -316,7 +313,7 @@ public class DiscoverFileSystem {
                 //public static final int 	TAG_DATETIME 	306
                 //public static final int 	TAG_EXIF_IMAGE_HEIGHT 	40963
                 //public static final int 	TAG_EXIF_IMAGE_WIDTH 	40962
-
+                
                 image.setExifDate( directory.getDate(ExifDirectory.TAG_DATETIME) );
                 image.setStamp(image.getExifDate());
                 
@@ -363,42 +360,13 @@ public class DiscoverFileSystem {
         new Db4oTest().test(mediaFiles);
         setMessage("db4o: time:"+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" images/s)" );
     }
-
-    public void wsTest() {
-        RemotingTest rt = new RemotingTest();
-        int iterPerLength=2;
-        for (int l=1;l<=1000;l*=10) {
-            List ll = new ArrayList();
-            for (int i=0;i<l;i++) {
-                ll.add(mediaFiles.get(i).toString());
-            }
-            Timer tt = new Timer();
-            for (int i=0;i<iterPerLength;i++) {
-                rt.test(ll);
-            }
-            setMessage( "ws:echoList time:"+tt.diff()+"s l="+l+" ("+tt.rate(iterPerLength*l)+" images/s)" );        
-        }
-        Timer tt = new Timer();
-        rt.test(mediaFiles);
-        setMessage( "ws:echoList time:"+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" images/s)" );        
-        tt.restart();
-        rt.test((Object)mediaFiles);
-        setMessage( "ws:echoObject time:"+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" images/s)" );        
-        tt.restart();
-
-        // will be replaced by List of MediaFiles: actually Might already work...
-        // now for the real service: 
-        rt.saveImageList(mediaFiles);
-        setMessage( "ws:saveImageList time:"+tt.diff()+"s ("+tt.rate(mediaFiles.size())+" images/s)" );        
-    }
-    
     
     interface MediaFileCommand {
         public String getName();
         public void exec(MediaFile mf);
     }
-
-
+    
+    
 }
 
 
