@@ -1,0 +1,12 @@
+#summary Describe required tools
+#labels Phase-Requirements
+
+= Introduction =
+
+Describe project development requirements, compilers,IDE's,librarys
+
+
+= Requirements =
+== Java ==
+== IDE ==
+== External Dependancies ==
