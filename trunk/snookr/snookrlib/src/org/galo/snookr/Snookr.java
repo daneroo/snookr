@@ -43,7 +43,12 @@ public class Snookr {
     public static Flickr getFlickr() {
         return getInstance().flickr;
     }
-    
+    public static RequestContext getRequestContext() {
+        return getInstance().requestContext;
+    }
+    public static REST getREST() {
+        return getInstance().rest;
+    }
     // Singleton pattern with private constructor.
     static Snookr instance=null;
     public static Snookr getInstance() {
