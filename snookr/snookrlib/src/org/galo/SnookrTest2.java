@@ -137,8 +137,7 @@ public class SnookrTest2 {
         System.out.println( ""+sdf.format(new Date())+" "+s);
     }
     private void testUploadAllImages() throws IOException, SAXException, FlickrException {
-        String baseDirPath = "/home/daniel/media";
-        File baseDir = new File(baseDirPath);
+        File baseDir = new File(JnlpPersist.baseDir());
         Timer tt = new Timer();
         List dirs = new java.util.Vector();
         List files = new java.util.Vector();
