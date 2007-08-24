@@ -118,12 +118,11 @@ println "-=-=-= Close Database:  =-=-=-"
 db.close();
 
 def compareSearchToGetInfo = { flimaFromSearch -> // fetch info from flickr as attributes
-    photoid = flimaFromSearch.photoid;
-    def flimaFromGetInfo = new Photos().getFlickrImage(photoid);
+    def flimaFromGetInfo = new Photos().getFlickrImage(flimaFromSearch.photoid);
     assert flimaFromSearch.photoid==flimaFromGetInfo.photoid;
     assert flimaFromSearch.md5==flimaFromGetInfo.md5;
     assert flimaFromSearch.taken==flimaFromGetInfo.taken;
-    //println "${Thread.currentThread().getName()} - Photo: ${photoid} verified";
+    //println "${Thread.currentThread().getName()} - Photo: ${flimaFromSearch.photoid} verified";
 }
 
 int compareThreads=10;
