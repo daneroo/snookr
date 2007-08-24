@@ -1,3 +1,7 @@
+package net.snookr.util;
+
+import net.snookr.util.Progress;
+
 class Spawner {
     List workers = [];
     List list

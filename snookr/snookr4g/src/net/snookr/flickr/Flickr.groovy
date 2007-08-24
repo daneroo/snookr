@@ -1,4 +1,6 @@
-import Environment;
+package net.snookr.flickr;
+
+import net.snookr.util.Environment;
 
 class Flickr {
     String uploadPhoto(File f) {

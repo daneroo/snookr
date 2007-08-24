@@ -1,11 +1,13 @@
 
+package net.snookr.db;
+
 // Db4o
 import com.db4o.*;
 import com.db4o.ext.ExtDb4o;
 import com.db4o.query.*;
-import Environment;
-import FSImage;
-import FlickrImage;
+import net.snookr.util.Environment;
+import net.snookr.model.FSImage;
+import net.snookr.model.FlickrImage;
 
 class Database {
     ObjectContainer oc;

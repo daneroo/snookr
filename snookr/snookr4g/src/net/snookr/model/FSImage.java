@@ -4,18 +4,14 @@
 
 package net.snookr.model;
 
-/**
- *
- * @author daniel
- */
-public class FSImage {
-    
-    
-}
 import java.util.Date;
 import java.io.File;
 import java.text.SimpleDateFormat;
 
+/**
+ *
+ * @author daniel
+ */
 public class FSImage {
     String fileName; // canonical path
     Long size;

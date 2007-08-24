@@ -66,4 +66,21 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <taskdef name="groovyc"
+             classname="org.codehaus.groovy.ant.Groovyc"/>
+    
+    <target name="compile-groovy">
+        <groovyc 
+            srcdir="${src.dir}" 
+            destdir="${build.classes.dir}">
+            <classpath>
+                <path path="${javac.classpath}"/>
+                <path path="${build.classes.dir}"/>
+            </classpath>
+        </groovyc>
+    </target>
+    
+    <target name="-post-compile">
+        <antcall target="compile-groovy" />
+    </target>      
 </project>

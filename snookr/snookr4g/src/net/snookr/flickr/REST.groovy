@@ -1,3 +1,4 @@
+package net.snookr.flickr;
 
 class REST {
     String host = "www.flickr.com"; // ?port
