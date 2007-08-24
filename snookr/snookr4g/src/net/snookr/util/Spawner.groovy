@@ -28,6 +28,8 @@ class Spawner {
     public void run() { // spawn the threads, and then wait for them to finish
         workers.each() { it.start() } 
         workers.each() { it.join()  } 
+        int totalCount  = workers.sum() { it.count }
+        println "Exited Last thread -- Processed ${totalCount} -- "
     }
 
 }
@@ -52,7 +54,7 @@ class Worker implements Runnable {
                 spawner.action(n);
             }
         } catch (IndexOutOfBoundsException iobe) {
-            println "Exiting ${Thread.currentThread().getName()} -- Processed ${count} -- "
+            //println "Exiting ${Thread.currentThread().getName()} -- Processed ${count} -- "
         }
     }
 }
