@@ -1,6 +1,7 @@
 package net.snookr.flickr;
 
 import net.snookr.util.Environment;
+import net.snookr.util.MD5;
 
 class Flickr {
     String uploadPhoto(File f) {

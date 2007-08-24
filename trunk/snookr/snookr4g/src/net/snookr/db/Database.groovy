@@ -10,7 +10,8 @@ import net.snookr.model.FSImage;
 import net.snookr.model.FlickrImage;
 
 class Database {
-    ObjectContainer oc;
+    //TODO make this private again...
+    public ObjectContainer oc;
     Database() {
         println "-=-=-= Open Database: ${Environment.yapFile} =-=-=-"
         Db4o.configure().generateVersionNumbers(Integer.MAX_VALUE);

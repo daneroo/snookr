@@ -1,11 +1,16 @@
 package net.snookr.flickr;
 
 import groovy.util.slurpersupport .*;   // for parsing utils at end
+import java.text.SimpleDateFormat;
+
 import net.snookr.util.Spawner;
 import net.snookr.util.Progress;
+import net.snookr.util.Environment;
+import net.snookr.model.FlickrImage;
 
 class Photos {
     Flickr flickr = new Flickr();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     int getTotal() {
         def rsp = parse( flickr.getPhotoCounts() );
@@ -16,7 +21,7 @@ class Photos {
         return Integer.valueOf(rsp.photocounts.photocount.'@count'.text());
     }
 
-    /* getList Could have variable parameters later:
+    /* getPhotoList Could have variable parameters later:
        perPage, sort, other search criteeria.
      */
 
@@ -27,45 +32,44 @@ class Photos {
         
         println "  Expecting total of ${expectedTotal} photos in ${expectedPages} pages of ${perPage} photos"
         
-        List flickrIdList = null;
+        List flickrList = null;
         if (numThreads>1) {
-            flickrIdList = getListMultiThreaded  (perPage,expectedPages,expectedTotal,numThreads)
+            flickrList = getListMultiThreaded  (perPage,expectedPages,expectedTotal,numThreads)
         } else {
-            flickrIdList = getListSingleThreaded (perPage,expectedPages,expectedTotal)
+            flickrList = getListSingleThreaded (perPage,expectedPages,expectedTotal)
         }
         
-        println "Flickr List size: ${flickrIdList.size()}"
+        println "Flickr List size: ${flickrList.size()}"
         
-        assert expectedTotal == flickrIdList.size();
-        assertUniqueness(flickrIdList);
-        return flickrIdList;
+        assert expectedTotal == flickrList.size();
+        assertUniquenessOfPhotoid(flickrList);
+        return flickrList;
         
     }
     List getListMultiThreaded(int perPage,int expectedPages,int expectedTotal,int numThreads) {
         // this Lists acess needs to be synchronized
-        List flickrIdList = [];
+        List flickrList = [];
         List pageList = (1..expectedPages);
         Closure getPhotoPageClosure = { page ->
-            List pageIdList = new Photos().getPage(page,perPage,expectedPages,expectedTotal);
+            List pageFlickrList = new Photos().getPage(page,perPage,expectedPages,expectedTotal);
             // this Lists acess needs to be synchronized
-            flickrIdList.addAll(pageIdList);
+            flickrList.addAll(pageFlickrList);
         }
         new Spawner(pageList,getPhotoPageClosure,numThreads).run();
-        return flickrIdList;
+        return flickrList;
     }
 
     List getListSingleThreaded(int perPage,int expectedPages,int expectedTotal) {
         Progress progress = new Progress(expectedPages,"page");
-        List flickrIdList = [];
+        List flickrList = [];
         for ( page in 1..expectedPages) { 
-            List pageIdList = getPage(page,perPage,expectedPages,expectedTotal);
-            flickrIdList.addAll(pageIdList);
+            List pageFlickrList = getPage(page,perPage,expectedPages,expectedTotal);
+            flickrList.addAll(pageFlickrList);
 
             // show progress
             progress.increment();
-            //println "  ${flickrIdList.size()}/${expectedTotal} page:${page}/${expectedPages} "
         }
-        return flickrIdList;
+        return flickrList;
     }
 
 
@@ -77,7 +81,7 @@ class Photos {
             "page":"${page}",
             "sort":sortOrder,
             // extras: license, date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags
-            "extras":"date_upload,date_taken,tags,machine_tags,last_update",
+            "extras":"date_upload,date_taken,tags,last_update",
         ]
         def rsp = parse( flickr.getPhotoSearch(searchParams) );
 
@@ -87,15 +91,45 @@ class Photos {
         assert expectedPages == Integer.valueOf(rsp.photos.@pages.text());
         assert expectedTotal == Integer.valueOf(rsp.photos.@total.text());
         
-        List list = rsp.photos.photo.list().'@id'*.text();
-        assertUniqueness(list);
+        //List list = rsp.photos.photo.list().'@id'*.text();
+        List list = [];
+
+        rsp.photos.photo.each() { photo -> // for each photo
+            FlickrImage flima = new FlickrImage();
+            flima.photoid = photo.'@id';
+            // taken granularity is always 0.
+            String takenStr = photo.'@datetaken';
+            flima.taken = sdf.parse(takenStr);
+
+            String tags = photo.'@tags';
+            //tags.tokenize().each() { println "t: ${it}" }
+            // md5
+            def md5List = tags.tokenize().findAll(){ it =~ /snookr:md5=/};
+            assert md5List.size()<=1;
+            if (md5List.size==1) {
+                flima.md5 = (md5List[0] =~ /snookr:md5=/).replaceFirst("");
+            }
+            list << flima;
+        }
+
+        assertUniquenessOfPhotoid(list);
         return list;
     }
     
-    void assertUniqueness(List listToCheck) {
+    void assertUniquenessOfPhotoid(List listToCheck) {
         def uniqueMap = [:]
-        listToCheck.each() { uniqueMap[it]=it }
+        listToCheck.each() { uniqueMap[it.photoid]=it }
         assert listToCheck.size() == uniqueMap.size();
+    }
+
+    FlickrImage getFlickrImage(String photoid) {
+        def attr = getInfo(photoid);
+        FlickrImage flima = new FlickrImage();
+        flima.photoid = attr.photoid;
+        flima.md5 = attr.md5;
+        // taken granularity is always 0.
+        flima.taken = sdf.parse(attr.taken);
+        return flima;
     }
 
     Map getInfo(String photoid) {

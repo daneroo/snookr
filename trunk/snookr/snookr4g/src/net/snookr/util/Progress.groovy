@@ -4,6 +4,7 @@ class Progress {
     long start = new Date().getTime();
     int total
     int sofar=0;
+    
     String units;
     Progress() { this(-1,"") }
     Progress(int total) { this(total,"") }
@@ -14,7 +15,7 @@ class Progress {
     }
     synchronized void increment(){ 
         sofar++;
-        if ( (total>0 && sofar>=total) || (sofar%100)==0 ) {
+        if ( (total>0 && sofar>=total) || (sofar%500)==0 ) {
             show();
         }
     }
