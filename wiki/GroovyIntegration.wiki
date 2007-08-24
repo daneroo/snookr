@@ -1,4 +1,4 @@
-#Integration of groovy into netbeans
+#summary Integration of groovy into netbeans
 
 from http://www.jroller.com/ramlog/entry/netbeans_compiling_groovy_files_you
 
