@@ -1,3 +1,5 @@
+package net.snookr.util;
+
 class Environment {
     // Flickr Stuff for snookerNet
     static String api_key="efdee6ab4e6cb1a625bd30a67e2d0924";

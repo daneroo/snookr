@@ -1,3 +1,5 @@
+package net.snookr.util;
+
 class Progress {
     long start = new Date().getTime();
     int total

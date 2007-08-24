@@ -1,6 +1,8 @@
+package net.snookr.flickr;
 
 import groovy.util.slurpersupport .*;   // for parsing utils at end
-
+import net.snookr.util.Spawner;
+import net.snookr.util.Progress;
 
 class Photos {
     Flickr flickr = new Flickr();
