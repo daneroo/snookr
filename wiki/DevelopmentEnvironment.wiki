@@ -1,5 +1,5 @@
 #summary Describe required tools
-#labels Phase-Requirements
+#labels Phase-Requirements,Featured
 
 = Introduction =
 
