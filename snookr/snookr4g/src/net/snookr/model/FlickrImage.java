@@ -1,18 +1,24 @@
 package net.snookr.model;
 
 import java.util.Date;
-import java.text.SimpleDateFormat;
+import net.snookr.util.DateFormat;
 
 class FlickrImage {
-    String photoid; // canonical path
+    String photoid; // Foreign Natural (unique) key
     String md5;
-    Date taken;
-    static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+    Date taken;   // data seeded from exif data / dan be modified...
+    Date posted;  // data of original post to flickr/can be modified...
+    Date lastUpdate; // last modification to any metadata/ includes tags,comments,etc...
+    
+    /** Creates a new instance of FlickrImage */
+    public FlickrImage() {
+    }
+    
     public String toString() {
-        String lm="????-??-?? ??:??:??";
-        try { lm = sdf.format(taken);} catch (Exception e) {}
-        return "id:"+photoid+" md5:"+md5+" taken:"+lm;
+        return "id:"+photoid+" md5:"+md5+" taken:"+safeDate(taken)+" posted:"+safeDate(posted)+" lastUpdate:"+safeDate(lastUpdate);
+    }
+    String safeDate(Date d) {
+        return DateFormat.format(d,"????-??-?? ??:??:??");
     }
 }
 

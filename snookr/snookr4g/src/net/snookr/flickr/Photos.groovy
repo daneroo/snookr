@@ -6,11 +6,11 @@ import java.text.SimpleDateFormat;
 import net.snookr.util.Spawner;
 import net.snookr.util.Progress;
 import net.snookr.util.Environment;
+import net.snookr.util.DateFormat;
 import net.snookr.model.FlickrImage;
 
 class Photos {
     Flickr flickr = new Flickr();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     int getTotal() {
         def rsp = parse( flickr.getPhotoCounts() );
@@ -97,9 +97,16 @@ class Photos {
         rsp.photos.photo.each() { photo -> // for each photo
             FlickrImage flima = new FlickrImage();
             flima.photoid = photo.'@id';
-            // taken granularity is always 0.
+
+            //TODO taken granularity is always 0.??
             String takenStr = photo.'@datetaken';
-            flima.taken = sdf.parse(takenStr);
+            flima.taken = DateFormat.parse(takenStr);
+
+            String postedStr = photo.'@dateupload';
+            flima.posted = new Date(Long.parseLong(postedStr)*1000l);
+
+            String lastUpdateStr = photo.'@lastupdate';
+            flima.lastUpdate = new Date(Long.parseLong(lastUpdateStr)*1000l);
 
             String tags = photo.'@tags';
             //tags.tokenize().each() { println "t: ${it}" }
@@ -109,6 +116,8 @@ class Photos {
             if (md5List.size==1) {
                 flima.md5 = (md5List[0] =~ /snookr:md5=/).replaceFirst("");
             }
+
+            println "${flima}";
             list << flima;
         }
 
@@ -127,8 +136,10 @@ class Photos {
         FlickrImage flima = new FlickrImage();
         flima.photoid = attr.photoid;
         flima.md5 = attr.md5;
-        // taken granularity is always 0.
-        flima.taken = sdf.parse(attr.taken);
+        //TODO verify taken granularity is always 0.
+        flima.taken = DateFormat.parse(attr.taken);
+        flima.posted = new Date(Long.parseLong(attr.posted)*1000l);
+        flima.lastUpdate = new Date(Long.parseLong(attr.lastUpdate)*1000l);
         return flima;
     }
 
@@ -143,7 +154,7 @@ class Photos {
         // posted
         attr.posted = rsp.photo.dates.'@posted'.text();
         // lastupdate
-        attr.lastupdate = rsp.photo.dates.'@lastupdate'.text();
+        attr.lastUpdate = rsp.photo.dates.'@lastupdate'.text();
 
         // md5
         def md5List = rsp.photo.tags.tag.findAll(){ it.text() =~ /snookr:md5=/};
