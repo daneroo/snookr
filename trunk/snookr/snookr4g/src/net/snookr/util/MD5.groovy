@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 class MD5 {
 
+    // TODO move this test code into a proper unit test.
     public static doATest() {
         // list of maps
         def md5examples =[
