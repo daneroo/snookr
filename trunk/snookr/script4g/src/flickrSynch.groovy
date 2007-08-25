@@ -58,6 +58,14 @@ def createOrUpdate =  { flima ->
             persist.taken = flima.taken;
             isModified = true;
         }
+        if (persist.posted != flima.posted) {
+            persist.posted = flima.posted;
+            isModified = true;
+        }
+        if (persist.lastUpdate != flima.lastUpdate) {
+            persist.lastUpdate = flima.lastUpdate;
+            isModified = true;
+        }
     }
 
     // ! syntax highlitee hates nested conditional expressions
@@ -103,7 +111,8 @@ returnCodes = [:]; //reset counts
 getFlickrImageForPhotoid = getFlickrImageForPhotoidEach
 flickrPredictorByPhotoid.each() { photoid,flima -> // accumulated FlickrImages
     // is this being called twice ?
-    createOrUpdate(flima);
+    // TODO figure this out - timing
+    //createOrUpdate(flima);
     pr.increment();
 }
 returnCodes.each() { k,v -> // print histogram of return codes
@@ -122,6 +131,8 @@ def compareSearchToGetInfo = { flimaFromSearch -> // fetch info from flickr as a
     assert flimaFromSearch.photoid==flimaFromGetInfo.photoid;
     assert flimaFromSearch.md5==flimaFromGetInfo.md5;
     assert flimaFromSearch.taken==flimaFromGetInfo.taken;
+    assert flimaFromSearch.posted==flimaFromGetInfo.posted;
+    assert flimaFromSearch.lastUpdate==flimaFromGetInfo.lastUpdate;
     //println "${Thread.currentThread().getName()} - Photo: ${flimaFromSearch.photoid} verified";
 }
 
