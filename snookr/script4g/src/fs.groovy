@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat
 import net.snookr.db.Database;
 import net.snookr.util.Environment;
 import net.snookr.util.MD5;
+import net.snookr.util.Exif;
 import net.snookr.model.*;
 
 //import FSImage;
@@ -15,10 +16,10 @@ println " Env: ${Environment.yapFile}"
 
 Database db = new Database();
 println "-=-=-= Database Summary:  =-=-=-"
-db.printSummary(false);
+//db.printSummary(false);
 
-//def baseDir = new File('/home/daniel/media').getCanonicalFile();
-def baseDir = new File('C:\\Users\\daniel\\Pictures').getCanonicalFile();
+def baseDir = new File('/home/daniel/media').getCanonicalFile();
+//def baseDir = new File('C:\\Users\\daniel\\Pictures').getCanonicalFile();
 //def baseDir = new File('/home/daniel/media/Europe2002/5-Mirabel');
 
 // Classify FileSystem walk the fileSystem and make
@@ -73,9 +74,12 @@ println "areUnique has size: ${areUnique.size()}"
     */
 
 //Simply use this as  predictor
-fsPredictorByFilename = db.getMapForClassByPrimaryKey(FSImage.class,"fileName");
-println "getMapForClassByField has ${fsPredictorByFilename.size()} entries"
+fsPredictorByFilename = null;
 Closure getFSImageForFileFromMap = { f -> // use map
+    if (fsPredictorByFilename==null) {
+        fsPredictorByFilename = db.getMapForClassByPrimaryKey(FSImage.class,"fileName");
+        println "getMapForClassByField has ${fsPredictorByFilename.size()} entries"
+    }
     return fsPredictorByFilename[f.getCanonicalPath()];
 }
 Closure getFSImageForFileEach = { f -> // call db each time
@@ -116,11 +120,15 @@ files["image"].each() { f -> // examine each image File
         isModified = true;
     }
 
-    if (false && size.longValue()%80==0) {
-        persist.md5 = null;
-        isModified=true;
+    // TODO behaviour thing like md5: always/never/asNeeded
+    if (persist.taken==null) { 
+        Date taken = Exif.getExifDate(f);
+        if (taken != persist.taken) {
+            persist.taken = taken
+            isModified = true;
+        }
     }
-    
+
     if (  (md5Behaviour!=md5Never) && 
               (persist.md5 == null || md5Behaviour == md5Always) ) {
         md5 = MD5.digest(f);
@@ -151,7 +159,7 @@ returnCodes.each() { k,v ->
 }
 
 println "-=-=-= Database Summary:  =-=-=-"
-db.printSummary(false);
+//db.printSummary(false);
 
 
 println "-=-=-= Close Database:  =-=-=-"
