@@ -67,7 +67,7 @@ public class SnookrTest2 {
         
         try {
             //testTestInterface();
-            //testGetPhotos();
+            testGetPhotos();
             //testGetTags();
             //testGetImage();
             //testChecksumImage();
@@ -76,7 +76,7 @@ public class SnookrTest2 {
             //String fileName = "/home/daniel/media/2005_07_31/IMG_1242.JPG";
             //testUploadImage(new File(fileName));
             
-            testUploadAllImages();
+            //testUploadAllImages();
             
             //testReadAllTags();
         } catch(FlickrException e) {
@@ -348,14 +348,19 @@ public class SnookrTest2 {
         PhotosInterface iface = f.getPhotosInterface();
         SearchParameters searchParams = new SearchParameters();
         searchParams.setUserId(requestContext.getAuth().getUser().getId());
-        
+        searchParams.setExtrasDateTaken(true);
+        //searchParams.setExtrasTags(true);
+        //searchParams.setExtrasMachineTags(true);
         PhotoList photos = iface.search(searchParams, perPage, 0);
         
         System.out.println("returned photo count - "+photos.size());
         //System.out.println("photos instanceof - "+photos.getClass().getName());
         for (Iterator it=photos.iterator(); it.hasNext(); ) {
             Photo photo = (Photo) it.next();
-            System.out.println("photo - id:"+photo.getId()+" t:"+photo.getTitle());
+            System.out.println("photo - id:"+photo.getId()+" t:"+photo.getTitle()+
+                    " dt:"+photo.getDateTaken()
+                    //" tags:"+photo.getTags().size()
+                    );
         }
         
     }
