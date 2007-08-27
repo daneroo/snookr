@@ -5,6 +5,8 @@ package net.snookr.db;
 import com.db4o.*;
 import com.db4o.ext.ExtDb4o;
 import com.db4o.query.*;
+import com.db4o.constraints.UniqueFieldValueConstraint;
+
 import net.snookr.util.Environment;
 import net.snookr.model.FSImage;
 import net.snookr.model.FlickrImage;
@@ -16,8 +18,15 @@ class Database {
         println "-=-=-= Open Database: ${Environment.yapFile} =-=-=-"
         Db4o.configure().generateVersionNumbers(Integer.MAX_VALUE);
         Db4o.configure().generateUUIDs(Integer.MAX_VALUE);
+
+        Db4o.configure().add(new UniqueFieldValueConstraint(FSImage.class,"fileName"));
         Db4o.configure().objectClass(FSImage.class).objectField("fileName").indexed(true);
+        Db4o.configure().objectClass(FSImage.class).objectField("md5").indexed(true);
+
+        Db4o.configure().add(new UniqueFieldValueConstraint(FlickrImage.class,"photoid"));
         Db4o.configure().objectClass(FlickrImage.class).objectField("photoid").indexed(true);
+        Db4o.configure().objectClass(FlickrImage.class).objectField("md5").indexed(true);
+
         oc = Db4o.openFile(Environment.yapFile);
 
     }
