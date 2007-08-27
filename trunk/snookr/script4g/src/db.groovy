@@ -170,11 +170,12 @@ Timer tt = new Timer();
         broker.db.oc.commit();
     }
 }
+broker.db.oc.commit();
 histo.show();
 println "createOrUpdate ${countoids} at rate: ${tt.rate(countoids)} o/s";
 println "createOrUpdate ${countoids} in: ${tt.diff()} s.";
 
-(1..4).each() {
+(1..2).each() {
 
     tt.restart(); histo = new Histo();
     (oidRange).each() {
