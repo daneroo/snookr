@@ -14,7 +14,10 @@ com.Ostermiller.util Utilities - ostermillerutils-1.05.00-java-1.4.jar
 http://ostermiller.org/utils/
 http://ostermiller.org/utils/download.html
 
-db4o Object Database - db4o-5.2-java1.2.jar
+db4o Object Database - db4o-6.3-java5.jar
+  - other jars: db4o-6.3-java1.2.jar db4o-6.3-nqopt.jar and bloat-1.0.jar
+Moved to version 6.3
+replaced - db4o-5.2-java1.2.jar
 http://www.db4o.com/community/testdrive/
 
 flickrj - flickrapi-1.0b4.jar
