@@ -112,7 +112,7 @@ getFlickrImageForPhotoid = getFlickrImageForPhotoidEach
 flickrPredictorByPhotoid.each() { photoid,flima -> // accumulated FlickrImages
     // is this being called twice ?
     // TODO figure this out - timing
-    //createOrUpdate(flima);
+    createOrUpdate(flima);
     pr.increment();
 }
 returnCodes.each() { k,v -> // print histogram of return codes
@@ -138,6 +138,6 @@ def compareSearchToGetInfo = { flimaFromSearch -> // fetch info from flickr as a
 
 int compareThreads=10;
 Spawner spawner = new Spawner(flickrList,compareSearchToGetInfo,compareThreads);
-spawner.run();
+//spawner.run();
 println "Done comparing search and getInfo images"
 

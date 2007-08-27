@@ -18,8 +18,8 @@ Database db = new Database();
 println "-=-=-= Database Summary:  =-=-=-"
 //db.printSummary(false);
 
-def baseDir = new File('/home/daniel/media').getCanonicalFile();
-//def baseDir = new File('C:\\Users\\daniel\\Pictures').getCanonicalFile();
+//def baseDir = new File('/home/daniel/media').getCanonicalFile();
+def baseDir = new File('C:\\Users\\daniel\\Pictures').getCanonicalFile();
 //def baseDir = new File('/home/daniel/media/Europe2002/5-Mirabel');
 
 // Classify FileSystem walk the fileSystem and make
@@ -82,12 +82,13 @@ Closure getFSImageForFileFromMap = { f -> // use map
     }
     return fsPredictorByFilename[f.getCanonicalPath()];
 }
+
 Closure getFSImageForFileEach = { f -> // call db each time
     return db.getForPrimaryKey(FSImage.class,"fileName",f.getCanonicalPath());
 }
 
-//Closure getFSImageForFile = getFSImageForFileFromMap;
-Closure getFSImageForFile = getFSImageForFileEach;
+Closure getFSImageForFile = getFSImageForFileFromMap;
+//Closure getFSImageForFile = getFSImageForFileEach;
 
 static int md5Never = 0;
 static int md5AsNeeded = 1; // if not already calculated
