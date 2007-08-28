@@ -116,8 +116,7 @@ class Photos {
             if (md5List.size==1) {
                 flima.md5 = (md5List[0] =~ /snookr:md5=/).replaceFirst("");
             }
-
-            println "${flima}";
+            //println "${flima}";
             list << flima;
         }
 
