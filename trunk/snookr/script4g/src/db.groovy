@@ -11,6 +11,7 @@ import net.snookr.util.MD5;
 import net.snookr.util.Environment;
 import net.snookr.util.Timer;
 import net.snookr.db.Database;
+import net.snookr.db.FSImageDAO;
 import net.snookr.model.FSImage;
 
 println "-=-=-= Hello db =-=-=-"
@@ -44,14 +45,23 @@ Environment.yapFile="test.yap";
 
 class Broker {
     Database db = null;
+    FSImageDAO fsiDAO;
     public Broker() {
         this.db = new Database();
+        FSImageDAO.setDatabase(this.db);
+        fsiDAO = new FSImageDAO();
     }
     public void printSummary(boolean verbose){
         this.db.printSummary(verbose);
     }
     void close() { this.db.close(); }
 
+    FSImage fetchByDAO(String fileName) {
+        return fsiDAO.fetchForPrimaryKey(fileName);
+    }
+    List fetchByDAOMD5(String md5) {
+        return fsiDAO.fetchForMD5(md5);
+    }
     FSImage fetchByConstrain(String fileName) {
             Query query=this.db.oc.query();
             query.constrain(FSImage.class);
@@ -69,13 +79,14 @@ class Broker {
             if (result.size()==1) return result.next();
             return null;
     }
-    FSImage fetchByMD5(String md5) {
+    List fetchByMD5(String md5) {
             FSImage qbe = new FSImage()
             qbe.md5=md5;
             ObjectSet result = this.db.oc.get(qbe);
-            assert result.size()<=1;
-            if (result.size()>0) return result.next();
-            return null;
+            List resultList = [];
+            //assert result.size()<=1;
+            while(result.hasNext()) { resultList << result.next(); }
+            return resultList;
     }
 
     void insert(FSImage fsima) {
@@ -179,6 +190,13 @@ println "createOrUpdate ${countoids} in: ${tt.diff()} s.";
 
     tt.restart(); histo = new Histo();
     (oidRange).each() {
+        if (broker.fetchByDAO(gen.get(it).fileName)) {  histo.add("foundByDAO",1);;   }
+    }
+    //histo.show();
+    println "foundByDAO       ${countoids} at rate: ${tt.rate(countoids)} o/s (${tt.diff()} s.)";
+
+    tt.restart(); histo = new Histo();
+    (oidRange).each() {
         if (broker.fetchByConstrain(gen.get(it).fileName)) {  histo.add("foundByConstrain",1);;   }
     }
     //histo.show();
@@ -193,10 +211,19 @@ println "createOrUpdate ${countoids} in: ${tt.diff()} s.";
 
     tt.restart(); histo = new Histo();
     (oidRange).each() {
-        if (broker.fetchByMD5(gen.get(it).fileName)) {  histo.add("foundByQBE",1);;   }
+        def l = broker.fetchByMD5(gen.get(it).md5);
+        if (l) {  histo.add("foundByMD5",l.size());   }
     }
-    //histo.show();
+    histo.show();
     println "foundByMD5       ${countoids} at rate: ${tt.rate(countoids)} o/s (${tt.diff()} s.)";
+
+    tt.restart(); histo = new Histo();
+    (oidRange).each() {
+        def l = broker.fetchByDAOMD5(gen.get(it).md5);
+        if (l) {  histo.add("foundByMD5",l.size());   }
+    }
+    histo.show();
+    println "foundByDAOMD5    ${countoids} at rate: ${tt.rate(countoids)} o/s (${tt.diff()} s.)";
 
 }
 
