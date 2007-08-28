@@ -58,6 +58,48 @@ class Database {
         
     }
 
+    Object fetchUniqueByValue(Class claz,String fieldName,Object value) {
+        /*
+        def qbe = claz.newInstance();
+        qbe[fieldName] = value;
+        ObjectSet result = oc.get(qbe);
+
+        */
+        Query query=this.oc.query();
+        query.constrain(claz);
+        query.descend(fieldName).constrain(value);
+        ObjectSet result=query.execute();
+
+        assert result.size()<=1;
+
+        if (result.size()>0) return result.next();
+        return null;
+    }
+    List fetchByValue(Class claz,String fieldName,Object value) {
+        /* QBE-based resultSet
+        def qbe = claz.newInstance();
+        qbe[fieldName] = value;
+        ObjectSet result = oc.get(qbe);
+
+        */
+        // Query-constrain-based resultSet
+        Query query=this.oc.query();
+        query.constrain(claz);
+        query.descend(fieldName).constrain(value);
+        ObjectSet result=query.execute();
+
+        List resultList=[];
+        while(result.hasNext()) { resultList << result.next(); }
+        return resultList;
+    }
+    
+    int commitCounter=0;
+    String save(Object persist) {
+        oc.set(persist);
+        commitCounter++;
+        if ((commitCounter%1000)==0) oc.commit();
+    }
+
     Map getMapForClassByPrimaryKey(Class claz,String fieldName) {
         ObjectSet result = oc.get(claz)
         println "found ${result.size()} ${claz.getName()} objects";
@@ -68,27 +110,6 @@ class Database {
         }
         return mapForClass;
         
-    }
-
-    Object getForPrimaryKey(Class claz,String fieldName,Object value) {
-        return getForPrimaryKey(claz,fieldName,value,false);
-    }
-
-    Object getForPrimaryKey(Class claz,String fieldName,Object value,boolean verbose) {
-        def qbe = claz.newInstance();
-        qbe[fieldName] = value;
-        ObjectSet result = oc.get(qbe);
-        if (verbose || (result.size()!=1) ) {
-            println "found ${result.size()} matching objects for ${claz.getName()}.${fieldName}=${value}";
-        }
-        if (result.size()>0) {
-            return result.next();
-        }
-        return null;
-    }
-    
-    String save(Object persist) {
-        oc.set(persist);
     }
 
 }
