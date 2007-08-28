@@ -8,8 +8,6 @@ import net.snookr.util.MD5;
 import net.snookr.util.Exif;
 import net.snookr.model.*;
 
-//import FSImage;
-//import MD5;
 
 println "-=-=-= Hello fs =-=-=-"
 println " Env: ${Environment.yapFile}"
@@ -65,7 +63,6 @@ files["image"].each() { f -> // examine each image File
 }
 println "areUnique has size: ${areUnique.size()}"
 
-
     /* two ways to get a predictor - from map, 
       then from db (although map is created from db)
       after indexing db (which broke the lookup)
@@ -87,8 +84,8 @@ Closure getFSImageForFileEach = { f -> // call db each time
     return db.getForPrimaryKey(FSImage.class,"fileName",f.getCanonicalPath());
 }
 
-Closure getFSImageForFile = getFSImageForFileFromMap;
-//Closure getFSImageForFile = getFSImageForFileEach;
+//Closure getFSImageForFile = getFSImageForFileFromMap;
+Closure getFSImageForFile = getFSImageForFileEach;
 
 static int md5Never = 0;
 static int md5AsNeeded = 1; // if not already calculated
