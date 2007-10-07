@@ -78,4 +78,4 @@ for d in zoomOutC4 fullerMoireC4 fullerMoireC4 fullerMoireC4; do
 done
 
 
-/home/daniel/dome/ffmpeg/ffmpeg/ffmpeg -r 30 -i work/final/final-%04d.png -f dvd -b 9000 output.mpg
+./ffmpeg/ffmpeg/ffmpeg -r 30 -i work/final/final-%04d.png -f dvd -b 9000 output.mpg
