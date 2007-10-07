@@ -1,24 +1,27 @@
 ----- 2007-10-06 re-rendering for 16:9
+
+ -See BUILD file for instructions  to re-RENDER
+
 Blogged it:
 http://sologlobe.org/daniel/2007/10/bucky-moire-revisited-wide-169.html
 
-Tried to re-render my Bucky Moire project, and found that the MPEG files were making Powerdirector crash. Investigating, I decided to re-render in 16:9, with better aspect-ratio management.
+Committed it:
+  svn checkout https://snookr.googlecode.com/svn/trunk/buckyMoire buckyMoire --username daniel.lauzon
+
+When I tried to re-render my Bucky Moire project, I found that the MPEG files were making PowerDirector crash. Investigating, I decided to re-render in 16:9, with better aspect-ratio management.
+
 - so rendering in 720x480, with an explicit aspect ratio in pov files:
 camera{ .. right x*1.778 ..} does the trick (implicitly 4:3 is the default.)
 -That makes the png picture distorted (when viewing with sqaure pixels.)
 - I also removed the -f dvd flag from the ffmpeg line
-- old vs new ffmpeg, is the one that I built in the dome directory vs the one from rpmforge under centos5 old: -b 9000 ; new: -b 9000000
+- old vs new ffmpeg, old is the one that I built in the dome directory vs the one from rpmforge under centos5 old: -b 9000 ; new: -b 9000000
 - so the MPEG file needs to be told about the aspect ratio: e.g.
 /home/daniel/dome/ffmpeg/ffmpeg/ffmpeg -r 30 -i work/buckyMoireF2427-%03d.png -aspect 1.778 -b 9000 -y oldffmpeg-nodvd-aspect169-nonsquare.mpg
 
-How about I add the flag a to all scripts, a: aspect ratio : 1.778, or 1.333
+How about I add the flag -a to all scripts, a: aspect ratio : 1.778, or 1.333
 -------------------------------------------
 
-time for i in `find renders/mesh-800x600 -type f -name buckyMoire\*.mpg`; do echo $i; ./ffmpeg/ffmpeg/ffmpeg -r 30 -i $i -f dvd -s 640x480 -b 6000 -y  640/`basename $i`; done
 
-------
-./ffmpeg/ffmpeg/ffplay concat.mpg
-----------------------------------------
 
 Full Storyboard: 800x600
  + justMoireGlassCam0.9.sh  120 frames - rotate outer - F9081 CcSs0.005
@@ -39,25 +42,13 @@ Full Storyboard: 800x600
  - justMoireF4527-C4Cam1.4 - rotate outer (SsCc 0.1)
     ./scripts/justMoireC4.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
 
-- zoomOutC4 - Cam 1.4-2.5 stop outer rotation
+ - zoomOutC4 - Cam 1.4-2.5 stop outer rotation
     outer rotate 1-(1-clock)^2 = 2*clock-clock*clock
     ./scripts/zoomOutC4.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
 
-- fullerMoireC4 Cam 2.5 no outer rotation
-    ./fullerMoire.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
+ - fullerMoireC4 Cam 2.5 no outer rotation
+    ./scripts/fullerMoire.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
   
-Renders - 
- - zoomOut-800x600-n144/ - Glass F9081
-    #declare Cam_factor = .99 + clock*clock*0.201;
-    pigment { rgbf <0.98, 1.0, 0.99, 1.0 - .25*clock> }
-  missing - outer rotation as in justMoire.sh : rotate <0, 0, clock*36>
-  camFactor should be redone : 
-    #declare Cam_factor = .97 + clock*clock*0.403;
-  maybe longer (clock^3)
-- justMoire-800x600-n144/ - Glass  F90f81
-   with outer rotate : rotate <0, 0, clock*36>
-- mesh-800x600-n144/ C4C4 (27 30 33 36 39 42 45)^2
-- mesh-800x600-n72/ C4C5
 
 fill in animation:
   zoomOut : redo with cam->1.4 + outer rotate - 7 hours 
