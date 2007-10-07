@@ -1,0 +1,77 @@
+
+time for i in `find renders/mesh-800x600 -type f -name buckyMoire\*.mpg`; do echo $i; ./ffmpeg/ffmpeg/ffmpeg -r 30 -i $i -f dvd -s 640x480 -b 6000 -y  640/`basename $i`; done
+
+------
+./ffmpeg/ffmpeg/ffplay concat.mpg
+----------------------------------------
+
+Full Storyboard: 800x600
+ + justMoireGlassCam0.9.sh  120 frames - rotate outer - F9081 CcSs0.005
+    opteron 2005-11-19 01:25 : 22682.714s
+    ./scripts/justMoireGlassCam0.9.sh -n 120
+
+ + zoomOutGlass.sh 120 frames - rotate outer - F9081 CcSs0.005
+    euler 2005-11-19 02:46 : 16718.305s
+    ./scripts/zoomOutGlass.sh -n 120
+
+ + justMoireGlassCam1.4.sh  120 frames - rotate outer - F9081 CcSs0.005
+    boole 2005-11-19 03:22 : 14906.815s
+    ./scripts/justMoireGlassCam1.4.sh -n 120
+
+ - justMoireF9081-C4Cam1.4 - rotate outer
+    ./scripts/justMoireC4.sh -n 120 -F 90 -f 81 -C 0.005 -c 0.005 -S 0.005 -s 0.005
+
+ - justMoireF4527-C4Cam1.4 - rotate outer (SsCc 0.1)
+    ./scripts/justMoireC4.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
+
+- zoomOutC4 - Cam 1.4-2.5 stop outer rotation
+    outer rotate 1-(1-clock)^2 = 2*clock-clock*clock
+    ./scripts/zoomOutC4.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
+
+- fullerMoireC4 Cam 2.5 no outer rotation
+    ./fullerMoire.sh -n 120 -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
+  
+Renders - 
+ - zoomOut-800x600-n144/ - Glass F9081
+    #declare Cam_factor = .99 + clock*clock*0.201;
+    pigment { rgbf <0.98, 1.0, 0.99, 1.0 - .25*clock> }
+  missing - outer rotation as in justMoire.sh : rotate <0, 0, clock*36>
+  camFactor should be redone : 
+    #declare Cam_factor = .97 + clock*clock*0.403;
+  maybe longer (clock^3)
+- justMoire-800x600-n144/ - Glass  F90f81
+   with outer rotate : rotate <0, 0, clock*36>
+- mesh-800x600-n144/ C4C4 (27 30 33 36 39 42 45)^2
+- mesh-800x600-n72/ C4C5
+
+fill in animation:
+  zoomOut : redo with cam->1.4 + outer rotate - 7 hours 
+  or go from 1.2 -> 1.4 starting outer rotation
+
+  justMoireC4 -> at 1.4 F9081
+  justMoireC4 -> at 1.4 F4527 CcSs 0.01
+  zoomOutC4 Cam 1.4->2.5 ; stop rotation
+  
+ 
+--- setup notes ---
+./dome_4_80/dome -f15 -sb dome15.pov
+./dome_4_80/dome -f18 -sb dome18.pov
+
+#add - semi-colons ...
+./povray-3.6/povray +Lpovray-3.6/include/ +Idome-both.pov +Odome-both.png +FN +W800 +H600 +V -D +X
+display dome-both.png
+
+
+72 degrees should do it for bucky balls
+
+Animation options
+
+  Kn.n    = set frame clock to n.n
+  KFIn    = set initial frame number to n
+  KFFn    = set final frame number to n
+  KIn.n   = set initial clock value to n.n
+  KFn.n   = set final clock value to n.n
+  SFn|0.n = start subset at frame n | start at n percent in sequence
+  EFn|0.n = end subset at frame n | end at n percent in sequence
+  KC      = calculate clock value for cyclic animation
+
