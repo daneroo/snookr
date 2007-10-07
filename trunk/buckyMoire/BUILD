@@ -34,3 +34,5 @@ mv output/mesh-1.333 renders
 
 
 now for the storyBoard...
+
+./doStory.sh
