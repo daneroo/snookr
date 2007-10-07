@@ -5,24 +5,27 @@ function logStderr { #echo to stderr.
 }
 
 function doMesh {
-    of=$1;
-    if=$2;
+    a=$1;
+    of=$2;
+    if=$3;
 
     if [ $if -eq $of ]; then 
         return;
     fi
     rm -rf work;
-    ./scripts/buckyMoire.sh -F $of -f $if -n 120 -w 800 -h 600 -t T_Chrome_5A
-    mv work/*.mpg output
-    mv work/thumb*.png output
-    mv work/still*.png output
+    ./scripts/buckyMoire.sh -a $a -F $of -f $if -n 120 -w 720 -h 480 -t T_Chrome_5A
+    mv work/*.mpg output/mesh-$a
+    mv work/thumb*.png output/mesh-$a
+    mv work/still*.png output/mesh-$a
 }
 
-mkdir -p output
 
-for o in 24 27 30 33 36 39 42 45 48; do
-    for i in 24 27 30 33 36 39 42 45 48; do
-        doMesh $o $i;
+for a in 1.778 1.333 ; do
+    mkdir -p output/mesh-$a
+    for o in 24 27 30 33 36 39 42 45 48; do
+	for i in 24 27 30 33 36 39 42 45 48; do
+	    doMesh $a $o $i;
+	done
     done
 done
 
