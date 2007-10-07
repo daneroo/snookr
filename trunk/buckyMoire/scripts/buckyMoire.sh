@@ -124,13 +124,10 @@ function thumbAndFirst { # antialiased
 function generate { 
     $POVExec +L${POVHome}/include +L${workDir} +I${POVScript} +O${genImage} +FN +W$width +H$height +KFI1 +KFF${numFrames} +KI0.0 +KF1.0 +KC
 
-    #digits=`echo "scale=0;l(${numFrames})/l(10)+1"|bc -l`;
-    digits=3;
-
+    # number of digits: 0-9->1 10-99->2 100-999->3 etc
+    digits=`echo "scale=0;2*(l(10)/l(10)+1)/2"|bc -l`;
     genImageFormat=`dirname ${genImage}`/`basename ${genImage} .png`%0${digits}d.png
 
-    #$ffmpegExec -r 30 -i ${genImageFormat} -f dvd -b 9000 -y ${genAnim}
-    # removed -f dvd and added proper aspect ratio
     $ffmpegExec -r 30 -i ${genImageFormat} -aspect $aspectRatio -b 9000 -y ${genAnim}
 }
 
