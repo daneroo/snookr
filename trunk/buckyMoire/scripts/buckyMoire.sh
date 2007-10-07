@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------
 # Default values
 #
+aspectRatio=1.778;
 outerFrequency=45;
 innerFrequency=33;
 outerSphereRadius=0.01;
@@ -66,7 +67,8 @@ cat >${POVScript} <<EOPOV
 #declare Camera_Z = 0.1 * Cam_factor;
 camera { location  <Camera_X, Camera_Y, Camera_Z>
          sky <0,0,1>
-         look_at   <0, 0, 0> }
+         look_at   <0, 0, 0> 
+         right x*$aspectRatio}
 
 object { light_source { <Camera_X + 1, Camera_Y + 1 , Camera_Z + 1> color White } }
 
@@ -127,7 +129,9 @@ function generate {
 
     genImageFormat=`dirname ${genImage}`/`basename ${genImage} .png`%0${digits}d.png
 
-    $ffmpegExec -r 30 -i ${genImageFormat} -f dvd -b 9000 -y ${genAnim}
+    #$ffmpegExec -r 30 -i ${genImageFormat} -f dvd -b 9000 -y ${genAnim}
+    # removed -f dvd and added proper aspect ratio
+    $ffmpegExec -r 30 -i ${genImageFormat} -f dvd -aspect $aspectRatio -y ${genAnim}
 }
 
 
@@ -149,9 +153,10 @@ if [ ! -n "$2" ]; then  # $1 has zero length
     usage;
 fi  
 
-optsyntax="f:F:s:S:c:C:t:T:w:d:D:w:h:n:"
+optsyntax="a:f:F:s:S:c:C:t:T:w:d:D:w:h:n:"
 while getopts $optsyntax flag; do
     case "$flag" in
+        a) aspectRatio=$OPTARG;;
         F) outerFrequency=$OPTARG;;
         f) innerFrequency=$OPTARG;;
         S) outerSphereRadius=$OPTARG;;
