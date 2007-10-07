@@ -175,7 +175,7 @@ while getopts $optsyntax flag; do
 done
 
 #normalizedBaseName="F${outerFrequency}${innerFrequency}S${outerSphereRadius}${innerSphereRadius}C${outerCylinderRadius}${innerCylinderRadius}T${outerTexture}${innerTexture}D${outerDomeRadius}${innerDomeRadius}";
-normalizedBaseName="F${outerFrequency}${innerFrequency}";
+normalizedBaseName="F${outerFrequency}${innerFrequency}-${aspectRatio}";
 
 POVScript=$workDir/buckyMoire$normalizedBaseName.pov
 firstImage=$workDir/stillBuckyMoire$normalizedBaseName.png
@@ -189,7 +189,8 @@ makeWorkDir;
 makeDomeInc $outerFrequency $outerSphereRadius $outerCylinderRadius;
 makeDomeInc $innerFrequency $innerSphereRadius $innerCylinderRadius;
 makePov;
-thumbAndFirst;
+# do not do thums and still anymore: aspect ratios make images distorted..
+#thumbAndFirst;
 generate;
 
 
