@@ -131,7 +131,7 @@ function generate {
 
     #$ffmpegExec -r 30 -i ${genImageFormat} -f dvd -b 9000 -y ${genAnim}
     # removed -f dvd and added proper aspect ratio
-    $ffmpegExec -r 30 -i ${genImageFormat} -f dvd -aspect $aspectRatio -y ${genAnim}
+    $ffmpegExec -r 30 -i ${genImageFormat} -aspect $aspectRatio -b 9000 -y ${genAnim}
 }
 
 
