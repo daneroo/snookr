@@ -125,7 +125,8 @@ function generate {
     $POVExec +L${POVHome}/include +L${workDir} +I${POVScript} +O${genImage} +FN +W$width +H$height +KFI1 +KFF${numFrames} +KI0.0 +KF1.0 +KC
 
     # number of digits: 0-9->1 10-99->2 100-999->3 etc
-    digits=`echo "scale=0;2*(l(10)/l(10)+1)/2"|bc -l`;
+    # digits:== floor ( log10(numFrames) )
+    local digits=`echo "t=(l($numFrames)/l(10));scale=0;print t/1"|bc -l`;
     genImageFormat=`dirname ${genImage}`/`basename ${genImage} .png`%0${digits}d.png
 
     $ffmpegExec -r 30 -i ${genImageFormat} -aspect $aspectRatio -b 9000 -y ${genAnim}
