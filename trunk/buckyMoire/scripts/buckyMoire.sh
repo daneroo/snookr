@@ -27,7 +27,7 @@ numFrames=72;
 DomeExec=./dome_4_80/dome
 POVHome=./povray-3.6
 POVExec=$POVHome/povray
-ffmpegExec=/home/daniel/dome/ffmpeg/ffmpeg/ffmpeg
+ffmpegExec=./ffmpeg/ffmpeg/ffmpeg
 workDir=work
 
 function logStderr { #echo to stderr.
