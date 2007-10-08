@@ -28,6 +28,7 @@ numFrames=120;
 DomeExec=./dome_4_80/dome
 POVHome=./povray-3.6
 POVExec=$POVHome/povray
+ffmpegExec=./ffmpeg/ffmpeg/ffmpeg
 workDir=work/C4
 
 function logStderr { #echo to stderr.
@@ -125,7 +126,7 @@ function generate {
 
     # number of digits: 0-9->1 10-99->2 100-999->3 etc
     # digits:== floor ( log10(numFrames) )
-    local digits=`echo "t=(l($numFrames)/l(10));scale=0;print t/1"|bc -l`;
+    local digits=`echo "t=1+(l($numFrames)/l(10));scale=0;print t/1"|bc -l`;
     genImageFormat=`dirname ${genImage}`/`basename ${genImage} .png`%0${digits}d.png
 
     $ffmpegExec -r 30 -i ${genImageFormat} -aspect $aspectRatio -b 9000 -y ${genAnim}
