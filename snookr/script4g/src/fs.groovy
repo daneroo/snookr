@@ -81,7 +81,7 @@ Closure getFSImageForFileFromMap = { f -> // use map
 }
 
 Closure getFSImageForFileEach = { f -> // call db each time
-    return db.getForPrimaryKey(FSImage.class,"fileName",f.getCanonicalPath());
+    return db.fetchUniqueByValue(FSImage.class,"fileName",f.getCanonicalPath());
 }
 
 //Closure getFSImageForFile = getFSImageForFileFromMap;

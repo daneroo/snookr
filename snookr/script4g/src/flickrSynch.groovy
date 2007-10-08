@@ -30,7 +30,7 @@ Closure getFlickrImageForPhotoidFromMap = { photoid -> // use map
     return dbPredictorByPhotoid[photoid];
 }
 Closure getFlickrImageForPhotoidEach = { photoid -> // call db each time
-    return db.getForPrimaryKey(FlickrImage.class,"photoid",photoid);
+    return db.fetchUniqueByValue(FlickrImage.class,"photoid",photoid);
 }
 
 Closure getFlickrImageForPhotoid = getFlickrImageForPhotoidFromMap;
