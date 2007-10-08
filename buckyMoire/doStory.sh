@@ -41,7 +41,7 @@ function blend {
     done
     
     #ffmpeg ??
-    $ffmpegExec -r 30 -i $outDir/blendedAB-%02d.png -aspect $aspectRatio -b 9000 -y $outDir/blendedAB.mpg
+    $ffmpegExec -r 30 -i $outDir/blendedAB-%04d.png -aspect $aspectRatio -b 9000 -y $outDir/blendedAB.mpg
 
     #clean up
     #rm -rf $wka $wkb
@@ -51,8 +51,8 @@ function blend {
 function doStoryJustBlend { 
     a=$1;
 
-    local numFrames=12;
-    commonargs="-n ${numFrames} -w 90 -h 60 -a $a";
+    local numFrames=60;
+    commonargs="-n ${numFrames} -w 360 -h 240 -a $a";
 
     # blend glassCam-1.4 C4F9081 
     blend $numFrames work/glassCam1.4 work/C4F9081  work/blendGlassToC4 $a
@@ -77,11 +77,11 @@ function doStoryJustBlend {
 function doStory {
     a=$1;
 
-    local numFrames=12;
-    commonargs="-n ${numFrames} -w 90 -h 60 -a $a";
+    local numFrames=60;
+    commonargs="-n ${numFrames} -w 360 -h 240 -a $a";
 
-# CLEANUP
-#    rm -rf work;
+    # CLEANUP
+    rm -rf work;
 
     # These three scripts are identical except for 
     #  workdir, basename and Cam_Factor
@@ -127,8 +127,8 @@ function doStory {
 }
 
 
-#for a in 1.778 1.333 ; do
-for a in 1.778  ; do
+for a in 1.778 1.333 ; do
+#for a in 1.778  ; do
     mkdir -p output/story-$a
     doStory $a;
 done
