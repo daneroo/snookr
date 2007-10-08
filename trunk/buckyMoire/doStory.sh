@@ -105,10 +105,10 @@ function doStory {
     ./scripts/fullerMoire.sh $commonargs -F 45 -f 27 -C 0.01 -c 0.01 -S 0.01 -s 0.01
 
     # do blend glassCam-1.4 C4F9081 
-    blend $numFrames work/glassCam1.4 work/C4F9081  work/blendGlassToC4
+    blend $numFrames work/glassCam1.4 work/C4F9081  work/blendGlassToC4 $a
 
     # do blend C4F9081 C4F4527
-    blend $numFrames work/C4F9081 work/C4F4527 work/blend90To45
+    blend $numFrames work/C4F9081 work/C4F4527 work/blend90To45 $a
 
     # copy and blend into output/story-$a
     #mv work/*/*.mpg output/story-$a
@@ -120,7 +120,7 @@ function doStory {
     cp -p work/blend90To45/*mpg      output/story-$a/part06-blend90To45-$a.mpg
     cp -p work/C4F4527/*mpg          output/story-$a/part07-C4F4527-$a.mpg
     cp -p work/zoomOutC4/*mpg        output/story-$a/part08-zoomOutC4-$a.mpg
-    cp -p work/fullerMoire/*mpg          output/story-$a/part09-fullerMoire-$a.mpg
+    cp -p work/fullerMoire/*mpg      output/story-$a/part09-fullerMoire-$a.mpg
 
     # rm -rf work
 
