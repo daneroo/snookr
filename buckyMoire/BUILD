@@ -26,6 +26,7 @@ first doMesh:
    every iteration createss a work directory and the resulting
    render is put into output/mesh-1.xxx
 
+euler: doMesh - 122747.134s
 ./doMesh 
 # mv output to renders, if you  wish to keep !
 mkdir -p renders
@@ -35,4 +36,6 @@ mv output/mesh-1.333 renders
 
 now for the storyBoard...
 
+euler:  79295.812s
+cantor: 88329.171s
 ./doStory.sh
