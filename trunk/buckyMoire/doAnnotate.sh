@@ -76,7 +76,6 @@ function doMesh {
 
 
 for a in 1.778 1.333 ; do
-for a in 1.778 ; do
 
     mkdir -p output
     doStory $a;
