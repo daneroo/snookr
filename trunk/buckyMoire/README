@@ -18,7 +18,31 @@ camera{ .. right x*1.778 ..} does the trick (implicitly 4:3 is the default.)
 - so the MPEG file needs to be told about the aspect ratio: e.g.
 /home/daniel/dome/ffmpeg/ffmpeg/ffmpeg -r 30 -i work/buckyMoireF2427-%03d.png -aspect 1.778 -b 9000 -y oldffmpeg-nodvd-aspect169-nonsquare.mpg
 
-How about I add the flag -a to all scripts, a: aspect ratio : 1.778, or 1.333
+
+Making the animation myself: PD6 seems to make strange border transitions
+I waill attempt to unroll all animation to compare:
+
+mkdir coco; cd coco
+
+for i in `seq 1 9`; do
+  mkdir -p p$i
+  ffmpeg -i ../renders/story-1.778/part0$i-*.mpg p$i/frame-%04d.png
+  echo done $i
+done
+
+currentFrame=0;
+for d in p1 p1 p1 p2 p3 p3 p3 p4 p5 p5 p5 p6 p7 p7 p7 p8 p9 p9 p9; do
+  for i in $d/*.png; do
+    file=`printf "all-%04d.png" $currentFrame`;
+    echo $i linked to $file
+    ln -s $i $file
+    let currentFrame=currentFrame+1;
+  done
+done  
+
+../ffmpeg/ffmpeg/ffmpeg -r 30 -i all-%04d.png -aspect 1.778 -b 9000 -y redone.mpg
+
+How about sequential linking ?
 -------------------------------------------
 
 
