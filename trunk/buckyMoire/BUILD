@@ -39,3 +39,17 @@ now for the storyBoard...
 euler:  79295.812s
 cantor: 88329.171s
 ./doStory.sh
+  mv output/story-1.778 renders
+  mv output/story-1.333 renders
+
+And finally the annotated final sequences
+
+./doAnnotate.sh : depends on renders/mesh-XXX/, and renders/story-XXX/
+
+  mkdir renders/annotate-final-1.778
+  mv output/meshF*-1.778.mpg renders/annotate-final-1.778
+  mv output/story-1.778.mpg renders/annotate-final-1.778
+
+  mkdir renders/annotate-final-1.333
+  mv output/meshF*-1.333.mpg renders/annotate-final-1.333
+  mv output/story-1.333.mpg renders/annotate-final-1.333
