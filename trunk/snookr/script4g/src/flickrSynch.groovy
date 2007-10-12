@@ -30,16 +30,12 @@ db.printSummary(false);
 
 Map returnCodes = [:];
 
-returnCodes.each() { k,v -> // print histogram of return codes
-    println "during flickr<-->bd  ${k} : ${v}"
-}
-
 Progress pr = new Progress(flickrList.size(),"ph",5000);
 returnCodes = [:]; //reset counts
 Map dbPredictorByPhotoid = flickrImageDAO.getMapByPrimaryKey();
 println "flickrImageDAO.getMapByPrimaryKey has ${dbPredictorByPhotoid.size()} entries"
 flickrList.each() { flima -> // all flickr images
-    def returnCode = flickrImageDAO.createOrUpdate(flima,dbPredictorByPhotoid[flima.photoid]);
+    def returnCode = flickrImageDAO.createOrUpdateInternal(flima,dbPredictorByPhotoid[flima.photoid]);
     def count = returnCodes[returnCode];
     returnCodes[returnCode] = (count==null)?1:(count+1);
     pr.increment();
