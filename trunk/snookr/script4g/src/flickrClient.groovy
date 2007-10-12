@@ -2,6 +2,13 @@ import groovy.xml.*
 import groovy.util.slurpersupport .*
 import java.text.SimpleDateFormat;
 // MD5.doATest();
+import net.snookr.flickr.Flickr;
+import net.snookr.flickr.Photos;
+import net.snookr.db.Database;
+import net.snookr.util.Spawner;
+import net.snookr.util.Progress;
+import net.snookr.util.MD5;
+import net.snookr.model.FlickrImage;
 
 Flickr f = new Flickr();
 
@@ -129,8 +136,8 @@ Database db = new Database();
 println "-=-=-= Database Summary:  =-=-=-"
 db.printSummary(false);
 
-dbPredictorByPhotoid = db.getMapForClassByField(FlickrImage.class,"photoid");
-println "getMapForClassByField has ${dbPredictorByPhotoid.size()} entries"
+dbPredictorByPhotoid = db.getMapForClassByPrimaryKey(FlickrImage.class,"photoid");
+println "getMapForClassByPrimaryKey has ${dbPredictorByPhotoid.size()} entries"
 
 flickrPredictorByPhotoid = [:];
 
@@ -168,7 +175,8 @@ println "Done fetching images"
 
 
 
-Map fillInfo(photoid,Flickr ff) {
+Map fillInfo(photo,Flickr ff) {
+    photoid = photo.photoid;
     // each entry maps photoid to attribute map
     def attr = ["photoid":photoid];
     
