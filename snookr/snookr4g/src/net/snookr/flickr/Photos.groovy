@@ -3,6 +3,7 @@ package net.snookr.flickr;
 import groovy.util.slurpersupport .*;   // for parsing utils at end
 import java.text.SimpleDateFormat;
 
+import net.snookr.util.MD5;
 import net.snookr.util.Spawner;
 import net.snookr.util.Progress;
 import net.snookr.util.Environment;
@@ -10,7 +11,52 @@ import net.snookr.util.DateFormat;
 import net.snookr.model.FlickrImage;
 
 class Photos {
+    static int PHOTO_ALREADY_PRESENT=-1;
     Flickr flickr = new Flickr();
+
+    // this checks if the photo is not already present (by md5tag)
+    // return -1 as photoid if already present.
+    // could return a FlickrImage through getFlickrImage instead,
+    // with null return value if already present.
+    int uploadPhoto(File f) {
+        String md5tag = "snookr:md5=${MD5.digest(f)}";
+        boolean present = isMD5PresentOnFlickr(md5tag);
+        if (present) {
+            println "Photo ${f} with tag: ${md5tag} is already present on flickr";
+            return PHOTO_ALREADY_PRESENT;
+        }
+        def rsp = parse( flickr.uploadPhoto(f,md5tag) );
+        assert 1 == rsp.photoid.list().size()
+        return Integer.valueOf(rsp.photoid.text());
+    }
+
+    // this is an example of counting images for seach params.
+    // could be refactored. for later re-use
+    // pass a list of tags ["tag1","tag2"], possible tag_mode etc.
+    boolean isMD5PresentOnFlickr(String md5tag) {
+        int perPage=500;
+        int page=1;
+        Map searchParams = [
+            "user_id":Environment.user_id,
+            "per_page":"${perPage}",
+            "page":"${page}",
+            "tags":"${md5tag}",
+        ]
+        def rsp = parse( flickr.getPhotoSearch(searchParams) );
+        // assert invariants
+        assert page == Integer.valueOf(rsp.photos.@page.text());
+        assert perPage == Integer.valueOf(rsp.photos.@perpage.text());
+
+        int countPhotosMatchingTag  = Integer.valueOf(rsp.photos.@total.text());
+        if (countPhotosMatchingTag>1) {
+            println "multiple (${countPhotosMatchingTag}) photos matching tag: ${md5tag} are already present on flickr";
+        }
+        //println "photos matching tag: ${md5tag}: ${countPhotosMatchingTag}"
+        return (countPhotosMatchingTag);
+        // if i wanted the actual list...
+        // List returnedPhotosMatchingTag = rsp.photos.photo.list().'@id'*.text();
+        // then parse as in getPage below, using extras, to fill in all info
+    }
 
     int getTotal() {
         def rsp = parse( flickr.getPhotoCounts() );
