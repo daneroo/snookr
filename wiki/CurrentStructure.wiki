@@ -9,9 +9,20 @@ As of 2007-10-11 this is the structure of the repository
   * snookr4g/
   * snookrlib/
 
-= snookr4g =
-
 = script4g =
+  Client groovy code:
+  * *fs.groovy* : File system synch : fs<-->db
+  * *db.groovy* : Perform db4o tests, '(on test.yap)'
+    * Dao patterns/strategy exploation.
+  * *thread.groovy* : show example use of spawner
+  * *flickrClient* : ??
+  * *flickrSynch.groovy* : Flickr synch: flickr<-->db
+
+= snookr4g =
+Supporting implementation for flickr services...
 
 = snookrlib =
   Legacy import of the original _org.galo_ java code, sitting on *com.aetrion.flickr* package in  *flickrapi-1.0b4.jar*
+
+  * Closest thing to a workable program is SnookrTest in org.galo
+  * Refactored and rebuilding in SonkrTest2, attempting to make 'searchParams.setExtras(true);' modifiy behavior for tags.
