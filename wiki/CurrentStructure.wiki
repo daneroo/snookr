@@ -14,4 +14,4 @@ As of 2007-10-11 this is the structure of the repository
 = script4g =
 
 = snookrlib =
-  Legacy import of the original _org.galo_ java code, sitting on "com.aetrion.flickr" package in  "flickrapi-1.0b4.jar"
+  Legacy import of the original _org.galo_ java code, sitting on *com.aetrion.flickr* package in  *flickrapi-1.0b4.jar*
