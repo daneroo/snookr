@@ -7,7 +7,7 @@ import net.snookr.util.Progress;
 import net.snookr.util.MD5;
 import net.snookr.model.FlickrImage;
 
-boolean forceUpload=true;
+boolean forceUpload=false;
 if (forceUpload) { // direct invocation of Flickr method (returning xml)
     Flickr f = new Flickr();
     println f.uploadPhoto(new File("snookr.jpg"));
