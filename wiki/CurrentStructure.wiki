@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary As of 2007-10-11 this is the structure of the repository.
 
 = Introduction =
 
