@@ -4,12 +4,19 @@ import net.snookr.util.Environment;
 import net.snookr.util.MD5;
 
 class Flickr {
+
+    // you probably want to use Photo.uploadFile(f) which checks for md5tag first.
     String uploadPhoto(File f) {
-        // should check if alread exists.
+        return uploadPhoto(f,null);
+    }
+    String uploadPhoto(File f,String md5tag) {
+        // the Photos version checks if alread exists.
+        println "uploading ${f} : ${f.getCanonicalPath()}";
+        // calculate md5 sum if not passed as param.
+        if (!md5tag) md5tag = "snookr:md5=${MD5.digest(f)}";
 
         def baos = new ByteArrayOutputStream();
         baos << f.newInputStream(); /* not sure InputStream is closed...*/
-        def md5tag = "snookr:md5=${MD5.digest(f)}";
         byte[] b = baos.toByteArray();
         return postMultipart(["title":f.getName(),"photo":b,"tags":"snookrd ${md5tag}"])
     }
