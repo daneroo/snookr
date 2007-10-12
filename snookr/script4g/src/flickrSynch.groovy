@@ -126,18 +126,20 @@ db.printSummary(false);
 println "-=-=-= Close Database:  =-=-=-"
 db.close();
 
-def compareSearchToGetInfo = { flimaFromSearch -> // fetch info from flickr as attributes
-    def flimaFromGetInfo = new Photos().getFlickrImage(flimaFromSearch.photoid);
-    assert flimaFromSearch.photoid==flimaFromGetInfo.photoid;
-    assert flimaFromSearch.md5==flimaFromGetInfo.md5;
-    assert flimaFromSearch.taken==flimaFromGetInfo.taken;
-    assert flimaFromSearch.posted==flimaFromGetInfo.posted;
-    assert flimaFromSearch.lastUpdate==flimaFromGetInfo.lastUpdate;
-    //println "${Thread.currentThread().getName()} - Photo: ${flimaFromSearch.photoid} verified";
-}
+if (false) {
+  def compareSearchToGetInfo = { flimaFromSearch -> // fetch info from flickr as attributes
+      def flimaFromGetInfo = new Photos().getFlickrImage(flimaFromSearch.photoid);
+      assert flimaFromSearch.photoid==flimaFromGetInfo.photoid;
+      assert flimaFromSearch.md5==flimaFromGetInfo.md5;
+      assert flimaFromSearch.taken==flimaFromGetInfo.taken;
+      assert flimaFromSearch.posted==flimaFromGetInfo.posted;
+      assert flimaFromSearch.lastUpdate==flimaFromGetInfo.lastUpdate;
+      println "${Thread.currentThread().getName()} - Photo: ${flimaFromSearch.photoid} verified";
+  }
 
-int compareThreads=10;
-Spawner spawner = new Spawner(flickrList,compareSearchToGetInfo,compareThreads);
-//spawner.run();
-println "Done comparing search and getInfo images"
+  int compareThreads=10;
+  Spawner spawner = new Spawner(flickrList,compareSearchToGetInfo,compareThreads);
+  spawner.run();
+  println "Done comparing search and getInfo images"
+}
 
