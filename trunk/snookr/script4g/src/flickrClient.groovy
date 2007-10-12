@@ -10,6 +10,10 @@ import net.snookr.util.Progress;
 import net.snookr.util.MD5;
 import net.snookr.model.FlickrImage;
 
+println "Deprecated, see filckrSynch.";
+System.exit(0);
+
+
 Flickr f = new Flickr();
 
 // wow this worked !
