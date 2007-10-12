@@ -126,6 +126,10 @@ db.printSummary(false);
 println "-=-=-= Close Database:  =-=-=-"
 db.close();
 
+/* This section was meant as test to show that
+  the new photoSearch with setExtras("tags,..") return the same information as the previous
+  process, which consited in getting the list, and the getting each image...
+*/
 if (false) {
   def compareSearchToGetInfo = { flimaFromSearch -> // fetch info from flickr as attributes
       def flimaFromGetInfo = new Photos().getFlickrImage(flimaFromSearch.photoid);
