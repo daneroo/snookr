@@ -29,11 +29,68 @@ public class FlickrImageDAO {
     }
     
     FlickrImage fetchForPrimaryKey(String photoid) {
-        return (FlickrImage)getDatabase().fetchUniqueByValue(FSImage.class,"photoid",photoid);
+        return (FlickrImage)getDatabase().fetchUniqueByValue(FlickrImage.class,"photoid",photoid);
     }
 
     List fetchForMD5(String md5) {
-        return getDatabase().fetchByValue(FSImage.class,"md5",(Object)md5);
+        return getDatabase().fetchByValue(FlickrImage.class,"md5",(Object)md5);
+    }
+    Map getMapByPrimaryKey() {
+        Map dbMapByPhotoid = db.getMapForClassByPrimaryKey(FlickrImage.class,"photoid");
+        println "getMapForClassByPrimaryKey has ${dbMapByPhotoid.size()} entries"
+        return dbMapByPhotoid;
+    }
+
+    public String createOrUpdate(FlickrImage flima) {
+        FlickrImage predictorFromDB = fetchForPrimaryKey(flima.photoid);
+        return createOrUpdate(flima,predictorFromDB);
+    }
+    /*
+        if predictorFromDB is known use that. This allows for efficient fetching of many predictors
+        simulatneously...
+        if predictorFromDB is null, that means that it is known NOT to exist in the database
+        return codes: Update,New,Unmodified
+    */  
+    private String createOrUpdate(FlickrImage flima,FlickrImage predictorFromDB) {
+        // implement parse (attr) and persist photo info from flickr
+        boolean isNew = false;
+        boolean isModified = false;
+
+        def photoid = flima.photoid;
+
+        def persist = predictorFromDB;
+
+        if (persist==null) {
+            persist = flima;
+            isNew = isModified = true;
+        } else {
+            if (persist.md5 != flima.md5) {
+                persist.md5 = flima.md5;
+                isModified = true;
+            }
+            if (persist.taken != flima.taken) {
+                persist.taken = flima.taken;
+                isModified = true;
+            }
+            if (persist.posted != flima.posted) {
+                persist.posted = flima.posted;
+                isModified = true;
+            }
+            if (persist.lastUpdate != flima.lastUpdate) {
+                persist.lastUpdate = flima.lastUpdate;
+                isModified = true;
+            }
+        }
+
+        // ! syntax highlitee hates nested conditional expressions
+        def returnCode = (isModified)? "Update":"Unmodified";
+        if (isNew) returnCode="New";
+
+        if (isModified) {
+            db.save(persist);
+            println "saved (${returnCode}) ${persist}";
+        }
+        return returnCode;
     }
 
 }
