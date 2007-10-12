@@ -25,7 +25,7 @@ db.printSummary(false);
 
 //Simply use this as  predictor
 dbPredictorByPhotoid = db.getMapForClassByPrimaryKey(FlickrImage.class,"photoid");
-println "getMapForClassByField has ${dbPredictorByPhotoid.size()} entries"
+println "getMapForClassByPrimaryKey has ${dbPredictorByPhotoid.size()} entries"
 Closure getFlickrImageForPhotoidFromMap = { photoid -> // use map
     return dbPredictorByPhotoid[photoid];
 }
