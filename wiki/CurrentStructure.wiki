@@ -15,8 +15,8 @@ As of 2007-10-11 this is the structure of the repository
   * *db.groovy* : Perform db4o tests, '(on test.yap)'
     * Dao patterns/strategy exploation.
   * *thread.groovy* : show example use of spawner
-  * *flickrClient* : ??
-  * *flickrSynch.groovy* : Flickr synch: flickr<-->db
+  * *flickrClient* : Mostly obsoleted by flickrSynch, but has interesting date stuff to salvage.
+  * *flickrSynch.groovy* : Flickr synch: flickr<-->db, should compltete move to DAO from Db
 
 = snookr4g =
 Supporting implementation for flickr services...
