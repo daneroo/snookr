@@ -16,7 +16,7 @@ As of 2007-10-11 this is the structure of the repository
     * Dao patterns/strategy exploation.
   * *thread.groovy* : show example use of spawner
   * *flickrClient* : Mostly obsoleted by flickrSynch, but has interesting date stuff to salvage.
-  * *flickrSynch.groovy* : Flickr synch: flickr<-->db, should compltete move to DAO from Db
+  * *flickrSynch.groovy* : Flickr synch: flickr<-->db, should compltete move to DAO from Db, otherwise this is done, and using setExtras(..,tags); the tail end compares different strategies for synching db<-->flickr list.
 
 = snookr4g =
 Supporting implementation for flickr services...
