@@ -43,7 +43,7 @@ public class FlickrImageDAO {
 
     public String createOrUpdate(FlickrImage flima) {
         FlickrImage predictorFromDB = fetchForPrimaryKey(flima.photoid);
-        return createOrUpdate(flima,predictorFromDB);
+        return createOrUpdateInternal(flima,predictorFromDB);
     }
     /*
         if predictorFromDB is known use that. This allows for efficient fetching of many predictors
@@ -51,7 +51,7 @@ public class FlickrImageDAO {
         if predictorFromDB is null, that means that it is known NOT to exist in the database
         return codes: Update,New,Unmodified
     */  
-    private String createOrUpdate(FlickrImage flima,FlickrImage predictorFromDB) {
+    private String createOrUpdateInternal(FlickrImage flima,FlickrImage predictorFromDB) {
         // implement parse (attr) and persist photo info from flickr
         boolean isNew = false;
         boolean isModified = false;
