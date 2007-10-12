@@ -348,18 +348,25 @@ public class SnookrTest2 {
         PhotosInterface iface = f.getPhotosInterface();
         SearchParameters searchParams = new SearchParameters();
         searchParams.setUserId(requestContext.getAuth().getUser().getId());
-        searchParams.setExtrasDateTaken(true);
+
+        //searchParams.setExtrasDateTaken(true);
         //searchParams.setExtrasTags(true);
         //searchParams.setExtrasMachineTags(true);
+        searchParams.setExtras(true);
+        /*
+         * None of this seems to enable photo.getTags() to return anything/...
+         */
+
         PhotoList photos = iface.search(searchParams, perPage, 0);
         
         System.out.println("returned photo count - "+photos.size());
         //System.out.println("photos instanceof - "+photos.getClass().getName());
         for (Iterator it=photos.iterator(); it.hasNext(); ) {
             Photo photo = (Photo) it.next();
+            int nTags = (photo.getTags()==null)?-1:photo.getTags().size();
             System.out.println("photo - id:"+photo.getId()+" t:"+photo.getTitle()+
-                    " dt:"+photo.getDateTaken()
-                    //" tags:"+photo.getTags().size()
+                    " dt:"+photo.getDateTaken()+
+                    " tags:"+nTags
                     );
         }
         
