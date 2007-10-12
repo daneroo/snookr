@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import net.snookr.flickr.Flickr;
 import net.snookr.flickr.Photos;
 import net.snookr.db.Database;
+import net.snookr.db.FlickrImageDAO;
 import net.snookr.util.Spawner;
 import net.snookr.util.Progress;
 import net.snookr.util.MD5;
@@ -20,99 +21,40 @@ flickrList.each() { photo -> // straight list of photos
 
 // -=-=-=-= get predictor (from db ?)
 Database db = new Database();
+// inject into DAO
+FlickrImageDAO.setDatabase(db);
+FlickrImageDAO flickrImageDAO = new FlickrImageDAO();
+
 println "-=-=-= Database Summary:  =-=-=-"
 db.printSummary(false);
 
-//Simply use this as  predictor
-dbPredictorByPhotoid = db.getMapForClassByPrimaryKey(FlickrImage.class,"photoid");
-println "getMapForClassByPrimaryKey has ${dbPredictorByPhotoid.size()} entries"
-Closure getFlickrImageForPhotoidFromMap = { photoid -> // use map
-    return dbPredictorByPhotoid[photoid];
-}
-Closure getFlickrImageForPhotoidEach = { photoid -> // call db each time
-    return db.fetchUniqueByValue(FlickrImage.class,"photoid",photoid);
-}
-
-Closure getFlickrImageForPhotoid = getFlickrImageForPhotoidFromMap;
-//Closure getFlickrImageForPhotoid = getFlickrImageForPhotoidEach;
 Map returnCodes = [:];
-
-def createOrUpdate =  { flima ->
-        // implement parse (attr) and persist photo info from flickr
-    boolean isNew = false;
-    boolean isModified = false;
-
-    def photoid = flima.photoid;
-
-    def persist = getFlickrImageForPhotoid(photoid);
-
-    if (persist==null) {
-        persist = flima;
-        isNew = isModified = true;
-    } else {
-        if (persist.md5 != flima.md5) {
-            persist.md5 = flima.md5;
-            isModified = true;
-        }
-        if (persist.taken != flima.taken) {
-            persist.taken = flima.taken;
-            isModified = true;
-        }
-        if (persist.posted != flima.posted) {
-            persist.posted = flima.posted;
-            isModified = true;
-        }
-        if (persist.lastUpdate != flima.lastUpdate) {
-            persist.lastUpdate = flima.lastUpdate;
-            isModified = true;
-        }
-    }
-
-    // ! syntax highlitee hates nested conditional expressions
-    def returnCode = (isModified)? "Update":"Unmodified";
-    if (isNew) returnCode="New";
-
-    if (isModified) {
-        db.save(persist);
-        println "saved (${returnCode}) ${persist}";
-    }
-
-    def count = returnCodes[returnCode];
-    returnCodes[returnCode] = (count==null)?1:(count+1);
-
-}
-
-//Make the list a map !turn
-flickrPredictorByPhotoid = [:];
-flickrList.each() { flima -> //map all FlickrImages by photoid
-    flickrPredictorByPhotoid[flima.photoid]=flima;
-}
-
-
-//System.exit(0);
 
 returnCodes.each() { k,v -> // print histogram of return codes
     println "during flickr<-->bd  ${k} : ${v}"
 }
 
-Progress pr = new Progress(flickrPredictorByPhotoid.size(),"ph")
+Progress pr = new Progress(flickrList.size(),"ph",5000);
 returnCodes = [:]; //reset counts
-flickrPredictorByPhotoid.each() { photoid,flima -> // accumulated FlickrImages
-    createOrUpdate(flima);
+Map dbPredictorByPhotoid = flickrImageDAO.getMapByPrimaryKey();
+println "flickrImageDAO.getMapByPrimaryKey has ${dbPredictorByPhotoid.size()} entries"
+flickrList.each() { flima -> // all flickr images
+    def returnCode = flickrImageDAO.createOrUpdate(flima,dbPredictorByPhotoid[flima.photoid]);
+    def count = returnCodes[returnCode];
+    returnCodes[returnCode] = (count==null)?1:(count+1);
     pr.increment();
 }
 returnCodes.each() { k,v -> // print histogram of return codes
     println "after1 flickr<-->bd  ${k} : ${v}"
 }
 
-pr = new Progress(flickrPredictorByPhotoid.size(),"ph")
+pr = new Progress(flickrList.size(),"ph",4000);
 returnCodes = [:]; //reset counts
 // change persiten lookuup method
-getFlickrImageForPhotoid = getFlickrImageForPhotoidEach
-flickrPredictorByPhotoid.each() { photoid,flima -> // accumulated FlickrImages
-    // is this being called twice ?
-    // TODO figure this out - timing
-    createOrUpdate(flima);
+flickrList.each() { flima -> // all flickr images
+    def returnCode = flickrImageDAO.createOrUpdate(flima);
+    def count = returnCodes[returnCode];
+    returnCodes[returnCode] = (count==null)?1:(count+1);
     pr.increment();
 }
 returnCodes.each() { k,v -> // print histogram of return codes
