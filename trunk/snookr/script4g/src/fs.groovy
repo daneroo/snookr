@@ -16,8 +16,8 @@ Database db = new Database();
 println "-=-=-= Database Summary:  =-=-=-"
 //db.printSummary(false);
 
-//def baseDir = new File('/home/daniel/media').getCanonicalFile();
-def baseDir = new File('C:\\Users\\daniel\\Pictures').getCanonicalFile();
+def baseDir = new File('/home/daniel/media').getCanonicalFile();
+//def baseDir = new File('C:\\Users\\daniel\\Pictures').getCanonicalFile();
 //def baseDir = new File('/home/daniel/media/Europe2002/5-Mirabel');
 
 // Classify FileSystem walk the fileSystem and make
