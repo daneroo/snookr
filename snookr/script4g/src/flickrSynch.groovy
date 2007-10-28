@@ -10,7 +10,15 @@ import net.snookr.util.Spawner;
 import net.snookr.util.Progress;
 import net.snookr.util.MD5;
 import net.snookr.model.FlickrImage;
+/*
+  What this script does: 
+     (functionally moved to net.snookr.synch.Flickr2Database)
+  - getPhotolist from flickr
+  - createOrUpdate each image through dao
 
+   -- and alternative (memory hungry)
+   - createOrUpdateInternal each image with batch predictor from flickrImageDAO.getMapByPrimaryKey
+*/
 Flickr f = new Flickr();
 
 int getPhotoListThreads=10;
