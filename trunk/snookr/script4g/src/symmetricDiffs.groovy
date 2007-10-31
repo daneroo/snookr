@@ -24,6 +24,9 @@ def flickr2db = new Flickr2Database();
 flickr2db.setDatabase(db);
 flickr2db.run();
 
+// now do some diffs. from db
+//fsImageDAO.getMapByPrimaryKey
+
 //println "-=-=-= Database Summary:  =-=-=-"
 //db.printSummary(false);
 println "-=-=-= Close Database:  =-=-=-"
