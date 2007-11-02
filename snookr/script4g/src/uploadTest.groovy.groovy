@@ -14,7 +14,8 @@ if (forceUpload) { // direct invocation of Flickr method (returning xml)
 }
 
 Photos p = new Photos();
-File f = new File("snookr.jpg");
+String fileName = "snookr.jpg";
+File f = new File(fileName);
 
 int nuPhotoid = p.uploadPhoto(f);
 println "new photoid: ${nuPhotoid}";
