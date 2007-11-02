@@ -42,11 +42,20 @@ class Photos {
             "page":"${page}",
             "tags":"${md5tag}",
         ]
-        def rsp = parse( flickr.getPhotoSearch(searchParams) );
+        def rsp = parseV( flickr.getPhotoSearch(searchParams) );
         // assert invariants
         assert page == Integer.valueOf(rsp.photos.@page.text());
         assert perPage == Integer.valueOf(rsp.photos.@perpage.text());
 
+        int pages = Integer.valueOf(rsp.photos.@pages.text());
+        // pre-emptively return zero if pages="0", because we have seen cases where
+        // no matching photo return this fragment:
+        // <photos page="1" pages="0" perpage="500" total="" />
+        // instead of the usual:
+        // <photos page="1" pages="0" perpage="500" total="0" />
+        if (pages==0) {
+            return 0;
+        }
         int countPhotosMatchingTag  = Integer.valueOf(rsp.photos.@total.text());
         if (countPhotosMatchingTag>1) {
             println "multiple (${countPhotosMatchingTag}) photos matching tag: ${md5tag} are already present on flickr";
