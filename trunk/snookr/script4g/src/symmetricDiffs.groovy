@@ -41,6 +41,32 @@ flickrImageDAO.setDatabase(db);
 Photos photos = new Photos();
 
 Map dbMapByFileName = fsImageDAO.getMapByPrimaryKey();
+Map dbMapByPhotoid = flickrImageDAO.getMapByPrimaryKey();
+
+// part 1 - fs uniqueness by md5
+Map fsimaUniqueByMd5 = [:];
+dbMapByFileName.each() { fileName,fsima -> //
+    def md5 = fsima.md5;
+    if (fsimaUniqueByMd5[md5]!=null) {
+        println "not unique ${md5} == ${fsimaUniqueByMd5[md5].fileName}";
+    }
+    fsimaUniqueByMd5[md5]=fsima;
+}
+println "fsimaUniqueByMd5 has size: ${fsimaUniqueByMd5.size()}"
+
+// part 2 - flickr uniqueness by md5
+Map flickrimaUniqueByMd5 = [:];
+dbMapByPhotoid.each() { photoid,flickrima -> //
+    def md5 = flickrima.md5;
+    if (flickrimaUniqueByMd5[md5]!=null) {
+        println "not unique ${md5} == ${flickrimaUniqueByMd5[md5].photoid}";
+    }
+    flickrimaUniqueByMd5[md5]=flickrima;
+}
+println "flickrimaUniqueByMd5 has size: ${flickrimaUniqueByMd5.size()}"
+
+
+// part 3 - upload missing files.
 int total=0;
 int totalFound=0;
 int totalMissing=0;
