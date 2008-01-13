@@ -65,8 +65,20 @@ dbMapByPhotoid.each() { photoid,flickrima -> //
 }
 println "flickrimaUniqueByMd5 has size: ${flickrimaUniqueByMd5.size()}"
 
+// part 3 - in fs and not on flickr
+fsimaUniqueByMd5.each() { md5,fsima -> //
+    if (flickrimaUniqueByMd5[md5]==null) {
+        println "not on flickr: md5:${md5} -> ${fsima.fileName}";
+    }
+}
+// part 4 - on flickr and not in fs
+flickrimaUniqueByMd5.each() { md5,flickrima -> //
+    if (fsimaUniqueByMd5[md5]==null) {
+        println "not in fs: md5:${md5} -> ${flickrima.photoid}";
+    }
+}
 
-// part 3 - upload missing files.
+// part 5 - upload missing files.
 int total=0;
 int totalFound=0;
 int totalMissing=0;
@@ -76,6 +88,12 @@ dbMapByFileName.each() { fileName,fsima -> //
     List found = flickrImageDAO.fetchForMD5(fsima.md5);
     if (found && found.size()>0) {
         totalFound++;
+        if (found.size()>1) {
+            println "duplicates found on flickr for md5: ${fsima.md5}";
+            found.each() { flickrima -> //
+                println "   ${fsima.md5} -> flickr: ${flickrima.md5} ${flickrima.photoid}";
+            }
+        }
     } else {
         println "fn:${fileName} could not find md5:${fsima.md5}";
         totalMissing++;
