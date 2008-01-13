@@ -11,14 +11,18 @@ import net.snookr.util.DateFormat;
 import net.snookr.model.FlickrImage;
 
 class Photos {
-    static int PHOTO_ALREADY_PRESENT=-1;
+    static long PHOTO_ALREADY_PRESENT=-1;
     Flickr flickr = new Flickr();
 
+    // This really should return a boolean, with an exception if upload fails
+    // true if upload succeeds.
+    // and false if already present. 
+    //
     // this checks if the photo is not already present (by md5tag)
-    // return -1 as photoid if already present.
+    // return -1 (PHOTO_ALREADY_PRESENT) as photoid if already present.
     // could return a FlickrImage through getFlickrImage instead,
     // with null return value if already present.
-    int uploadPhoto(File f) {
+    long uploadPhoto(File f) {
         String md5tag = "snookr:md5=${MD5.digest(f)}";
         boolean present = isMD5PresentOnFlickr(md5tag);
         if (present) {
@@ -27,7 +31,7 @@ class Photos {
         }
         def rsp = parse( flickr.uploadPhoto(f,md5tag) );
         assert 1 == rsp.photoid.list().size()
-        return Integer.valueOf(rsp.photoid.text());
+        return Long.valueOf(rsp.photoid.text());
     }
 
     // this is an example of counting images for seach params.
@@ -42,7 +46,7 @@ class Photos {
             "page":"${page}",
             "tags":"${md5tag}",
         ]
-        def rsp = parseV( flickr.getPhotoSearch(searchParams) );
+        def rsp = parse( flickr.getPhotoSearch(searchParams) );
         // assert invariants
         assert page == Integer.valueOf(rsp.photos.@page.text());
         assert perPage == Integer.valueOf(rsp.photos.@perpage.text());
