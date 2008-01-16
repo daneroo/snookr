@@ -1,0 +1,119 @@
+/* 
+Document   : style
+Created on : Jan 16, 2008, 10:39:56 AM
+Author     : daniel
+Description:
+Purpose of the stylesheet follows.
+*/
+
+/* 
+TODO customize this sample style
+Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+}
+
+div#AvatarGallery-VerticalStrip {
+    width: 80%;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-color: silver;
+    border-bottom-color: silver;
+    border-left-color: silver;
+    border-right-color: silver;
+}
+
+div#AvatarGallery-VerticalStrip p.avatartitle {
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:10pt;
+    color: black;
+    margin: 3px;
+}
+
+div#AvatarGallery-VerticalStrip div.tile {
+    float:left;
+    text-align:center;
+    position:relative;
+    margin-top:10px;
+}
+
+div#AvatarGallery-VerticalStrip div.tile a {
+    text-decoration:none;
+    position:relative;
+    left:0;
+    top:0;
+}
+
+div#AvatarGallery-VerticalStrip div.tile a:hover {
+}
+
+div#AvatarGallery-VerticalStrip div.tile a img {
+    padding:2px;
+    border-top-style: double;
+    border-bottom-style: double;
+    border-left-style: double;
+    border-right-style: double;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-color: silver;
+    border-bottom-color: silver;
+    border-left-color: silver;
+    border-right-color: silver;
+}
+
+div#AvatarGallery-VerticalStrip div.tile p{
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:10pt;
+    color: black;
+    margin:0px;
+}
+
+div#AvatarGallery-VerticalStrip p.icons {
+    margin:0px;
+    width:100%;
+    height:24px;
+    position:absolute;
+    left:0;
+    top:0;
+    z-index:100;
+}
+
+div#AvatarGallery-VerticalStrip div.tile img.messageLink{
+    border:0px;
+    margin:0px;
+    float:left;
+}
+
+div#AvatarGallery-VerticalStrip div.tile img.onlineStatusLink{
+    border:0px;
+    margin:0px;
+    float:left;
+}
+
+div#AvatarGallery-VerticalStrip div.tile p.avatarcaption1 {
+}
+
+div#AvatarGallery-VerticalStrip div.tile p.avatarcaption2 {
+}
+
+div#AvatarGallery-VerticalStrip div.tile p.avatarcaption3 {
+}
+
+div#AvatarGallery-VerticalStrip div.tile p.avatarcaption4 {
+}
+
+div#AvatarGallery-VerticalStrip div.tile p.avatarcaption5 {
+}
+
+div#AvatarGallery-VerticalStrip div.tile p.avatarcaption6 {
+}
