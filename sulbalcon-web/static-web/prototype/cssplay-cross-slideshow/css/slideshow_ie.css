@@ -1,0 +1,91 @@
+/* 
+    Document   : slideshow_ie
+    Created on : Jan 16, 2008, 3:02:13 PM
+    Author     : daniel
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* ================================================================ 
+This copyright notice must be untouched at all times.
+
+The original version of this stylesheet and the associated (x)html
+is available at http://www.cssplay.co.uk/menu/slide_show.html
+Copyright (c) 2005-2007 Stu Nicholls. All rights reserved.
+This stylesheet and the assocaited (x)html may be modified in any 
+way to fit your requirements.
+=================================================================== */
+
+/* styling specific to Internet Explorer IE5.5 and IE6. Yet to see if IE7 handles li:hover */
+
+/* set the background and foreground color of the main menu link on hover */
+.menu2 ul li a:hover {
+color:#fff; 
+background:#000;
+cursor:default;
+}
+
+/* make the sub menu ul visible and position it beneath the first list item */
+.menu2 ul li a:hover ul {
+text-align:left;
+display:block; 
+position:absolute; 
+top:31px; 
+left:0;
+}
+
+/* make the sub menu ul li the full width with padding and border. Hack for IE5.5 */
+.menu2 ul li a:hover ul li {
+cursor:pointer;
+width:673px;
+height:688px;
+border:20px solid #000;
+border-width:20px 5px;
+background:#ddd url(slide/linen.jpg); 
+color:#fff;
+padding:82px 90px;
+cursor:default;
+width:483px;
+height:483px;
+}
+
+/* style the background and foreground color of the submenu links (with hack for IE5.5)*/
+.menu2 ul li a:hover ul li a {
+width:120px;
+height:120px;
+margin-top:-2px;
+border:1px solid #ddd;
+border-color:#888 #000 #000 #888;
+width:118px;
+height:118px;
+margin:0;
+}
+
+
+/* keep the large image hidden */
+.menu2 ul li a:hover ul li a em {
+display:none;
+}
+
+/* add a border to the horizontal slide and position it centrally using a top margin */
+.menu2 ul li a:hover ul li a.horiz span img {
+border:1px solid #888;
+margin-top:21px;
+}
+
+/* add a border to the vertical slide and position it centrally using a top margin */
+.menu2 ul li a:hover ul li a.vert span img {
+border:1px solid #888;
+margin-top:9px;
+}
+
+
+/* make the active links zero size so the active dotted border does not show through the large image */
+.menu2 ul li a:hover ul li a:active {background:#aaa; height:0; width:0; }
+.menu2 ul li a:hover ul li a:active em {background:#bbb; height:0; width:0; padding:0; margin:0;}
+
+
+/* make the large image visible and set the border, position using position absolute */
+.menu2 ul li a:hover ul li a.horiz:active em {display:block; background:#ddd; position:absolute; left:15px; top:100px; width:640px; height:480px; z-index:200; cursor:default; border:1px solid #fff;}
+.menu2 ul li a:hover ul li a.vert:active em {display:block; background:#ddd; position:absolute; left:95px; top:23px; width:480px; height:640px; z-index:200; cursor:default;  border:1px solid #fff;}
+

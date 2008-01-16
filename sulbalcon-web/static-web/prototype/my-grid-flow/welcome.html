@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- 
+    Document   : welcome
+    Created on : Jan 16, 2008, 10:34:31 AM
+    Author     : daniel
+< ! DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+-->
+
+<html>
+    <head>
+        <title>My Netbeans welcome page</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link href="style.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <ol type="A" class="olcl">
+            <li class="licl">Make a web page</li>
+            <li>make a css stylesheet</li>
+        </ol>
+        
+        <style type="text/css">
+            /* http://www.positioniseverything.net/easyclearing.html */
+            .clearfix:after {
+                content: "."; 
+                display: block; 
+                height: 0; 
+                clear: both; 
+                visibility: hidden;
+            }
+            
+            .clearfix {display: inline-block;}
+            
+            /* Hides from IE-mac \*/
+            * html .clearfix {height: 1%;}
+            .clearfix {display: block;}
+            /* End hide from IE-mac */
+            
+            .imaflow { 
+                width:50%;
+                background-color: #999;
+            }
+            .imabox {   
+                background-color: #ccc;
+                width: 75px;
+                height: 75px;
+                float: left;
+                border: 1px solid #777;
+                margin: 0 15px 15px 0;
+                padding: 5px;
+            }
+            /*
+            div.imabox:hover {
+                border: 2px solid #333;
+            }
+            */
+            .clearboth {clear:both;}
+        </style>
+        
+        <a href="http://randsco.com/noJS.html" onclick="javascript:m= ( document.compatMode == 'CSS1Compat' ) ? 'Standards' : 'Quirks'; window.alert('Page rendered in '+m+'-mode.'); return false;" title=" Quirks-Mode Check "><small>Quirks-Mode Check</small></a>        
+        <div style="padding:10px; background-color: #f00">
+            <div class="imaflow">
+                <div>title</div>
+                <div class="imabox" >A</div>
+                <div class="imabox" >B</div>
+                <div class="imabox" >C</div>
+                <div class="imabox" >D</div>
+                <div class="imabox" >E</div>
+                <div class="imabox" >F</div>
+                <div class="clearboth">G</div>
+            </div>
+            <div class="imaflow">
+                <div>title</div>
+                <div class="imabox" ></div>
+                <div class="imabox" ></div>
+                <div class="imabox" ></div>
+                <div class="imabox" ></div>
+                <div class="imabox" ></div>
+                <div class="imabox" ></div>
+                <div class="clearboth"></div>
+            </div>
+        </div>
+        <p>Another paragraph</p>
+        <!--
+        <div id='AvatarGallery-VerticalStrip'>
+            <p class='avatartitle'>Title</p>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb1.jpg'>
+                </a>	
+                <p class='avatarcaption1'>Name1</p>
+            </div>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb2.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name2</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb3.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name3</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb4.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name4</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb1.jpg'>
+                </a>	
+                <p class='avatarcaption1'>Name1</p>
+            </div>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb2.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name2</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb3.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name3</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb4.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name4</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb1.jpg'>
+                </a>	
+                <p class='avatarcaption1'>Name1</p>
+            </div>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb2.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name2</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb3.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name3</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb4.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name4</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb1.jpg'>
+                </a>	
+                <p class='avatarcaption1'>Name1</p>
+            </div>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb2.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name2</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb3.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name3</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb4.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name4</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb1.jpg'>
+                </a>	
+                <p class='avatarcaption1'>Name1</p>
+            </div>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb2.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name2</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb3.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name3</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb4.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name4</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb1.jpg'>
+                </a>	
+                <p class='avatarcaption1'>Name1</p>
+            </div>
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb2.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name2</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb3.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name3</p>
+            </div>	
+            <div class='tile'>
+                <a href='#'>
+                    <img src='images/thumb4.jpg'>
+                </a>		
+                <p class='avatarcaption1'>Name4</p>
+            </div>	
+        </div>
+        -->
+    </body>
+</html>
