@@ -84,7 +84,7 @@ def flickrList  = new Photos().getPhotoList(getPhotoListThreads);
     int getPhotoSizesThreads=20;
     Closure getPhotoSizesClosure = { photo ->
         String photoid = photo.photoid;
-        Map mapOfSizeNames =  new Photos().getSizes(photoid);
+        Map mapOfSizeUrls =  new Photos().getSizes(photoid);
         saveSizesToFiles(photoid,mapOfSizeUrls);
     }
     new Spawner(flickrList,getPhotoSizesClosure,getPhotoSizesThreads).run();
