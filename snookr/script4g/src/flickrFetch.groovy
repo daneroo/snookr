@@ -29,65 +29,62 @@ url: is a web page for that photo at that size
 */
 
 Flickr f = new Flickr();
-
-        public void saveToFile(String photoid,String urlStr) {
-            listOfSizes = ["Thumbnail","Square","Small"];
-            static final File BASE_DIRECTORY = new File('C:\\Users\\daniel\\SnookrFetchDir').getCanonicalFile();
-            if(!BASE_DIRECTORY.exists()){
-                    boolean success = BASE_DIRECTORY.mkdir();
-                    if (!success) {
-                            println("Directory creation failed");
-                            return;
-                    }
+    public void makeDir(File dir) {
+        if(!dir.exists()){
+            boolean success = dir.mkdir();
+            if (!success) {
+                println("Directory creation failed: "+dir);
+                throw new Exception("Directory creation failed: "+dir);
+                return;
             }
-            println "photoid: ${photoid} Thumb: ${urlStr} dir:${BASE_DIRECTORY}";
-
-            URL url = new URL(urlStr);
-            String filename = photoid+".jpg";
-            System.out.println("Now writing " + filename);
-            BufferedInputStream inStream = new BufferedInputStream(url.openStream());
-            File newFile = new File(BASE_DIRECTORY,filename);
-            FileOutputStream fos = new FileOutputStream(newFile);
-            int read;
-            while ((read = inStream.read()) != -1) {
-                fos.write(read);
-            }
-            fos.flush();
-            fos.close();
-            inStream.close();
         }
+    }
+    public void saveToFile(String photoid,String urlStr,File newFile) {
+        println "  url: ${urlStr} file:${newFile}";
+        URL url = new URL(urlStr);
+        BufferedInputStream inStream = new BufferedInputStream(url.openStream());
+        FileOutputStream fos = new FileOutputStream(newFile);
+        int read;
+        while ((read = inStream.read()) != -1) {
+            fos.write(read);
+        }
+        fos.flush();
+        fos.close();
+        inStream.close();
+    }
+    public void saveSizesToFiles(String photoid,Map mapOfSizeUrls) {
+        //listOfSizes = ["Thumbnail","Square","Small"];
+        listOfSizes = ["Square","Small"];
+        static final File BASE_DIRECTORY = new File('C:\\Users\\daniel\\SnookrFetchDir').getCanonicalFile();
+        makeDir(BASE_DIRECTORY);
+        println("Fetching " + photoid);
+        listOfSizes.each() { whichSize -> //
+            sizeDir = new File(BASE_DIRECTORY,whichSize);
+            makeDir(sizeDir);
+            String filename = photoid+".jpg";
+            File newFile = new File(sizeDir,filename);
+            saveToFile(photoid,mapOfSizeUrls[whichSize],newFile);
+        }
+    }
 
 String Krazrid = "2188744290";
 String SD300id = "419443247";
 [Krazrid,SD300id].each() { photoid -> //
-    Map mapOfSizeNames =  new Photos().getSizes(photoid);
-    String whichSize = "Thumbnail";
-    //println "photoid: ${photoid} Thumb: ${mapOfSizeNames[whichSize]}";
-    saveToFile(photoid,mapOfSizeNames[whichSize]);
+    Map mapOfSizeUrls =  new Photos().getSizes(photoid);
+    saveSizesToFiles(photoid,mapOfSizeUrls);
 }
+
+//System.exit(0);
+
 
 // getting the list from flickr, could get from db instead.
 int getPhotoListThreads=10;
 def flickrList  = new Photos().getPhotoList(getPhotoListThreads);
 
-/*
-flickrList.each() { photo -> // straight list of photos
-    String photoid = photo.photoid;
-    Map mapOfSizeNames =  new Photos().getSizes(photoid);
-    String whichSize = "Thumbnail";
-    println "photoid: ${photoid} Thumb: ${mapOfSizeNames[whichSize]}";
-}
-*/
-
-        int getPhotoSizesThreads=20;
-        Closure getPhotoSizesClosure = { photo ->
-            String photoid = photo.photoid;
-            Map mapOfSizeNames =  new Photos().getSizes(photoid);
-            String whichSize = "Thumbnail";
-            //println "photoid: ${photoid} Thumb: ${mapOfSizeNames[whichSize]}";
-            saveToFile(photoid,mapOfSizeNames[whichSize]);
-            // this Lists acess needs to be synchronized
-            //flickrList.addAll(pageFlickrList);
-        }
-        new Spawner(flickrList,getPhotoSizesClosure,getPhotoSizesThreads).run();
-        return flickrList;
+    int getPhotoSizesThreads=20;
+    Closure getPhotoSizesClosure = { photo ->
+        String photoid = photo.photoid;
+        Map mapOfSizeNames =  new Photos().getSizes(photoid);
+        saveSizesToFiles(photoid,mapOfSizeUrls);
+    }
+    new Spawner(flickrList,getPhotoSizesClosure,getPhotoSizesThreads).run();
