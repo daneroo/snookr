@@ -66,17 +66,24 @@ dbMapByPhotoid.each() { photoid,flickrima -> //
 println "flickrimaUniqueByMd5 has size: ${flickrimaUniqueByMd5.size()}"
 
 // part 3 - in fs and not on flickr
+int totalNotOnFlickr=0;
 fsimaUniqueByMd5.each() { md5,fsima -> //
     if (flickrimaUniqueByMd5[md5]==null) {
         println "not on flickr: md5:${md5} -> ${fsima.fileName}";
+        totalNotOnFlickr++;
     }
 }
+println "not on flickr total:  ${totalNotOnFlickr}";
+
 // part 4 - on flickr and not in fs
+int totalNotInFS=0;
 flickrimaUniqueByMd5.each() { md5,flickrima -> //
     if (fsimaUniqueByMd5[md5]==null) {
         println "not in fs: md5:${md5} -> ${flickrima.photoid}";
+        totalNotInFS++;
     }
 }
+println "not in filesystem (lost?) total:  ${totalNotInFS}";
 
 // part 5 - upload missing files.
 int total=0;
@@ -100,8 +107,10 @@ dbMapByFileName.each() { fileName,fsima -> //
 
         File f = new File(fileName);
         if (f.exists()) {
-            int nuPhotoid = photos.uploadPhoto(f);
-            println "new photoid: ${nuPhotoid}";
+            long start = new Date().getTime();
+            long nuPhotoid = photos.uploadPhoto(f);
+            long elapsedms = new Date().getTime() - start;
+            println "new photoid: ${nuPhotoid} uploaded in ${elapsedms/1000f}s.";
         } else {
             println "Missing file not found in filesystem. cannot upload";
         }
