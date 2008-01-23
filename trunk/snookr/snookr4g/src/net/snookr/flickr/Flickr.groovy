@@ -39,6 +39,9 @@ class Flickr {
     String getPhotoInfo(Map params) {
         return get(inject(params,["method":"flickr.photos.getInfo"]))
     }
+    String getSizes(Map params) {
+        return get(inject(params,["method":"flickr.photos.getSizes"]))
+    }
     String getExif(Map params) {
         return get(inject(params,["method":"flickr.photos.getExif"]))
     }
