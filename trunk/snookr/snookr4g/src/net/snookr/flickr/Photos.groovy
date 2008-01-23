@@ -222,6 +222,30 @@ class Photos {
         return attr;
     }
 
+    Map getSizes(String photoid) {
+/*
+source: is the url for the image itself
+url: is a web page for that photo at that size
+May not have all sizes !
+<sizes canblog="1" canprint="1" candownload="1">
+        <size label="Square" width="75" height="75" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_s.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=sq" />
+        <size label="Thumbnail" width="100" height="75" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_t.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=t" />
+        <size label="Small" width="240" height="180" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_m.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=s" />
+        <size label="Medium" width="500" height="375" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=m" />
+        <size label="Large" width="1024" height="768" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_b.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=l" />
+        <size label="Original" width="2592" height="1944" source="http://farm1.static.flickr.com/145/419443247_1195f586b4_o.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=o" />
+</sizes>
+*/
+        def mapOfSizes = [:];
+        def rsp = parse( flickr.getSizes(["photo_id":photoid]) );
+        // should I assert anything ?
+        rsp.sizes.size.each() { oneSize -> // for each photo
+            String sizeLabel = oneSize.'@label';
+            String sizeSource = oneSize.'@source';
+            mapOfSizes[sizeLabel] = sizeSource;
+        }
+        return mapOfSizes;
+    }
 
     //utility function for parser
     GPathResult parseV(String stringResponse) { // V for Verbose
