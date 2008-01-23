@@ -29,6 +29,16 @@ url: is a web page for that photo at that size
 */
 
 Flickr f = new Flickr();
+
+    public File getBaseDirectory() {
+        String homeDirPath = System.getProperty("user.home");
+        File homeDir = new File(homeDirPath);
+        if (!homeDir.exists()) {
+            throw new Exception("Cannot Find HomeDir: "+homeDir);
+        }
+        File baseDir = new File(homeDir,"SnookrFetchDir");
+        return baseDir;
+    }
     public void makeDir(File dir) {
         if(!dir.exists()){
             boolean success = dir.mkdir();
@@ -55,15 +65,17 @@ Flickr f = new Flickr();
     public void saveSizesToFiles(String photoid,Map mapOfSizeUrls) {
         //listOfSizes = ["Thumbnail","Square","Small"];
         listOfSizes = ["Square","Small"];
-        static final File BASE_DIRECTORY = new File('C:\\Users\\daniel\\SnookrFetchDir').getCanonicalFile();
-        makeDir(BASE_DIRECTORY);
+        File baseDir = getBaseDirectory();
+        makeDir(baseDir);
         println("Fetching " + photoid);
         listOfSizes.each() { whichSize -> //
-            sizeDir = new File(BASE_DIRECTORY,whichSize);
+            sizeDir = new File(baseDir,whichSize);
             makeDir(sizeDir);
             String filename = photoid+".jpg";
             File newFile = new File(sizeDir,filename);
-            saveToFile(photoid,mapOfSizeUrls[whichSize],newFile);
+            if (!newFile.exists()) {
+                saveToFile(photoid,mapOfSizeUrls[whichSize],newFile);
+            }
         }
     }
 
@@ -81,7 +93,7 @@ String SD300id = "419443247";
 int getPhotoListThreads=10;
 def flickrList  = new Photos().getPhotoList(getPhotoListThreads);
 
-    int getPhotoSizesThreads=20;
+    int getPhotoSizesThreads=10;
     Closure getPhotoSizesClosure = { photo ->
         String photoid = photo.photoid;
         Map mapOfSizeUrls =  new Photos().getSizes(photoid);
