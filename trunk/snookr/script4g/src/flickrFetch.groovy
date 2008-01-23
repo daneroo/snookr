@@ -67,7 +67,7 @@ Flickr f = new Flickr();
         listOfSizes = ["Square","Small"];
         File baseDir = getBaseDirectory();
         makeDir(baseDir);
-        println("Fetching " + photoid);
+        //println("Fetching " + photoid);
         listOfSizes.each() { whichSize -> //
             sizeDir = new File(baseDir,whichSize);
             makeDir(sizeDir);
