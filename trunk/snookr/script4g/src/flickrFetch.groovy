@@ -63,8 +63,8 @@ Flickr f = new Flickr();
         inStream.close();
     }
     public void saveSizesToFiles(String photoid,Map mapOfSizeUrls) {
-        //listOfSizes = ["Thumbnail","Square","Small"];
-        listOfSizes = ["Square","Small"];
+        listOfSizes = ["Thumbnail","Square","Small"];
+        //listOfSizes = ["Square","Small"];
         File baseDir = getBaseDirectory();
         makeDir(baseDir);
         //println("Fetching " + photoid);
