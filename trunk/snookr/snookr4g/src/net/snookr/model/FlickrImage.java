@@ -3,7 +3,7 @@ package net.snookr.model;
 import java.util.Date;
 import net.snookr.util.DateFormat;
 
-class FlickrImage {
+public class FlickrImage {
     String photoid; // Foreign Natural (unique) key
     String md5;
     Date taken;   // data seeded from exif data / dan be modified...
