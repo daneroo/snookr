@@ -42,6 +42,9 @@ public class Main {
         //String baseDirPath = "/home/daniel/media";
         String baseDirPath = "C:\\Users\\daniel\\Pictures";
         //String baseDirPath = "/home/daniel/media/Europe2002/5-Mirabel";
+        if (args.length>0 && args[0]!=null) {
+            baseDirPath = args[0];
+        }
         
         emf = Persistence.createEntityManagerFactory("ObserveFilesPU");
         traverseFromBaseDir(baseDirPath);
@@ -57,10 +60,15 @@ public class Main {
             fs.setBaseDir(baseDir);
             
             List fsImageList = fs.getFSImageList();
+            createTransactionalEntityManager();
+            
             for (Object o : fsImageList) {
                 FSImage fsima = (FSImage)o;
                 createOrUpdate(fsima);
             }
+            
+            closeTransactionalEntityManager();
+            
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -79,7 +87,7 @@ public class Main {
     
     public static void createOrUpdate(FSImage fsima) {
         System.out.println("new fsima: "+fsima);
-        createTransactionalEntityManager();
+        //createTransactionalEntityManager();
         Thing thing = new Thing(fsima);
         Thing priorThing = findThing(thing.getFileName());
         if (priorThing!=null) {
@@ -87,7 +95,7 @@ public class Main {
         } else {
             em.persist(thing);
         }
-        closeTransactionalEntityManager();
+        //closeTransactionalEntityManager();
     }
     
     private static void testPU() {
