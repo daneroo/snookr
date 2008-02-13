@@ -16,9 +16,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import net.snookr.util.DateFormat;
 /**
  * Entity class Thing
@@ -26,10 +29,19 @@ import net.snookr.util.DateFormat;
  * @author daniel
  */
 @Entity
-@NamedQuery(
-    name="findThingByFileName",
-    query="SELECT thing FROM Thing thing WHERE  thing.fileName = :fileName"
+@Table(
+    uniqueConstraints = {@UniqueConstraint(columnNames={"fileName"})}
 )
+@NamedQueries({
+    @NamedQuery(
+    name="findThingByFileName",
+            query="SELECT thing FROM Thing thing WHERE  thing.fileName = :fileName"
+            ),
+            @NamedQuery(
+    name="findAllThings",
+            query="SELECT thing FROM Thing thing"
+            )
+})
 public class Thing implements Serializable {
     
     @Id
@@ -127,7 +139,7 @@ public class Thing implements Serializable {
         return fileSize;
     }
     
-    public void setFileSize(Long filesize) {
+    public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
     
