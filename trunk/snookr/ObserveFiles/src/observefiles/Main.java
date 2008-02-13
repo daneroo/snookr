@@ -55,7 +55,7 @@ public class Main {
         
         emf = Persistence.createEntityManagerFactory("ObserveFilesPU");
         traverseFromBaseDir(baseDirPath);
-        //testPU();
+        validateStillExists();
     }
     
     private static void traverseFromBaseDir(final String baseDirPath) {
@@ -144,13 +144,21 @@ public class Main {
             isNew = isModified = true;
         } else {
             // attributes assumed to be set in newThing!
-            if (newThing.getFileSize() != persist.getFileSize()) {
+            if (!newThing.getFileSize().equals( persist.getFileSize() ) ) {
                 persist.setFileSize(newThing.getFileSize());
+                log("mod for filesize ");
                 isModified=true;
             }
-            if (newThing.getLastModified() != persist.getLastModified()) {
-                persist.setLastModified( newThing.getLastModified() );
-                isModified = true;
+            if (! newThing.getLastModified().equals(  persist.getLastModified() ) ) {
+                // rouded milliseconds is ok: (Vista has mod times to the milli)
+                if (newThing.getLastModified().getTime()/1000l != persist.getLastModified().getTime()/1000l) {
+                    log("mod for lastmod: "+DateFormat.format(persist.getLastModified(),"????-??-?? ??:??:??")+" -> "+DateFormat.format(newThing.getLastModified(),"????-??-?? ??:??:??"));
+                    log("mod for lastmod ms: "+persist.getLastModified().getTime()+" -> "+newThing.getLastModified().getTime());
+                    persist.setLastModified( newThing.getLastModified() );
+                    isModified = true;
+                } else {
+                    //log("close enough: "+persist.getLastModified().getTime()/1000l+" -> "+newThing.getLastModified().getTime()/1000l);
+                }
             }
         }
         
@@ -162,8 +170,9 @@ public class Main {
                 taken = Exif.getExifDate(f);
                 log( "extracted exif date "+DateFormat.format(taken,"????-??-?? ??:??:??")+" "+f.getName() );
             }
-            if (taken != persist.getTaken()) {
+            if (taken != persist.getTaken()) { // only tests both null !
                 persist.setTaken( taken );
+                log("mod for taken");
                 isModified = true;
             }
         }
@@ -200,34 +209,19 @@ public class Main {
     private static void log(String s) {
         System.out.println(s);
     }
-    private static void testPU() {
-        
-        // Persist all entities
-        createTransactionalEntityManager();
-        // Create new customer
-        Thing thing = new Thing();
-        //customer0.setId(1);
-        thing.setFileName("file001");
-        // Persist the customer
-        em.persist(thing);
-        
-        
-        closeTransactionalEntityManager();
-        
-        // Test query and navigation
+    
+    private static void validateStillExists() {
         createEntityManager();
-        //Query q = em.createQuery("select c from Customer c where c.name = :name");
-        //q.setParameter("name", name);
-        //return (Customer)q.getSingleResult();
-        
-        Query q = em.createQuery("select t from Thing t");
-        List<Thing> listOfThings  = q.getResultList();
+        Query queryFindAllThings = em.createNamedQuery("findAllThings");
+        List<Thing> listOfThings = queryFindAllThings.getResultList();
         for (Thing t : listOfThings) {
-            System.out.println(""+t);
+            File f = new File(t.getFileName());
+            if (!f.exists()) {
+                System.out.println("Could not find "+f);
+            }
+            
         }
-        
         closeEntityManager();
-        
     }
     
     private static void createTransactionalEntityManager() {
@@ -259,5 +253,6 @@ public class Main {
         // Close this EntityManager
         em.close();
     }
+    
     
 }
