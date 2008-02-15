@@ -40,6 +40,7 @@ name = "netimage",
 @NamedQueries( {
     @NamedQuery(name = "NetImage.findByHostAndFileName", query = "SELECT n FROM NetImage n WHERE n.host = :host AND n.fileName = :fileName"),
     @NamedQuery(name = "NetImage.findById", query = "SELECT n FROM NetImage n WHERE n.id = :id"),
+    @NamedQuery(name = "NetImage.countByHost", query = "SELECT count(n) FROM NetImage n WHERE n.host = :host"),
     @NamedQuery(name = "NetImage.findByHost", query = "SELECT n FROM NetImage n WHERE n.host = :host"),
     @NamedQuery(name = "NetImage.findByFileName", query = "SELECT n FROM NetImage n WHERE n.fileName = :fileName"),
     @NamedQuery(name = "NetImage.findByFileSize", query = "SELECT n FROM NetImage n WHERE n.fileSize = :fileSize"),
