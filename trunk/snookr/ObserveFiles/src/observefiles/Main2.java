@@ -120,13 +120,15 @@ public class Main2 {
         
         Thing thing = new Thing(fsima);
         Thing priorThing = findThing(thing.getFileName());
+
+        if (priorThing!=null) {
+            //System.out.println("update: "+priorThing);
+        } else {
+            System.out.println("create: "+fsima);
+        }
+        
         createOrUpdateInternal(thing,priorThing);
         
-        if (priorThing!=null) {
-            //System.out.println("prior: "+priorThing);
-        } else {
-            System.out.println("new fsima: "+fsima);
-        }
         
         closeTransactionalEntityManager();
     }
