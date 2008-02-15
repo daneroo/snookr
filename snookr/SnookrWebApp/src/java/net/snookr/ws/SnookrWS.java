@@ -9,9 +9,8 @@
 
 package net.snookr.ws;
 
-import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -19,8 +18,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import net.snookr.model.NetImage;
-import net.snookr.util.DateFormat;
 
 /**
  *
@@ -79,8 +76,6 @@ public class SnookrWS {
     
     //Date utility
     String safeDate(Date d) {
-        return DateFormat.format(d,"????-??-?? ??:??:??");
-/*
         String defaultValue="????-??-?? ??:??:??";
         final String YYYMMDDHHMMSS = "yyyy-MM-dd HH:mm:ss";
         final SimpleDateFormat SDF = new SimpleDateFormat(YYYMMDDHHMMSS);
@@ -89,8 +84,8 @@ public class SnookrWS {
         } catch (Exception e) {
             return defaultValue;
         }
- */
     }
+    
     private static void createTransactionalEntityManager() {
         
         // Create a new EntityManager
