@@ -45,6 +45,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.out.println("  Host: "+ HostInfo.getHostName());
         // TODO code application logic here
         //String baseDirPath = "/home/daniel/media";
         String baseDirPath = "C:\\Users\\daniel\\Pictures";
