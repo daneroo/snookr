@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+  <persistence-unit name="SnookrWebAppPU" transaction-type="RESOURCE_LOCAL">
+    <provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider>
+    <class>net.snookr.model.NetImage</class>
+    <properties>
+      <property name="toplink.jdbc.url" value="jdbc:mysql://192.168.3.204:3306/snookr"/>
+      <property name="toplink.jdbc.user" value="aviso"/>
+      <property name="toplink.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+      <property name="toplink.jdbc.password" value=""/>
+      <property name="toplink.ddl-generation" value="create-tables"/>
+    </properties>
+  </persistence-unit>
+</persistence>
