@@ -127,6 +127,7 @@ is divided into following sections:
                     <classpath>
                         <path path="@{classpath}"/>
                     </classpath>
+                    <compilerarg line="-Djava.endorsed.dirs='${jaxws.endorsed.dir}'"/>
                     <compilerarg line="${javac.compilerargs}"/>
                     <customize/>
                 </javac>
@@ -236,14 +237,41 @@ is divided into following sections:
     <target name="deps-jar" depends="init" unless="no.deps">
         <ant target="jar" inheritall="false" antfile="${project.snookr4g}/build.xml"/>
     </target>
-    <target name="-pre-pre-compile" depends="init,deps-jar">
+    <target name="wsimport-init" depends="init">
+        <mkdir dir="${build.generated.dir}/wsimport/client"/>
+        <mkdir dir="${build.generated.dir}/wsimport/binaries"/>
+        <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+            <classpath path="${libs.jaxws20.classpath}"/>
+        </taskdef>
+    </target>
+    <target name="wsimport-client-check-SnookrWS" depends="wsimport-init">
+        <condition property="wsimport-client-SnookrWS.notRequired">
+            <available file="${build.generated.dir}/wsimport/client/observefiles" type="dir"/>
+        </condition>
+    </target>
+    <target name="wsimport-client-SnookrWS" depends="wsimport-init,wsimport-client-check-SnookrWS" unless="wsimport-client-SnookrWS.notRequired">
+        <wsimport fork="true" xendorsed="true" extension="true" sourcedestdir="${build.generated.dir}/wsimport/client" package="observefiles" destdir="${build.generated.dir}/wsimport/binaries" wsdl="${basedir}/xml-resources/web-service-references/SnookrWS/wsdl/localhost_8084/SnookrWebApp/SnookrWS.wsdl" wsdlLocation="http://localhost:8084/SnookrWebApp/SnookrWS?wsdl" catalog="catalog.xml">
+            <jvmarg value="-Djava.endorsed.dirs=${jaxws.endorsed.dir}"/>
+        </wsimport>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${build.generated.dir}/wsimport/binaries" includes="**/*.xml"/>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-SnookrWS" depends="-init-project">
+        <delete dir="${build.generated.dir}/wsimport/client/observefiles"/>
+    </target>
+    <target name="wsimport-client-generate" depends="wsimport-client-SnookrWS"/>
+    <target name="wsimport-client-compile" depends="-pre-pre-compile">
+        <j2seproject3:javac srcdir="${build.generated.dir}/wsimport/client" classpath="${libs.jaxws20.classpath}:${javac.classpath}" destdir="${build.classes.dir}"/>
+    </target>
+    <target name="-pre-pre-compile" depends="init,deps-jar,wsimport-client-generate">
         <mkdir dir="${build.classes.dir}"/>
     </target>
     <target name="-pre-compile">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
+    <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile,wsimport-client-compile" if="have.sources">
         <j2seproject3:javac/>
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.dir}" excludes="${build.classes.excludes}"/>
@@ -258,7 +286,7 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="-do-compile-single" depends="init,deps-jar,-pre-pre-compile">
+    <target name="-do-compile-single" depends="init,deps-jar,-pre-pre-compile,wsimport-client-compile">
         <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
         <j2seproject3:javac>
             <customize>
