@@ -36,12 +36,16 @@ public class SnookrWSClient {
     
     private void test() {
         System.out.println("testing SnookrWS");
+        //Commented for compiling. without ws
+        /*
         testEcho();
         testCreateOrUpdate(true);
         testCreateOrUpdateSpeed(10);
         //testCreateOrUpdateSpeed(100);
         testCountForHost();
+         */
     }
+    /*
     private void testEcho() {
         System.out.println("testing SnookrWS.echo");
         try { // Call Web Service Operation
@@ -110,4 +114,5 @@ public class SnookrWSClient {
             // TODO handle custom exceptions here
         }
     }
+    */
 }

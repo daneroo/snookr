@@ -55,7 +55,7 @@ public class Main {
             baseDirPath = args[0];
         }
         
-        emf = Persistence.createEntityManagerFactory("ObserveFilesPU");
+        emf = Persistence.createEntityManagerFactory("snookrLocalMySQLPU");
         traverseFromBaseDir(host,baseDirPath);
         validateStillExists(host);
     }
