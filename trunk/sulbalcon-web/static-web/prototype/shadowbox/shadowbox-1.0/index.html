@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Shadowbox.js Minimal</title>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="src/css/shadowbox.css">
+
+<script type="text/javascript" src="src/js/lib/yui-utilities.js"></script>
+<script type="text/javascript" src="src/js/adapter/shadowbox-yui.js"></script>
+
+<script type="text/javascript" src="src/js/shadowbox.js"></script>
+<script type="text/javascript">
+
+window.onload = function(){
+    Shadowbox.init();
+};
+
+</script>
+</head>
+
+<body>
+
+<div id="wrapper">
+
+    <h3>Images</h3>
+
+    <p>
+        <a rel="shadowbox" href="http://farm3.static.flickr.com/2078/2311804917_f7dd8f089f.jpg" class="option">Flickr Vert</a>
+        <a rel="shadowbox" href="http://farm4.static.flickr.com/3200/2313250339_62abd9796c.jpg" class="option">Flickr Horiz</a>
+
+        <a rel="shadowbox[Maroc2008];options={counterType:'skip',continuous:true,animSequence:'sync'}" href="http://farm3.static.flickr.com/2078/2311804917_f7dd8f089f.jpg" class="option" title="Door to the light">Maroc Gallery</a>
+        <a rel="shadowbox[Maroc2008]" href="http://farm4.static.flickr.com/3200/2313250339_62abd9796c.jpg" class="hidden" title="Sainte-Lolo">image</a>
+
+
+    <h3>Movies</h3>
+
+    <p>
+
+        <a rel="shadowbox;width=405;height=340" class="option" title="L'hiver" href="http://www.youtube.com/v/wbzLpteC8ng&amp;autoplay=1">YouTube (1)</a>
+        <a rel="shadowbox[Tubes];width=405;height=340;options={counterType:'skip',continuous:true}" class="option" title="M1" href="http://www.youtube.com/v/wbzLpteC8ng&amp;autoplay=1">YouTubes</a>
+        <a rel="shadowbox[Tubes];width=405;height=340" class="hidden" title="M2" href="http://www.youtube.com/v/wbzLpteC8ng&amp;autoplay=1">YouTubes</a>
+
+    <h3>Web</h3>
+
+    <p>
+        <a rel="shadowbox;width=200;height=400" class="option" title="Inline content" href="#inline-sample">Inline</a>
+        <a rel="shadowbox" class="option" title="This page" href="index.html">This page</a>
+        <a rel="shadowbox" class="option" title="Google.com" href="http://www.google.com/">External site</a>
+    </p>
+
+    <div id="inline-sample" class="hidden">
+        <div class="inline-sample-content">
+            <p>This content was taken from a hidden div somewhere in this page!</p>
+            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Vivamus velit. Fusce consectetuer, neque aliquam tempus ultrices, purus urna condimentum lacus, ut placerat pede orci non elit. Integer et metus eget sem egestas varius. Vivamus ac lorem quis augue tempus pharetra. Aenean semper tempus tellus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Ut id dui vitae nisl tincidunt tincidunt. Pellentesque vestibulum mollis tellus. Praesent ac ipsum sed diam pellentesque convallis. Phasellus varius. Duis rutrum nisi ac nisi. Duis libero eros, luctus faucibus, fermentum eu, malesuada vitae, nulla. Aliquam pede purus, aliquet et, iaculis sed, faucibus vel, nibh. Nam et ante eu velit cursus luctus. Sed eget mauris a lacus egestas congue. Etiam vehicula. Nam quis turpis. Aenean tempus mi in massa.</p>
+        </div>
+    </div>
+
+    <p class="license">Shadowbox is copyright &copy; 2007 Michael J. I. Jackson and is licensed under the <a rel="license" href="http://www.gnu.org/licenses/">GNU Lesser General Public License</a>.</p>
+
+    <h2><a name="credits">Credits</a></h2>
+
+    <p>Shadowbox was inspired by <a href="http://www.lokeshdhakar.com">Lokesh Dhakar's</a> <a href="http://www.huddletogether.com/projects/lightbox2/">Lightbox</a> and <a href="http://www.stickmanlabs.com/">Kevin Miller's</a> <a href="http://www.stickmanlabs.com/lightwindow/">LightWindow</a>. Credit should be given to the authors of those libraries for the basic idea behind Shadowbox.</p>
+
+    <p>The default Shadowbox Flash video player is <a href="http://www.jeroenwijering.com/">Jeroen Wijering's</a> <a href="http://www.jeroenwijering.com/?item=JW_FLV_Player">JW FLV Player</a>. It is distributed under the <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/">Creative Commons Attribution-Noncommercial-Share Alike 2.0 Generic</a> license.</p>
+
+    <p>All Flash animation pieces in this gallery are original pieces included courtesy of <a href="http://flashpotatoes.com/">Wyatt Miles</a>.</p>
+
+    <p>Compressed versions of the files necessary to run Shadowbox are included in the default distribution in the <code>build</code> directory. The compression was performed with the excellent <a href="http://www.julienlecomte.net/yuicompressor/">YUI compressor</a> by <a href="http://www.julienlecomte.net/">Julien Lecomte</a>.</p>
+
+    <p class="footer">Copyright &copy; 2007-2008 Michael J. I. Jackson, All rights reserved.</p>
+
+</div>
+
+</body>
+
+</html>
