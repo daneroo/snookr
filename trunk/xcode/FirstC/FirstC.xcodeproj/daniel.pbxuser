@@ -73,6 +73,9 @@
 		};
 		perUserProjectItems = {
 			654A19A30DFF213D00302AF8 /* PBXTextBookmark */ = 654A19A30DFF213D00302AF8 /* PBXTextBookmark */;
+			654A19A70DFF22B700302AF8 /* PBXTextBookmark */ = 654A19A70DFF22B700302AF8 /* PBXTextBookmark */;
+			654A19A80DFF22B700302AF8 /* PBXTextBookmark */ = 654A19A80DFF22B700302AF8 /* PBXTextBookmark */;
+			654A19A90DFF22E000302AF8 /* PBXTextBookmark */ = 654A19A90DFF22E000302AF8 /* PBXTextBookmark */;
 			65A1D2E60DFF1C200052A366 = 65A1D2E60DFF1C200052A366 /* PBXBookmark */;
 			65A1D2F90DFF205C0052A366 = 65A1D2F90DFF205C0052A366 /* PBXTextBookmark */;
 		};
@@ -83,8 +86,8 @@
 	08FB7796FE84155DC02AAC07 /* main.c */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {691, 430}}";
-			sepNavSelRange = "{120, 0}";
-			sepNavVisRange = "{0, 148}";
+			sepNavSelRange = "{123, 0}";
+			sepNavVisRange = "{0, 152}";
 			sepNavWindowFrame = "{{744, 404}, {750, 558}}";
 		};
 	};
@@ -93,9 +96,39 @@
 		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
 		name = "main.c: 5";
 		rLen = 0;
-		rLoc = 120;
+		rLoc = 124;
 		rType = 0;
 		vrLen = 148;
+		vrLoc = 0;
+	};
+	654A19A70DFF22B700302AF8 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 5";
+		rLen = 0;
+		rLoc = 124;
+		rType = 0;
+		vrLen = 148;
+		vrLoc = 0;
+	};
+	654A19A80DFF22B700302AF8 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 5";
+		rLen = 0;
+		rLoc = 123;
+		rType = 0;
+		vrLen = 152;
+		vrLoc = 0;
+	};
+	654A19A90DFF22E000302AF8 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
+		name = "main.c: 5";
+		rLen = 0;
+		rLoc = 123;
+		rType = 0;
+		vrLen = 152;
 		vrLoc = 0;
 	};
 	65A1D2DD0DFF1B8E0052A366 /* FirstC */ = {
@@ -127,6 +160,7 @@
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
 		scmConfiguration = {
+			repositoryName = "Snookr-Xcode";
 		};
 	};
 	65A1D2E40DFF1B950052A366 /* Code sense */ = {
@@ -142,7 +176,7 @@
 		fRef = 08FB7796FE84155DC02AAC07 /* main.c */;
 		name = "main.c: 5";
 		rLen = 0;
-		rLoc = 120;
+		rLoc = 124;
 		rType = 0;
 		vrLen = 148;
 		vrLoc = 0;
