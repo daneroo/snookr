@@ -67,12 +67,11 @@
 
     -->
     <target name="-pre-compile">
-        <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpath="/Users/daniel/Documents/groovy-1.5.6/embeddable/groovy-all-1.5.6.jar" />
+        <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpath="${file.reference.groovy-all-1.5.6.jar}" />
         <!--<taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpath="/usr/share/groovy/embeddable/groovy-all-1.5.6.jar" />-->
         <groovyc srcdir="${src.dir}" destdir="${build.classes.dir}">
             <classpath>
-                <pathelement path="/Users/daniel/Documents/groovy-1.5.6/embeddable/groovy-all-1.5.6.jar"/>
-                <pathelement path="/usr/share/groovy/embeddable/groovy-all-1.5.6.jar"/>
+                <pathelement path="${file.reference.groovy-all-1.5.6.jar}"/>
                 <!--
                 <pathelement path="${testClassesDirectory}"/>
                 <path refid="testPath"/>
