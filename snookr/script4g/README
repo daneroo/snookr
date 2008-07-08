@@ -1,0 +1,11 @@
+Command-line instructions for running:
+
+CP=.:snookr4g.jar:lib/metadata-extractor-2.3.1.jar:lib/db4o-6.3-java5.jar:lib/db4o-6.3-nqopt.jar:lib/bloat-1.0.jar
+
+if required:
+export JAVA_HOME=/usr/java/jdk1.5.0_14/
+- or -
+export JAVA_OPTS="-Xmx1024m"
+
+time groovy -cp $CP symmetricDiffs.groovy 2>&1 | tee upload.log
+time groovy -cp $CP fixFlickrPostedDates.groovy 2>&1 | tee fixdates.log
