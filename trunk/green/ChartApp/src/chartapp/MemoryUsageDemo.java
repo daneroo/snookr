@@ -4,6 +4,7 @@
  */
 package chartapp;
 
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,18 +29,18 @@ import org.jfree.ui.RectangleInsets;
  *
  * @author daniel
  */
-public class Main {
+public class MemoryUsageDemo {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("Hello Charts");
-        doTimeSeries();
+        System.out.println("Hello Memory");
+        doMemorySeries();
 
     }
 
-    private static void doTimeSeries() {
+    private static void doMemorySeries() {
 
         TimeSeries s1 = new TimeSeries("L&G European Index Trust", Month.class);
         s1.add(new Month(2, 2001), 181.8);
@@ -120,4 +121,26 @@ public class Main {
         frame.setVisible(true);
     }
 
+    class DataGenerator extends Timer implements ActionListener {
+
+        /** 
+         * Constructor. 
+         */
+        DataGenerator() {
+            super(100, null);
+            addActionListener(this);
+        }
+
+        /** 
+         * Adds a new free/total memory reading to the dataset. 
+         * 
+         * @param event the action event. 
+         */
+        public void actionPerformed(ActionEvent event) {
+            long f = Runtime.getRuntime().freeMemory();
+            long t = Runtime.getRuntime().totalMemory();
+           // addTotalObservation(t);
+           // addFreeObservation(f);
+        }
+    }
 }
