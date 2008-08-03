@@ -1,0 +1,5 @@
+To pull TED.db from aria:
+
+from  aria: to acerama
+scp -p Programs/EnergyInc/TEDFootprints/TED.db .
+rsync -v --progress TED.db 192.168.3.143:TED.db
