@@ -2,6 +2,13 @@
 import sys
 import os
 import sqlite3
+import string
+import time
+
+def cnvTime(tedTimeString):
+	secs = ( string.atol(tedTimeString) / 10000 - 62135582400000 ) / 1000
+	return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
+
 
 #print "We have  ",len(sys.argv) ," arguments"
 if len(sys.argv) < 2:
@@ -24,4 +31,4 @@ conn = sqlite3.connect(filename)
 c = conn.cursor()
 c.execute('select * from rdu_second_data')
 for row in c:
-    print row
+	print cnvTime(row[0]), row[1]*1000, row[3]

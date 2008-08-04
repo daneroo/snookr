@@ -3,3 +3,17 @@ To pull TED.db from aria:
 from  aria: to acerama
 scp -p Programs/EnergyInc/TEDFootprints/TED.db .
 rsync -v --progress TED.db 192.168.3.143:TED.db
+
+
+Python dates:
+>>> time.strptime("1970-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
+(1970, 1, 1, 0, 0, 0, 3, 1, -1)
+
+>>> time.ctime((633534107180007500L / 10000 -62135582400000L)/1000)
+'Mon Aug  4 01:38:38 2008'
+
+-62135582400000L was derived from java as "01-01-02 23:00:00".getTime()
+
+def cnvTime(tedTimeString):
+    secs = ( string.atol(tedTimeString / 10000 - 62135582400000 ) / 1000
+    time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
