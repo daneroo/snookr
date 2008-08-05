@@ -28,3 +28,4 @@ CREATE TABLE watt (
   PRIMARY KEY wattByStamp (stamp)
 ); 
 
+while true; do mysql -B ted -e "select now(),count(*) from watt"; sleep 10; done
