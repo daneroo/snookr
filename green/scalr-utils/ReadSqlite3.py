@@ -1,7 +1,7 @@
 
 import sys
 import os
-import sqlite
+import sqlite3
 import string
 import time
 
@@ -27,7 +27,7 @@ if not os.path.exists(filename):
 # 90000 seconds
 # print (633530465840008874 - 633529550800006250 ) / 10000000
 
-conn = sqlite.connect(filename)
+conn = sqlite3.connect(filename)
 c = conn.cursor()
 c.execute('select * from rdu_second_data')
 for row in c:

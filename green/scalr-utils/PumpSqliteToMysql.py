@@ -4,6 +4,7 @@ import os
 import sqlite
 import string
 import time
+import MySQLdb
 
 def cnvTime(tedTimeString):
 	secs = ( string.atol(tedTimeString) / 10000 - 62135582400000 ) / 1000
@@ -27,8 +28,20 @@ if not os.path.exists(filename):
 # 90000 seconds
 # print (633530465840008874 - 633529550800006250 ) / 10000000
 
-conn = sqlite.connect(filename)
-c = conn.cursor()
-c.execute('select * from rdu_second_data')
-for row in c:
-	print cnvTime(row[0]), row[1]*1000, row[3]
+connsqlite = sqlite.connect(filename)
+connmysql = MySQLdb.connect (host = "127.0.0.1",
+                             user = "aviso",
+                             passwd = "",
+                             db = "ted")
+curssqlite = connsqlite.cursor()
+curssqlite.execute('select * from rdu_second_data')
+# could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
+cursmysql = connmysql.cursor()
+for row in curssqlite:
+	print cnvTime(row[0]), row[1]*1000
+        cursmysql.execute("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d')" % (cnvTime(row[0]), row[1]*1000))
+
+cursmysql.close()
+connmysql.close()
+curssqlite.close()
+connsqlite.close()
