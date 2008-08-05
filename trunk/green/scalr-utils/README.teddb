@@ -17,3 +17,14 @@ Python dates:
 def cnvTime(tedTimeString):
     secs = ( string.atol(tedTimeString / 10000 - 62135582400000 ) / 1000
     time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
+
+Mysql stuff:
+mysqladmin create ted
+
+DROP TABLE IF EXISTS watt;
+CREATE TABLE watt (
+  stamp datetime NOT NULL default '1970-01-01 00:00:00',
+  watt int(11) NOT NULL default '0',
+  PRIMARY KEY wattByStamp (stamp)
+); 
+
