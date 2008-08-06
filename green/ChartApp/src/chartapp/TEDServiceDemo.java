@@ -22,7 +22,7 @@ import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYStepRenderer;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -71,15 +71,21 @@ public class TEDServiceDemo extends JPanel {
         range.setTickLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         domain.setLabelFont(new Font("SansSerif", Font.PLAIN, 14));
         range.setLabelFont(new Font("SansSerif", Font.PLAIN, 14));
-        XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
+        
+        //XYItemRenderer renderer = new XYLineAndShapeRenderer(true, true);
+        XYItemRenderer renderer = new XYStepRenderer();
+        //XYItemRenderer renderer = new XYStepAreaRenderer(XYStepAreaRenderer.AREA_AND_SHAPES);
+        //XYItemRenderer renderer = new XYStepAreaRenderer(XYStepAreaRenderer.AREA);
+        
         renderer.setSeriesPaint(0, Color.red);
         renderer.setSeriesPaint(1, Color.green);
-        renderer.setStroke(new BasicStroke(3f, BasicStroke.CAP_BUTT,
+        // first arg is line thickness
+        renderer.setStroke(new BasicStroke(1f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_BEVEL));
         XYPlot plot = new XYPlot(dataset, domain, range, renderer);
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setRangeGridlinePaint(Color.white);
+        plot.setBackgroundPaint(Color.white);
+        plot.setDomainGridlinePaint(Color.lightGray);
+        plot.setRangeGridlinePaint(Color.lightGray);
         plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
         domain.setAutoRange(true);
         domain.setLowerMargin(0.0);
@@ -92,7 +98,7 @@ public class TEDServiceDemo extends JPanel {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(4, 4, 4, 4),
-                BorderFactory.createLineBorder(Color.black)));
+                BorderFactory.createLineBorder(Color.lightGray)));
         add(chartPanel);
     }
 
