@@ -102,6 +102,9 @@ public class TEDServiceDemo extends JPanel {
         add(chartPanel);
     }
 
+    public void startGenerator() {
+        new DataGenerator(REFRESH_INTERVAL_MS).start();
+    }
     /** 
      * Adds an observation to the ’total memory’ time series. 
      * 
@@ -160,7 +163,7 @@ public class TEDServiceDemo extends JPanel {
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setBounds(200, 120, 600, 280);
         frame.setVisible(true);
-        panel.new DataGenerator(REFRESH_INTERVAL_MS).start();
+        panel.startGenerator();
         frame.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
