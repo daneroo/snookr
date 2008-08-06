@@ -121,7 +121,7 @@ public class DBChartApp extends JPanel {
         domain.setUpperMargin(0.0);
         domain.setTickLabelsVisible(true);
         range.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        JFreeChart chart = new JFreeChart("TED Service",
+        JFreeChart chart = new JFreeChart("Power over Time",
                 new Font("SansSerif", Font.BOLD, 24), plot, true);
         chart.setBackgroundPaint(Color.white);
         ChartPanel chartPanel = new ChartPanel(chart);
