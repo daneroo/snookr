@@ -29,3 +29,9 @@ CREATE TABLE watt (
 ); 
 
 while true; do mysql -B ted -e "select now(),count(*) from watt"; sleep 10; done
+
+Historgram of Run-Lengths:
+python ReadSqlite3.py ~/TED.db |cut -d\  -f3|uniq -c|awk '{print $1}'|sort -n|uniq -c
+
+sqlite3 to ssh/mysql
+emacs PumpSqlite3ToMysql.py Acerama:scalr-utils daniel$ time python PumpSqlite3ToMysql.py ~/TED.db | ssh euler mysql ted
