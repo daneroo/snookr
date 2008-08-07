@@ -36,7 +36,7 @@ public class EnergyDashboard extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Ted-Live", "Power-Browser" };
+            String[] strings = { "Ted-Live", "Power-Browser", "Analyze" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
@@ -78,8 +78,12 @@ private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN
     if ("Ted-Live".equals(newSel)) {
         panel = new TEDServiceDemo(TEDServiceDemo.OBSERVATION_SLIDING_WINDOW_MS);
         ((TEDServiceDemo)panel).startGenerator();
-    } else {
+    } else if ("Power-Browser".equals(newSel)) {
         panel = new DBChartApp();
+    } else if ("Analyze".equals(newSel)) {
+        panel = new AnalyzeChart();
+    } else {
+        panel = new JPanel();
     }
     //JButton panel = new JButton("Allo "+new Date());
     jPanel1.removeAll();
