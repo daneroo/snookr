@@ -74,3 +74,6 @@ mount -t cifs //aria/ted /ted
 read http://wiki.centos.org/TipsAndTricks/WindowsShares for other options for auto-mounting
 
 see /archive/mirror/ted/doMirror for cron archiving
+
+on cantor:
+time python PumpSqliteToMysql.py /archive/mirror/ted/TED.db |mysql ted
