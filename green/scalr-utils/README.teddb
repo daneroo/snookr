@@ -77,3 +77,17 @@ see /archive/mirror/ted/doMirror for cron archiving
 
 on cantor:
 time python PumpSqliteToMysql.py /archive/mirror/ted/TED.db |mysql ted
+
+GDATA python stuff:
+downloaded from http://code.google.com/p/gdata-python-client/
+ran:
+  python setup.py install --home=~/python
+and then:
+# running 
+export PYTHONPATH=~/python/lib/python/; python appendToGDATA.py --user myname --pw mypass
+
+ssh euler 'mysql -B -N ted -e "select concat(left(stamp,13),\":00:00\") as g,avg(watt) from watt group by g"'| awk '{printf "python appendToGDATA.py --user daniel.lauzon --pw solosekret --stamp \"%s %s\" --watt %s\n",$1,$2,$3}' 
+  or appen to: > coco.sh
+  and
+  source coco.sh
+  ## captca after 200 rows...!!!
