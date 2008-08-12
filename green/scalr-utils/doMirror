@@ -20,11 +20,15 @@ DBNAME=TED.db
 ARCNAME=TED.db.$stamp
 
 
-cp /ted/$DBNAME $ARCNAME
+cp /ted/$DBNAME $DBNAME
 echo `date` "TED mirror copied from aria smbmount"
+cp $DBNAME $ARCNAME
+echo `date` "TED mirror copied for compression - stamped archival"
 
-bzip2 --fast $ARCNAME
-
+# removed the --fast option for now 
+# 2008-08-12 : 60Mb->6.2Mb(30s) vs 6.3Mb(18s,fast))
+# bzip2 --fast $ARCNAME
+bzip2 $ARCNAME
 echo `date` "TED mirror compressed"
 
  [ -d monthly ]   || mkdir monthly;
