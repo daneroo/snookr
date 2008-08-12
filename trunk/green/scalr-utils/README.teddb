@@ -41,3 +41,10 @@ time python PumpSqlite3ToMysql.py ~/TED.db | ssh euler mysql ted
 interesting selects:
  select w.stamp, w.watt from watt w where w.stamp>='2008-08-07 00:00:00' AND w.stamp< ADDDATE('2008-08-07 00:00:00', INTERVAL 10 second); 
  select w.watt, (select max(w2.watt) from watt w2 where w2.stamp>=w.stamp and w2.stamp<ADDDATE(w.stamp,INTERVAL 10 second)) as m  from watt w where w.stamp>='2008-08-07 00:00:00' limit 10; 
+
+Mounting ted on cantor:
+mkdir /ted
+mount -t cifs //aria/ted /ted
+read http://wiki.centos.org/TipsAndTricks/WindowsShares for other options for auto-mounting
+
+see /archive/mirror/ted/doMirror for cron archiving
