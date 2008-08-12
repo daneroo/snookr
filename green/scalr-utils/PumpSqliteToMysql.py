@@ -28,20 +28,30 @@ if not os.path.exists(filename):
 # 90000 seconds
 # print (633530465840008874 - 633529550800006250 ) / 10000000
 
+countRows=0
 connsqlite = sqlite.connect(filename)
-connmysql = MySQLdb.connect (host = "127.0.0.1",
-                             user = "aviso",
-                             passwd = "",
-                             db = "ted")
 curssqlite = connsqlite.cursor()
 curssqlite.execute('select * from rdu_second_data')
-# could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
-cursmysql = connmysql.cursor()
 for row in curssqlite:
-	print cnvTime(row[0]), row[1]*1000
-        cursmysql.execute("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d')" % (cnvTime(row[0]), row[1]*1000))
+        stamp = cnvTime(row[0])
+        watt = row[1]*1000
+        countRows+=1
+        if (countRows%20000 == 0):
+                sys.stderr.write("rows: %d stamp: %s\n" % (countRows,stamp));
+                
+        # print cnvTime(row[0]), row[1]*1000
+        # could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
+        print ("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
 
-cursmysql.close()
-connmysql.close()
 curssqlite.close()
 connsqlite.close()
+
+
+#connmysql = MySQLdb.connect (host = "127.0.0.1",
+#                             user = "aviso",
+#                             passwd = "",
+#                             db = "ted")
+#cursmysql = connmysql.cursor()
+#cursmysql.execute("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d')" % (stamp,watt))
+#cursmysql.close()
+#connmysql.close()
