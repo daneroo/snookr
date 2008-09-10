@@ -1,3 +1,32 @@
+2008-09-10
+  incremental pumping straight from sqlite.
+
+  old way:
+  time python PumpSqliteToMysql.py /archive/mirror/ted/TED.db >coco.sql
+  time mysql ted < coco.sql
+
+  experiments: 
+    -sqlite dump:
+        sqlite3 /archive/mirror/ted/TED.db ".dumo rdu_second_data
+    -sqlite incremental select
+        getInv Time as watermark
+        .mode insert rdu_second_data
+
+        Time stuff:
+        # unix time for now
+        select strftime("%s","now"); 
+        # round trip
+        select datetime(strftime("%s","now"),"unixepoch","localtime");
+
+        # convert time from ted to iso
+        datetime((tick/10000-62135582400000)/1000,"unixepoch","localtime")
+        # convert time to ted:
+
+        select tick,kw from rdu_second_data where tick>=watermark;
+        select tick,kw from rdu_second_data where tick>='0633566196000008750';
+
+    -sqlite transform for mysql
+--------------------------------
 To pull TED.db from aria:
 
 from  aria: to acerama
