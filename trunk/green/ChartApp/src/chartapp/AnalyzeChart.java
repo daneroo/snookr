@@ -103,11 +103,13 @@ public class AnalyzeChart extends JPanel {
         for (int i = 0; i < n; i++) {
             TimeSeriesDataItem di = fromdb.getDataItem(i);
             RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
+
             double yi = di.getValue().doubleValue();
             remaining.add(ti, yi);
         }
         int extractionIteration = 1;
-        while (extractionIteration < 100) {
+        System.out.println("Start @ " + new Date());
+        while (extractionIteration < 20) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
@@ -118,7 +120,6 @@ public class AnalyzeChart extends JPanel {
             int maxStart = 0;
             int maxStop = 0;
             long maxDurationMS = 0;
-
             for (int start = 0; start < n; start++) {
 
                 double maxWForStart = remaining.getDataItem(start).getValue().doubleValue();
@@ -139,10 +140,11 @@ public class AnalyzeChart extends JPanel {
                 }
             }
             System.out.println("it:" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh @ " + maxW + "w x " + (maxDurationMS / 1000.0) + "s");
-            TimeSeries eventSeries = new TimeSeries("Iteration "+extractionIteration, Millisecond.class);
+            TimeSeries eventSeries = new TimeSeries("Iteration " + extractionIteration, Millisecond.class);
             for (int i = maxStart; i <= maxStop; i++) {
                 TimeSeriesDataItem di = remaining.getDataItem(i);
                 RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
+
                 double yi = di.getValue().doubleValue();
                 remaining.addOrUpdate(ti, yi - maxW);
 
@@ -157,11 +159,13 @@ public class AnalyzeChart extends JPanel {
 
             }
 
-            if (extractionIteration<10) {
+            if (extractionIteration < 10) {
                 dataset.addSeries(eventSeries);
             }
             extractionIteration++;
         }
+        System.out.println("End @ " + new Date());
+
         dataset.addSeries(remaining);
         dataset.addSeries(extracted);
     }
@@ -174,6 +178,7 @@ public class AnalyzeChart extends JPanel {
         for (int i = 0; i < n; i++) {
             TimeSeriesDataItem di = fromdb.getDataItem(i);
             RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
+
             double yi = di.getValue().doubleValue();
             //System.out.println("(" + ti.getClass().getName() + ") t=" + ti + " y = " + yi);
             double mx = 0;
@@ -217,10 +222,11 @@ public class AnalyzeChart extends JPanel {
         XYDataset dbdataset = null;
         try {
             dbdataset = new JDBCXYDataset("jdbc:mysql://192.168.3.199/ted", "com.mysql.jdbc.Driver", "aviso", null);
+            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 09:30:00' and stamp<'2008-08-07 09:45:00'");
+            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-10 00:00:00' and stamp<'2008-08-11 00:00:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 00:00:00' limit 300");
             ((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-09-15 08:00:00'");
-            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 09:30:00' and stamp<'2008-08-07 09:45:00'");
-        //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-10 00:00:00' and stamp<'2008-08-11 00:00:00'");
+            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from wattminute where stamp>='2008-09-15 08:00:00'");
         } catch (SQLException ex) {
             Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
