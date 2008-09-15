@@ -109,7 +109,7 @@ public class AnalyzeChart extends JPanel {
         }
         int extractionIteration = 1;
         System.out.println("Start @ " + new Date());
-        while (extractionIteration < 20) {
+        while (extractionIteration < 100) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
@@ -225,7 +225,7 @@ public class AnalyzeChart extends JPanel {
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 09:30:00' and stamp<'2008-08-07 09:45:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-10 00:00:00' and stamp<'2008-08-11 00:00:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 00:00:00' limit 300");
-            ((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-09-15 08:00:00'");
+            ((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watttensec where stamp>='2008-09-15 08:00:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from wattminute where stamp>='2008-09-15 08:00:00'");
         } catch (SQLException ex) {
             Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
