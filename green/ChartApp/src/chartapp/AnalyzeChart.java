@@ -216,9 +216,9 @@ public class AnalyzeChart extends JPanel {
     private XYDataset getDBDataset() {
         XYDataset dbdataset = null;
         try {
-            dbdataset = new JDBCXYDataset("jdbc:mysql://192.168.3.204/ted", "com.mysql.jdbc.Driver", "aviso", null);
+            dbdataset = new JDBCXYDataset("jdbc:mysql://192.168.3.199/ted", "com.mysql.jdbc.Driver", "aviso", null);
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 00:00:00' limit 300");
-            ((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-11 08:00:00'");
+            ((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-09-15 08:00:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 09:30:00' and stamp<'2008-08-07 09:45:00'");
         //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-10 00:00:00' and stamp<'2008-08-11 00:00:00'");
         } catch (SQLException ex) {
