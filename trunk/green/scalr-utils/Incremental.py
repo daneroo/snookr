@@ -57,14 +57,14 @@ hoursAgo=1
 minutesAgo=0
 secondsAgo=0
 
-hourAgoAsTed = invTime(time.time()-((daysAgo*24+hoursAgo)*60+minutesAgo)*60+secondsAgo)
-log("1 hour Ago: %s - %s" % (hourAgoAsTed, cnvTime(hourAgoAsTed)) )
+referenceTimeAsTed = invTime(time.time()-((daysAgo*24+hoursAgo)*60+minutesAgo)*60+secondsAgo)
+log("referenceTime: %s - %s" % (referenceTimeAsTed, cnvTime(referenceTimeAsTed)) )
 
 # include cnvTime in select:
 fullSql = 'select tick,kw from rdu_second_data'
-incrementalSql = "select tick, kw from rdu_second_data where tick>='%s'" % hourAgoAsTed
+incrementalSql = "select tick, kw from rdu_second_data where tick>='%s'" % referenceTimeAsTed
 
-convertedIncrementalSql = "select datetime((tick/10000-62135582400000)/1000,\"unixepoch\",\"localtime\"), kw from rdu_second_data where tick>='%s'" % hourAgoAsTed
+convertedIncrementalSql = "select datetime((tick/10000-62135582400000)/1000,\"unixepoch\",\"localtime\"), kw from rdu_second_data where tick>='%s'" % referenceTimeAsTed
 
 #log("sql: %s" % fullSql)
 #log("sql: %s" % incrementalSql)
