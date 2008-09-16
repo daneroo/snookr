@@ -24,11 +24,15 @@ PRIMARY KEY wattByStamp (stamp)
     print "ddl executed for %s " % (tablename)
 
 def dropAndCreateTables():
+    dropAndCreateTable("tensec");
     dropAndCreateTable("minute");
     dropAndCreateTable("hour");
     dropAndCreateTable("day");
 
 def fillTable(name,groupingWidth):
+    # example for watttensec !
+    # replace into watttensec select concat(left(stamp,18),'0') as g,avg(watt) from watt where stamp>'2008-09-15 11:00:00' group by g;
+    
     # example : cursor.execute("replace into wattminute select left(stamp,16) as g,avg(watt) from watt group by g")
     tablename="watt%s" % name
     cursor.execute("replace into %s select left(stamp,%d) as g,avg(watt) from watt group by g" % (tablename,groupingWidth))
@@ -45,7 +49,7 @@ def getScalar(sql):
     row = cursor.fetchone()
     return row[0]
 
-#adropAndCreateTables()
+dropAndCreateTables()
 fillTables()
 
 cursor.close ()
