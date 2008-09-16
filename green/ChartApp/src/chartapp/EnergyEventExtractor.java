@@ -49,6 +49,7 @@ public class EnergyEventExtractor {
         Date start = startOfDay(new Date(), -1);
         Date stop = startOfDay(new Date(), 0);
         return extractEnergyEvents(GRAIN_TENSEC, start, stop);
+        //return extractEnergyEvents(GRAIN_SECOND, start, stop);
     }
 
     public TimeSeriesCollection extractEnergyEvents(String grain, Date start, Date stop) {
@@ -113,7 +114,7 @@ public class EnergyEventExtractor {
         }
         int extractionIteration = 1;
         System.out.println("Start @ " + new Date());
-        while (extractionIteration < 20) {
+        while (extractionIteration < 200) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
@@ -144,8 +145,8 @@ public class EnergyEventExtractor {
                     }
                 }
             }
-            long elapsed = new Date().getTime()-startItTime;
-            System.out.println("it:" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh @ " + maxW + "w x " + (maxDurationMS / 1000.0) + "s"+"         (elapsed "+elapsed+"ms");
+            long elapsed = new Date().getTime() - startItTime;
+            System.out.println("el: "+elapsed+" it:" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh @ " + maxW + "w x " + (maxDurationMS / 1000.0) + "s");
             TimeSeries eventSeries = new TimeSeries("Iteration " + extractionIteration, Millisecond.class);
             for (int i = maxStart; i <= maxStop; i++) {
                 TimeSeriesDataItem di = remaining.getDataItem(i);
@@ -170,6 +171,16 @@ public class EnergyEventExtractor {
             }
             extractionIteration++;
         }
+        
+        // Reverse sign on remaining.
+        for (int i = 0; i < n; i++) {
+            TimeSeriesDataItem di = remaining.getDataItem(i);
+            RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
+
+            double yi = di.getValue().doubleValue();
+            remaining.addOrUpdate(ti, -yi);
+        }
+
         System.out.println("End @ " + new Date());
 
         dataset.addSeries(remaining);
