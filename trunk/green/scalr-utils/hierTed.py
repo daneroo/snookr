@@ -29,27 +29,28 @@ def dropAndCreateTables():
     dropAndCreateTable("hour");
     dropAndCreateTable("day");
 
-def fillTable(name,groupingWidth):
-    # example for watttensec !
+def fillTable(name,groupingWidth,rightPad):
+    # example for watttensec - why we have rightPad
     # replace into watttensec select concat(left(stamp,18),'0') as g,avg(watt) from watt where stamp>'2008-09-15 11:00:00' group by g;
     
     # example : cursor.execute("replace into wattminute select left(stamp,16) as g,avg(watt) from watt group by g")
     tablename="watt%s" % name
-    cursor.execute("replace into %s select left(stamp,%d) as g,avg(watt) from watt group by g" % (tablename,groupingWidth))
+    cursor.execute("replace into %s select concat(left(stamp,%d),'%s') as g,avg(watt) from watt group by g" % (tablename,groupingWidth,rightPad))
     print "Table %s now has %d entries" % (tablename,getScalar("select count(*) from %s" % tablename))
 
     
 def fillTables():
-    fillTable("minute",16)
-    fillTable("hour",13)
-    fillTable("day",10)
+    fillTable("tensec",18,'0')
+    fillTable("minute",16,':00')
+    fillTable("hour",13,':00:00')
+    fillTable("day",10,' 00:00:00')
 
 def getScalar(sql):
     cursor.execute(sql)
     row = cursor.fetchone()
     return row[0]
 
-dropAndCreateTables()
+#dropAndCreateTables()
 fillTables()
 
 cursor.close ()
