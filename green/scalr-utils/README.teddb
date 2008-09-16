@@ -120,3 +120,5 @@ ssh euler 'mysql -B -N ted -e "select concat(left(stamp,13),\":00:00\") as g,avg
   and
   source coco.sh
   ## captca after 200 rows...!!!
+
+while true; do mysql -N -B ted -e "select left(stamp,10) as g,count(*),min(stamp),max(stamp) from watt where stamp>'2008-09-09' group by g"; echo; sleep 10; done
