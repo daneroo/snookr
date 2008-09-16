@@ -10,10 +10,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,13 +20,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.jdbc.JDBCXYDataset;
-import org.jfree.data.time.Millisecond;
-import org.jfree.data.time.RegularTimePeriod;
-import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.time.TimeSeriesDataItem;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
 /**
@@ -49,15 +39,7 @@ public class AnalyzeChart extends JPanel {
      */
     public AnalyzeChart() {
         super(new BorderLayout());
-        
-        XYDataset dbdataset = getDBDataset();
-        TimeSeries fromdb = copyFirstTimeSeries(dbdataset);
-        
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-        dataset.addSeries(fromdb);
-        
-        //makeMinMaxDiff(dataset, fromdb);
-        extractEnergy(dataset, fromdb);
+        TimeSeriesCollection dataset = new EnergyEventExtractor().extractEnergyEvents();
         
         DateAxis domain = new DateAxis("Time");
         NumberAxis range = new NumberAxis("Watts");
@@ -94,149 +76,8 @@ public class AnalyzeChart extends JPanel {
                 BorderFactory.createLineBorder(Color.lightGray)));
         add(chartPanel);
     }
-    
-    private void extractEnergy(TimeSeriesCollection dataset, TimeSeries fromdb) {
-        TimeSeries remaining = new TimeSeries("Remaining Noise", Millisecond.class);
-        TimeSeries extracted = new TimeSeries("Extracted", Millisecond.class);
-        
-        int n = fromdb.getItemCount();
-        for (int i = 0; i < n; i++) {
-            TimeSeriesDataItem di = fromdb.getDataItem(i);
-            RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
-            
-            double yi = di.getValue().doubleValue();
-            remaining.add(ti, yi);
-        }
-        int extractionIteration = 1;
-        System.out.println("Start @ " + new Date());
-        while (extractionIteration < 100) {
-            /*
-             * Each extraction round finds maximal energy step function
-             * characterized by start,stop,maxW
-             *  where remaining(t)>w for all t in (start,stop)
-             */
-            double maxE = 0;
-            double maxW = 0;
-            int maxStart = 0;
-            int maxStop = 0;
-            long maxDurationMS = 0;
-            for (int start = 0; start < n; start++) {
-                
-                double maxWForStart = remaining.getDataItem(start).getValue().doubleValue();
-                long startTimeMS = remaining.getDataItem(start).getPeriod().getFirstMillisecond();
-                
-                for (int stop = start; stop < n; stop++) {
-                    maxWForStart = Math.min(maxWForStart, remaining.getDataItem(stop).getValue().doubleValue());
-                    long stopTimeMS = remaining.getDataItem(stop).getPeriod().getFirstMillisecond();
-                    double maxEForStartStop = (stopTimeMS - startTimeMS) * maxWForStart;
-                    if (maxEForStartStop > maxE) {
-                        maxStart = start;
-                        maxStop = stop;
-                        maxDurationMS = stopTimeMS - startTimeMS;
-                        maxW = maxWForStart;
-                        maxE = maxEForStartStop;
-                        //System.out.println("    New MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh");
-                    }
-                }
-            }
-            System.out.println("it:" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh @ " + maxW + "w x " + (maxDurationMS / 1000.0) + "s");
-            TimeSeries eventSeries = new TimeSeries("Iteration " + extractionIteration, Millisecond.class);
-            for (int i = maxStart; i <= maxStop; i++) {
-                TimeSeriesDataItem di = remaining.getDataItem(i);
-                RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
-                
-                double yi = di.getValue().doubleValue();
-                remaining.addOrUpdate(ti, yi - maxW);
-                
-                double exi = 0;
-                try {
-                    exi = extracted.getDataItem(ti).getValue().doubleValue();
-                } catch (NullPointerException npe) {
-                }
-                extracted.addOrUpdate(ti, exi + maxW);
-                
-                eventSeries.add(ti, maxW);
-                
-            }
-            
-            if (extractionIteration < 10) {
-                dataset.addSeries(eventSeries);
-            }
-            extractionIteration++;
-        }
-        System.out.println("End @ " + new Date());
-        
-        dataset.addSeries(remaining);
-        dataset.addSeries(extracted);
-    }
-    
-    private void makeMinMaxDiff(TimeSeriesCollection dataset, TimeSeries fromdb) {
-        TimeSeries maxWatt = new TimeSeries("Max Watts", Millisecond.class);
-        TimeSeries minWatt = new TimeSeries("Min Watts", Millisecond.class);
-        
-        int n = fromdb.getItemCount();
-        for (int i = 0; i < n; i++) {
-            TimeSeriesDataItem di = fromdb.getDataItem(i);
-            RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
-            
-            double yi = di.getValue().doubleValue();
-            //System.out.println("(" + ti.getClass().getName() + ") t=" + ti + " y = " + yi);
-            double mx = 0;
-            double mn = 0;
-            for (int j = i; j < i + 5 && j < n; j++) {
-                double yj = fromdb.getDataItem(j).getValue().doubleValue();
-                mx = Math.max(Math.max(mx, yj - yi), 0);
-                mn = Math.min(Math.min(mn, yj - yi), 0);
-            }
-            if (mx < 300) {
-                mx = 0;
-            }
-            maxWatt.add(ti, mx);
-            if (mn > -300) {
-                mn = 0;
-            }
-            minWatt.add(ti, mn);
-        }
-        
-        dataset.addSeries(maxWatt);
-        dataset.addSeries(minWatt);
-    }
-    
-    private TimeSeries copyFirstTimeSeries(XYDataset dbdataset) {
-        
-        TimeSeries fromdb = new TimeSeries("DB Watts", Millisecond.class);
-        for (int series = 0; series < 1; series++) {
-            int n = dbdataset.getItemCount(series);
-            for (int i = 0; i < n; i++) {
-                Number xi = dbdataset.getX(series, i);
-                Millisecond mi = new Millisecond(new Date(xi.longValue()));
-                double yi = dbdataset.getYValue(series, i);
-                //System.out.println("m=" + mi + " X Y = (" + xi + "," + yi);
-                fromdb.add(mi, yi);
-            }
-        }
-        return fromdb;
-    }
-    
-    private XYDataset getDBDataset() {
-        XYDataset dbdataset = null;
-        try {
-            //dbdataset = new JDBCXYDataset("jdbc:mysql://192.168.3.199/ted", "com.mysql.jdbc.Driver", "aviso", null);
-            dbdataset = new JDBCXYDataset("jdbc:mysql://127.0.0.1/ted", "com.mysql.jdbc.Driver", "aviso", null);
-            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 09:30:00' and stamp<'2008-08-07 09:45:00'");
-            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-10 00:00:00' and stamp<'2008-08-11 00:00:00'");
-            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 00:00:00' limit 300");
-            ((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watttensec where stamp>='2008-09-15 08:00:00'");
-            //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from wattminute where stamp>='2008-09-15 08:00:00'");
-        } catch (SQLException ex) {
-            Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return dbdataset;
-    }
-    
+
+   
     /**
      * Entry point for the sample application.
      *
