@@ -52,13 +52,13 @@ public class DBChartApp extends JPanel {
         super(new BorderLayout());
         XYDataset dataset=null;
         try {
-            dataset = new JDBCXYDataset("jdbc:mysql://192.168.3.199/ted", "com.mysql.jdbc.Driver", "aviso", null);
+            dataset = new JDBCXYDataset("jdbc:mysql://127.0.0.1/ted", "com.mysql.jdbc.Driver", "aviso", null);
             //((JDBCXYDataset)dataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 00:00:00' limit 300");
             //((JDBCXYDataset)dataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-08 00:00:00'");
-            ((JDBCXYDataset)dataset).executeQuery("select stamp,watt from wattminute order by stamp");
+            //((JDBCXYDataset)dataset).executeQuery("select stamp,watt from wattminute order by stamp");
             //((JDBCXYDataset)dataset).executeQuery("select stamp,watt from watthour order by stamp");
             //((JDBCXYDataset)dataset).executeQuery("select stamp,watt from wattday order by stamp");
-            //((JDBCXYDataset)dataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-05 00:00:00' and stamp<'2008-08-06 00:00:00'");
+            ((JDBCXYDataset)dataset).executeQuery("select stamp,watt from watt where stamp>='2008-09-15 00:00:00' and stamp<'2008-09-16 00:00:00'");
         } catch (SQLException ex) {
             Logger.getLogger(DBChartApp.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {

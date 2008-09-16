@@ -1,6 +1,6 @@
-/* -------------------- 
- * TEDServiceDemo.java 
- * -------------------- 
+/* --------------------
+ * TEDServiceDemo.java
+ * --------------------
  */
 package chartapp;
 
@@ -33,41 +33,41 @@ import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
-/** 
- * A demo application showing a dynamically updated chart that displays the 
- * current JVM memory usage. 
- * <p> 
- * IMPORTANT NOTE: THIS DEMO IS DOCUMENTED IN THE JFREECHART DEVELOPER GUIDE. 
- * DO NOT MAKE CHANGES WITHOUT UPDATING THE GUIDE ALSO!! 
+/**
+ * A demo application showing a dynamically updated chart that displays the
+ * current JVM memory usage.
+ * <p>
+ * IMPORTANT NOTE: THIS DEMO IS DOCUMENTED IN THE JFREECHART DEVELOPER GUIDE.
+ * DO NOT MAKE CHANGES WITHOUT UPDATING THE GUIDE ALSO!!
  */
 public class AnalyzeChart extends JPanel {
-
-    /** 
-     * Creates a new application. 
-     * 
-     * @param maxAge the maximum age (in milliseconds). 
+    
+    /**
+     * Creates a new application.
+     *
+     * @param maxAge the maximum age (in milliseconds).
      */
     public AnalyzeChart() {
         super(new BorderLayout());
-
+        
         XYDataset dbdataset = getDBDataset();
         TimeSeries fromdb = copyFirstTimeSeries(dbdataset);
-
+        
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(fromdb);
-
+        
         //makeMinMaxDiff(dataset, fromdb);
         extractEnergy(dataset, fromdb);
-
+        
         DateAxis domain = new DateAxis("Time");
         NumberAxis range = new NumberAxis("Watts");
         domain.setTickLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         range.setTickLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         domain.setLabelFont(new Font("SansSerif", Font.PLAIN, 14));
         range.setLabelFont(new Font("SansSerif", Font.PLAIN, 14));
-
+        
         XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
-
+        
         renderer.setSeriesPaint(0, Color.green);
         renderer.setSeriesPaint(1, Color.red);
         renderer.setSeriesPaint(2, Color.blue);
@@ -94,16 +94,16 @@ public class AnalyzeChart extends JPanel {
                 BorderFactory.createLineBorder(Color.lightGray)));
         add(chartPanel);
     }
-
+    
     private void extractEnergy(TimeSeriesCollection dataset, TimeSeries fromdb) {
         TimeSeries remaining = new TimeSeries("Remaining Noise", Millisecond.class);
         TimeSeries extracted = new TimeSeries("Extracted", Millisecond.class);
-
+        
         int n = fromdb.getItemCount();
         for (int i = 0; i < n; i++) {
             TimeSeriesDataItem di = fromdb.getDataItem(i);
             RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
-
+            
             double yi = di.getValue().doubleValue();
             remaining.add(ti, yi);
         }
@@ -121,10 +121,10 @@ public class AnalyzeChart extends JPanel {
             int maxStop = 0;
             long maxDurationMS = 0;
             for (int start = 0; start < n; start++) {
-
+                
                 double maxWForStart = remaining.getDataItem(start).getValue().doubleValue();
                 long startTimeMS = remaining.getDataItem(start).getPeriod().getFirstMillisecond();
-
+                
                 for (int stop = start; stop < n; stop++) {
                     maxWForStart = Math.min(maxWForStart, remaining.getDataItem(stop).getValue().doubleValue());
                     long stopTimeMS = remaining.getDataItem(stop).getPeriod().getFirstMillisecond();
@@ -135,7 +135,7 @@ public class AnalyzeChart extends JPanel {
                         maxDurationMS = stopTimeMS - startTimeMS;
                         maxW = maxWForStart;
                         maxE = maxEForStartStop;
-                    //System.out.println("    New MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh");
+                        //System.out.println("    New MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh");
                     }
                 }
             }
@@ -144,41 +144,41 @@ public class AnalyzeChart extends JPanel {
             for (int i = maxStart; i <= maxStop; i++) {
                 TimeSeriesDataItem di = remaining.getDataItem(i);
                 RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
-
+                
                 double yi = di.getValue().doubleValue();
                 remaining.addOrUpdate(ti, yi - maxW);
-
+                
                 double exi = 0;
                 try {
                     exi = extracted.getDataItem(ti).getValue().doubleValue();
                 } catch (NullPointerException npe) {
                 }
                 extracted.addOrUpdate(ti, exi + maxW);
-
+                
                 eventSeries.add(ti, maxW);
-
+                
             }
-
+            
             if (extractionIteration < 10) {
                 dataset.addSeries(eventSeries);
             }
             extractionIteration++;
         }
         System.out.println("End @ " + new Date());
-
+        
         dataset.addSeries(remaining);
         dataset.addSeries(extracted);
     }
-
+    
     private void makeMinMaxDiff(TimeSeriesCollection dataset, TimeSeries fromdb) {
         TimeSeries maxWatt = new TimeSeries("Max Watts", Millisecond.class);
         TimeSeries minWatt = new TimeSeries("Min Watts", Millisecond.class);
-
+        
         int n = fromdb.getItemCount();
         for (int i = 0; i < n; i++) {
             TimeSeriesDataItem di = fromdb.getDataItem(i);
             RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
-
+            
             double yi = di.getValue().doubleValue();
             //System.out.println("(" + ti.getClass().getName() + ") t=" + ti + " y = " + yi);
             double mx = 0;
@@ -197,13 +197,13 @@ public class AnalyzeChart extends JPanel {
             }
             minWatt.add(ti, mn);
         }
-
+        
         dataset.addSeries(maxWatt);
         dataset.addSeries(minWatt);
     }
-
+    
     private TimeSeries copyFirstTimeSeries(XYDataset dbdataset) {
-
+        
         TimeSeries fromdb = new TimeSeries("DB Watts", Millisecond.class);
         for (int series = 0; series < 1; series++) {
             int n = dbdataset.getItemCount(series);
@@ -217,11 +217,12 @@ public class AnalyzeChart extends JPanel {
         }
         return fromdb;
     }
-
+    
     private XYDataset getDBDataset() {
         XYDataset dbdataset = null;
         try {
-            dbdataset = new JDBCXYDataset("jdbc:mysql://192.168.3.199/ted", "com.mysql.jdbc.Driver", "aviso", null);
+            //dbdataset = new JDBCXYDataset("jdbc:mysql://192.168.3.199/ted", "com.mysql.jdbc.Driver", "aviso", null);
+            dbdataset = new JDBCXYDataset("jdbc:mysql://127.0.0.1/ted", "com.mysql.jdbc.Driver", "aviso", null);
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 09:30:00' and stamp<'2008-08-07 09:45:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-10 00:00:00' and stamp<'2008-08-11 00:00:00'");
             //((JDBCXYDataset) dbdataset).executeQuery("select stamp,watt from watt where stamp>='2008-08-07 00:00:00' limit 300");
@@ -232,14 +233,14 @@ public class AnalyzeChart extends JPanel {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
         return dbdataset;
     }
-
-    /** 
-     * Entry point for the sample application. 
-     * 
-     * @param args ignored. 
+    
+    /**
+     * Entry point for the sample application.
+     *
+     * @param args ignored.
      */
     public static void main(String[] args) {
         JFrame frame = new JFrame("Analyze Demo");
@@ -248,7 +249,7 @@ public class AnalyzeChart extends JPanel {
         frame.setBounds(200, 120, 800, 600);
         frame.setVisible(true);
         frame.addWindowListener(new WindowAdapter() {
-
+            
             public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
