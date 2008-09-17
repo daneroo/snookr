@@ -127,7 +127,6 @@ while true; do mysql -N -B ted -e "select left(stamp,10) as g,count(*),min(stamp
 to produce Motion Spreadsheet:
 mysql ted -e "delete from event"
 
-mysql -B ted -e "select concat(watt,'-',duration) as label,left(stamp,10) as day,watt,duration,watt*duration/1000/60/60 as kwh from event"|awk '{printf "%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5}'>coco.csv
-
+mysql -B ted -e "select concat(watt,'-',duration) as label,left(stamp,10) as day,watt,duration,watt*duration/1000/60/60 as kwh from event"|awk '{printf "%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5}'>ted-event-200d.csv
 Ted-hour
 mysql  -B ted -e "select stamp,watt from watthour"|awk '{printf "%s %s,%s\n",$1,$2,$3}'>ted-hour.csv
