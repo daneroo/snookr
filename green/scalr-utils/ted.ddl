@@ -16,6 +16,18 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `event`
+--
+
+DROP TABLE IF EXISTS `event`;
+CREATE TABLE `event` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `duration` int(11) NOT NULL default '0',
+  `watt` int(11) NOT NULL default '0',
+  KEY `stamp` (`stamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `watt`
 --
 
@@ -79,4 +91,4 @@ CREATE TABLE `watttensec` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-09-17  0:07:52
+-- Dump completed on 2008-09-17  0:11:33
