@@ -122,3 +122,10 @@ ssh euler 'mysql -B -N ted -e "select concat(left(stamp,13),\":00:00\") as g,avg
   ## captca after 200 rows...!!!
 
 while true; do mysql -N -B ted -e "select left(stamp,10) as g,count(*),min(stamp),max(stamp) from watt where stamp>'2008-09-09' group by g"; echo; sleep 10; done
+
+
+to produce Motion Spreadsheet:
+mysql ted -e "delete from event"
+
+mysql -B ted -e "select concat(watt,'-',duration) as label,left(stamp,10) as day,watt,duration,watt*duration/1000/60/60 as kwh from event"|awk '{printf "%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5}'>coco.csv
+
