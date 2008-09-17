@@ -4,9 +4,7 @@
  */
 package chartapp;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import green.model.Broker;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -108,39 +106,9 @@ public class EnergyEventExtractor {
     }
 
     private void appendEvent(Date maxStartStamp, int durationSec, double maxW) {
-        //log.debug("migratesql "+sql);
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            Class.forName(DBDRIVER);
-            String sql = "INSERT INTO event(stamp,duration,watt) VALUES(?,?,?)";
-            con = DriverManager.getConnection(DBURL, DBUSER, DBPASSWORD);
-            pstmt = con.prepareStatement(sql);
-            pstmt.setObject(1, maxStartStamp);
-            pstmt.setObject(2, durationSec);
-            pstmt.setObject(3, maxW);
-            int rowcount = pstmt.executeUpdate();
-        } catch (ClassNotFoundException cnfe) {
-            Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, cnfe);
-        } catch (SQLException sqle) {
-            Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, sqle);
-        } finally {
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException sqle2) {
-                    Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, sqle2);
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException sqle3) {
-                    Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, sqle3);
-                }
-            }
-        }
-
+        String sql = "INSERT INTO event(stamp,duration,watt) VALUES(?,?,?)";
+        Broker b = Broker.instance();
+        b.execute(sql,new Object[]{maxStartStamp,durationSec,maxW});
     }
 
     private void extractEnergy(TimeSeriesCollection dataset, TimeSeries fromdb, int intervalLengthSecs) {
@@ -270,14 +238,15 @@ public class EnergyEventExtractor {
 
     private void doADay(int daysAgo) {
         Date start = startOfDay(new Date(), -daysAgo);
-        Date stop = startOfDay(new Date(), -daysAgo+1);
+        Date stop = startOfDay(new Date(), -daysAgo + 1);
         extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
-        
+
     }
+
     public static void main(String[] args) {
         System.out.println("Hello Extractor!");
         EnergyEventExtractor eee = new EnergyEventExtractor();
-        for (int i=1;i<8;i++) {
+        for (int i = 1; i < 8; i++) {
             eee.doADay(i);
         }
     }
