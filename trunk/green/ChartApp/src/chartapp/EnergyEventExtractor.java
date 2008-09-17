@@ -4,6 +4,9 @@
  */
 package chartapp;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +29,10 @@ public class EnergyEventExtractor {
 
     public static final String GRAIN_TENSEC = "watttensec";
     public static final String GRAIN_SECOND = "watt";
+    private static final String DBDRIVER = "com.mysql.jdbc.Driver";
+    private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
+    private static final String DBUSER = "aviso";
+    private static final String DBPASSWORD = null;
 
     public Date startOfDay(Date ref, int offsetInDays) {
         SimpleDateFormat dayFmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -48,11 +55,11 @@ public class EnergyEventExtractor {
     public TimeSeriesCollection extractEnergyEvents() {
         Date start = startOfDay(new Date(), -1);
         Date stop = startOfDay(new Date(), 0);
-        return extractEnergyEvents(GRAIN_TENSEC, start, stop);
-        //return extractEnergyEvents(GRAIN_SECOND, start, stop);
+        return extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
+    //return extractEnergyEvents(GRAIN_SECOND, 1, start, stop);
     }
 
-    public TimeSeriesCollection extractEnergyEvents(String grain, Date start, Date stop) {
+    public TimeSeriesCollection extractEnergyEvents(String grain, int intervalLengthSecs, Date start, Date stop) {
 
         XYDataset dbdataset = getDBDataset(grain, start, stop);
 
@@ -62,7 +69,7 @@ public class EnergyEventExtractor {
         dataset.addSeries(fromdb);
 
         //makeMinMaxDiff(dataset, fromdb);
-        extractEnergy(dataset, fromdb);
+        extractEnergy(dataset, fromdb, intervalLengthSecs);
 
         return dataset;
     }
@@ -73,7 +80,7 @@ public class EnergyEventExtractor {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String sql = "select stamp,watt from " + grain + " where stamp>='" + sdf.format(start) + "' and stamp<'" + sdf.format(stop) + "'";
             System.err.println("sql: " + sql);
-            dbdataset = new JDBCXYDataset("jdbc:mysql://127.0.0.1/ted", "com.mysql.jdbc.Driver", "aviso", null);
+            dbdataset = new JDBCXYDataset(DBURL, DBDRIVER, DBUSER, DBPASSWORD);
             ((JDBCXYDataset) dbdataset).executeQuery(sql);
         } catch (SQLException ex) {
             Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
@@ -100,7 +107,44 @@ public class EnergyEventExtractor {
         return fromdb;
     }
 
-    private void extractEnergy(TimeSeriesCollection dataset, TimeSeries fromdb) {
+    private void appendEvent(Date maxStartStamp, int durationSec, double maxW) {
+        //log.debug("migratesql "+sql);
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try {
+            Class.forName(DBDRIVER);
+            String sql = "INSERT INTO event(stamp,duration,watt) VALUES(?,?,?)";
+            con = DriverManager.getConnection(DBURL, DBUSER, DBPASSWORD);
+            pstmt = con.prepareStatement(sql);
+            pstmt.setObject(1, maxStartStamp);
+            pstmt.setObject(2, durationSec);
+            pstmt.setObject(3, maxW);
+            int rowcount = pstmt.executeUpdate();
+        } catch (ClassNotFoundException cnfe) {
+            Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, cnfe);
+        } catch (SQLException sqle) {
+            Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, sqle);
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException sqle2) {
+                    Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, sqle2);
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException sqle3) {
+                    Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, sqle3);
+                }
+            }
+        }
+
+    }
+
+    private void extractEnergy(TimeSeriesCollection dataset, TimeSeries fromdb, int intervalLengthSecs) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         TimeSeries remaining = new TimeSeries("Remaining Noise", Millisecond.class);
         TimeSeries extracted = new TimeSeries("Extracted", Millisecond.class);
 
@@ -114,7 +158,7 @@ public class EnergyEventExtractor {
         }
         int extractionIteration = 1;
         System.out.println("Start @ " + new Date());
-        while (extractionIteration < 200) {
+        while (extractionIteration < 100) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
@@ -125,6 +169,7 @@ public class EnergyEventExtractor {
             int maxStart = 0;
             int maxStop = 0;
             long maxDurationMS = 0;
+            Date maxStartStamp = null;
             long startItTime = new Date().getTime();
             for (int start = 0; start < n; start++) {
 
@@ -134,11 +179,14 @@ public class EnergyEventExtractor {
                 for (int stop = start; stop < n; stop++) {
                     maxWForStart = Math.min(maxWForStart, remaining.getDataItem(stop).getValue().doubleValue());
                     long stopTimeMS = remaining.getDataItem(stop).getPeriod().getFirstMillisecond();
+                    // correct the duration!
+                    stopTimeMS += intervalLengthSecs * 1000;
                     double maxEForStartStop = (stopTimeMS - startTimeMS) * maxWForStart;
                     if (maxEForStartStop > maxE) {
                         maxStart = start;
                         maxStop = stop;
                         maxDurationMS = stopTimeMS - startTimeMS;
+                        maxStartStamp = new Date(startTimeMS);
                         maxW = maxWForStart;
                         maxE = maxEForStartStop;
                     //System.out.println("    New MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh");
@@ -146,8 +194,9 @@ public class EnergyEventExtractor {
                 }
             }
             long elapsed = new Date().getTime() - startItTime;
-            System.out.println("el: "+elapsed+" it:" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh @ " + maxW + "w x " + (maxDurationMS / 1000.0) + "s");
+            System.out.println("el: " + elapsed + " #" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh = " + maxW + "w x " + (maxDurationMS / 1000.0) + "s @ " + sdf.format(maxStartStamp));
             TimeSeries eventSeries = new TimeSeries("Iteration " + extractionIteration, Millisecond.class);
+            appendEvent(maxStartStamp, (int) (maxDurationMS / 1000.0), maxW);
             for (int i = maxStart; i <= maxStop; i++) {
                 TimeSeriesDataItem di = remaining.getDataItem(i);
                 RegularTimePeriod ti = di.getPeriod(); //should be a MilliSecond ?
@@ -171,7 +220,7 @@ public class EnergyEventExtractor {
             }
             extractionIteration++;
         }
-        
+
         // Reverse sign on remaining.
         for (int i = 0; i < n; i++) {
             TimeSeriesDataItem di = remaining.getDataItem(i);
@@ -217,5 +266,19 @@ public class EnergyEventExtractor {
 
         dataset.addSeries(maxWatt);
         dataset.addSeries(minWatt);
+    }
+
+    private void doADay(int daysAgo) {
+        Date start = startOfDay(new Date(), -daysAgo);
+        Date stop = startOfDay(new Date(), -daysAgo+1);
+        extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
+        
+    }
+    public static void main(String[] args) {
+        System.out.println("Hello Extractor!");
+        EnergyEventExtractor eee = new EnergyEventExtractor();
+        for (int i=1;i<5;i++) {
+            eee.doADay(i);
+        }
     }
 }
