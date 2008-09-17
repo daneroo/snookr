@@ -158,7 +158,7 @@ public class EnergyEventExtractor {
         }
         int extractionIteration = 1;
         System.out.println("Start @ " + new Date());
-        while (extractionIteration < 100) {
+        while (extractionIteration < 200) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
@@ -277,7 +277,7 @@ public class EnergyEventExtractor {
     public static void main(String[] args) {
         System.out.println("Hello Extractor!");
         EnergyEventExtractor eee = new EnergyEventExtractor();
-        for (int i=1;i<5;i++) {
+        for (int i=1;i<8;i++) {
             eee.doADay(i);
         }
     }
