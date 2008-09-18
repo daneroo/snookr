@@ -130,3 +130,27 @@ mysql ted -e "delete from event"
 mysql -B ted -e "select concat(watt,'-',duration) as label,left(stamp,10) as day,watt,duration,watt*duration/1000/60/60 as kwh from event"|awk '{printf "%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5}'>ted-event-200d.csv
 Ted-hour
 mysql  -B ted -e "select stamp,watt from watthour"|awk '{printf "%s %s,%s\n",$1,$2,$3}'>ted-hour.csv
+
+
+
+# get a motion pie chart:
+name day  x y color size
+
++-----------+------------+------+------+------------+------------+
+| name      | day        | X    | Y    | kWh        | kWh        |
++-----------+------------+------+------+------------+------------+
+| Evening   | 2008-07-29 | 0.29 | 1.71 |  8409.6000 |  8409.6000 |
+| Night     | 2008-07-30 | 2.00 | 1.00 |  5297.0000 |  5297.0000 |
+| Morning   | 2008-07-30 | 1.71 | 1.71 |  5231.0000 |  5231.0000 |
+
+
+mysql ted -B -e "select case floor(hour(stamp)/6) when 0 then 'Night' when 1 then 'Morning' when 2 then 'AfterNoon' else 'Evening' end as name,date(stamp) as day,round(cos(floor(hour(stamp)/6)*PI()/2)+1,2) as X,round(sin(floor(hour(stamp)/6)*PI()/2)+1,2) as Y,avg(watt)*6 as kWh,avg(watt)*6 as kWh from watthour group by day,name order by day,floor(hour(stamp)/6)"|awk '{printf "%s,%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5,$6}'>motion-4part.csv
+
+24 hour + AllDay at center kWh as color kW as size
+
+mysql ted -B -e "select 'AllDay' as name,date(stamp) as day,0 as X, 0 as Y,avg(watt)*24 as kWh,avg(watt) as kW from watthour group by day,name order by day"|awk '{printf "%s,%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5,$6}'>motion-24part-AllDay.csv
+#Append - No header
+mysql ted -N -B -e "select concat(hour(stamp),'h00') as name,date(stamp) as day,round(cos(hour(stamp)/24*2*PI()),2) as X,round(sin(hour(stamp)/24*2*PI()),2) as Y,avg(watt)*1 as kWh,avg(watt) as kW from watthour group by day,name order by day,hour(stamp)"|awk '{printf "%s,%s,%s,%s,%s,%s\n",$1,$2,$3,$4,$5,$6}'>>motion-24part-AllDay.csv
+
+
+
