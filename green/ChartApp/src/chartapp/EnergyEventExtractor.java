@@ -5,6 +5,7 @@
 package chartapp;
 
 import green.model.Broker;
+import green.util.Timer;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,10 +52,12 @@ public class EnergyEventExtractor {
     }
 
     public TimeSeriesCollection extractEnergyEvents() {
-        Date start = startOfDay(new Date(), -1);
-        Date stop = startOfDay(new Date(), 0);
-        return extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
-    //return extractEnergyEvents(GRAIN_SECOND, 1, start, stop);
+        int daysAgo = 3;
+        Date start = startOfDay(new Date(), -daysAgo);
+        Date stop = startOfDay(new Date(), -daysAgo + 1);
+
+        //return extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
+        return extractEnergyEvents(GRAIN_SECOND, 1, start, stop);
     }
 
     public TimeSeriesCollection extractEnergyEvents(String grain, int intervalLengthSecs, Date start, Date stop) {
@@ -81,9 +84,9 @@ public class EnergyEventExtractor {
             dbdataset = new JDBCXYDataset(DBURL, DBDRIVER, DBUSER, DBPASSWORD);
             ((JDBCXYDataset) dbdataset).executeQuery(sql);
         } catch (SQLException ex) {
-            Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(AnalyzeChart.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
         }
 
         return dbdataset;
@@ -108,7 +111,7 @@ public class EnergyEventExtractor {
     private void appendEvent(Date maxStartStamp, int durationSec, double maxW) {
         String sql = "INSERT INTO event(stamp,duration,watt) VALUES(?,?,?)";
         Broker b = Broker.instance();
-        b.execute(sql,new Object[]{maxStartStamp,durationSec,maxW});
+    //b.execute(sql,new Object[]{maxStartStamp,durationSec,maxW});
     }
 
     private void extractEnergy(TimeSeriesCollection dataset, TimeSeries fromdb, int intervalLengthSecs) {
@@ -126,7 +129,11 @@ public class EnergyEventExtractor {
         }
         int extractionIteration = 1;
         System.out.println("Start @ " + new Date());
-        while (extractionIteration < 200) {
+
+        long endOfDataMS = remaining.getDataItem(n - 1).getPeriod().getFirstMillisecond() + intervalLengthSecs * 1000;
+        //System.err.println("End of Data: " + sdf.format(new Date(endOfDataMS)));
+
+        while (extractionIteration < 1000) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
@@ -138,7 +145,7 @@ public class EnergyEventExtractor {
             int maxStop = 0;
             long maxDurationMS = 0;
             Date maxStartStamp = null;
-            long startItTime = new Date().getTime();
+            Timer tt = new Timer();
             for (int start = 0; start < n; start++) {
 
                 double maxWForStart = remaining.getDataItem(start).getValue().doubleValue();
@@ -159,10 +166,19 @@ public class EnergyEventExtractor {
                         maxE = maxEForStartStop;
                     //System.out.println("    New MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh");
                     }
+                    /* skip test #1
+                     *  if [start,endOfData]@maxWForStart <maxE skip to next start: break.
+                     */
+                    double maxPossibleEForStart = (endOfDataMS - startTimeMS) * maxWForStart;
+                    if (maxPossibleEForStart < maxE) {
+                        //System.err.println("Broke at stop="+stop+" of n="+n);
+                        break;
+                    }
+
                 }
             }
-            long elapsed = new Date().getTime() - startItTime;
-            System.out.println("el: " + elapsed + " #" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh = " + maxW + "w x " + (maxDurationMS / 1000.0) + "s @ " + sdf.format(maxStartStamp));
+            System.out.println("t: " + tt.diff() + "s #" + extractionIteration + " MaxE = " + (maxE / 1000 / 60 / 60 / 1000) + " kwh = " + maxW + "w x " + (maxDurationMS / 1000.0) + "s @ " + sdf.format(maxStartStamp));
+
             TimeSeries eventSeries = new TimeSeries("Iteration " + extractionIteration, Millisecond.class);
             appendEvent(maxStartStamp, (int) (maxDurationMS / 1000.0), maxW);
             for (int i = maxStart; i <= maxStop; i++) {
@@ -240,13 +256,14 @@ public class EnergyEventExtractor {
         Date start = startOfDay(new Date(), -daysAgo);
         Date stop = startOfDay(new Date(), -daysAgo + 1);
         extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
+    // extractEnergyEvents(GRAIN_SECOND, 1, start, stop);
 
     }
 
     public static void main(String[] args) {
         System.out.println("Hello Extractor!");
         EnergyEventExtractor eee = new EnergyEventExtractor();
-        for (int i = 1; i < 8; i++) {
+        for (int i = 3; i < 5; i++) {
             eee.doADay(i);
         }
     }

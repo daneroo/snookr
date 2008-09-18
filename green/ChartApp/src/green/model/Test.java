@@ -6,6 +6,7 @@ package green.model;
 
 import green.model.Broker;
 import green.model.StampAndDoublesHandler;
+import green.util.Timer;
 import java.util.Date;
 import java.util.Vector;
 
@@ -129,12 +130,12 @@ public class Test {
         showHeadAndTail(v, -1, false);
 
         int iterations = 1000;
-        long start = new Date().getTime();
+        Timer tt = new Timer();
         for (int i = 0; i < iterations; i++) {
-            b.execute(sql, new Object[]{new Date(start + i * 1000), 2000 + (i % 100) * 10});
+            b.execute(sql, new Object[]{new Date(now.getTime() + i * 1000), 2000 + (i % 100) * 10});
         }
-        long elapsed = new Date().getTime() - start;
-        log("speed test: " + elapsed + "ms/" + iterations);
+        String msg = "speed test: " + iterations + " processed at rate " + tt.rate(iterations) + " ins/s or " + tt.diff() / iterations + " s/it";
+        log(msg);
         v = b.getObjects(showsql, 0);
         showHeadAndTail(v, 2, false);
 
