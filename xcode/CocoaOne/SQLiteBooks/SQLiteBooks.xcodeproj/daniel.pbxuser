@@ -1,0 +1,184 @@
+// !$*UTF8*$!
+{
+	1D6058900D05DD3D006BFB54 /* SQLiteBooks */ = {
+		activeExec = 0;
+		executables = (
+			655EB2FA0E92938B002F5DF5 /* SQLiteBooks */,
+		);
+	};
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 655EB2FA0E92938B002F5DF5 /* SQLiteBooks */;
+		activeTarget = 1D6058900D05DD3D006BFB54 /* SQLiteBooks */;
+		codeSenseManager = 655EB3170E929393002F5DF5 /* Code sense */;
+		executables = (
+			655EB2FA0E92938B002F5DF5 /* SQLiteBooks */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					317,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 244561605;
+			PBXWorkspaceStateSaveDate = 244561605;
+		};
+		perUserProjectItems = {
+			652B057A0E93B6EA009CF957 /* PBXTextBookmark */ = 652B057A0E93B6EA009CF957 /* PBXTextBookmark */;
+			65EA758E0E92B64B001B2C57 /* PBXTextBookmark */ = 65EA758E0E92B64B001B2C57 /* PBXTextBookmark */;
+			65EA758F0E92B64B001B2C57 /* PBXTextBookmark */ = 65EA758F0E92B64B001B2C57 /* PBXTextBookmark */;
+			65EA75900E92B64B001B2C57 /* PBXTextBookmark */ = 65EA75900E92B64B001B2C57 /* PBXTextBookmark */;
+		};
+		sourceControlManager = 655EB3160E929393002F5DF5 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	301073760D6D048D00B9B6F8 /* AppDelegate.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {519, 2702}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 504}";
+		};
+	};
+	301073780D6D048D00B9B6F8 /* Book.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {720, 3962}}";
+			sepNavSelRange = "{7556, 4}";
+			sepNavVisRange = "{7133, 740}";
+			sepNavWindowFrame = "{{15, 325}, {846, 848}}";
+		};
+	};
+	301073C20D6D075700B9B6F8 /* MasterViewController.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {756, 2884}}";
+			sepNavSelRange = "{4273, 4}";
+			sepNavVisRange = "{3803, 1214}";
+			sepNavWindowFrame = "{{38, 304}, {846, 848}}";
+		};
+	};
+	30DF0D9A0DB7FF3500C8B358 /* ReadMe.txt */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {3624, 1246}}";
+			sepNavSelRange = "{2945, 92}";
+			sepNavVisRange = "{5268, 2853}";
+			sepNavWindowFrame = "{{15, 342}, {1215, 831}}";
+		};
+	};
+	652B057A0E93B6EA009CF957 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 301073780D6D048D00B9B6F8 /* Book.m */;
+		name = "Book.m: 155";
+		rLen = 4;
+		rLoc = 7556;
+		rType = 0;
+		vrLen = 740;
+		vrLoc = 7133;
+	};
+	655EB2FA0E92938B002F5DF5 /* SQLiteBooks */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = SQLiteBooks;
+		sourceDirectories = (
+		);
+	};
+	655EB3160E929393002F5DF5 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryName = "Snookr-XCode";
+		};
+	};
+	655EB3170E929393002F5DF5 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	65EA758E0E92B64B001B2C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 301073760D6D048D00B9B6F8 /* AppDelegate.m */;
+		name = "AppDelegate.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 504;
+		vrLoc = 0;
+	};
+	65EA758F0E92B64B001B2C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 301073760D6D048D00B9B6F8 /* AppDelegate.m */;
+		name = "AppDelegate.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 504;
+		vrLoc = 0;
+	};
+	65EA75900E92B64B001B2C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 301073780D6D048D00B9B6F8 /* Book.m */;
+		name = "Book.m: 155";
+		rLen = 4;
+		rLoc = 7556;
+		rType = 0;
+		vrLen = 740;
+		vrLoc = 7133;
+	};
+}
