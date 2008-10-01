@@ -1,7 +1,6 @@
 // !$*UTF8*$!
 {
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeArchitecture = i386;
 		activeBuildConfigurationName = Release;
 		activeExecutable = 655E04AA0DFDC2E200066C10 /* CocoaOne */;
 		activeTarget = 8D1107260486CEB800E47090 /* CocoaOne */;
@@ -49,6 +48,22 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXSymbolsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXSymbolsDataSource_SymbolNameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					16,
+					200,
+					50,
+					183,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXSymbolsDataSource_SymbolTypeIconID,
+					PBXSymbolsDataSource_SymbolNameID,
+					PBXSymbolsDataSource_SymbolTypeID,
+					PBXSymbolsDataSource_ReferenceNameID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -57,7 +72,7 @@
 					20,
 					219,
 					20,
-					48.16259765625,
+					48,
 					43,
 					43,
 					20,
@@ -73,8 +88,8 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 234825001;
-			PBXWorkspaceStateSaveDate = 234825001;
+			PBXPerProjectTemplateStateSaveDate = 244561556;
+			PBXWorkspaceStateSaveDate = 244561556;
 		};
 		sourceControlManager = 655E04B80DFDC2EF00066C10 /* Source Control */;
 		userBuildSettings = {
@@ -117,7 +132,7 @@
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
 		scmConfiguration = {
-			repositoryName = "Snookr-Xcode";
+			repositoryName = "Snookr-XCode";
 		};
 	};
 	655E04B90DFDC2EF00066C10 /* Code sense */ = {

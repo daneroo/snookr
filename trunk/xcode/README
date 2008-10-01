@@ -1,1 +1,25 @@
 This is the root of xcode trials
+
+ Ignoring this for now; Using XCode scm directly.
+
+Subversion properties: svn:ignore
+ set on xcode project, one by one.
+as in
+  svn -R proplist
+Properties on 'CocoaOne':
+  svn:ignore
+Properties on 'CocoaOne/English.lproj/InfoPlist.strings':
+  svn:mime-type
+Properties on 'CocoaOne/English.lproj/MainMenu.nib/keyedobjects.nib':
+  svn:mime-type
+Properties on 'FirstC':
+  svn:ignore
+
+ or
+
+  svn -R propget svn:ignore
+CocoaOne - build
+FirstC - build
+
+try adding a project with XCode 3.1 directly.
+
