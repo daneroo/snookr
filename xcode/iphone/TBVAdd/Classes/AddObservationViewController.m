@@ -32,6 +32,12 @@
 	return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    NSLog(@"viewWillAppear Reset Picker date");
+    [datePicker setDate:[NSDate date]];
+    //datePicker.date = [NSDate date];
+}
+
 - (void)save  {
 	static NSDateFormatter *dateFormatter = nil;
 	if (dateFormatter == nil) {
@@ -42,7 +48,7 @@
 
     NSLog(@"Hello from save callback date=%@", pickedStr);
     
-	[self.delegate addObservation:pickedStr];
+	[self.delegate addStampedObservation:pickedStr];
     [[self.delegate tableView] reloadData];
 	[self dismissModalViewControllerAnimated:YES];
 }

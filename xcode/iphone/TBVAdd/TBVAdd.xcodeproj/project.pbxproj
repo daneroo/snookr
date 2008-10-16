@@ -248,6 +248,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
+				PROVISIONING_PROFILE = DefaultProfileUuid;
 				SDKROOT = iphonesimulator2.1;
 			};
 			name = Release;

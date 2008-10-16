@@ -101,7 +101,8 @@
     
     // should this be retained ??
     observations = [[NSMutableArray alloc] init];
-    [self addRandObservation];
+    //[self addRandObservation];
+    [self addObservation:@"First"];
     
 	//Set the title of the Main View here.
 	self.title = @"TBV Add";
