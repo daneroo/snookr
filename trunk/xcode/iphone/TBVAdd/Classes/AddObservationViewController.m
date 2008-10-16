@@ -33,8 +33,16 @@
 }
 
 - (void)save  {
-    NSLog(@"Hello from save callback date=%@", [[datePicker date] description]);
-	[self.delegate addObservation:[[datePicker date] description]];
+	static NSDateFormatter *dateFormatter = nil;
+	if (dateFormatter == nil) {
+		dateFormatter = [[NSDateFormatter alloc] init];
+		[dateFormatter setDateFormat:@"HH:mm:ss"];
+	}
+    NSString *pickedStr = [dateFormatter stringFromDate:[datePicker date]];
+
+    NSLog(@"Hello from save callback date=%@", pickedStr);
+    
+	[self.delegate addObservation:pickedStr];
     [[self.delegate tableView] reloadData];
 	[self dismissModalViewControllerAnimated:YES];
 }
