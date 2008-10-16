@@ -1,3 +1,20 @@
-This directory is to hold iphone projects
+This directory is to hold iphone XCode (3.1) projects
+  import with XCode 3.1 SCM:
 
-import with XCode 3.1 SCM:
+-=-= svn:ignore: =-=-
+This is how we setup svn:ignore 
+   -add ignore attributes to iphone(this) directory, 
+   instead of global config which would be machine specific.
+   see http://balanceinmotion.net/blog/2007/12/24/svn-ignore-and-xcode-transient-files/
+   which suggests: 
+global-ignores = *.o *.lo *.la #*# .*.rej *.rej .*~ *~ .#* .DS_Store *~.nib *.pbxuser .xvpics build *.mode1 *.mode1v3
+
+    so: cd /Users/daniel/Documents/xcode/snookr-xcode/
+    	Use this to edit the property (export EDITOR=emacs)
+      svn propedit svn:ignore iphone
+      svn proplist iphone
+      	  Properties on 'iphone':
+	    svn:ignore
+      svn propget svn:ignore iphone
+*.o *.lo *.la #*# .*.rej *.rej .*~ *~ .#* .DS_Store *~.nib *.pbxuser .xvpics build *.mode1 *.mode1v3
+
