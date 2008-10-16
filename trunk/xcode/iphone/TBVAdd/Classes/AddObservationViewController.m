@@ -33,7 +33,7 @@
 }
 
 - (void)save  {
-    NSLog(@"Hello from save callback");
+    NSLog(@"Hello from save callback date=%@", [[datePicker date] description]);
 	[self.delegate addObservation:[[datePicker date] description]];
     [[self.delegate tableView] reloadData];
 	[self dismissModalViewControllerAnimated:YES];
