@@ -10,11 +10,13 @@
 #import "RootViewController.h"
 @interface AddObservationViewController : UIViewController {
 	IBOutlet UIDatePicker *datePicker;
+    IBOutlet UIPickerView *weightPicker;
 	RootViewController *delegate;
 
 }
 
 @property (nonatomic, retain) IBOutlet UIDatePicker *datePicker;
+@property (nonatomic, retain) IBOutlet UIPickerView *weightPicker;
 @property (nonatomic, retain) RootViewController *delegate;
     
 @end
