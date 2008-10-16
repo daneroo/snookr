@@ -1,7 +1,13 @@
 This directory is to hold iphone XCode (3.1) projects
   import with XCode 3.1 SCM:
+  Then checkout, or update this check-out directory
+  and then set Repository to snookr inside the project (from xcode)
 
--=-= svn:ignore: =-=-
+-----------
+DID NOT WORK to add svn:ignore property on this directory:
+  the build subdire was not being ignored recursively.
+
+-=-=NOT  svn:ignore: =-=-
 This is how we setup svn:ignore 
    -add ignore attributes to iphone(this) directory, 
    instead of global config which would be machine specific.
