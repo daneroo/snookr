@@ -11,6 +11,7 @@
 
 @implementation AddObservationViewController
 @synthesize datePicker;
+@synthesize weightPicker;
 @synthesize delegate;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
@@ -36,6 +37,8 @@
     NSLog(@"viewWillAppear Reset Picker date");
     [datePicker setDate:[NSDate date]];
     //datePicker.date = [NSDate date];
+    [weightPicker selectRow:176 inComponent:0 animated:NO];
+    
 }
 
 - (void)save  {
@@ -87,6 +90,65 @@
 - (void)dealloc {
     [super dealloc];
 }
+
+
+#pragma mark -
+#pragma mark PickerView delegate methods
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
+{
+    double val = [pickerView selectedRowInComponent:0] + 0.1l* [pickerView selectedRowInComponent:2];
+    
+    NSNumber *num = [NSNumber numberWithDouble:val];
+    NSLog(@"Picked %d : %d value: %@", component,row,[num stringValue]);
+/*
+ // report the selection to the UI label
+	label.text = [NSString stringWithFormat:@"%@ - %d",
+                  [pickerViewArray objectAtIndex:[pickerView selectedRowInComponent:0]], [pickerView selectedRowInComponent:1]];
+*/
+ }
+
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
+{
+    if (component == 1) {
+        return @".";
+	}
+    return [[NSNumber numberWithInt:row] stringValue];
+}
+
+- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
+{
+	if (component == 0) return 60.0;	// hold thre digits
+	if (component == 1) return 20.0;    // hold the decimal point
+	if (component == 2) return 40.0;    // hold the decimal digit
+	return 40; // whatever
+}
+
+- (CGFloat)NOTpickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
+{
+	return 40.0;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    switch (component) {
+        case 0:
+            return 400;
+            break;
+        case 2:
+            return 10;
+            break;
+        default:
+            return 1;
+            break;
+    }
+}
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+	return 3;
+}
+
 
 
 @end
