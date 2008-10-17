@@ -46,6 +46,90 @@
 	[observations sortUsingDescriptors:sortDescriptors];
 	[sortDescriptors release];
 	[sortDescriptor release];
+
+    [self saveObservations];
+}
+
+- (void) saveObservations {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex: 0];
+	NSString *dataFilePath = [documentsDirectory stringByAppendingPathComponent: @"observationdata.xml"];
+    
+	NSLog (@"writing to file %@", dataFilePath);
+    
+    // codeblock approach
+    // [myArray do:ocblock(:each | [self doMyThingWith:each];)
+    
+    // make an array of dictionary
+    NSMutableArray *nmsa = [[NSMutableArray alloc] init];
+    
+    NSEnumerator * enumerator = [observations objectEnumerator];
+    Observation *observation;
+    while(observation = (Observation *)[enumerator nextObject]) {
+        NSLog(@">>>> stamp: %@, value: %d", observation.stamp, observation.value);
+        
+        NSArray *keys = [NSArray arrayWithObjects:@"stamp", @"value", nil];
+        NSArray *objects = [NSArray arrayWithObjects:observation.stamp, [NSNumber numberWithInteger:observation.value], nil];
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
+        
+        /*for (id key in dictionary) {
+         NSLog(@"key: %@, value: %@", key, [dictionary objectForKey:key]);
+         }*/
+        
+        [nmsa addObject:dictionary];
+        
+    }
+    
+    
+    [nmsa writeToFile: dataFilePath atomically: YES];
+    
+	NSLog (@"wrote to file %@", dataFilePath);
+	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath])
+		NSLog (@"file exists");
+	else
+		NSLog (@"file doesn't exist");
+   
+}
+
+- (void) loadObservations {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex: 0];
+	NSString *dataFilePath = [documentsDirectory stringByAppendingPathComponent: @"observationdata.xml"];
+    
+	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath]) {
+        NSLog (@"file exists");
+    } else     {
+		NSLog (@"file doesn't exist");
+        return;
+    }
+    
+	NSLog (@"reading from file %@", dataFilePath);
+    
+    
+    // make an array of dictionary
+    NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfFile:dataFilePath];
+    
+    NSEnumerator * enumerator = [nmsa objectEnumerator];
+    NSDictionary *dictionary;
+    while(dictionary = (NSDictionary *)[enumerator nextObject]) {
+        NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
+        NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
+        NSLog(@"<<<< stamp: %@, value: %@", stamp, value);
+        
+        //[observations addObject:dictionary];
+        Observation *observation = [[Observation alloc] init]; 
+        observation.stamp = stamp;
+        observation.value = [value integerValue];
+        
+        [observations addObject:observation];
+
+        
+    }
+    
+    
+    //[nmsa writeToFile: dataFilePath atomically: YES];
+    
+	NSLog (@"Read from file %@", dataFilePath);
     
 }
 
@@ -86,11 +170,11 @@
 	static NSDateFormatter *dateFormatter = nil;
 	if (dateFormatter == nil) {
 		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setDateFormat:@"HH:mm:ss"];
+		[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 	}
     NSString *stampStr = [dateFormatter stringFromDate: observation.stamp];
     double d = observation.value / 1000.0;
-    NSString* cellStr = [[NSString alloc] initWithFormat:@"%@ : %.2f", stampStr, d];
+    NSString* cellStr = [[NSString alloc] initWithFormat:@"%@ : %.1f", stampStr, d];
 
     cell.text = cellStr;
     
@@ -115,8 +199,10 @@
     
     // should this be retained ??
     observations = [[NSMutableArray alloc] init];
-    [self addRandObservation];
-    //[self addObservation:@"First"];
+    [self loadObservations];
+    if ([observations count]==0) {
+        [self addRandObservation];
+    }
     
 	//Set the title of the Main View here.
 	self.title = @"TBV Add";
@@ -171,6 +257,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
         [observations removeObjectAtIndex:indexPath.row];
+        [self saveObservations];
         [[self tableView] reloadData];
         
         //[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
