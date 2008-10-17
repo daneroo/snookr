@@ -19,4 +19,6 @@
 @property (nonatomic, retain) IBOutlet UIPickerView *weightPicker;
 @property (nonatomic, retain) RootViewController *delegate;
     
+- (NSInteger)selectedValue;
+- (NSDate *)selectedDate;
 @end
