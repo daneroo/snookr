@@ -14,6 +14,14 @@
 @synthesize weightPicker;
 @synthesize delegate;
 
+- (NSInteger)selectedValue {
+    NSInteger val = 1000*[weightPicker selectedRowInComponent:0] + 100*[weightPicker selectedRowInComponent:2];
+    return val;
+}
+- (NSDate *)selectedDate {
+    return datePicker.date;
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
 	if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
 		self.title = @"Add Observation";
@@ -42,19 +50,12 @@
 }
 
 - (void)save  {
-	static NSDateFormatter *dateFormatter = nil;
-	if (dateFormatter == nil) {
-		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setDateFormat:@"HH:mm:ss"];
-	}
-    NSString *pickedStr = [dateFormatter stringFromDate:[datePicker date]];
-
-    NSLog(@"Hello from save callback date=%@", pickedStr);
-    
-	[self.delegate addStampedObservation:pickedStr];
+    NSLog(@"Hello from save callback");
+	[self.delegate addObservation:[self selectedValue] withStamp:[self selectedDate]];
     [[self.delegate tableView] reloadData];
 	[self dismissModalViewControllerAnimated:YES];
 }
+
 - (void)cancel  {
     NSLog(@"Hello from cancel callback");
 	[self dismissModalViewControllerAnimated:YES];

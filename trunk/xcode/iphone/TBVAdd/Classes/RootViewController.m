@@ -12,43 +12,36 @@
 #import "UIKit/UIBarButtonItem.h"
 
 @implementation RootViewController
-//    NSString* randObs = [[NSString alloc] initWithFormat:@"Coco %d", (random()%90+10)];
-
 
 - (void)addRandObservation {
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    [numberFormatter setFormat:@"0.00"];
-    NSNumber *rndNum = [NSNumber numberWithInt:random()%90+110];
-
-    NSString *rndStr = [numberFormatter stringFromNumber:rndNum];
-    NSLog(@"%@", rndStr);
+    // from  (110.0 to 200.0 )*1000;
+    //  == (1100 + 900*rnd01)*100;
+    NSInteger rnd = (random()%900 + 1100)*100;
+    NSLog(@" rand %d", rnd);
     
-    [self addStampedObservation:rndStr];
-    //[self addObservation:rndStr];
+    [self addStampedObservation:rnd];
 }
 
-- (void)addStampedObservation:(NSString *)observation {
-    /*
-	 Cache the formatter. Normally you would use one of the date formatter styles (such as NSDateFormatterShortStyle), but here we want a specific format that excludes seconds.
-	 */
-	static NSDateFormatter *dateFormatter = nil;
-	if (dateFormatter == nil) {
-		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setDateFormat:@"HH:mm:ss"];
-	}
-    NSString *nowStr = [dateFormatter stringFromDate:[NSDate date]];
-    NSString* stampedStr = [[NSString alloc] initWithFormat:@"%@ : %@", nowStr, observation];
-
-    [self addObservation:stampedStr];
+- (void)addStampedObservation:(NSInteger)value {
+    [self addObservation:value withStamp:[NSDate date]];
 }
 
-- (void)addObservation:(NSString *)observation {
-    NSLog(@"%@", observation);
+- (void)addObservation:(NSInteger)aValue  withStamp:(NSDate *)aStamp {
+    Observation *observation = [[Observation alloc] init]; 
+    observation.stamp = aStamp;
+    observation.value = aValue;
+    
+    [self addObservation:observation];
+
+    [observation release];
+}
+
+- (void)addObservation:(Observation *)observation {
+    NSLog(@"Base AddObservation %@ %d", observation.stamp, observation.value);
 
     [observations addObject:observation];
-    //[observations insertObject:observation atIndex:0];
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"description" ascending:NO];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"stamp" ascending:NO];
 	NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:&sortDescriptor count:1];
 	[observations sortUsingDescriptors:sortDescriptors];
 	[sortDescriptors release];
@@ -78,7 +71,28 @@
     }
     
     // Set up the cell
-    cell.text =[observations objectAtIndex:indexPath.row];
+    Observation *observation = [observations objectAtIndex:indexPath.row];
+    
+/*
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+    [numberFormatter setFormat:@"0.00"];
+    NSNumber *rndNum = [NSNumber numberWithDouble:];
+    
+    NSString *rndStr = [numberFormatter stringFromNumber:rndNum];
+*/    
+    /*
+	 Cache the formatter. Normally you would use one of the date formatter styles (such as NSDateFormatterShortStyle), but here we want a specific format that excludes seconds.
+	 */
+	static NSDateFormatter *dateFormatter = nil;
+	if (dateFormatter == nil) {
+		dateFormatter = [[NSDateFormatter alloc] init];
+		[dateFormatter setDateFormat:@"HH:mm:ss"];
+	}
+    NSString *stampStr = [dateFormatter stringFromDate: observation.stamp];
+    double d = observation.value / 1000.0;
+    NSString* cellStr = [[NSString alloc] initWithFormat:@"%@ : %.2f", stampStr, d];
+
+    cell.text = cellStr;
     
     return cell;
 }
@@ -101,8 +115,8 @@
     
     // should this be retained ??
     observations = [[NSMutableArray alloc] init];
-    //[self addRandObservation];
-    [self addObservation:@"First"];
+    [self addRandObservation];
+    //[self addObservation:@"First"];
     
 	//Set the title of the Main View here.
 	self.title = @"TBV Add";

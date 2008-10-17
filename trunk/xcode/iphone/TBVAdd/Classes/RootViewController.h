@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Observation.h"
 
 @interface RootViewController : UITableViewController {
     NSMutableArray *observations; // array of NSStrings for now
@@ -14,8 +15,9 @@
 //@property (nonatomic, retain) NSMutableArray *observations;
 
 - (void)addRandObservation;
-- (void)addStampedObservation:(NSString *)observation;
-- (void)addObservation:(NSString *)observation;
+- (void)addStampedObservation:(NSInteger)value;
+- (void)addObservation:(NSInteger)value  withStamp:(NSDate *)aStamp;
+- (void)addObservation:(Observation *)observation;
 
     
 @end
