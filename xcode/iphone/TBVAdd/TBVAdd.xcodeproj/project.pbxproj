@@ -18,6 +18,7 @@
 		651B8E920EA7AE3800236AC1 /* AddObservationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 651B8E910EA7AE3800236AC1 /* AddObservationView.xib */; };
 		651B8F150EA7B31700236AC1 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 651B8F140EA7B31700236AC1 /* Icon.png */; };
 		653BB2330EA66C4A00EE0E58 /* AddObservationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */; };
+		6556B1150EAE3FE200BA5901 /* ObsTBVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */; };
 		65D69FAB0EA8ED430067220C /* Observation.m in Sources */ = {isa = PBXBuildFile; fileRef = 65D69FAA0EA8ED430067220C /* Observation.m */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +39,7 @@
 		651B8F140EA7B31700236AC1 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		653BB2310EA66C4A00EE0E58 /* AddObservationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObservationViewController.h; sourceTree = "<group>"; };
 		653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddObservationViewController.m; sourceTree = "<group>"; };
+		6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ObsTBVCell.xib; sourceTree = "<group>"; };
 		65D69FA90EA8ED430067220C /* Observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observation.h; sourceTree = "<group>"; };
 		65D69FAA0EA8ED430067220C /* Observation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Observation.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				651B8E910EA7AE3800236AC1 /* AddObservationView.xib */,
+				6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */,
 				2899E55F0DE3E45000AC0155 /* RootViewController.xib */,
 				28AD735F0D9D9599002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
@@ -184,6 +187,7 @@
 				2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */,
 				651B8E920EA7AE3800236AC1 /* AddObservationView.xib in Resources */,
 				651B8F150EA7B31700236AC1 /* Icon.png in Resources */,
+				6556B1150EAE3FE200BA5901 /* ObsTBVCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

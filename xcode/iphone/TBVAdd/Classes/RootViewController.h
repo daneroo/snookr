@@ -19,5 +19,6 @@
 - (void)addObservation:(NSInteger)value  withStamp:(NSDate *)aStamp;
 - (void)addObservation:(Observation *)observation;
 
+- (void) saveObservations;
     
 @end
