@@ -143,40 +143,42 @@
 }
 
 - (NSString *)tableView:(UITableView *)aTableView titleForHeaderInSection:(NSInteger)section {
-	return @"Date-Time   Weight";
+	return @"  Date-Time                         Weight";
 }
+
+#define STAMP_TAG 42
+#define OBSERV_TAG 43
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *CellIdentifier = @"Cell";
-    
+    static NSString *CellIdentifier = @"FromXIB"; // This is also set in XIB.
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        NSLog(@"Allocating From XIB");
+        UIViewController *vc=[[UIViewController alloc] initWithNibName:@"ObsTBVCell" bundle:nil];
+        cell=(UITableViewCell *)vc.view;
     }
-    
+
     // Set up the cell
     Observation *observation = [observations objectAtIndex:indexPath.row];
     
-/*
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    [numberFormatter setFormat:@"0.00"];
-    NSNumber *rndNum = [NSNumber numberWithDouble:];
-    
-    NSString *rndStr = [numberFormatter stringFromNumber:rndNum];
-*/    
     /*
 	 Cache the formatter. Normally you would use one of the date formatter styles (such as NSDateFormatterShortStyle), but here we want a specific format that excludes seconds.
 	 */
+    UILabel *label;
+
 	static NSDateFormatter *dateFormatter = nil;
 	if (dateFormatter == nil) {
 		dateFormatter = [[NSDateFormatter alloc] init];
 		[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 	}
-    NSString *stampStr = [dateFormatter stringFromDate: observation.stamp];
-    double d = observation.value / 1000.0;
-    NSString* cellStr = [[NSString alloc] initWithFormat:@"%@ : %.1f", stampStr, d];
+    label = (UILabel *)[cell viewWithTag:STAMP_TAG];
+    label.text = [dateFormatter stringFromDate: observation.stamp];
 
-    cell.text = cellStr;
+
+    double d = observation.value / 1000.0;
+    label = (UILabel *)[cell viewWithTag:OBSERV_TAG];
+    label.text = [[NSString alloc] initWithFormat:@"%.1f", d];
     
     return cell;
 }
