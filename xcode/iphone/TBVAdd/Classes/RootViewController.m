@@ -132,7 +132,8 @@
 }
 
 - (NSString *)tableView:(UITableView *)aTableView titleForHeaderInSection:(NSInteger)section {
-	return @"  Date-Time                         Weight";
+	//return @"  Date-Time                         Weight";
+    return @"";
 }
 
 #define STAMP_TAG 42
@@ -217,6 +218,7 @@
     NSLog(@"Hello from addCallback init done");
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addController];
 	addController.delegate = self;
+    navigationController.navigationBar.barStyle = UIBarStyleBlackOpaque; 
 	[self presentModalViewController:navigationController animated:YES];
     [addController release];
     

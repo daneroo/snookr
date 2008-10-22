@@ -11,14 +11,19 @@
 @interface AddObservationViewController : UIViewController {
 	IBOutlet UIDatePicker *datePicker;
     IBOutlet UIPickerView *weightPicker;
+    IBOutlet UILabel *nowLabel;
+    IBOutlet UIButton *changeDateButton;
 	RootViewController *delegate;
 
 }
 
 @property (nonatomic, retain) IBOutlet UIDatePicker *datePicker;
 @property (nonatomic, retain) IBOutlet UIPickerView *weightPicker;
+@property (nonatomic, retain) IBOutlet UILabel *nowLabel;
+@property (nonatomic, retain) IBOutlet UIButton *changeDateButton;
 @property (nonatomic, retain) RootViewController *delegate;
     
 - (NSInteger)selectedValue;
 - (NSDate *)selectedDate;
+- (IBAction) makeDatePickerVisible:(id) sender;
 @end
