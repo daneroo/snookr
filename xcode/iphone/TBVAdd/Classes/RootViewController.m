@@ -194,7 +194,7 @@
     [self loadObservations];
     
 	//Set the title of the Main View here.
-	self.title = @"TBV Add";
+	self.title = @"Weightrical D";
 
     // Uncomment the following line to add the Edit button to the navigation bar.
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
