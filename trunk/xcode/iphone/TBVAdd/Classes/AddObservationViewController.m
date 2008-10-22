@@ -12,6 +12,8 @@
 @implementation AddObservationViewController
 @synthesize datePicker;
 @synthesize weightPicker;
+@synthesize nowLabel;
+@synthesize changeDateButton;
 @synthesize delegate;
 
 - (NSInteger)selectedValue {
@@ -20,6 +22,12 @@
 }
 - (NSDate *)selectedDate {
     return datePicker.date;
+}
+
+- (IBAction) makeDatePickerVisible:(id) sender {
+    datePicker.hidden = NO;
+    nowLabel.hidden = YES;
+    changeDateButton.hidden = YES;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
@@ -44,8 +52,18 @@
 - (void)viewWillAppear:(BOOL)animated {
     NSLog(@"viewWillAppear Reset Picker date");
     [datePicker setDate:[NSDate date]];
-    //datePicker.date = [NSDate date];
+
+    // Max Date makes UI confusing, maybe a warning (future date) would be better
+    //datePicker.maximumDate = datePicker.date;
+    
     [weightPicker selectRow:176 inComponent:0 animated:NO];
+    
+    static NSDateFormatter *dateFormatter = nil;
+	if (dateFormatter == nil) {
+		dateFormatter = [[NSDateFormatter alloc] init];
+		[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+	}
+    nowLabel.text = [dateFormatter stringFromDate: datePicker.date];
     
 }
 
