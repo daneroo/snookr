@@ -10,17 +10,10 @@
 #import "AddObservationViewController.h"
 #import "TBVAddAppDelegate.h"
 #import "UIKit/UIBarButtonItem.h"
+#import "GraphView.h"
 
 @implementation RootViewController
 
-- (void)addRandObservation {
-    // from  (110.0 to 200.0 )*1000;
-    //  == (1100 + 900*rnd01)*100;
-    NSInteger rnd = (random()%900 + 1100)*100;
-    NSLog(@" rand %d", rnd);
-    
-    [self addStampedObservation:rnd];
-}
 
 - (void)addStampedObservation:(NSInteger)value {
     [self addObservation:value withStamp:[NSDate date]];
@@ -71,10 +64,6 @@
         NSArray *keys = [NSArray arrayWithObjects:@"stamp", @"value", nil];
         NSArray *objects = [NSArray arrayWithObjects:observation.stamp, [NSNumber numberWithInteger:observation.value], nil];
         NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
-        
-        /*for (id key in dictionary) {
-         NSLog(@"key: %@, value: %@", key, [dictionary objectForKey:key]);
-         }*/
         
         [nmsa addObject:dictionary];
         
@@ -154,7 +143,7 @@
     static NSString *CellIdentifier = @"FromXIB"; // This is also set in XIB.
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        NSLog(@"Allocating From XIB");
+        //NSLog(@"Allocating From XIB");
         UIViewController *vc=[[UIViewController alloc] initWithNibName:@"ObsTBVCell" bundle:nil];
         cell=(UITableViewCell *)vc.view;
     }
@@ -202,9 +191,6 @@
     // should this be retained ??
     observations = [[NSMutableArray alloc] init];
     [self loadObservations];
-    if ([observations count]==0) {
-        [self addRandObservation];
-    }
     
 	//Set the title of the Main View here.
 	self.title = @"TBV Add";
@@ -215,30 +201,13 @@
 	UIBarButtonItem *addButton = [[[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem: UIBarButtonSystemItemAdd
                                    target:self action:@selector(addCallback:)] autorelease];
-/*	UIBarButtonItem *addButton = [[[UIBarButtonItem alloc]
-                                   initWithTitle:@"Add" 
-                                   style:UIBarButtonItemStyleBordered 
-                                   target:self action:@selector(addCallback:)] autorelease];
-*/	
 	self.navigationItem.rightBarButtonItem = addButton;
-    
-}
 
-//Event handler when add is clicked.
--(void) addCallbackRand:(id)sender {
-    NSLog(@"Hello from rand addCallback");
-    [self addRandObservation];
-
-    // Limited updates with animation...
-/*
- //NSIndexPath *indexPath = [NSIndexPath indexPathForRow:([observations count]-1) inSection:0];
-	NSIndexPath *indexPath = [NSIndexPath indexPathForRow:(0) inSection:0];
-	NSArray *paths = [NSArray arrayWithObjects:indexPath];
-	[[self tableView] insertRowsAtIndexPaths:paths withRowAnimation:YES];
-*/
-    
-    [[self tableView] reloadData];
-    
+    //  GraphView as tableHeaderView Height 
+#define HEADERVIEW_HEIGHT 160.0
+	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
+    GraphView *graphView = [[[GraphView alloc] initWithFrame:newFrame] autorelease];
+	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
 }
 
 // Event handler for modal add Observation
@@ -318,9 +287,32 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    //return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return YES;
 }
 
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    CGSize gfs = self.tableView.tableHeaderView.frame.size; 
+    CGSize gbs = self.tableView.tableHeaderView.bounds.size; 
+    NSLog(@" willRotate: f:%.0fx%.0f b:%.0f,%.0f", gfs.width,gfs.height, gbs.width,gbs.height);
+
+    /*
+    if (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight ||
+        toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) {
+        NSLog(@" Setting up landscape");
+    }
+    if (toInterfaceOrientation == UIInterfaceOrientationPortrait ||
+        toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+        NSLog(@" Setting up portrait");
+    }     
+    */
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    CGSize gfs = self.tableView.tableHeaderView.frame.size; 
+    CGSize gbs = self.tableView.tableHeaderView.bounds.size; 
+    NSLog(@" didRotate: f:%.0fx%.0f b:%.0f,%.0f", gfs.width,gfs.height, gbs.width,gbs.height);
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview

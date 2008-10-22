@@ -14,7 +14,6 @@
 }
 //@property (nonatomic, retain) NSMutableArray *observations;
 
-- (void)addRandObservation;
 - (void)addStampedObservation:(NSInteger)value;
 - (void)addObservation:(NSInteger)value  withStamp:(NSDate *)aStamp;
 - (void)addObservation:(Observation *)observation;

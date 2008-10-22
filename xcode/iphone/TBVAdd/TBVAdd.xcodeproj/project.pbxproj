@@ -15,6 +15,7 @@
 		2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E55F0DE3E45000AC0155 /* RootViewController.xib */; };
 		28AD73600D9D9599002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD735F0D9D9599002E5188 /* MainWindow.xib */; };
 		28C286E10D94DF7D0034E888 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */; };
+		650763F10EAF8EE5000C555F /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 650763F00EAF8EE5000C555F /* GraphView.m */; };
 		651B8E920EA7AE3800236AC1 /* AddObservationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 651B8E910EA7AE3800236AC1 /* AddObservationView.xib */; };
 		651B8F150EA7B31700236AC1 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 651B8F140EA7B31700236AC1 /* Icon.png */; };
 		653BB2330EA66C4A00EE0E58 /* AddObservationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */; };
@@ -35,6 +36,8 @@
 		28C286DF0D94DF7D0034E888 /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
 		28C286E00D94DF7D0034E888 /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		650763EF0EAF8EE5000C555F /* GraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphView.h; sourceTree = "<group>"; };
+		650763F00EAF8EE5000C555F /* GraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphView.m; sourceTree = "<group>"; };
 		651B8E910EA7AE3800236AC1 /* AddObservationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddObservationView.xib; sourceTree = "<group>"; };
 		651B8F140EA7B31700236AC1 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		653BB2310EA66C4A00EE0E58 /* AddObservationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObservationViewController.h; sourceTree = "<group>"; };
@@ -66,6 +69,8 @@
 				653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */,
 				28C286DF0D94DF7D0034E888 /* RootViewController.h */,
 				28C286E00D94DF7D0034E888 /* RootViewController.m */,
+				650763EF0EAF8EE5000C555F /* GraphView.h */,
+				650763F00EAF8EE5000C555F /* GraphView.m */,
 				1D3623240D0F684500981E51 /* TBVAddAppDelegate.h */,
 				1D3623250D0F684500981E51 /* TBVAddAppDelegate.m */,
 				65D69FA90EA8ED430067220C /* Observation.h */,
@@ -203,6 +208,7 @@
 				28C286E10D94DF7D0034E888 /* RootViewController.m in Sources */,
 				653BB2330EA66C4A00EE0E58 /* AddObservationViewController.m in Sources */,
 				65D69FAB0EA8ED430067220C /* Observation.m in Sources */,
+				650763F10EAF8EE5000C555F /* GraphView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
