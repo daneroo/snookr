@@ -10,7 +10,12 @@
 
 
 @interface GraphView : UIView {
+    NSMutableArray *observations;
 
+    NSTimeInterval minTime,maxTime;
+    CGFloat minVal,maxVal,startVal,goalVal;
 }
+
+@property(nonatomic, assign) NSMutableArray *observations;
 
 @end
