@@ -209,6 +209,8 @@
 	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
     GraphView *graphView = [[[GraphView alloc] initWithFrame:newFrame] autorelease];
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
+    
+    graphView.observations = observations;
 }
 
 // Event handler for modal add Observation
@@ -293,12 +295,13 @@
     return YES;
 }
 
+/*
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     CGSize gfs = self.tableView.tableHeaderView.frame.size; 
     CGSize gbs = self.tableView.tableHeaderView.bounds.size; 
     NSLog(@" willRotate: f:%.0fx%.0f b:%.0f,%.0f", gfs.width,gfs.height, gbs.width,gbs.height);
 
-    /*
+    / *
     if (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight ||
         toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) {
         NSLog(@" Setting up landscape");
@@ -307,14 +310,18 @@
         toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
         NSLog(@" Setting up portrait");
     }     
-    */
+    * /
 }
+*/
 
+/*
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     CGSize gfs = self.tableView.tableHeaderView.frame.size; 
     CGSize gbs = self.tableView.tableHeaderView.bounds.size; 
     NSLog(@" didRotate: f:%.0fx%.0f b:%.0f,%.0f", gfs.width,gfs.height, gbs.width,gbs.height);
 }
+*/
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
