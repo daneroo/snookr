@@ -80,6 +80,31 @@
    
 }
 
+- (void) loadObservationsFromURL:(NSURL *)aURL {
+	NSLog (@"reading from URL %@", aURL);
+    // make an array of dictionary
+    NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfURL:aURL];
+    NSLog(@"Array of dics has %d dics",[nmsa count]);
+    NSEnumerator * enumerator = [nmsa objectEnumerator];
+    NSDictionary *dictionary;
+    while(dictionary = (NSDictionary *)[enumerator nextObject]) {
+        NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
+        NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
+        NSLog(@"<<www<< stamp: %@, value: %@", stamp, value);
+        
+		/*
+        Observation *observation = [[Observation alloc] init]; 
+        observation.stamp = stamp;
+        observation.value = [value integerValue];
+        
+        [observations addObject:observation];
+		*/
+    }
+        
+	NSLog (@"Read from URL %@", aURL);
+    
+}
+
 - (void) loadObservations {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex: 0];
@@ -192,7 +217,9 @@
     // should this be retained ??
     observations = [[NSMutableArray alloc] init];
     [self loadObservations];
-    
+	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/traineodata.xml"];
+	//[self loadObservationsFromURL:aURL];	
+	
 	//Set the title of the Main View here.
 	self.title = @"Weightrical D";
 
@@ -211,6 +238,12 @@
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
     
     graphView.observations = observations;
+}
+
+-(void) reloadViews {
+	[[self tableView] reloadData];
+	// graphView
+	[self.tableView.tableHeaderView setNeedsDisplay];
 }
 
 // Event handler for modal add Observation
@@ -233,7 +266,7 @@
         // Delete the row from the data source
         [observations removeObjectAtIndex:indexPath.row];
         [self saveObservations];
-        [[self tableView] reloadData];
+		[self reloadViews];
         
         //[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
     }   
