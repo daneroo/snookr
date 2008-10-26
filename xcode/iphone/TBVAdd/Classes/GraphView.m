@@ -126,7 +126,7 @@
 	
 	CGRect b = self.bounds;
 	CGPoint start = CGPointMake(b.origin.x, b.origin.y + b.size.height * 0.0);
-	CGPoint end = CGPointMake(b.origin.x, b.origin.y + b.size.height * 0.5);
+	CGPoint end = CGPointMake(b.origin.x, b.origin.y + b.size.height * 0.75);
 	CGContextDrawLinearGradient(context, gradient, start, end, 0);
 	  //not needed here kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation
 	CGContextRestoreGState(context);
