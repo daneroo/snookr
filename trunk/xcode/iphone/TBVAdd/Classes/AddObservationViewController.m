@@ -70,7 +70,7 @@
 - (void)save  {
     NSLog(@"Hello from save callback");
 	[self.delegate addObservation:[self selectedValue] withStamp:[self selectedDate]];
-    [[self.delegate tableView] reloadData];
+    [self.delegate  reloadViews];
 	[self dismissModalViewControllerAnimated:YES];
 }
 
