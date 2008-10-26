@@ -14,6 +14,7 @@
 
     NSTimeInterval minTime,maxTime;
     CGFloat minVal,maxVal,startVal,goalVal;
+	int daysAgo;
 }
 
 @property(nonatomic, assign) NSMutableArray *observations;
