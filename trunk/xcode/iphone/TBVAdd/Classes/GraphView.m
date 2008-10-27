@@ -176,6 +176,7 @@
 	[[UIColor lightGrayColor] set];
 	CGContextStrokePath(context);
 	
+    // Text part
 	[[UIColor darkGrayColor] set];
 	NSString *text=[NSString stringWithFormat:@"%d Days",daysAgo];
 	CGFloat fontSize = [UIFont smallSystemFontSize]; //=12
@@ -184,17 +185,22 @@
 								[self mapX:maxTime] - [text sizeWithFont:font].width,
 								[self mapY:maxVal]-15);
 	[text drawAtPoint:point withFont:font];
+
+    // Tick Mark Text
+    char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wen"};
 	[[UIColor lightGrayColor] set];
 	for (int i=0;i<5;i++) {
 		CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
-		NSString *tickText=[NSString stringWithFormat:@"%d",i];
-		CGSize tsz=[tickText sizeWithFont:font];
-		CGPoint point = CGPointMake(xForYaxis-tsz.width-3,yTick-tsz.height/2.0);
-		[tickText drawAtPoint:point withFont:font];
+		NSString *ytickText=[NSString stringWithFormat:@"%c",i+'A'];
+		CGSize ytsz=[ytickText sizeWithFont:font];
+		CGPoint point = CGPointMake(xForYaxis-ytsz.width-3,yTick-ytsz.height/2.0);
+		[ytickText drawAtPoint:point withFont:font];
 
+		NSString *xtickText=[NSString stringWithFormat:@"%s",xtickTitle[i]];
+		CGSize xtsz=[xtickText sizeWithFont:font];
 		CGFloat xTick = xleft+(xright-xleft)*i/4.0;
-		point = CGPointMake(xTick-tsz.width/2.0, yForXaxis+3);
-		[tickText drawAtPoint:point withFont:font];
+		point = CGPointMake(xTick-xtsz.width/2.0, yForXaxis+3);
+		[xtickText drawAtPoint:point withFont:font];
 
 	}
 	
