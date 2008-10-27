@@ -80,6 +80,13 @@
    
 }
 
+/*
+ 
+ This is how I transformed the traineo data:
+ cat ~/my_traineo.csv |awk -F','  \
+ '{printf("<dict><key>stamp</key><date>%sT04:00:00Z</date><key>value</key><integer>%d</interger></dict>\n",$1,$3*1000)}'
+
+ */
 - (void) loadObservationsFromURL:(NSURL *)aURL {
 	NSLog (@"reading from URL %@", aURL);
     // make an array of dictionary
