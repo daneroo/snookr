@@ -81,6 +81,8 @@
     //[self postObservations:nmsa];
 }
 
+/* confirmed working
+ */
 - (void) postObservations:(id)plist {
     NSString *method = @"POST"; // or @"PUT"
     NSLog(@"attempting write to url");
@@ -302,11 +304,19 @@
 -(void) addCallback:(id)sender {
     NSLog(@"Hello from addCallback Modal");
 	AddObservationViewController *addController = [[AddObservationViewController alloc] initWithNibName:@"AddObservationView" bundle:nil];
+        
     NSLog(@"Hello from addCallback init done");
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addController];
 	addController.delegate = self;
     navigationController.navigationBar.barStyle = UIBarStyleBlackOpaque; 
 	[self presentModalViewController:navigationController animated:YES];
+    if (observations && [observations count]>0) {
+        Observation *obs = (Observation *)[observations objectAtIndex:0];
+        [addController setInitialWeight:obs.value];
+    } else {
+        [addController setInitialWeight:100000];
+    }
+    
     [addController release];
     
 }
