@@ -1,7 +1,12 @@
 This is the root of xcode trials
 
  Ignoring this for now; Using XCode scm directly.
+ See SCM comments on iphone dir:
+   -Using global ignores for subversion
+     ~/.subversion/config
 
+
+-- Older Notes ----
 Subversion properties: svn:ignore
  set on xcode project, one by one.
 as in
