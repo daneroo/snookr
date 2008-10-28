@@ -1,14 +1,17 @@
 2008-10-28
-  (TBVAdd) Weightrical - TODOS
 
-- starting value for AddObservation (lastValue)
+  (TBVAdd) Weightrical - TODOS
+-Observation Cell View:
+   Custom drawing with Day|Month -- Time <--> Weight
 - GraphView:
     -Axis Labeling - Rewquirements
       -Active Zone geometry, for more space
 - push data to http POST
    forget [nmsa writeToURL:aURL atomically: YES];
    would be nice, but produces a PUT which we do not control: auth, etc...
-- memory allocation checklist
+- Memory allocation checklist
+
+- Experimental Slider with Pinch Arithmetic Zoom
 
 - Logo: iMetrical/Weightrical/Wattrical/fossilTrack
 - Site: iMetrical.com, on Go Daddy
@@ -18,3 +21,7 @@
     Morph AppSpace http://panel.mor.ph
     Godaddy.
       
+
+
+--------- Done
++ starting value for AddObservation (lastValue)
