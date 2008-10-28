@@ -78,10 +78,55 @@
 	else
 		NSLog (@"file doesn't exist");
    
+    //[self postObservations:nmsa];
+}
+
+- (void) postObservations:(id)plist {
+    NSString *method = @"POST"; // or @"PUT"
+    NSLog(@"attempting write to url");
+    //BOOL success = [nmsa writeToURL:aURL atomically: YES];
+    //NSLog(@"attempting write to url %@ : %d", aURL, success);
+
+    NSString *baseURLString = @"http://192.168.5.2/iMetrical/";
+    NSString *resource = @"save.php";
+    NSString *urlString = [[NSString alloc] initWithFormat:@"%@%@", baseURLString, resource];
+    NSURL *url = [[NSURL alloc] initWithString:urlString];
+    NSLog(@"attempting write to url %@", url);
+
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:url];
+    //[req setHTTPMethod:@"POST"];
+    [req setHTTPMethod:method];
+    
+    NSString *errorStr = nil;
+    NSData *paramData = [NSPropertyListSerialization dataFromPropertyList: plist
+                                                                   format: NSPropertyListXMLFormat_v1_0
+                                                         errorDescription: &errorStr];
+    if (errorStr) {
+        NSLog(@"Serialization error: %@",errorStr);
+        [errorStr release];
+    }
+    
+    [req setHTTPBody: paramData];	
+    
+    NSHTTPURLResponse* urlResponse = nil;  
+    NSError* error = [[NSError alloc] init];  
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:req
+                                                 returningResponse:&urlResponse   
+                                                             error:&error];  
+    NSString *result = [[NSString alloc] initWithData:responseData
+                                             encoding:NSUTF8StringEncoding];
+    NSLog(@"Response Code: %d", [urlResponse statusCode]);
+    if ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)
+        NSLog(@"Result: %@", result);
+    
+    [urlString release];
+    [url release];
+    [result release];
+    [req release];
+    
 }
 
 /*
- 
  This is how I transformed the traineo data:
  cat ~/my_traineo.csv |awk -F','  \
  '{printf("<dict><key>stamp</key><date>%sT04:00:00Z</date><key>value</key><integer>%d</interger></dict>\n",$1,$3*1000)}'
