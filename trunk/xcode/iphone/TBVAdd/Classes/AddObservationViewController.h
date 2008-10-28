@@ -25,5 +25,6 @@
     
 - (NSInteger)selectedValue;
 - (NSDate *)selectedDate;
+- (void)setInitialWeight:(NSInteger)weight;
 - (IBAction) makeDatePickerVisible:(id) sender;
 @end
