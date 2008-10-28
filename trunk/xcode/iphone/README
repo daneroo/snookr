@@ -3,6 +3,11 @@ This directory is to hold iphone XCode (3.1) projects
   Then checkout, or update this check-out directory
   and then set Repository to snookr inside the project (from xcode)
 
+  Finally used global ignores:
+     ~/.subversion/config
+
+
+-- Older Notes ----
 -----------
 DID NOT WORK to add svn:ignore property on this directory:
   the build subdire was not being ignored recursively.
