@@ -11,6 +11,7 @@
 #import "TBVAddAppDelegate.h"
 #import "UIKit/UIBarButtonItem.h"
 #import "GraphView.h"
+#import "ObservationCellView.h"
 
 @implementation RootViewController
 
@@ -215,10 +216,11 @@
     return @"";
 }
 
+
 #define STAMP_TAG 42
 #define OBSERV_TAG 43
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)OLDXIBtableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *CellIdentifier = @"FromXIB"; // This is also set in XIB.
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -227,7 +229,7 @@
         UIViewController *vc=[[UIViewController alloc] initWithNibName:@"ObsTBVCell" bundle:nil];
         cell=(UITableViewCell *)vc.view;
     }
-
+    
     // Set up the cell
     Observation *observation = [observations objectAtIndex:indexPath.row];
     
@@ -235,7 +237,7 @@
 	 Cache the formatter. Normally you would use one of the date formatter styles (such as NSDateFormatterShortStyle), but here we want a specific format that excludes seconds.
 	 */
     UILabel *label;
-
+    
 	static NSDateFormatter *dateFormatter = nil;
 	if (dateFormatter == nil) {
 		dateFormatter = [[NSDateFormatter alloc] init];
@@ -243,8 +245,8 @@
 	}
     label = (UILabel *)[cell viewWithTag:STAMP_TAG];
     label.text = [dateFormatter stringFromDate: observation.stamp];
-
-
+    
+    
     double d = observation.value / 1000.0;
     label = (UILabel *)[cell viewWithTag:OBSERV_TAG];
     label.text = [[NSString alloc] initWithFormat:@"%.1f", d];
@@ -252,6 +254,33 @@
     return cell;
 }
 
+#define ROW_HEIGHT 40
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row%2 == 0 ) {
+        return [self OLDXIBtableView:tableView cellForRowAtIndexPath:indexPath];
+    }
+    
+    
+    static NSString *cellReuseIdentifier = @"ObsCellId";
+    ObservationCellView *cell = (ObservationCellView *)[tableView dequeueReusableCellWithIdentifier:cellReuseIdentifier];
+    if (cell == nil) {
+        NSLog(@"Allocating NEW Cell TYPE: %d", indexPath.row);
+		CGRect startingRect = CGRectMake(0.0, 0.0, 320.0, ROW_HEIGHT);
+        cell = [[[ObservationCellView alloc] initWithFrame:startingRect reuseIdentifier:cellReuseIdentifier] autorelease];
+    }
+    
+    // Set up the cell
+    Observation *observation = [observations objectAtIndex:indexPath.row];
+    [cell setObservation:observation];
+    
+    if ((indexPath.row%4)==3) {
+        double d = observation.value / 1000.0;
+        cell.text = [[NSString alloc] initWithFormat:@"%.1f", d];
+    } else {
+        cell.text=@"";
+    }
+    return cell;
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic -- create and push a new view controller
@@ -276,6 +305,8 @@
 	
 	//Set the title of the Main View here.
 	self.title = @"Weightrical D";
+    self.tableView.rowHeight = ROW_HEIGHT;
+
 
     // Uncomment the following line to add the Edit button to the navigation bar.
     self.navigationItem.leftBarButtonItem = self.editButtonItem;

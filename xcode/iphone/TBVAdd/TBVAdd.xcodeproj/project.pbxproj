@@ -18,6 +18,8 @@
 		650763F10EAF8EE5000C555F /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 650763F00EAF8EE5000C555F /* GraphView.m */; };
 		651B8E920EA7AE3800236AC1 /* AddObservationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 651B8E910EA7AE3800236AC1 /* AddObservationView.xib */; };
 		651B8F150EA7B31700236AC1 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 651B8F140EA7B31700236AC1 /* Icon.png */; };
+		6529CB110EB7958A0092C460 /* ObservationCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529CB100EB7958A0092C460 /* ObservationCellView.m */; };
+		6529CB4A0EB79E100092C460 /* ObservationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529CB490EB79E100092C460 /* ObservationView.m */; };
 		653BB2330EA66C4A00EE0E58 /* AddObservationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */; };
 		6556B1150EAE3FE200BA5901 /* ObsTBVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */; };
 		65D69FAB0EA8ED430067220C /* Observation.m in Sources */ = {isa = PBXBuildFile; fileRef = 65D69FAA0EA8ED430067220C /* Observation.m */; };
@@ -40,6 +42,10 @@
 		650763F00EAF8EE5000C555F /* GraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphView.m; sourceTree = "<group>"; };
 		651B8E910EA7AE3800236AC1 /* AddObservationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddObservationView.xib; sourceTree = "<group>"; };
 		651B8F140EA7B31700236AC1 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		6529CB0F0EB7958A0092C460 /* ObservationCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservationCellView.h; sourceTree = "<group>"; };
+		6529CB100EB7958A0092C460 /* ObservationCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationCellView.m; sourceTree = "<group>"; };
+		6529CB480EB79E100092C460 /* ObservationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservationView.h; sourceTree = "<group>"; };
+		6529CB490EB79E100092C460 /* ObservationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationView.m; sourceTree = "<group>"; };
 		653BB2310EA66C4A00EE0E58 /* AddObservationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObservationViewController.h; sourceTree = "<group>"; };
 		653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddObservationViewController.m; sourceTree = "<group>"; };
 		6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ObsTBVCell.xib; sourceTree = "<group>"; };
@@ -75,6 +81,10 @@
 				1D3623250D0F684500981E51 /* TBVAddAppDelegate.m */,
 				65D69FA90EA8ED430067220C /* Observation.h */,
 				65D69FAA0EA8ED430067220C /* Observation.m */,
+				6529CB0F0EB7958A0092C460 /* ObservationCellView.h */,
+				6529CB100EB7958A0092C460 /* ObservationCellView.m */,
+				6529CB480EB79E100092C460 /* ObservationView.h */,
+				6529CB490EB79E100092C460 /* ObservationView.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -209,6 +219,8 @@
 				653BB2330EA66C4A00EE0E58 /* AddObservationViewController.m in Sources */,
 				65D69FAB0EA8ED430067220C /* Observation.m in Sources */,
 				650763F10EAF8EE5000C555F /* GraphView.m in Sources */,
+				6529CB110EB7958A0092C460 /* ObservationCellView.m in Sources */,
+				6529CB4A0EB79E100092C460 /* ObservationView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
