@@ -51,6 +51,17 @@
     NSLog(@"range %@ - %@  val %.1f - %.1f",minDate,maxDate,minVal,maxVal);
 }
 
+double myRandom(double min,double max){
+    static long rez = 100000;
+    double r01 = ((double)(random()%rez))/rez;
+    return r01*(max-min)+min;
+}
+
+double myLogRandom(double min,double max){
+    double lr = myRandom(log(min),log(max));
+    return exp(lr);
+}
+
 -(void)findRange {
 	NSDate *ago = [NSDate dateWithTimeIntervalSinceNow:(-daysAgo*24*3600)];
 
@@ -91,13 +102,21 @@
     maxTime = [maxDate timeIntervalSince1970];
     minVal = localMinVal;
     maxVal = localMaxVal;
+    
+    BOOL shuffle = NO;
+    if (shuffle) {
+        double d1 = myLogRandom(10000, 900000);
+        double d2 = myLogRandom(10000, 900000);
+        minVal = (NSInteger)((d1<d2)?d1:d2);
+        maxVal = (NSInteger)((d1>d2)?d1:d2);
+    }    
     [self reportRange];
     
 }
 
 - (CGFloat) mapX:(NSTimeInterval) obsx {
 	double xRange = maxTime - minTime;
-	return 20+(self.bounds.size.width-40)*(obsx-minTime)/xRange;
+	return 40+(self.bounds.size.width-60)*(obsx-minTime)/xRange;
 }
 
 - (CGFloat) mapY:(CGFloat) obsy {
@@ -136,6 +155,42 @@
 	CGGradientRelease(gradient);
 }
 
+- (void)drawYAxisIn:(CGContextRef)context withFont:(UIFont *)font {
+    [[UIColor lightGrayColor] set];
+
+	// Y Axis + Ticks
+    CGFloat xForYaxis = [self mapX:minTime];
+	CGFloat ybot = [self mapY:minVal]; // maybe less and clip
+	CGFloat ytop = [self mapY:maxVal]; // maybe more and clip
+	CGContextMoveToPoint(context, xForYaxis,ybot);
+	CGContextAddLineToPoint(context, xForYaxis,ytop);
+	for (int i=0;i<4;i++) {
+		//CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
+		CGFloat yVal = minVal+(maxVal-minVal)*(.1+.9*(i/3.0));
+        CGFloat yTick = [self mapY:yVal];
+		CGContextMoveToPoint(context, xForYaxis-0, yTick);
+		CGContextAddLineToPoint(context, xForYaxis-3, yTick);
+	}
+	CGContextStrokePath(context);
+
+    // Tick Mark Text
+	[[UIColor lightGrayColor] set];
+	for (int i=0;i<4;i++) {
+		//CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
+		//CGFloat yVal = minVal+(maxVal-minVal)*((i+1)/5.0);
+		CGFloat yVal = minVal+(maxVal-minVal)*(.1+.9*(i/3.0));
+        CGFloat yTick = [self mapY:yVal];
+		//NSString *ytickText=[NSString stringWithFormat:@"%c",i+'A'];
+		NSString *ytickText=[NSString stringWithFormat:@"%.1f",yVal/1000.0];
+		CGSize ytsz=[ytickText sizeWithFont:font];
+        NSLog(@"ylab w:%f",ytsz.width);
+		CGPoint point = CGPointMake(xForYaxis-ytsz.width-3,yTick-ytsz.height/2.0);
+		//CGPoint point = CGPointMake(xForYaxis+3,yTick-ytsz.height/2.0);
+		[ytickText drawAtPoint:point withFont:font];
+	}
+    
+}
+
 - (void)drawRect:(CGRect)rect {
     //NSLog(@"drawRect with %d observations",[observations count]);
     [self findRange];
@@ -152,9 +207,8 @@
 	CGFloat xright = [self mapX:maxTime]; // maybe more and clip
 	CGContextSetLineWidth(context, 1.0);
 
-	// Axis yT + Ticks
+	// X Axis + Ticks
 	CGFloat yForXaxis = [self mapY:minVal]+3;
-
 	CGContextMoveToPoint(context, xleft, yForXaxis);
 	CGContextAddLineToPoint(context, xright, yForXaxis);
 	for (int i=0;i<5;i++) {
@@ -162,27 +216,18 @@
 		CGContextMoveToPoint(context, xTick, yForXaxis-0);
 		CGContextAddLineToPoint(context, xTick, yForXaxis+3);
 	}
-
-	CGFloat xForYaxis = [self mapX:minTime]-5;
-	CGFloat ybot = [self mapY:minVal]; // maybe less and clip
-	CGFloat ytop = [self mapY:maxVal]; // maybe more and clip
-	CGContextMoveToPoint(context, xForYaxis,ybot);
-	CGContextAddLineToPoint(context, xForYaxis,ytop);
-	for (int i=0;i<5;i++) {
-		CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
-		CGContextMoveToPoint(context, xForYaxis-0, yTick);
-		CGContextAddLineToPoint(context, xForYaxis-3, yTick);
-	}
-	// actually draw both axis+ticks
-	//[[UIColor whiteColor] set];
 	[[UIColor lightGrayColor] set];
 	CGContextStrokePath(context);
+
+    CGFloat fontSize = [UIFont smallSystemFontSize]; //=12
+	UIFont *font = [UIFont systemFontOfSize:fontSize];
+
+	// Y Axis + Ticks + TickText
+    [self drawYAxisIn:context withFont:font];
 	
     // Text part
-	[[UIColor darkGrayColor] set];
+	[[UIColor lightGrayColor] set];
 	NSString *text=[NSString stringWithFormat:@"%d Days",daysAgo];
-	CGFloat fontSize = [UIFont smallSystemFontSize]; //=12
-	UIFont *font = [UIFont systemFontOfSize:fontSize];
 	CGPoint point = CGPointMake(
 								[self mapX:maxTime] - [text sizeWithFont:font].width,
 								[self mapY:maxVal]-15);
@@ -192,11 +237,6 @@
     char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wed"};
 	[[UIColor lightGrayColor] set];
 	for (int i=0;i<5;i++) {
-		CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
-		NSString *ytickText=[NSString stringWithFormat:@"%c",i+'A'];
-		CGSize ytsz=[ytickText sizeWithFont:font];
-		CGPoint point = CGPointMake(xForYaxis-ytsz.width-3,yTick-ytsz.height/2.0);
-		[ytickText drawAtPoint:point withFont:font];
 
 		NSString *xtickText=[NSString stringWithFormat:@"%s",xtickTitle[i]];
 		CGSize xtsz=[xtickText sizeWithFont:font];
@@ -205,7 +245,6 @@
 		[xtickText drawAtPoint:point withFont:font];
 
 	}
-	
 	
 	// Draw y=Konstant lines from left to right
 	CGFloat ystart = [self mapY:startVal];
@@ -235,10 +274,15 @@
 	for (int i=0;i<numberofitems;i++) {
 		Observation *observation = (Observation *)[observations objectAtIndex:i];
 		NSTimeInterval obsx = [observation.stamp timeIntervalSince1970];
-		pointarray[i] = CGPointMake([self mapX:obsx],[self mapY:observation.value]);
+        BOOL shuffle = NO;
+        if (shuffle) {
+            pointarray[i] = CGPointMake([self mapX:obsx],[self mapY:myRandom(minVal, maxVal)]);
+        } else {
+            pointarray[i] = CGPointMake([self mapX:obsx],[self mapY:observation.value]);
+        }
 	}
 	CGContextSaveGState(context);
-	CGContextClipToRect(context, CGRectMake(20, 20, self.bounds.size.width-40, self.bounds.size.height-40));
+	CGContextClipToRect(context, CGRectMake(40, 20, self.bounds.size.width-60, self.bounds.size.height-40));
 	// Bulk call to add lines to the current path.
 	// Equivalent to MoveToPoint(points[0]); for(i=1; i<count; ++i) AddLineToPoint(points[i]);
 	CGContextAddLines(context, pointarray, sizeof(pointarray)/sizeof(pointarray[0]));
