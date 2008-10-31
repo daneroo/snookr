@@ -42,7 +42,6 @@
         lbl.tag = DAY_LBL_TAG;
         font = [UIFont systemFontOfSize:20];
         lbl.font = font;
-        [font release];
         lbl.textColor = sharedGreenTextColor;
         lbl.backgroundColor = [UIColor clearColor];
         lbl.textAlignment = UITextAlignmentCenter;
@@ -55,7 +54,6 @@
         lbl.tag = MONTH_LBL_TAG;
         font = [UIFont systemFontOfSize:10];
         lbl.font = font;
-        [font release];
         lbl.textColor = [UIColor darkGrayColor];
         lbl.backgroundColor = [UIColor clearColor];
         lbl.textAlignment = UITextAlignmentCenter;
@@ -68,7 +66,6 @@
         lbl.tag = TIME_LBL_TAG;
         font = [UIFont systemFontOfSize:18];
         lbl.font = font;
-        [font release];
         lbl.textColor = sharedGreenTextColor;
         //lbl.backgroundColor = [UIColor colorWithWhite:.5 alpha:0.5];
         //lbl.textAlignment = UITextAlignmentLeft;
@@ -80,15 +77,12 @@
 		lbl= [[UILabel alloc] initWithFrame:lblFrame];
         font = [UIFont boldSystemFontOfSize:20];
         lbl.font = font;
-        [font release];
         lbl.tag = OBS_LBL_TAG;
         lbl.backgroundColor = [UIColor clearColor];
         lbl.textAlignment = UITextAlignmentRight;
 		lbl.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
 		[self addSubview:lbl];
         [lbl release];
-
-        //[sharedGreenTextColor release];
     }
     return self;
 }
@@ -150,6 +144,7 @@
 
 
 - (void)dealloc {
+    [observation release];
     [dateFormatter release];
     [super dealloc];
 }
