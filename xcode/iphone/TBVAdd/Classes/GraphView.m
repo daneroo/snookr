@@ -187,7 +187,7 @@
 	[text drawAtPoint:point withFont:font];
 
     // Tick Mark Text
-    char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wen"};
+    char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wed"};
 	[[UIColor lightGrayColor] set];
 	for (int i=0;i<5;i++) {
 		CGFloat yTick = ybot-(ybot-ytop)*i/4.0;

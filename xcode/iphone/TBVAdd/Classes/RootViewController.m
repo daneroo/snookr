@@ -256,10 +256,11 @@
 
 #define ROW_HEIGHT 40
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	/*
     if (indexPath.row%2 == 0 ) {
         return [self OLDXIBtableView:tableView cellForRowAtIndexPath:indexPath];
     }
-    
+	 */    
     
     static NSString *cellReuseIdentifier = @"ObsCellId";
     ObservationCellView *cell = (ObservationCellView *)[tableView dequeueReusableCellWithIdentifier:cellReuseIdentifier];
@@ -273,13 +274,13 @@
     Observation *observation = [observations objectAtIndex:indexPath.row];
     [cell setObservation:observation];
     
-    if ((indexPath.row%4)==3) {
+	/*
+    if ((indexPath.row%4)==300) {
         double d = observation.value / 1000.0;
         cell.text = [[NSString alloc] initWithFormat:@"%.1f", d];
-    } else {
-        cell.text=@"";
     }
-    return cell;
+	 */
+	return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
