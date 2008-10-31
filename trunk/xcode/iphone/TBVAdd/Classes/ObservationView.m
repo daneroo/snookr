@@ -18,6 +18,9 @@
 #define OBS_LBL_TAG 45
 // Column Layout Geometry
 #define MARGIN 10
+#define MONTH_COL_WIDTH 35
+#define TIME_COL_WIDTH 100
+#define OBS_COL_WIDTH 100
 
 @synthesize observation;
 
@@ -34,39 +37,36 @@
         UILabel *lbl;
         UIFont *font;
         //Day Label
-        lblFrame = CGRectMake(MARGIN, 0.0, 50, self.bounds.size.height*2/3);
+        lblFrame = CGRectMake(MARGIN, 0.0, MONTH_COL_WIDTH, self.bounds.size.height*2/3);
 		lbl= [[UILabel alloc] initWithFrame:lblFrame];
         lbl.tag = DAY_LBL_TAG;
-        lbl.text = @"10";
-        font = [UIFont boldSystemFontOfSize:20];
+        font = [UIFont systemFontOfSize:20];
         lbl.font = font;
         [font release];
         lbl.textColor = sharedGreenTextColor;
-        //lbl.backgroundColor = [UIColor colorWithWhite:.8 alpha:0.5];
+        lbl.backgroundColor = [UIColor clearColor];
         lbl.textAlignment = UITextAlignmentCenter;
 		[self addSubview:lbl];
         [lbl release];
 
         //Month Label
-        lblFrame = CGRectMake(MARGIN, self.bounds.size.height/2, 50, self.bounds.size.height/2);
+        lblFrame = CGRectMake(MARGIN, self.bounds.size.height/2, MONTH_COL_WIDTH, self.bounds.size.height/2-5);
 		lbl= [[UILabel alloc] initWithFrame:lblFrame];
         lbl.tag = MONTH_LBL_TAG;
-        lbl.text = @"Oct";
-        font = [UIFont boldSystemFontOfSize:10];
+        font = [UIFont systemFontOfSize:12];
         lbl.font = font;
         [font release];
-        //lbl.textColor = sharedGreenTextColor;
-        //lbl.backgroundColor = [UIColor colorWithWhite:.5 alpha:0.5];
+        lbl.textColor = [UIColor darkGrayColor];
+        lbl.backgroundColor = [UIColor clearColor];
         lbl.textAlignment = UITextAlignmentCenter;
 		[self addSubview:lbl];
         [lbl release];
 
         //Time Label
-        lblFrame = CGRectMake(MARGIN+50, 0, 100, self.bounds.size.height);
+        lblFrame = CGRectMake(MARGIN+MONTH_COL_WIDTH+MARGIN, 0, TIME_COL_WIDTH, self.bounds.size.height-5);
 		lbl= [[UILabel alloc] initWithFrame:lblFrame];
-        lbl.tag = MONTH_LBL_TAG;
-        lbl.text = @"12:34:56";
-        font = [UIFont boldSystemFontOfSize:18];
+        lbl.tag = TIME_LBL_TAG;
+        font = [UIFont systemFontOfSize:18];
         lbl.font = font;
         [font release];
         lbl.textColor = sharedGreenTextColor;
@@ -76,15 +76,13 @@
         [lbl release];
         
         // Observation Label (weight)
-        lblFrame = CGRectMake(self.bounds.size.width-100-MARGIN, 5, 100, self.bounds.size.height-10);
+        lblFrame = CGRectMake(self.bounds.size.width-100-MARGIN, 0, OBS_COL_WIDTH, self.bounds.size.height-5);
 		lbl= [[UILabel alloc] initWithFrame:lblFrame];
         font = [UIFont boldSystemFontOfSize:20];
         lbl.font = font;
         [font release];
-        lbl.text = @"199.9";
         lbl.tag = OBS_LBL_TAG;
-        //lbl.textColor = [UIColor blackColor];
-        //lbl.backgroundColor = [UIColor colorWithWhite:.5 alpha:0.5];
+        lbl.backgroundColor = [UIColor clearColor];
         lbl.textAlignment = UITextAlignmentRight;
 		lbl.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
 		[self addSubview:lbl];
@@ -102,7 +100,30 @@
 		[observation release];
 		observation = [newObservation retain];
         
-        [dateFormatter setDateFormat:@"h:mm a"];
+        //[dateFormatter setDateFormat:@"h:mm a"];
+		UILabel *label;
+		
+		//[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+		// Day
+		[dateFormatter setDateFormat:@"d"];
+		label = (UILabel *)[self viewWithTag:DAY_LBL_TAG];
+		label.text = [dateFormatter stringFromDate: observation.stamp];
+		// Month
+		[dateFormatter setDateFormat:@"MMM"];
+		label = (UILabel *)[self viewWithTag:MONTH_LBL_TAG];
+		label.text = [dateFormatter stringFromDate: observation.stamp];
+		// Time
+		//[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+		[dateFormatter setDateFormat:@"HH:mm"];
+		//[dateFormatter setDateFormat:@"HH:mm:ss"];
+        //[dateFormatter setDateFormat:@"h:mm a"];
+		label = (UILabel *)[self viewWithTag:TIME_LBL_TAG];
+		label.text = [dateFormatter stringFromDate: observation.stamp];
+		// Observation
+		double d = observation.value / 1000.0;
+		label = (UILabel *)[self viewWithTag:OBS_LBL_TAG];
+		label.text = [[NSString alloc] initWithFormat:@"%.1f", d];
+		
 
 	}
 	// May be the same wrapper, but the date may have changed, so mark for redisplay
