@@ -155,9 +155,36 @@ double myLogRandom(double min,double max){
 	CGGradientRelease(gradient);
 }
 
-- (void)drawYAxisIn:(CGContextRef)context withFont:(UIFont *)font {
-    [[UIColor lightGrayColor] set];
+- (void)drawXAxisIn:(CGContextRef)context withFont:(UIFont *)font {
+	CGFloat yForXaxis = [self mapY:minVal]+3;
+    CGFloat xleft = [self mapX:minTime]; // maybe less and clip
+	CGFloat xright = [self mapX:maxTime]; // maybe more and clip
+    
+	// X Axis + Ticks
+	CGContextMoveToPoint(context, xleft, yForXaxis);
+	CGContextAddLineToPoint(context, xright, yForXaxis);
+	for (int i=0;i<5;i++) {
+		CGFloat xTick = xleft+(xright-xleft)*i/4.0;
+		CGContextMoveToPoint(context, xTick, yForXaxis-0);
+		CGContextAddLineToPoint(context, xTick, yForXaxis+3);
+	}
+	CGContextStrokePath(context);
 
+    // Tick Mark Text
+    char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wed"};
+	[[UIColor lightGrayColor] set];
+	for (int i=0;i<5;i++) {
+        
+		NSString *xtickText=[NSString stringWithFormat:@"%s",xtickTitle[i]];
+		CGSize xtsz=[xtickText sizeWithFont:font];
+		CGFloat xTick = xleft+(xright-xleft)*i/4.0;
+		CGPoint point = CGPointMake(xTick-xtsz.width/2.0, yForXaxis+3);
+		[xtickText drawAtPoint:point withFont:font];
+        
+	}
+    
+}
+- (void)drawYAxisIn:(CGContextRef)context withFont:(UIFont *)font {
 	// Y Axis + Ticks
     CGFloat xForYaxis = [self mapX:minTime];
 	CGFloat ybot = [self mapY:minVal]; // maybe less and clip
@@ -176,16 +203,12 @@ double myLogRandom(double min,double max){
     // Tick Mark Text
 	[[UIColor lightGrayColor] set];
 	for (int i=0;i<4;i++) {
-		//CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
-		//CGFloat yVal = minVal+(maxVal-minVal)*((i+1)/5.0);
 		CGFloat yVal = minVal+(maxVal-minVal)*(.1+.9*(i/3.0));
         CGFloat yTick = [self mapY:yVal];
-		//NSString *ytickText=[NSString stringWithFormat:@"%c",i+'A'];
 		NSString *ytickText=[NSString stringWithFormat:@"%.1f",yVal/1000.0];
 		CGSize ytsz=[ytickText sizeWithFont:font];
-        NSLog(@"ylab w:%f",ytsz.width);
+        //NSLog(@"ytick width:%f",ytsz.width);
 		CGPoint point = CGPointMake(xForYaxis-ytsz.width-3,yTick-ytsz.height/2.0);
-		//CGPoint point = CGPointMake(xForYaxis+3,yTick-ytsz.height/2.0);
 		[ytickText drawAtPoint:point withFont:font];
 	}
     
@@ -202,53 +225,29 @@ double myLogRandom(double min,double max){
 	[self fillWithGradient:context];
 
 	CGContextSetRGBStrokeColor(context, 1.0, 1.0, 1.0, 1.0);
-	
-	CGFloat xleft = [self mapX:minTime]; // maybe less and clip
-	CGFloat xright = [self mapX:maxTime]; // maybe more and clip
 	CGContextSetLineWidth(context, 1.0);
-
-	// X Axis + Ticks
-	CGFloat yForXaxis = [self mapY:minVal]+3;
-	CGContextMoveToPoint(context, xleft, yForXaxis);
-	CGContextAddLineToPoint(context, xright, yForXaxis);
-	for (int i=0;i<5;i++) {
-		CGFloat xTick = xleft+(xright-xleft)*i/4.0;
-		CGContextMoveToPoint(context, xTick, yForXaxis-0);
-		CGContextAddLineToPoint(context, xTick, yForXaxis+3);
-	}
 	[[UIColor lightGrayColor] set];
-	CGContextStrokePath(context);
-
     CGFloat fontSize = [UIFont smallSystemFontSize]; //=12
 	UIFont *font = [UIFont systemFontOfSize:fontSize];
 
+	// X Axis + Ticks + TickText
+    [self drawXAxisIn:context withFont:font];
 	// Y Axis + Ticks + TickText
     [self drawYAxisIn:context withFont:font];
 	
-    // Text part
+    // X Scope Label Text part
 	[[UIColor lightGrayColor] set];
 	NSString *text=[NSString stringWithFormat:@"%d Days",daysAgo];
 	CGPoint point = CGPointMake(
 								[self mapX:maxTime] - [text sizeWithFont:font].width,
 								[self mapY:maxVal]-15);
 	[text drawAtPoint:point withFont:font];
-
-    // Tick Mark Text
-    char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wed"};
-	[[UIColor lightGrayColor] set];
-	for (int i=0;i<5;i++) {
-
-		NSString *xtickText=[NSString stringWithFormat:@"%s",xtickTitle[i]];
-		CGSize xtsz=[xtickText sizeWithFont:font];
-		CGFloat xTick = xleft+(xright-xleft)*i/4.0;
-		point = CGPointMake(xTick-xtsz.width/2.0, yForXaxis+3);
-		[xtickText drawAtPoint:point withFont:font];
-
-	}
 	
 	// Draw y=Konstant lines from left to right
 	CGFloat ystart = [self mapY:startVal];
 	CGFloat ygoal =  [self mapY:goalVal];
+    CGFloat xleft = [self mapX:minTime]; // maybe less and clip
+	CGFloat xright = [self mapX:maxTime]; // maybe more and clip
 	
 	CGFloat dash[] = {5.0, 5.0};
 	CGContextSetLineDash(context, 0.0, dash, 2);
