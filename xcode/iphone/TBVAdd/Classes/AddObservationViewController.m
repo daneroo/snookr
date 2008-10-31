@@ -27,7 +27,7 @@
 - (void)setInitialWeight:(NSInteger)weight {
     NSInteger intPart = weight/1000;
     NSInteger digit1 = (weight%1000)/100;
-    NSLog(@"Setting weight to: %d = (%d . %d)", weight, intPart, digit1);
+    //NSLog(@"Setting weight to: %d = (%d . %d)", weight, intPart, digit1);
     [weightPicker selectRow:intPart inComponent:0 animated:NO];
     [weightPicker selectRow: (weight%1000)/100 inComponent:2 animated:NO];
     //NSLog(@"Observing weight at: %d",[self selectedValue]);
@@ -59,7 +59,6 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    NSLog(@"viewWillAppear Reset Picker date");
     [datePicker setDate:[NSDate date]];
 
     // Max Date makes UI confusing, maybe a warning (future date) would be better
@@ -71,13 +70,12 @@
 		[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 	}
     nowLabel.text = [dateFormatter stringFromDate: datePicker.date];
-    
 }
 
 - (void)save  {
     NSLog(@"Hello from save callback");
 	[self.delegate addObservation:[self selectedValue] withStamp:[self selectedDate]];
-    [self.delegate  reloadViews];
+    [self.delegate reloadViews];
 	[self dismissModalViewControllerAnimated:YES];
 }
 
@@ -121,18 +119,15 @@
 #pragma mark -
 #pragma mark PickerView delegate methods
 
+/* pickerView selection callback example
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
     double val = [pickerView selectedRowInComponent:0] + 0.1l* [pickerView selectedRowInComponent:2];
     
     NSNumber *num = [NSNumber numberWithDouble:val];
     NSLog(@"Picked %d : %d value: %@", component,row,[num stringValue]);
-/*
- // report the selection to the UI label
-	label.text = [NSString stringWithFormat:@"%@ - %d",
-                  [pickerViewArray objectAtIndex:[pickerView selectedRowInComponent:0]], [pickerView selectedRowInComponent:1]];
+}
 */
- }
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {

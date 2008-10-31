@@ -45,14 +45,13 @@
 }
 
 - (void) saveObservations {
+    NSDate *startTime = [NSDate date];
+
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex: 0];
 	NSString *dataFilePath = [documentsDirectory stringByAppendingPathComponent: @"observationdata.xml"];
+	//NSLog (@"writing to file %@", dataFilePath);
     
-	NSLog (@"writing to file %@", dataFilePath);
-    
-    // codeblock approach
-    // [myArray do:ocblock(:each | [self doMyThingWith:each];)
     
     // make an array of dictionary
     NSMutableArray *nmsa = [[NSMutableArray alloc] init];
@@ -60,25 +59,24 @@
     NSEnumerator * enumerator = [observations objectEnumerator];
     Observation *observation;
     while(observation = (Observation *)[enumerator nextObject]) {
-        NSLog(@">>>> stamp: %@, value: %d", observation.stamp, observation.value);
-        
+        //NSLog(@">>>> stamp: %@, value: %d", observation.stamp, observation.value);
         NSArray *keys = [NSArray arrayWithObjects:@"stamp", @"value", nil];
         NSArray *objects = [NSArray arrayWithObjects:observation.stamp, [NSNumber numberWithInteger:observation.value], nil];
         NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
         
         [nmsa addObject:dictionary];
-        
     }
     
-    
     [nmsa writeToFile: dataFilePath atomically: YES];
+    [nmsa release];
     
-	NSLog (@"wrote to file %@", dataFilePath);
-	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath])
-		NSLog (@"file exists");
-	else
+	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath]) {
+		//NSLog (@"file exists");
+    } else {
 		NSLog (@"file doesn't exist");
-   
+    }
+	//NSLog (@"Wrote %d observations to file %@", [observations count],dataFilePath);
+	NSLog (@"Wrote %d observations in %.3fs.", [observations count],-[startTime timeIntervalSinceNow]);
     //[self postObservations:nmsa];
 }
 
@@ -140,7 +138,7 @@
     // make an array of dictionary
     NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfURL:aURL];
     NSLog(@"Array of dics has %d dics",[nmsa count]);
-    NSEnumerator * enumerator = [nmsa objectEnumerator];
+    NSEnumerator *enumerator = [nmsa objectEnumerator];
     NSDictionary *dictionary;
     while(dictionary = (NSDictionary *)[enumerator nextObject]) {
         NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
@@ -161,19 +159,18 @@
 }
 
 - (void) loadObservations {
+    NSDate *startTime = [NSDate date];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex: 0];
 	NSString *dataFilePath = [documentsDirectory stringByAppendingPathComponent: @"observationdata.xml"];
     
 	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath]) {
-        NSLog (@"file exists");
+        //NSLog (@"file exists");
     } else     {
 		NSLog (@"file doesn't exist");
         return;
     }
-    
-	NSLog (@"reading from file %@", dataFilePath);
-    
+	//NSLog (@"reading from file %@", dataFilePath);
     
     // make an array of dictionary
     NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfFile:dataFilePath];
@@ -183,23 +180,19 @@
     while(dictionary = (NSDictionary *)[enumerator nextObject]) {
         NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
         NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
-        NSLog(@"<<<< stamp: %@, value: %@", stamp, value);
+        //NSLog(@"<<<< stamp: %@, value: %@", stamp, value);
         
-        //[observations addObject:dictionary];
         Observation *observation = [[Observation alloc] init]; 
         observation.stamp = stamp;
         observation.value = [value integerValue];
         
+        //NSLog(@"-loadObs retainCount: %d stamp: %d",[observation retainCount],[observation.stamp retainCount]);
         [observations addObject:observation];
-
-        
+        [observation release];
     }
-    
-    
-    //[nmsa writeToFile: dataFilePath atomically: YES];
-    
-	NSLog (@"Read from file %@", dataFilePath);
-    
+
+	//NSLog (@"Read %d observations from file %@", [observations count],dataFilePath);
+	NSLog (@"Read %d observations in %.3fs.", [observations count],-[startTime timeIntervalSinceNow]);
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -265,10 +258,10 @@
     static NSString *cellReuseIdentifier = @"ObsCellId";
     ObservationCellView *cell = (ObservationCellView *)[tableView dequeueReusableCellWithIdentifier:cellReuseIdentifier];
     if (cell == nil) {
-        NSLog(@"Allocating NEW Cell TYPE: %d", indexPath.row);
 		CGRect startingRect = CGRectMake(0.0, 0.0, 320.0, ROW_HEIGHT);
         cell = [[[ObservationCellView alloc] initWithFrame:startingRect reuseIdentifier:cellReuseIdentifier] autorelease];
     }
+    //NSLog(@"cellForRow retainCount: %d",[cell retainCount]); // OK retain==1
     
     // Set up the cell
     Observation *observation = [observations objectAtIndex:indexPath.row];
@@ -334,10 +327,9 @@
 
 // Event handler for modal add Observation
 -(void) addCallback:(id)sender {
-    NSLog(@"Hello from addCallback Modal");
+    //NSLog(@"Hello from addCallback Modal");
 	AddObservationViewController *addController = [[AddObservationViewController alloc] initWithNibName:@"AddObservationView" bundle:nil];
         
-    NSLog(@"Hello from addCallback init done");
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addController];
 	addController.delegate = self;
     navigationController.navigationBar.barStyle = UIBarStyleBlackOpaque; 
