@@ -59,6 +59,8 @@
     NSDate *minDate=nil, *maxDate=nil;
     CGFloat localMinVal=100000000.0, localMaxVal=0.0;
     while(observation = (Observation *)[enumerator nextObject]) {
+        //NSLog(@"findRange obs retainCount: %d stamp: %d",[observation retainCount],[observation.stamp retainCount]); // OK retain==1 looks like it is autorelaesed
+
 		if ([observation.stamp compare:ago]<0) continue;
         //NSLog(@"-- stamp: %@, value: %d", observation.stamp, observation.value);
         if (!minDate || [minDate compare:observation.stamp]>0) {
@@ -135,7 +137,7 @@
 }
 
 - (void)drawRect:(CGRect)rect {
-    NSLog(@"drawRect with %d observations",[observations count]);
+    //NSLog(@"drawRect with %d observations",[observations count]);
     [self findRange];
     
     //[delegate drawView:self inContext:UIGraphicsGetCurrentContext() bounds:self.bounds];

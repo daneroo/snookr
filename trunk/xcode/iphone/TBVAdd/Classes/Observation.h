@@ -13,7 +13,7 @@
     
 }
 
-@property (nonatomic, copy) NSDate *stamp;
+@property (nonatomic, retain) NSDate *stamp;
 @property (nonatomic, assign) NSInteger value;
 
 @end

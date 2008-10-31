@@ -36,7 +36,6 @@
 
 - (void)setObservation:(Observation *)newObservation {
 	// Pass the observation to the view
-    NSLog(@"Passthru setter");
 	observationView.observation = newObservation;
 }
 

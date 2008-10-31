@@ -17,7 +17,7 @@
 #define TIME_LBL_TAG 44
 #define OBS_LBL_TAG 45
 // Column Layout Geometry
-#define MARGIN 10
+#define MARGIN 20
 #define MONTH_COL_WIDTH 35
 #define TIME_COL_WIDTH 100
 #define OBS_COL_WIDTH 100
@@ -53,7 +53,7 @@
         lblFrame = CGRectMake(MARGIN, self.bounds.size.height/2, MONTH_COL_WIDTH, self.bounds.size.height/2-5);
 		lbl= [[UILabel alloc] initWithFrame:lblFrame];
         lbl.tag = MONTH_LBL_TAG;
-        font = [UIFont systemFontOfSize:12];
+        font = [UIFont systemFontOfSize:10];
         lbl.font = font;
         [font release];
         lbl.textColor = [UIColor darkGrayColor];
@@ -94,7 +94,6 @@
 }
 
 - (void)setObservation:(Observation *)newObservation {
-	NSLog(@"SETOBSERVATION CALLED");
 	// If the time zone wrapper changes, update the date formatter and abbreviation string.
 	if (observation != newObservation) {
 		[observation release];
@@ -111,7 +110,7 @@
 		// Month
 		[dateFormatter setDateFormat:@"MMM"];
 		label = (UILabel *)[self viewWithTag:MONTH_LBL_TAG];
-		label.text = [dateFormatter stringFromDate: observation.stamp];
+		label.text = [[dateFormatter stringFromDate: observation.stamp] uppercaseString];
 		// Time
 		//[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
 		[dateFormatter setDateFormat:@"HH:mm"];
@@ -123,9 +122,8 @@
 		double d = observation.value / 1000.0;
 		label = (UILabel *)[self viewWithTag:OBS_LBL_TAG];
 		label.text = [[NSString alloc] initWithFormat:@"%.1f", d];
-		
-
 	}
+    //NSLog(@"setObs retainCount: %d",[observation retainCount]);
 	// May be the same wrapper, but the date may have changed, so mark for redisplay
 	[self setNeedsDisplay];
 }
