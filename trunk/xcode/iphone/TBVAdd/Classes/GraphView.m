@@ -30,6 +30,9 @@
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
 	switch (daysAgo) {
 		case 7:
+			daysAgo=14;
+			break;
+		case 14:
 			daysAgo=30;
 			break;
 		case 30:
@@ -97,7 +100,6 @@ double myLogRandom(double min,double max){
 	if ([minDate compare:ago]<0) {
 		minDate = ago;
 	}
-	
     minTime = [minDate timeIntervalSince1970];
     maxTime = [maxDate timeIntervalSince1970];
     minVal = localMinVal;
@@ -155,7 +157,143 @@ double myLogRandom(double min,double max){
 	CGGradientRelease(gradient);
 }
 
+- (NSDate *)startOfMonth:(NSDate  *)aDate after:(BOOL)flag offsetInMonths:(int)offset {
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    NSDate *startOfMonth = nil;
+    NSTimeInterval lengthOfMonth;
+    [cal rangeOfUnit:NSMonthCalendarUnit startDate:&startOfMonth
+                      interval:&lengthOfMonth forDate: aDate];
+    /*
+     BOOL ok = [cal rangeOfUnit:NSMonthCalendarUnit startDate:&startOfMonth
+     interval:&lengthOfMonth forDate: aDate];
+     if (ok) NSLog(@"length of month: %@ -> %f",startOfMonth,lengthOfMonth/(24*3600));
+     
+     */
+
+    if (flag && [startOfMonth compare:aDate]<0) {
+        //NSLog(@"rounding month up!");
+        offset+=1;
+    }
+    if (offset!=0) {
+        NSDateComponents *comps = [[NSDateComponents alloc] init];
+        [comps setMonth:offset];
+        startOfMonth = [cal dateByAddingComponents:comps toDate:startOfMonth  options:0];
+        [comps release];
+    }
+    return startOfMonth;
+}
+
+// will roundup if after flag is set
+- (NSDate *)startOfDay:(NSDate  *)aDate after:(BOOL)flag offsetInDays:(int)offset {
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    NSDate *startOfDay = nil;
+    [cal rangeOfUnit:NSDayCalendarUnit startDate:&startOfDay
+            interval:NULL forDate: aDate];
+    /*
+     NSTimeInterval lengthOfDay;
+     BOOL ok = [cal rangeOfUnit:NSDayCalendarUnit startDate:&startOfDay
+                       interval:&lengthOfDay forDate: aDate];
+     if (ok) NSLog(@"length of day: %@ -> %f",startOfDay,lengthOfDay/(3600.0));
+     */
+    
+    if (flag && [startOfDay compare:aDate]<0) {
+        //NSLog(@"rounding day up!");
+        offset+=1;
+    }
+    if (offset!=0) {
+        NSDateComponents *comps = [[NSDateComponents alloc] init];
+        [comps setDay:offset];
+        startOfDay = [cal dateByAddingComponents:comps toDate:startOfDay  options:0];
+        [comps release];
+    }
+    return startOfDay;
+}
+
+
+- (void)xTicks:(CGContextRef)context withFont:(UIFont *)font {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    //[dateFormatter setDateFormat:@"d"];
+    //[dateFormatter setDateFormat:@"MMM"];
+    [dateFormatter setDateFormat:@"EEEEE"]; // EEEEE is one leter only S,M,T
+
+	CGFloat yForXaxis = [self mapY:minVal]+3;
+    CGFloat xleft = [self mapX:minTime]; // maybe less and clip
+	CGFloat xright = [self mapX:maxTime]; // maybe more and clip
+
+    double valRange = (maxTime - minTime);
+    CGFloat pixRange = xright - xleft;
+    NSLog(@"xTicks valRange: %.1f pixRange:%.1f",valRange,pixRange);
+
+    NSDate *minDate = [NSDate dateWithTimeIntervalSince1970:minTime];
+    NSDate *minDay = [self startOfDay:minDate after:YES offsetInDays:0];    
+    NSDate *minMonth = [self startOfMonth:minDate after:YES offsetInMonths:0];
+    //NSLog(@"min Day,Month: %@, %@",minDay,minMonth);
+    NSDate *maxDate = [NSDate dateWithTimeIntervalSince1970:maxTime];
+    NSDate *maxDay = [self startOfDay:maxDate after:NO offsetInDays:0];    
+    NSDate *maxMonth = [self startOfMonth:maxDate after:NO offsetInMonths:0];
+    //NSLog(@"max Day,Month: %@, %@",maxDay,maxMonth);
+    
+    CGFloat approxDays = 1*((maxTime-minTime)/(24*3600));
+    //NSLog(@"approx days: %f",approxDays);
+
+    NSMutableDictionary *tickDates = [[NSMutableDictionary alloc] init];
+    if (approxDays<20) { // days
+        if (approxDays<8) {
+            [dateFormatter setDateFormat:@"EEE"]; // short weekday name
+        } else if (approxDays<15) {
+            [dateFormatter setDateFormat:@"EEEEE"]; // narrow weekday name
+        } else {
+            [dateFormatter setDateFormat:@"d"]; // day of month
+        }
+        NSDate *xTickDate=minDay;
+        while ([xTickDate compare:maxDay]<=0) {
+            NSString *xtickText= [dateFormatter stringFromDate: xTickDate];
+            [tickDates setObject:xtickText forKey:xTickDate];
+            xTickDate = [self startOfDay:xTickDate after:NO offsetInDays:1];
+        }
+    } else { // months
+        NSDate *xTickDate=[self startOfMonth:minMonth after:NO offsetInMonths:-1];
+        while ([xTickDate compare:maxMonth]<=0) {
+            if (approxDays<90) {
+                [dateFormatter setDateFormat:@"MMM"]; // short month name 
+            } else {
+                [dateFormatter setDateFormat:@"MMMMM"]; // narrow name 
+            }
+            NSString *xtickText= [dateFormatter stringFromDate: xTickDate];
+            if ([xTickDate compare:minDate]>=0) [tickDates setObject:xtickText forKey:xTickDate];
+            if (approxDays < 90 ) {
+                NSDate *halfMonth = [self startOfDay:xTickDate after:NO offsetInDays:14];
+                [dateFormatter setDateFormat:@"d"]; // narrow name 
+                NSString *halfMonthText= [dateFormatter stringFromDate: halfMonth];
+                if ([halfMonth compare:minDate]>=0 && [halfMonth compare:maxDate]<=0) {
+                    [tickDates setObject:halfMonthText forKey:halfMonth];
+                }
+            }
+            xTickDate = [self startOfMonth:xTickDate after:NO offsetInMonths:1];
+        }
+    }
+    
+    
+    NSEnumerator *enumerator = [tickDates keyEnumerator];
+    NSDate *xTickDate;
+    while(xTickDate = (NSDate *)[enumerator nextObject]) {
+        NSString *xtickText= [tickDates objectForKey:xTickDate];
+        //NSLog(@"tick date: %@ -> %@",xTickDate,xtickText);
+        CGFloat xTick = [self mapX:[xTickDate timeIntervalSince1970]];
+        CGContextMoveToPoint(context, xTick, yForXaxis-0);
+        CGContextAddLineToPoint(context, xTick, yForXaxis+3);
+        
+        CGSize xtsz=[xtickText sizeWithFont:font];
+        CGPoint point = CGPointMake(xTick-xtsz.width/2.0, yForXaxis+3);
+        [xtickText drawAtPoint:point withFont:font];
+    }
+    CGContextStrokePath(context);
+    
+    [dateFormatter release];
+    [tickDates release];
+}
 - (void)drawXAxisIn:(CGContextRef)context withFont:(UIFont *)font {
+    [self xTicks:context withFont:font];
 	CGFloat yForXaxis = [self mapY:minVal]+3;
     CGFloat xleft = [self mapX:minTime]; // maybe less and clip
 	CGFloat xright = [self mapX:maxTime]; // maybe more and clip
@@ -163,7 +301,7 @@ double myLogRandom(double min,double max){
 	// X Axis + Ticks
 	CGContextMoveToPoint(context, xleft, yForXaxis);
 	CGContextAddLineToPoint(context, xright, yForXaxis);
-	for (int i=0;i<5;i++) {
+	for (int i=0;i<0;i++) {
 		CGFloat xTick = xleft+(xright-xleft)*i/4.0;
 		CGContextMoveToPoint(context, xTick, yForXaxis-0);
 		CGContextAddLineToPoint(context, xTick, yForXaxis+3);
@@ -173,7 +311,7 @@ double myLogRandom(double min,double max){
     // Tick Mark Text
     char *xtickTitle[]={"Sep","Oct","Mon","Tue","Wed"};
 	[[UIColor lightGrayColor] set];
-	for (int i=0;i<5;i++) {
+	for (int i=0;i<0;i++) {
         
 		NSString *xtickText=[NSString stringWithFormat:@"%s",xtickTitle[i]];
 		CGSize xtsz=[xtickText sizeWithFont:font];
@@ -184,14 +322,72 @@ double myLogRandom(double min,double max){
 	}
     
 }
+
+- (void)yTicks:(CGContextRef)context withFont:(UIFont *)font {
+    CGFloat xForYaxis = [self mapX:minTime];
+	CGFloat ybot = [self mapY:minVal]; // maybe less and clip
+	CGFloat ytop = [self mapY:maxVal]; // maybe more and clip
+
+    CGFloat valRange = (maxVal - minVal)/1000.0;
+    CGFloat pixRange = ybot - ytop;
+    NSLog(@"yTicks valRange: %.1f pixRange:%.1f",valRange,pixRange);
+    
+	[[UIColor lightGrayColor] set];
+    // draw different scales: 100,50,10,5,1,.5,.1
+    //CGFloat scales[]={100,50,10,5,1,.5,.1};
+    //CGFloat scales[]={100,50,20,10,5,2,1,.5,.2,.1};
+    //CGFloat scales[]={.1,.2,.5,1,2,5,10,20,50,100};
+    //CGFloat scales[]={.2,.5,1,2,5,10,20,50,100};
+    CGFloat scales[]={.1,.5,1,5,10,50,100};
+    BOOL doneTicks=NO;
+    BOOL doneText=NO;
+    int maxTextCount = 4;
+    int maxTickCount = 15;
+    for (int s=0; s<sizeof(scales)/sizeof(CGFloat); s++) {
+        CGFloat scale = scales[s];
+        CGFloat ceilMin = ceil((minVal/1000.0)/scale)*scale;
+        CGFloat floorMax = floor((maxVal/1000.0)/scale)*scale;
+        int numTicks =  1+floor((maxVal/1000.0)/scale) - ceil((minVal/1000.0)/scale);
+        //NSLog(@" scale %d : %f numTicks:%d--(%f,%f)",s,scale,numTicks,ceilMin,floorMax);
+        
+        int countTicks = 0;
+        for (CGFloat tick=ceilMin; tick<=floorMax; tick+=scale ) {
+            countTicks++;
+            //NSLog(@"tick #%2d : %f",countTicks,tick);
+            CGFloat yVal = tick*1000;
+            CGFloat yTick = [self mapY:yVal];
+
+            if (!doneTicks && numTicks<=maxTickCount) {
+                CGContextMoveToPoint(context, xForYaxis-0, yTick);
+                CGContextAddLineToPoint(context, xForYaxis-3, yTick);
+            }
+            if (!doneText && numTicks<=maxTextCount) {
+                CGContextMoveToPoint(context, xForYaxis-3, yTick);
+                CGContextAddLineToPoint(context, xForYaxis+3, yTick);
+
+                NSString *ytickText=[NSString stringWithFormat:@"%.1f",yVal/1000.0];
+                CGSize ytsz=[ytickText sizeWithFont:font];
+                //NSLog(@"ytick width:%f",ytsz.width);
+                CGPoint point = CGPointMake(xForYaxis-ytsz.width-3,yTick-ytsz.height/2.0);
+                [ytickText drawAtPoint:point withFont:font];
+            }            
+        }
+        if (numTicks<=maxTextCount) doneText=YES;
+        if (numTicks<=maxTickCount) doneTicks=NO;
+    }
+    CGContextStrokePath(context);
+    
+}
+
 - (void)drawYAxisIn:(CGContextRef)context withFont:(UIFont *)font {
+    [self yTicks:context withFont:font];
 	// Y Axis + Ticks
     CGFloat xForYaxis = [self mapX:minTime];
 	CGFloat ybot = [self mapY:minVal]; // maybe less and clip
 	CGFloat ytop = [self mapY:maxVal]; // maybe more and clip
 	CGContextMoveToPoint(context, xForYaxis,ybot);
 	CGContextAddLineToPoint(context, xForYaxis,ytop);
-	for (int i=0;i<4;i++) {
+	for (int i=0;i<0;i++) {
 		//CGFloat yTick = ybot-(ybot-ytop)*i/4.0;
 		CGFloat yVal = minVal+(maxVal-minVal)*(.1+.9*(i/3.0));
         CGFloat yTick = [self mapY:yVal];
@@ -202,7 +398,7 @@ double myLogRandom(double min,double max){
 
     // Tick Mark Text
 	[[UIColor lightGrayColor] set];
-	for (int i=0;i<4;i++) {
+	for (int i=0;i<0;i++) {
 		CGFloat yVal = minVal+(maxVal-minVal)*(.1+.9*(i/3.0));
         CGFloat yTick = [self mapY:yVal];
 		NSString *ytickText=[NSString stringWithFormat:@"%.1f",yVal/1000.0];
