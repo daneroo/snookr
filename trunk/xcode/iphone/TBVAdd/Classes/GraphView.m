@@ -487,6 +487,7 @@ double myLogRandom(double min,double max){
 
 
 - (void)dealloc {
+    [observations release];
     [super dealloc];
 }
 

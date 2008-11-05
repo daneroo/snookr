@@ -8,7 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-
+/*
+ The graphview's jobs is to render the data contained in it's
+   NSMutableArray *observations property
+ 
+ Data analysis:
+   finding value range bounds (stamp,value) in {}..{}
+ 
+ */
 @interface GraphView : UIView {
     NSMutableArray *observations;
 
@@ -17,6 +24,6 @@
 	int daysAgo;
 }
 
-@property(nonatomic, assign) NSMutableArray *observations;
+@property(nonatomic, retain) NSMutableArray *observations;
 
 @end
