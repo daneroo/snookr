@@ -105,6 +105,7 @@
 		[dateFormatter setDateFormat:@"MMM"];
 		label = (UILabel *)[self viewWithTag:MONTH_LBL_TAG];
 		label.text = [[dateFormatter stringFromDate: observation.stamp] uppercaseString];
+
 		// Time
 		//[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
 		[dateFormatter setDateFormat:@"HH:mm"];
@@ -112,34 +113,14 @@
         //[dateFormatter setDateFormat:@"h:mm a"];
 		label = (UILabel *)[self viewWithTag:TIME_LBL_TAG];
 		label.text = [dateFormatter stringFromDate: observation.stamp];
+
 		// Observation
 		double d = observation.value / 1000.0;
 		label = (UILabel *)[self viewWithTag:OBS_LBL_TAG];
 		label.text = [[NSString alloc] initWithFormat:@"%.1f", d];
 	}
-    //NSLog(@"setObs retainCount: %d",[observation retainCount]);
 	// May be the same wrapper, but the date may have changed, so mark for redisplay
 	[self setNeedsDisplay];
-}
-
-- (void)NOTdrawRect:(CGRect)rect {
-    NSLog(@"-drawRect w:%f   %@",rect.size.width,observation.stamp);
-    // Drawing code
-    double d = observation.value / 1000.0;
-    NSString *text = [[NSString alloc] initWithFormat:@"%.1f", d]; //@"2008-10-28 15:43:26";
-    //CGFloat smallFontSize = [UIFont smallSystemFontSize]; //=12
-    CGFloat fontSize = [UIFont systemFontSize]; //=12
-    fontSize=20;
-	UIFont *font = [UIFont boldSystemFontOfSize:fontSize];
-
-    [text drawAtPoint:CGPointMake(10,10) withFont:font];
-    
-    CGContextRef context = UIGraphicsGetCurrentContext();
-	CGContextSetRGBStrokeColor(context, 0.0, 0.0, 0.0, 1.0);
-	CGContextMoveToPoint(context, self.bounds.size.width,self.bounds.size.height);
-	CGContextAddLineToPoint(context, 0,0);
-	CGContextStrokePath(context);
-    
 }
 
 
