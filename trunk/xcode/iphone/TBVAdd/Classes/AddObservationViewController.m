@@ -27,10 +27,8 @@
 - (void)setInitialWeight:(NSInteger)weight {
     NSInteger intPart = weight/1000;
     NSInteger digit1 = (weight%1000)/100;
-    //NSLog(@"Setting weight to: %d = (%d . %d)", weight, intPart, digit1);
     [weightPicker selectRow:intPart inComponent:0 animated:NO];
-    [weightPicker selectRow: (weight%1000)/100 inComponent:2 animated:NO];
-    //NSLog(@"Observing weight at: %d",[self selectedValue]);
+    [weightPicker selectRow: digit1 inComponent:2 animated:NO];
 }
 
 - (IBAction) makeDatePickerVisible:(id) sender {
