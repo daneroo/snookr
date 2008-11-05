@@ -12,22 +12,8 @@
 @implementation GraphView
 @synthesize observations;
 
-- (id)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame]) {
-        // Initialization code
-        // webSafe Dark Green: 006600 ~approx
-        self.backgroundColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
-        self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        self.contentMode = UIViewContentModeRedraw;
-        
-        startVal = 190.0 * 1000;
-        goalVal = 169.0 * 1000;
-		daysAgo = 7;
-    }
-    return self;
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+#pragma mark State Management
+- (void) cycleTimeRange {
 	switch (daysAgo) {
 		case 7:
 			daysAgo=14;
@@ -44,8 +30,32 @@
 		default:
 			daysAgo=7;
 	}
-	NSLog(@"touch ended Event  daysAgo: %d",daysAgo);
 	[self setNeedsDisplay];
+}
+
+
+#pragma mark UIView Override
+- (id)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        // Initialization code
+        // webSafe Dark Green: 006600 ~approx
+        self.backgroundColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
+        self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        self.contentMode = UIViewContentModeRedraw;
+        
+        startVal = 190.0 * 1000;
+        goalVal = 169.0 * 1000;
+		daysAgo = 7;
+    }
+    return self;
+}
+
+#pragma mark Event handling
+
+// only handle single tap for now
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self cycleTimeRange];
+	NSLog(@"touch ended Event  daysAgo: %d",daysAgo);
 }
 
 -(void)reportRange {
@@ -411,6 +421,8 @@ double myLogRandom(double min,double max){
 }
 
 - (void)drawRect:(CGRect)rect {
+    NSDate *drawStart = [NSDate date];
+    
     //NSLog(@"drawRect with %d observations",[observations count]);
     [self findRange];
     
@@ -483,6 +495,9 @@ double myLogRandom(double min,double max){
 	CGContextAddLines(context, pointarray, sizeof(pointarray)/sizeof(pointarray[0]));
 	CGContextStrokePath(context);
 	CGContextRestoreGState(context);
+    
+    NSTimeInterval duration = -[drawStart timeIntervalSinceNow];
+    NSLog(@"Drawing time: %f",duration);
 }
 
 
