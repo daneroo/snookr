@@ -447,6 +447,7 @@
 
 
 - (void)dealloc {
+    [observations release];
     [super dealloc];
 }
 
