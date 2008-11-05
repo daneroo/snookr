@@ -16,10 +16,7 @@
 @implementation RootViewController
 
 
-- (void)addStampedObservation:(NSInteger)value {
-    [self addObservation:value withStamp:[NSDate date]];
-}
-
+#pragma mark Observation Data Manip 
 - (void)addObservation:(NSInteger)aValue  withStamp:(NSDate *)aStamp {
     Observation *observation = [[Observation alloc] init]; 
     observation.stamp = aStamp;
@@ -31,8 +28,7 @@
 }
 
 - (void)addObservation:(Observation *)observation {
-    NSLog(@"Base AddObservation %@ %d", observation.stamp, observation.value);
-
+    //NSLog(@"Base AddObservation %@ %d", observation.stamp, observation.value);
     [observations addObject:observation];
     
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"stamp" ascending:NO];
@@ -78,6 +74,42 @@
 	//NSLog (@"Wrote %d observations to file %@", [observations count],dataFilePath);
 	NSLog (@"Wrote %d observations in %.3fs.", [observations count],-[startTime timeIntervalSinceNow]);
     //[self postObservations:nmsa];
+}
+- (void) loadObservations {
+    NSDate *startTime = [NSDate date];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex: 0];
+	NSString *dataFilePath = [documentsDirectory stringByAppendingPathComponent: @"observationdata.xml"];
+    
+	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath]) {
+        //NSLog (@"file exists");
+    } else     {
+		NSLog (@"file doesn't exist");
+        return;
+    }
+	//NSLog (@"reading from file %@", dataFilePath);
+    
+    // make an array of dictionary
+    NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfFile:dataFilePath];
+    
+    NSEnumerator * enumerator = [nmsa objectEnumerator];
+    NSDictionary *dictionary;
+    while(dictionary = (NSDictionary *)[enumerator nextObject]) {
+        NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
+        NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
+        //NSLog(@"<<<< stamp: %@, value: %@", stamp, value);
+        
+        Observation *observation = [[Observation alloc] init]; 
+        observation.stamp = stamp;
+        observation.value = [value integerValue];
+        
+        //NSLog(@"-loadObs retainCount: %d stamp: %d",[observation retainCount],[observation.stamp retainCount]);
+        [observations addObject:observation];
+        [observation release];
+    }
+    
+	//NSLog (@"Read %d observations from file %@", [observations count],dataFilePath);
+	NSLog (@"Read %d observations in %.3fs.", [observations count],-[startTime timeIntervalSinceNow]);
 }
 
 /* confirmed working
@@ -158,47 +190,38 @@
     
 }
 
-- (void) loadObservations {
-    NSDate *startTime = [NSDate date];
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *documentsDirectory = [paths objectAtIndex: 0];
-	NSString *dataFilePath = [documentsDirectory stringByAppendingPathComponent: @"observationdata.xml"];
-    
-	if ([[NSFileManager defaultManager] fileExistsAtPath: dataFilePath]) {
-        //NSLog (@"file exists");
-    } else     {
-		NSLog (@"file doesn't exist");
-        return;
-    }
-	//NSLog (@"reading from file %@", dataFilePath);
-    
-    // make an array of dictionary
-    NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfFile:dataFilePath];
-    
-    NSEnumerator * enumerator = [nmsa objectEnumerator];
-    NSDictionary *dictionary;
-    while(dictionary = (NSDictionary *)[enumerator nextObject]) {
-        NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
-        NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
-        //NSLog(@"<<<< stamp: %@, value: %@", stamp, value);
-        
-        Observation *observation = [[Observation alloc] init]; 
-        observation.stamp = stamp;
-        observation.value = [value integerValue];
-        
-        //NSLog(@"-loadObs retainCount: %d stamp: %d",[observation retainCount],[observation.stamp retainCount]);
-        [observations addObject:observation];
-        [observation release];
-    }
+#pragma mark Local Controller Hooks 
 
-	//NSLog (@"Read %d observations from file %@", [observations count],dataFilePath);
-	NSLog (@"Read %d observations in %.3fs.", [observations count],-[startTime timeIntervalSinceNow]);
+-(void) reloadViews {
+	[[self tableView] reloadData];
+	// graphView
+	[self.tableView.tableHeaderView setNeedsDisplay];
 }
 
+// Event handler for modal add Observation
+-(void) addCallback:(id)sender {
+    //NSLog(@"Hello from addCallback Modal");
+	AddObservationViewController *addController = [[AddObservationViewController alloc] initWithNibName:@"AddObservationView" bundle:nil];
+    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addController];
+	addController.delegate = self;
+    navigationController.navigationBar.barStyle = UIBarStyleBlackOpaque; 
+	[self presentModalViewController:navigationController animated:YES];
+    if (observations && [observations count]>0) {
+        Observation *obs = (Observation *)[observations objectAtIndex:0];
+        [addController setInitialWeight:obs.value];
+    } else {
+        [addController setInitialWeight:100000];
+    }
+    
+    [addController release];
+    
+}
+
+#pragma mark UITableViewDataSource Protocol 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
-
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [observations count];
@@ -209,6 +232,7 @@
     return @"";
 }
 
+#pragma mark UITableViewDelegate Protocol 
 
 #define STAMP_TAG 42
 #define OBSERV_TAG 43
@@ -287,64 +311,6 @@
 }
 
 
-
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    // should this be retained ??
-    observations = [[NSMutableArray alloc] init];
-    [self loadObservations];
-	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/traineodata.xml"];
-	//[self loadObservationsFromURL:aURL];	
-	
-	//Set the title of the Main View here.
-	self.title = @"Weightrical D";
-    self.tableView.rowHeight = ROW_HEIGHT;
-
-
-    // Uncomment the following line to add the Edit button to the navigation bar.
-    self.navigationItem.leftBarButtonItem = self.editButtonItem;
-
-	UIBarButtonItem *addButton = [[[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem: UIBarButtonSystemItemAdd
-                                   target:self action:@selector(addCallback:)] autorelease];
-	self.navigationItem.rightBarButtonItem = addButton;
-
-    //  GraphView as tableHeaderView Height 
-#define HEADERVIEW_HEIGHT 160.0
-	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
-    GraphView *graphView = [[[GraphView alloc] initWithFrame:newFrame] autorelease];
-	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
-    
-    graphView.observations = observations;
-}
-
--(void) reloadViews {
-	[[self tableView] reloadData];
-	// graphView
-	[self.tableView.tableHeaderView setNeedsDisplay];
-}
-
-// Event handler for modal add Observation
--(void) addCallback:(id)sender {
-    //NSLog(@"Hello from addCallback Modal");
-	AddObservationViewController *addController = [[AddObservationViewController alloc] initWithNibName:@"AddObservationView" bundle:nil];
-        
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:addController];
-	addController.delegate = self;
-    navigationController.navigationBar.barStyle = UIBarStyleBlackOpaque; 
-	[self presentModalViewController:navigationController animated:YES];
-    if (observations && [observations count]>0) {
-        Observation *obs = (Observation *)[observations objectAtIndex:0];
-        [addController setInitialWeight:obs.value];
-    } else {
-        [addController setInitialWeight:100000];
-    }
-    
-    [addController release];
-    
-}
-
 // Override to support editing the list
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -388,6 +354,38 @@
     return YES;
 }
 */
+
+#pragma mark UIViewController Override 
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    observations = [[NSMutableArray alloc] init];
+    [self loadObservations];
+	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/traineodata.xml"];
+	//[self loadObservationsFromURL:aURL];	
+	
+	//Set the title of the Main View here.
+	self.title = @"Weightrical D";
+    self.tableView.rowHeight = ROW_HEIGHT;
+    
+    
+    // Uncomment the following line to add the Edit button to the navigation bar.
+    self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    
+	UIBarButtonItem *addButton = [[[UIBarButtonItem alloc]
+                                   initWithBarButtonSystemItem: UIBarButtonSystemItemAdd
+                                   target:self action:@selector(addCallback:)] autorelease];
+	self.navigationItem.rightBarButtonItem = addButton;
+    
+    //  GraphView as tableHeaderView Height 
+#define HEADERVIEW_HEIGHT 160.0
+	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
+    GraphView *graphView = [[[GraphView alloc] initWithFrame:newFrame] autorelease];
+	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
+    
+    graphView.observations = observations;
+}
 
 /*
 - (void)viewWillAppear:(BOOL)animated {
