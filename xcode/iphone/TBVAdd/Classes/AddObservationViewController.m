@@ -7,7 +7,7 @@
 //
 
 #import "AddObservationViewController.h"
-
+#import "DateUtil.h"
 
 @implementation AddObservationViewController
 @synthesize datePicker;
@@ -62,12 +62,7 @@
     // Max Date makes UI confusing, maybe a warning (future date) would be better
     //datePicker.maximumDate = datePicker.date;
     
-    static NSDateFormatter *dateFormatter = nil;
-	if (dateFormatter == nil) {
-		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-	}
-    nowLabel.text = [dateFormatter stringFromDate: datePicker.date];
+    nowLabel.text = [DateUtil formatDate:datePicker.date withFormat:iMDateFormatFullISO];
 }
 
 - (void)save  {

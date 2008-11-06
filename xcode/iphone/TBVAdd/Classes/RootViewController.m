@@ -12,6 +12,7 @@
 #import "UIKit/UIBarButtonItem.h"
 #import "GraphView.h"
 #import "ObservationCellView.h"
+#import "DateUtil.h"
 
 @implementation RootViewController
 
@@ -249,20 +250,10 @@
     
     // Set up the cell
     Observation *observation = [observations objectAtIndex:indexPath.row];
-    
-    /*
-	 Cache the formatter. Normally you would use one of the date formatter styles (such as NSDateFormatterShortStyle), but here we want a specific format that excludes seconds.
-	 */
     UILabel *label;
     
-	static NSDateFormatter *dateFormatter = nil;
-	if (dateFormatter == nil) {
-		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-	}
     label = (UILabel *)[cell viewWithTag:STAMP_TAG];
-    label.text = [dateFormatter stringFromDate: observation.stamp];
-    
+    label.text = [DateUtil formatDate:observation.stamp withFormat:iMDateFormatFullISO];
     
     double d = observation.value / 1000.0;
     label = (UILabel *)[cell viewWithTag:OBSERV_TAG];
@@ -277,7 +268,7 @@
     if (indexPath.row%2 == 0 ) {
         return [self OLDXIBtableView:tableView cellForRowAtIndexPath:indexPath];
     }
-	 */    
+     */	    
     
     static NSString *cellReuseIdentifier = @"ObsCellId";
     ObservationCellView *cell = (ObservationCellView *)[tableView dequeueReusableCellWithIdentifier:cellReuseIdentifier];

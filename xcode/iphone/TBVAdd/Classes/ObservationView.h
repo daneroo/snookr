@@ -11,8 +11,6 @@
 
 @interface ObservationView : UIView {
 	Observation *observation;
-	NSDateFormatter *dateFormatter;
-
 }
 
 @property (nonatomic, retain) Observation *observation;

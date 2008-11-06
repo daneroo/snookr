@@ -222,10 +222,7 @@ double myLogRandom(double min,double max){
 
 
 - (void)xTicks:(CGContextRef)context withFont:(UIFont *)font {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    //[dateFormatter setDateFormat:@"d"];
-    //[dateFormatter setDateFormat:@"MMM"];
-    [dateFormatter setDateFormat:@"EEEEE"]; // EEEEE is one leter only S,M,T
+    NSString *dateFormat = iMDateFormatNarrowWeekDay;
 
 	CGFloat yForXaxis = [self mapY:minVal]+3;
     CGFloat xleft = [self mapX:minTime]; // maybe less and clip
@@ -250,15 +247,15 @@ double myLogRandom(double min,double max){
     NSMutableDictionary *tickDates = [[NSMutableDictionary alloc] init];
     if (approxDays<20) { // days
         if (approxDays<8) {
-            [dateFormatter setDateFormat:@"EEE"]; // short weekday name
+            dateFormat = iMDateFormatShortWeekDay;
         } else if (approxDays<15) {
-            [dateFormatter setDateFormat:@"EEEEE"]; // narrow weekday name
+            dateFormat = iMDateFormatNarrowWeekDay;
         } else {
-            [dateFormatter setDateFormat:@"d"]; // day of month
+            dateFormat = iMDateFormatDayOfMonth;
         }
         NSDate *xTickDate=minDay;
         while ([xTickDate compare:maxDay]<=0) {
-            NSString *xtickText= [dateFormatter stringFromDate: xTickDate];
+            NSString *xtickText = [DateUtil formatDate:xTickDate withFormat:dateFormat];
             [tickDates setObject:xtickText forKey:xTickDate];
             xTickDate = [self startOfDay:xTickDate after:NO offsetInDays:1];
         }
@@ -266,16 +263,16 @@ double myLogRandom(double min,double max){
         NSDate *xTickDate=[self startOfMonth:minMonth after:NO offsetInMonths:-1];
         while ([xTickDate compare:maxMonth]<=0) {
             if (approxDays<90) {
-                [dateFormatter setDateFormat:@"MMM"]; // short month name 
+                dateFormat = iMDateFormatShortMonth;
             } else {
-                [dateFormatter setDateFormat:@"MMMMM"]; // narrow name 
+                dateFormat = iMDateFormatNarrowMonth;
             }
-            NSString *xtickText= [dateFormatter stringFromDate: xTickDate];
+            NSString *xtickText = [DateUtil formatDate:xTickDate withFormat:dateFormat];
+
             if ([xTickDate compare:minDate]>=0) [tickDates setObject:xtickText forKey:xTickDate];
             if (approxDays < 90 ) {
                 NSDate *halfMonth = [self startOfDay:xTickDate after:NO offsetInDays:14];
-                [dateFormatter setDateFormat:@"d"]; // narrow name 
-                NSString *halfMonthText= [dateFormatter stringFromDate: halfMonth];
+                NSString *halfMonthText = [DateUtil formatDate:halfMonth withFormat:iMDateFormatDayOfMonth];
                 if ([halfMonth compare:minDate]>=0 && [halfMonth compare:maxDate]<=0) {
                     [tickDates setObject:halfMonthText forKey:halfMonth];
                 }
@@ -300,7 +297,6 @@ double myLogRandom(double min,double max){
     }
     CGContextStrokePath(context);
     
-    [dateFormatter release];
     [tickDates release];
 }
 - (void)drawXAxisIn:(CGContextRef)context withFont:(UIFont *)font {
@@ -499,30 +495,6 @@ double myLogRandom(double min,double max){
     
     NSTimeInterval duration = -[drawStart timeIntervalSinceNow];
     NSLog(@"Drawing time: %f",duration);
-    
-#define ITERATIONS 10000
-    DateUtil *du = [[DateUtil alloc] init];
-    //[du speedTest];
-    drawStart = [NSDate date];
-    NSString *fmt =  @"yyyy-MM-dd HH:mm:ss";
-    for (int i=0;i<ITERATIONS;i++) {
-        NSString *text= [du formatDate:drawStart withFormat:fmt];
-        if (i%(ITERATIONS-1)==0) {
-            NSLog(@" it %28d : %@",i,text);
-        }
-    }
-    duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"7-meth format: %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
-
-    drawStart = [NSDate date];
-    for (int i=0;i<ITERATIONS;i++) {
-        NSString *text= [DateUtil formatDate:drawStart withFormat:fmt];
-        if (i%(ITERATIONS-1)==0) {
-            NSLog(@" it %28d : %@",i,text);
-        }
-    }
-    duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"8+meth format: %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
     
 }
 

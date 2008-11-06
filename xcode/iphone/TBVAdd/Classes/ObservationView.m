@@ -7,6 +7,7 @@
 //
 
 #import "ObservationView.h"
+#import "DateUtil.h"
 
 
 @implementation ObservationView
@@ -27,8 +28,6 @@
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         // Initialization code
-		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setDateFormat:@"h:mm a"];
 		self.opaque = YES;
 		self.backgroundColor = [UIColor whiteColor];
         UIColor *sharedGreenTextColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
@@ -93,26 +92,17 @@
 		[observation release];
 		observation = [newObservation retain];
         
-        //[dateFormatter setDateFormat:@"h:mm a"];
 		UILabel *label;
 		
-		//[dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 		// Day
-		[dateFormatter setDateFormat:@"d"];
 		label = (UILabel *)[self viewWithTag:DAY_LBL_TAG];
-		label.text = [dateFormatter stringFromDate: observation.stamp];
+		label.text =[DateUtil formatDate:observation.stamp withFormat:iMDateFormatDayOfMonth];
 		// Month
-		[dateFormatter setDateFormat:@"MMM"];
 		label = (UILabel *)[self viewWithTag:MONTH_LBL_TAG];
-		label.text = [[dateFormatter stringFromDate: observation.stamp] uppercaseString];
-
-		// Time
-		//[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
-		[dateFormatter setDateFormat:@"HH:mm"];
-		//[dateFormatter setDateFormat:@"HH:mm:ss"];
-        //[dateFormatter setDateFormat:@"h:mm a"];
+		label.text = [[DateUtil formatDate:observation.stamp withFormat:iMDateFormatShortMonth] uppercaseString];
+        // Time 
 		label = (UILabel *)[self viewWithTag:TIME_LBL_TAG];
-		label.text = [dateFormatter stringFromDate: observation.stamp];
+		label.text = [DateUtil formatDate:observation.stamp withFormat:iMDateFormatHM24];
 
 		// Observation
 		double d = observation.value / 1000.0;
@@ -126,7 +116,6 @@
 
 - (void)dealloc {
     [observation release];
-    [dateFormatter release];
     [super dealloc];
 }
 
