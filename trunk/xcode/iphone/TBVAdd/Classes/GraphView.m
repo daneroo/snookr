@@ -8,6 +8,7 @@
 
 #import "GraphView.h"
 #import "Observation.h"
+#import "DateUtil.h"
 
 @implementation GraphView
 @synthesize observations;
@@ -498,6 +499,31 @@ double myLogRandom(double min,double max){
     
     NSTimeInterval duration = -[drawStart timeIntervalSinceNow];
     NSLog(@"Drawing time: %f",duration);
+    
+#define ITERATIONS 10000
+    DateUtil *du = [[DateUtil alloc] init];
+    //[du speedTest];
+    drawStart = [NSDate date];
+    NSString *fmt =  @"yyyy-MM-dd HH:mm:ss";
+    for (int i=0;i<ITERATIONS;i++) {
+        NSString *text= [du formatDate:drawStart withFormat:fmt];
+        if (i%(ITERATIONS-1)==0) {
+            NSLog(@" it %28d : %@",i,text);
+        }
+    }
+    duration = -[drawStart timeIntervalSinceNow];
+    NSLog(@"7-meth format: %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
+
+    drawStart = [NSDate date];
+    for (int i=0;i<ITERATIONS;i++) {
+        NSString *text= [DateUtil formatDate:drawStart withFormat:fmt];
+        if (i%(ITERATIONS-1)==0) {
+            NSLog(@" it %28d : %@",i,text);
+        }
+    }
+    duration = -[drawStart timeIntervalSinceNow];
+    NSLog(@"8+meth format: %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
+    
 }
 
 
