@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 /* 
+
    For NSDateFormatter class convinience method
      we use a thread local instance stored in the threadDictionary
      [[NSThread currentThread] threadDictionary];
@@ -19,6 +20,8 @@
    We adopted this setup for a) convienience, and from the following timing tests showing
    That the expensive part of setting up a dateformatter is actually
    the [[.. alloc] init] part!
+ 
+   Note: Revision 313 of DateUtil has timing test
      we compared tight iterations loops with: 
     NSDateFormatter allocation only, alloc-setFormat-stringFromDate, setFormat-stringFromDate,
     stringFromDate only, same combinations through instance variable and method invocation,
@@ -39,6 +42,19 @@
      5-meth format:       1893.0 i/s 0.528 s
      6+meth format:       1885.3 i/s 0.530 s
  */
+
+#pragma mark  NSDateFormatter Format Constants
+
+extern NSString *const iMDateFormatFullISO;
+extern NSString *const iMDateFormatISOTime;
+extern NSString *const iMDateFormatISODate;
+extern NSString *const iMDateFormatShortWeekDay;
+extern NSString *const iMDateFormatNarrowWeekDay;
+extern NSString *const iMDateFormatShortMonth;
+extern NSString *const iMDateFormatNarrowMonth;
+extern NSString *const iMDateFormatDayOfMonth;
+extern NSString *const iMDateFormatHM24;
+
 @interface DateUtil : NSObject {
     NSDateFormatter *sharedDateFormatter;
 }

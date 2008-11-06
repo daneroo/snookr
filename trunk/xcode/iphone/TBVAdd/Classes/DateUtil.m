@@ -12,6 +12,18 @@
 
 @implementation DateUtil
 
+#pragma mark  NSDateFormatter Format Constants
+
+NSString *const iMDateFormatFullISO       = @"yyyy-MM-dd HH:mm:ss";
+NSString *const iMDateFormatISOTime       = @"HH:mm:ss";
+NSString *const iMDateFormatISODate       = @"yyyy-MM-dd";
+NSString *const iMDateFormatShortWeekDay  = @"EEE";
+NSString *const iMDateFormatNarrowWeekDay = @"EEEEE";
+NSString *const iMDateFormatShortMonth    = @"MMM";
+NSString *const iMDateFormatNarrowMonth   = @"MMMMM";
+NSString *const iMDateFormatDayOfMonth    = @"d";
+NSString *const iMDateFormatHM24          = @"HH:mm";
+
 #pragma mark Class Methods
 
 + (NSString *) formatDate:(NSDate *)d withFormat:(NSString *)fmt {
@@ -40,59 +52,6 @@
 }
 
 
--(void) speedTest {
-    NSDate *drawStart;
-    NSTimeInterval duration;
-
-    NSDate *d = [NSDate date];
-    NSString *fmt =  @"yyyy-MM-dd HH:mm:ss";
-    NSDateFormatter *reusableDateFormatter = [[NSDateFormatter alloc] init];
-
-    drawStart = [NSDate date];
-    for (int i=0;i<ITERATIONS;i++) {
-        [reusableDateFormatter setDateFormat:fmt];
-        NSString *text= [reusableDateFormatter stringFromDate: d];
-        if (i%(ITERATIONS-1)==0) {
-            //NSLog(@" it %28d : %@",i,text);
-        }
-    }
-
-    duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"2-format     : %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
-
-    drawStart = [NSDate date];
-    for (int i=0;i<ITERATIONS;i++) {
-        [reusableDateFormatter setDateFormat:fmt];
-        NSString *text= [reusableDateFormatter stringFromDate: d];
-        if (i%(ITERATIONS-1)==0) {
-            //NSLog(@" it %28d : %@",i,text);
-        }
-    }
-    duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"3-use        : %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
-
-    [reusableDateFormatter release];
-
-    drawStart = [NSDate date];
-    for (int i=0;i<ITERATIONS;i++) {
-        NSString *text= [self formatDate:d withFormat:fmt];
-        if (i%(ITERATIONS-1)==0) {
-            //NSLog(@" it %28d : %@",i,text);
-        }
-    }
-    duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"5-meth format: %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
-
-    drawStart = [NSDate date];
-    for (int i=0;i<ITERATIONS;i++) {
-        NSString *text= [DateUtil formatDate:d withFormat:fmt];
-        if (i%(ITERATIONS-1)==0) {
-            //NSLog(@" it %28d : %@",i,text);
-        }
-    }
-    duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"6+meth format: %12.1f i/s %5.3f s",(1.0*ITERATIONS)/duration,duration);
-}
  
 #pragma mark private Class Methods
 
