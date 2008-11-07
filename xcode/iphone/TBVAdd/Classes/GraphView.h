@@ -19,12 +19,12 @@
    NSMutableArray *observations property
  
  The view has a state:
-    daysAgo: wich indicates the desired Time Axis Scope (filter)
+    desiredScopInDays: wich indicates the desired Time Axis Scope (filter)
  and extra Data: goalVal, startVal    
  
  Data analysis:
    finding value range bounds (stamp,value) in {}..{}
-   is affected by daysAgo, and optionaly goalVal,startVal
+   is affected by desiredScopInDays, and optionaly goalVal,startVal
  
    findRange produces calculated state:
      minVal..maxVal, and minTime,maxTime
@@ -35,8 +35,18 @@
 **Should have a pre-Drawing state calculation to prepare
    mapX,mapY
  
-Flow and actual Drawing:
-    findRange
+Analysis Flow and actual Drawing:
+    -find Value Range (possibly filtered (w/desiredScopeInDays)
+ 
+    layout Geometry
+      find vertical available space based on Height of X-axis Label Font
+        -> layoutBottomMargin
+      determine Y axis Tics and Labels,
+          maximum Label width yields horizontal available Space
+        -> layoutLeftMargin
+ 
+ 
+    findRange 
     fillWithGradient
    -axis: range and resolution -> labels and ticks
     drawXAxis
@@ -49,14 +59,28 @@ Flow and actual Drawing:
       .09 on Phone, in debug. (slightly less .08 in non debug)
  */
 @interface GraphView : UIView {
-    NSMutableArray *observations;
+@private
+    // Data
+    NSMutableArray *observations; // observation data
+    CGFloat startVal,goalVal; // extra Data
+    // data range
+    NSTimeInterval dataMinTime,dataMaxTime; // Time X-axis
+    NSTimeInterval dataRangeTime;           // Time max-min
+    CGFloat dataMinValue,dataMaxValue;      // Value Y-axis
+    CGFloat dataRangeValue;                 // Value Max-Min
+    // layout State
+    CGFloat layoutBottomMargin; // leaves room at bottom for x axis labels & ticks
+    CGFloat layoutTopMargin;    // leaves room at top just for breathing
+    CGFloat layoutLeftMargin;   // leaves room at left for y axis labels & ticks
+    CGFloat layoutRightMargin;  // leaves room at right just for breathing
 
-    NSTimeInterval minTime,maxTime;
-    CGFloat minVal,maxVal,startVal,goalVal;
-	int daysAgo;
+    // UI State
+	int desiredScopeInDays; // desired Visible Days on Display
 }
 
 @property(nonatomic, retain) NSMutableArray *observations;
+
+- (void) randomize; //temporary
 
 - (void) cycleTimeRange;
 
