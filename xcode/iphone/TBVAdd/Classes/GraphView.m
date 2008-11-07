@@ -475,19 +475,62 @@ double myLogRandom(double min,double max){
         CGContextRestoreGState(context);
     }    
     
-    BOOL ctmTest = NO;
-    if (ctmTest) {
+    BOOL shadowTest = YES;
+    if (shadowTest) {
+        // shadow test
         CGContextSaveGState(context);
         
-        /*
-         CGContextTranslateCTM(context,self.center.x,self.center.y);
-         CGContextRotateCTM(context,(r/(10.0))*(M_PI/6));
-         CGContextScaleCTM(context,.1,10);
-         CGContextTranslateCTM(context,-self.center.x,-self.center.y);
-         */
         
+        //CGContextSetRGBFillColor (context, .5,.5,.5,1);
+        //CGContextFillRect (context, CGRectMake (0,0,400,400));
+        
+        CGSize          myShadowOffset = CGSizeMake (0,0);
+        float           myColorValues[] = {1, 1, 0, 2};
+        CGColorSpaceRef myColorSpace = CGColorSpaceCreateDeviceRGB ();
+        CGColorRef      myColor  = CGColorCreate (myColorSpace, myColorValues);//
+        CGFloat blur = 20;
+        
+        //CGContextSetShadow(context, myShadowOffset, blur );
+        CGContextSetShadowWithColor (context, myShadowOffset, blur, myColor);//
+        
+        CGContextSetLineWidth(context, 3);
+        CGContextSetRGBStrokeColor(context, 0,1,0, 1.0);
+        CGContextSetRGBFillColor (context, 1, 1, 0, 1);
+        
+        //Observation *observation =  (Observation *)[observations objectAtIndex:[observations count]-1];
+        Observation *observation =  (Observation *)[observations objectAtIndex:0];
+        CGPoint c = CGPointMake([self mapX:[observation.stamp timeIntervalSince1970]],[self mapY:observation.value]);
+        //CGPoint c = self.center;
+        //c = self.center;
+        CGRect dot = CGRectMake(c.x-5, c.y-5, 10, 10);
+        //CGContextAddEllipseInRect(context, dot);
+        //CGContextFillPath(context);
+        CGContextAddEllipseInRect(context, dot);
+        CGContextStrokePath(context);
         
         CGContextRestoreGState(context);
+    }        
+    BOOL ctmTest = NO;
+    if (ctmTest) {
+        for (int i=0;i< 8;i++) {
+
+            CGContextSaveGState(context);
+            
+            CGContextTranslateCTM(context,self.center.x,self.center.y);
+            CGContextRotateCTM(context,(i/(8.0))*(M_PI*2));
+            //CGContextScaleCTM(context,i/8.0 * 4,1);
+            
+            CGContextMoveToPoint(context, 0,0);
+            CGContextAddLineToPoint(context, 1000,0);
+            CGContextSetLineWidth(context, 2);
+            CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 1.0);
+            CGContextStrokePath(context);
+
+            CGContextTranslateCTM(context,-self.center.x,-self.center.y);
+            
+            
+            CGContextRestoreGState(context);
+        }
     }    
         
     NSTimeInterval duration = -[drawStart timeIntervalSinceNow];
