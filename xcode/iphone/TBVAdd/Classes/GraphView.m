@@ -146,8 +146,11 @@ double myLogRandom(double min,double max){
         if (localMaxVal<startVal) localMaxVal = startVal;
     }    
     
-	if ([minDate compare:ago]<0) {
-		minDate = ago;
+    // force scope in days even if no data present. or not up to NOW
+    bool strictDesiredScopeInDays = NO;
+	if (strictDesiredScopeInDays){
+        if ([minDate compare:ago]>0) minDate = ago;
+        if ([maxDate compare:[NSDate date]]<0) maxDate = [NSDate date];
 	}
     
     // Set instace variables for data Ranges
