@@ -62,7 +62,7 @@ NSString *const iMDateFormatHM24          = @"HH:mm";
     if (!instance) {
         instance = [[DateUtil alloc] init];
         [thDict setObject:instance forKey:threadInstanceKey];
-        NSLog(@"+New Thread Instance");
+        //NSLog(@"+New Thread Instance");
     }
     return instance;
 }
