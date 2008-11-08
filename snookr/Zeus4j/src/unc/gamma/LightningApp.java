@@ -8,11 +8,16 @@ import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 public class LightningApp extends Applet
         implements AdjustmentListener, MouseListener {
@@ -181,7 +186,15 @@ public class LightningApp extends Applet
                     System.err.println("drawTree return null BufferdImage");
                     return true;
                 }
+                System.out.println("render: bi is " + ((bufferedimage == null) ? "null" : "not null"));
+                System.out.println("render: bi.g is " + ((bufferedimage.getGraphics() == null) ? "null" : "not null"));
+
                 BufferedImage bufferedimage1 = fft.convolve2D(bufferedimage, lightningRGB);
+
+                System.out.println("render: bi1 is " + ((bufferedimage1 == null) ? "null" : "not null"));
+                System.out.println("render: bi1.g is " + ((bufferedimage1.getGraphics() == null) ? "null" : "not null"));
+
+
                 backBuffer.backBuffer = bufferedimage1;
                 backBuffer.backBufferContext = bufferedimage1.getGraphics();
                 statusBox.append("Done.\n");
@@ -232,6 +245,9 @@ public class LightningApp extends Applet
             return;
         }
         BufferedImage bufferedimage = fft.relight(lightningRGB);
+        //System.out.println("adj: bi is "+((bufferedimage==null)?"null":"not null"));
+        //System.out.println("adj: bi.g is "+((bufferedimage.getGraphics()==null)?"null":"not null"));
+
         if (bufferedimage != null) {
             backBuffer.backBuffer = bufferedimage;
             backBuffer.backBufferContext = bufferedimage.getGraphics();
@@ -240,18 +256,31 @@ public class LightningApp extends Applet
     }
 
     public void readFilter() {
-        Image image=null;
-        do {
-            try {
-                //image = getImage(getDocumentBase(), "apsfShift.jpg");
-                File imFile = new File("apsfShift.jpg");
-                URL url = imFile.toURL();
-                image = Toolkit.getDefaultToolkit().getImage(url);
-            } catch (MalformedURLException ex) {
-                //Logger.getLogger(LightningApp.class.getName()).log(Level.SEVERE, null, ex);
-                ex.printStackTrace();
-            }
-        } while (image.getWidth(null) <= 0);
+        // use new jdk 1,4 method for loading images !
+        Image image = null;
+        try {
+            String imPath = "apsfShift.jpg";
+
+            // Read from a file
+            File file = new File(imPath);
+            image = ImageIO.read(file);
+
+        /*
+        // Read from an input stream
+        InputStream is = new BufferedInputStream(
+        new FileInputStream(imPath));
+        image = ImageIO.read(is);
+        
+        // Read from a URL
+        //URL url = new URL("http://hostname.com/image.gif");
+        URL url = file.toURL();
+        image = ImageIO.read(url);
+         */
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         BufferedImage bufferedimage = toBufferedImage(image);
         fft = new FFT(bufferedimage);
     }
@@ -299,6 +328,7 @@ public class LightningApp extends Applet
     float eta;
 
     public static void main(String args[]) {
+        //final LightningApp app = new LightningApp();
         final LightningApp app = new LightningApp();
         app.init();
         app.start();
