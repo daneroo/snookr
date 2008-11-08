@@ -31,6 +31,7 @@ public class BackBuffer extends Canvas
         }
         do {
             try {
+                // moved getGraphics inside the loop !
                 Graphics g = getGraphics();
                 if (g != null) {
                     //System.err.println("Graphics is sometime Not null");
