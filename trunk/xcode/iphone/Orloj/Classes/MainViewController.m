@@ -28,6 +28,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
+	// How should I implement : "As fast as possible" ?
 	[NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(onTimer) userInfo:nil repeats:YES];
 
 }
