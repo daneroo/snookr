@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'Wattrical' target in the 'Wattrical' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <UIKit/UIKit.h>
+#endif
