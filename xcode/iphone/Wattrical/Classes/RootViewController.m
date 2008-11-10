@@ -16,9 +16,14 @@
     return 1;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+	return @"Wattrical Feeds:";
+}
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+	return [cellNameArray count];
 }
 
 
@@ -32,6 +37,10 @@
     }
     
     // Set up the cell
+    cell.accessoryType = UITableViewCellAccessoryNone;
+	cell.selectionStyle = UITableViewCellSelectionStyleNone;
+	cell.text = [cellNameArray objectAtIndex:[indexPath row]];
+    
     return cell;
 }
 
@@ -41,13 +50,15 @@
 }
 
 
-/*
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Uncomment the following line to add the Edit button to the navigation bar.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    //Set the title of the Main View here.
+    self.title = @"Wattrical";
+    
+    // setup our table data
+	cellNameArray = [[NSArray arrayWithObjects:@"Live", @"Hour", @"Day", @"Week", @"Month", nil] retain];
+
 }
-*/
 
 
 /*
@@ -122,6 +133,7 @@
 
 - (void)dealloc {
     [super dealloc];
+    [cellNameArray release];
 }
 
 
