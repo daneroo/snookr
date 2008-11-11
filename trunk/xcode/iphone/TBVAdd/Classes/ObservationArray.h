@@ -15,9 +15,12 @@
 }
 @property (nonatomic, retain) NSMutableArray *observations;
 
+#pragma mark Observation Data Manip
 - (void)addObservation:(NSInteger)value  withStamp:(NSDate *)aStamp;
 - (void)addObservation:(Observation *)observation;
+- (void)sort;
 
+#pragma mark Observation Data IO
 - (void) saveObservations;
 - (void) loadObservations;
 - (void) postObservations:(id)plist;
