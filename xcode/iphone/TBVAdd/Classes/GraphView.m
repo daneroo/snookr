@@ -497,16 +497,17 @@ double myLogRandom(double min,double max){
         CGContextSetRGBStrokeColor(context, 0,1,0, 1.0);
         CGContextSetRGBFillColor (context, 1, 1, 0, 1);
         
-        //Observation *observation =  (Observation *)[observations objectAtIndex:[observations count]-1];
-        Observation *observation =  (Observation *)[observations objectAtIndex:0];
-        CGPoint c = CGPointMake([self mapX:[observation.stamp timeIntervalSince1970]],[self mapY:observation.value]);
-        //CGPoint c = self.center;
-        //c = self.center;
-        CGRect dot = CGRectMake(c.x-5, c.y-5, 10, 10);
-        //CGContextAddEllipseInRect(context, dot);
-        //CGContextFillPath(context);
-        CGContextAddEllipseInRect(context, dot);
-        CGContextStrokePath(context);
+        if ([observations count]>0) {
+            Observation *observation =  (Observation *)[observations objectAtIndex:0];
+            CGPoint c = CGPointMake([self mapX:[observation.stamp timeIntervalSince1970]],[self mapY:observation.value]);
+            //CGPoint c = self.center;
+            //c = self.center;
+            CGRect dot = CGRectMake(c.x-5, c.y-5, 10, 10);
+            //CGContextAddEllipseInRect(context, dot);
+            //CGContextFillPath(context);
+            CGContextAddEllipseInRect(context, dot);
+            CGContextStrokePath(context);
+        }
         
         CGContextRestoreGState(context);
     }        
