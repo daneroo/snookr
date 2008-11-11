@@ -10,7 +10,7 @@
 #import "Observation.h"
 
 @interface RootViewController : UITableViewController {
-    NSMutableArray *observations; // array of NSStrings for now
+    NSMutableArray *observations; // array of Observation Objects
 }
 //@property (nonatomic, retain) NSMutableArray *observations;
 
