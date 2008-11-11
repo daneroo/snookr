@@ -25,9 +25,7 @@
     //[obsarray addObservation:100000 withStamp:[NSDate date]];
     //[obsarray loadObservations];
 	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
-	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/coco.xml"];
 	[obsarray loadObservationsFromURL:aURL];	
-    //[obsarray addObservation:100000 withStamp:[NSDate date]];
 
     //[self.view setNeedsDisplay];
    	[self.tableView.tableHeaderView setNeedsDisplay];
