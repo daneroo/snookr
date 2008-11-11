@@ -25,6 +25,10 @@
     MainViewController *viewController = [[MainViewController alloc] initWithNibName:@"MainView" bundle:nil];
     self.mainViewController = viewController;
     [viewController release];
+
+    // Manage the status bar:
+    UIApplication *app = [UIApplication sharedApplication];
+    app.statusBarStyle = UIStatusBarStyleBlackOpaque;
     
     [self.view insertSubview:mainViewController.view belowSubview:infoButton];
 }
