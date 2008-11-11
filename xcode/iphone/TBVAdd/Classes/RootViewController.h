@@ -8,21 +8,19 @@
 
 #import <UIKit/UIKit.h>
 #import "Observation.h"
+#import "ObservationArray.h"
 
 @interface RootViewController : UITableViewController {
-    NSMutableArray *observations; // array of Observation Objects
+    ObservationArray *obsarray;
 }
 //@property (nonatomic, retain) NSMutableArray *observations;
 
-- (void)addObservation:(NSInteger)value  withStamp:(NSDate *)aStamp;
-- (void)addObservation:(Observation *)observation;
-- (void) saveObservations;
-- (void) loadObservations;
-- (void) postObservations:(id)plist;
-- (void) loadObservationsFromURL:(NSURL *)aURL;
-
+- (void)addAndSaveObservation:(NSInteger)value  withStamp:(NSDate *)aStamp;
+- (void)removeAndSaveObservationAtIndex:(NSUInteger)index;
+- (Observation *)getLatestObservation;
 - (void) reloadViews;
-- (void) addCallback:(id)sender;
+- (void) popupAddObservationModal:(id)sender;
+
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;

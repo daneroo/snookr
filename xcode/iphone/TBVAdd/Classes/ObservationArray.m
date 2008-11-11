@@ -18,23 +18,24 @@
     Observation *observation = [[Observation alloc] init]; 
     observation.stamp = aStamp;
     observation.value = aValue;
-    
     [self addObservation:observation];
     
     [observation release];
 }
 
+// implies sort
 - (void)addObservation:(Observation *)observation {
     //NSLog(@"Base AddObservation %@ %d", observation.stamp, observation.value);
     [observations addObject:observation];
-    
+    [self sort];
+}
+
+- (void)sort {
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"stamp" ascending:NO];
 	NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:&sortDescriptor count:1];
 	[observations sortUsingDescriptors:sortDescriptors];
 	[sortDescriptors release];
 	[sortDescriptor release];
-    
-    [self saveObservations];
 }
 
 #pragma mark Observation Data IO
@@ -106,7 +107,7 @@
         [observations addObject:observation];
         [observation release];
     }
-    
+    [self sort];
 	//NSLog (@"Read %d observations from file %@", [observations count],dataFilePath);
 	NSLog (@"Read %d observations in %.3fs.", [observations count],-[startTime timeIntervalSinceNow]);
 }
