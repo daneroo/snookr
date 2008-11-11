@@ -198,6 +198,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    // manage status bar.
+    UIApplication *app = [UIApplication sharedApplication];
+    app.statusBarStyle = UIStatusBarStyleBlackOpaque;
     
     // or how about a +readFromFile +retain ?
     obsarray = [[ObservationArray alloc] init];
@@ -222,9 +226,9 @@
     //  GraphView as tableHeaderView Height 
 #define HEADERVIEW_HEIGHT 160.0
 	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
-    GraphView *graphView = [[[GraphView alloc] initWithFrame:newFrame] autorelease];
+    GraphView *graphView = [[GraphView alloc] initWithFrame:newFrame];
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
-    
+    [graphView release]; // now that it has been retained.
     graphView.observations = obsarray.observations;
 }
 
