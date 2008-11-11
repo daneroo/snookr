@@ -9,7 +9,6 @@
 #import "WattricalAppDelegate.h"
 #import "RootViewController.h"
 
-
 @implementation WattricalAppDelegate
 
 @synthesize window;
