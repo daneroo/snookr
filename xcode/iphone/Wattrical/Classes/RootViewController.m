@@ -8,21 +8,44 @@
 
 #import "RootViewController.h"
 #import "WattricalAppDelegate.h"
+#import "GraphView.h"
+#import "ObservationCellView.h"
+#import "DateUtil.h"
 
 
 @implementation RootViewController
+
+#pragma mark Local Controller Hooks 
+-(void) popupSettingsModal:(id)sender {
+    NSLog(@"Hello from popupSettingsModal");
+}
+
+-(void) loadFromLiveFeed {
+    //[obsarray addObservation: 99000 withStamp:[NSDate dateWithTimeIntervalSinceNow:-3600*24*5]];
+    //[obsarray addObservation:100000 withStamp:[NSDate date]];
+    //[obsarray loadObservations];
+	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
+	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/coco.xml"];
+	[obsarray loadObservationsFromURL:aURL];	
+    //[obsarray addObservation:100000 withStamp:[NSDate date]];
+
+    //[self.view setNeedsDisplay];
+   	[self.tableView.tableHeaderView setNeedsDisplay];
+}
+
+#pragma mark UITableViewDataSource Protocol 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
+/*
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	return @"Wattrical Feeds:";
 }
+*/
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	return [cellNameArray count];
 }
 
@@ -47,17 +70,11 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic -- create and push a new view controller
-}
-
-
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    //Set the title of the Main View here.
-    self.title = @"Wattrical";
-    
-    // setup our table data
-	cellNameArray = [[NSArray arrayWithObjects:@"Live", @"Hour", @"Day", @"Week", @"Month", nil] retain];
-
+    /*
+	 To conform to the Human Interface Guidelines, selections should not be persistent --
+	 deselect the row after it has been selected.
+	 */
+	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 
@@ -100,6 +117,47 @@
 }
 */
 
+#pragma mark UIViewController Override 
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+   // Manage the status bar:
+    UIApplication *app = [UIApplication sharedApplication];
+    app.statusBarStyle = UIStatusBarStyleBlackOpaque;
+
+    // or how about a +readFromFile +retain ?
+    obsarray = [[ObservationArray alloc] init];
+    [self loadFromLiveFeed];
+
+    // How should I implement : "As fast as possible" ?
+	[NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
+
+    
+    //Set the title of the Main View here.
+    self.title = @"Wattrical";
+
+    //self.tableView.rowHeight = ROW_HEIGHT;
+
+    UIBarButtonItem *addButton = [[[UIBarButtonItem alloc]
+                                   initWithBarButtonSystemItem: UIBarButtonSystemItemCompose
+                                   target:self action:@selector(popupSettingsModal:)] autorelease];
+	self.navigationItem.rightBarButtonItem = addButton;
+    
+    
+    // setup our table data 
+	cellNameArray = [[NSArray arrayWithObjects:@"Live", @"Hour", @"Day", @"Week", @"Month", nil] retain];
+    
+    //  GraphView as tableHeaderView Height 
+#define HEADERVIEW_HEIGHT 160.0
+	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
+    GraphView *graphView = [[GraphView alloc] initWithFrame:newFrame];
+	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
+    [graphView release]; // now that it has been retained.
+    graphView.observations = obsarray.observations;
+}
+
+
 /*
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -121,7 +179,8 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    //return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return YES;
 }
 
 
@@ -134,6 +193,7 @@
 - (void)dealloc {
     [super dealloc];
     [cellNameArray release];
+    [obsarray release];
 }
 
 

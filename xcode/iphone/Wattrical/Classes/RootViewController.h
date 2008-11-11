@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Observation.h"
+#import "ObservationArray.h"
 
 @interface RootViewController : UITableViewController {
 	NSArray *cellNameArray;
-
+    ObservationArray *obsarray;
 }
 
 @end
