@@ -23,6 +23,7 @@
 		6529CB4A0EB79E100092C460 /* ObservationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529CB490EB79E100092C460 /* ObservationView.m */; };
 		653BB2330EA66C4A00EE0E58 /* AddObservationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */; };
 		6556B1150EAE3FE200BA5901 /* ObsTBVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */; };
+		6574A97F0EC9EE4C00435B6E /* ObservationArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 6574A97E0EC9EE4C00435B6E /* ObservationArray.m */; };
 		65D69FAB0EA8ED430067220C /* Observation.m in Sources */ = {isa = PBXBuildFile; fileRef = 65D69FAA0EA8ED430067220C /* Observation.m */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,8 @@
 		653BB2310EA66C4A00EE0E58 /* AddObservationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObservationViewController.h; sourceTree = "<group>"; };
 		653BB2320EA66C4A00EE0E58 /* AddObservationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddObservationViewController.m; sourceTree = "<group>"; };
 		6556B1140EAE3FE100BA5901 /* ObsTBVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ObsTBVCell.xib; sourceTree = "<group>"; };
+		6574A97D0EC9EE4C00435B6E /* ObservationArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservationArray.h; sourceTree = "<group>"; };
+		6574A97E0EC9EE4C00435B6E /* ObservationArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationArray.m; sourceTree = "<group>"; };
 		65D69FA90EA8ED430067220C /* Observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observation.h; sourceTree = "<group>"; };
 		65D69FAA0EA8ED430067220C /* Observation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Observation.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -90,6 +93,8 @@
 				6529CB490EB79E100092C460 /* ObservationView.m */,
 				650FA50C0EC33E0D006F4BC7 /* DateUtil.h */,
 				650FA50D0EC33E0D006F4BC7 /* DateUtil.m */,
+				6574A97D0EC9EE4C00435B6E /* ObservationArray.h */,
+				6574A97E0EC9EE4C00435B6E /* ObservationArray.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -227,6 +232,7 @@
 				6529CB110EB7958A0092C460 /* ObservationCellView.m in Sources */,
 				6529CB4A0EB79E100092C460 /* ObservationView.m in Sources */,
 				650FA50E0EC33E0D006F4BC7 /* DateUtil.m in Sources */,
+				6574A97F0EC9EE4C00435B6E /* ObservationArray.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
