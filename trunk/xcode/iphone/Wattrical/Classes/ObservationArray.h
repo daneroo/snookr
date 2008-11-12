@@ -29,4 +29,6 @@
 - (void) loadObservationsFromURL:(NSURL *)aURL;
 - (void) appendObservationsFromURL:(NSURL *)aURL;
 
+// temporay
+- (void) test;
 @end

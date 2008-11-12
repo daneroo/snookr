@@ -10,6 +10,16 @@
 
 
 @implementation ObservationFeed
+
+- (void) printStack {
+    NSEnumerator * enumerator = [stack objectEnumerator];
+    NSObject *o;
+    if ([stack count]==0) NSLog(@">>>> stack EMPTY");
+    while(o = [enumerator nextObject]) {
+        NSLog(@"  >>>>: %@", o);
+    }
+    //NSLog(@">>>> stack: STOP   (%d)",[stack count]);
+}
 - (void)parseXMLFileAtURL:(NSURL *)xmlURL {
     NSDate *now = [NSDate date];
 	//stories = [[NSMutableArray alloc] init];
@@ -28,8 +38,10 @@
 	[rssParser setShouldResolveExternalEntities:NO];
     
 	NSLog(@"Parser willParse");
+    stack = [[NSMutableArray alloc] init];
 	[rssParser parse];
-    
+    [stack release];
+    stack=nil;
     NSLog(@"Parsed (%3d) obs in %7.2fs",count,-[now timeIntervalSinceNow]);
 
     [rssParser release];
@@ -50,11 +62,17 @@
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict{
 	//NSLog(@"found this element: %@", elementName);
 	//currentElement = [elementName copy];
+    [stack addObject:[elementName copy]];
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName{
     
     //NSLog(@"ended element: %@", elementName);
+    NSObject *o = [stack lastObject];
+    [stack removeLastObject];
+    [self printStack];
+    NSLog(@"poped: %@", o);
+    
 	if ([elementName isEqualToString:@"dict"]) {
         count++;
     }

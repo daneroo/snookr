@@ -11,6 +11,7 @@
 
 @interface ObservationFeed : NSObject {
     NSInteger count;
+    NSMutableArray *stack;
 }
 
 - (void)parseXMLFileAtURL:(NSURL *)xmlURL;

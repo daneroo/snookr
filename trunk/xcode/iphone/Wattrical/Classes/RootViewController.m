@@ -12,7 +12,7 @@
 #import "ObservationCellView.h"
 #import "DateUtil.h"
 
-#define TIMER_INTERVAL 3.0
+#define TIMER_INTERVAL 10.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
@@ -22,16 +22,17 @@
 
 -(void) loadFromLiveFeed {
     //[obsarray test];
+    //if (YES) return;
+    
+    NSDate *now = [NSDate date];
 
     //[obsarray addObservation: 99000 withStamp:[NSDate dateWithTimeIntervalSinceNow:-3600*24*1]];
-	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
-    /*
+	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
 	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
-    NSDate *now = [NSDate date];
-     */
-	//[obsarray loadObservationsFromURL:aURL];	  
-	[obsarray appendObservationsFromURL:aURL];	  
-    //NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
+
+	//[obsarray appendObservationsFromURL:aURL];	  
+	[obsarray loadObservationsFromURL:aURL];	  
+    NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
 
     //[self.view setNeedsDisplay];
    	[self.tableView.tableHeaderView setNeedsDisplay];
