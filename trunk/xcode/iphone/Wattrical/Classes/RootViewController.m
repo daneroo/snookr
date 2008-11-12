@@ -12,7 +12,7 @@
 #import "ObservationCellView.h"
 #import "DateUtil.h"
 
-
+#define TIMER_INTERVAL 3.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
@@ -21,11 +21,17 @@
 }
 
 -(void) loadFromLiveFeed {
-    //[obsarray addObservation: 99000 withStamp:[NSDate dateWithTimeIntervalSinceNow:-3600*24*5]];
-    //[obsarray addObservation:100000 withStamp:[NSDate date]];
-    //[obsarray loadObservations];
+    //[obsarray test];
+
+    //[obsarray addObservation: 99000 withStamp:[NSDate dateWithTimeIntervalSinceNow:-3600*24*1]];
 	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
-	[obsarray loadObservationsFromURL:aURL];	
+    /*
+	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
+    NSDate *now = [NSDate date];
+     */
+	//[obsarray loadObservationsFromURL:aURL];	  
+	[obsarray appendObservationsFromURL:aURL];	  
+    //NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
 
     //[self.view setNeedsDisplay];
    	[self.tableView.tableHeaderView setNeedsDisplay];
@@ -129,7 +135,7 @@
     [self loadFromLiveFeed];
 
     // How should I implement : "As fast as possible" ?
-	[NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
+	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
 
     
     //Set the title of the Main View here.

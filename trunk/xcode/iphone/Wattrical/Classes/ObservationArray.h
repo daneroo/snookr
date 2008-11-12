@@ -22,8 +22,11 @@
 
 #pragma mark Observation Data IO
 - (void) saveObservations;
+- (void) clearObservations;
 - (void) loadObservations;
+- (void) appendObservations;
 - (void) postObservations:(id)plist;
 - (void) loadObservationsFromURL:(NSURL *)aURL;
+- (void) appendObservationsFromURL:(NSURL *)aURL;
 
 @end
