@@ -159,6 +159,16 @@ double myLogRandom(double min,double max){
     dataMinValue = localMinVal;
     dataMaxValue = localMaxVal;
 
+    // protect against zero ranges:
+    if (dataMaxTime==dataMinTime) {
+        dataMinTime-=1;
+        dataMaxTime+=1;
+    }
+    if (dataMaxValue==dataMinValue) {
+        dataMinValue-=100;
+        dataMaxValue+=100;
+    }
+    // ranges
     dataRangeTime = dataMaxTime-dataMinTime;    // Time Max-Min
     dataRangeValue = dataMaxValue-dataMinValue; // Value Max-Min
     
