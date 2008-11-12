@@ -7,7 +7,7 @@
 //
 
 #import "ObservationArray.h"
-
+#import "ObservationFeed.h"
 
 @implementation ObservationArray
 
@@ -75,7 +75,16 @@
     //[self postObservations:nmsa];
 }
 
+- (void) clearObservations {
+    [observations removeAllObjects];
+}
+
 - (void) loadObservations {
+    [self clearObservations];
+    [self appendObservations];
+}
+
+- (void) appendObservations {
     NSDate *startTime = [NSDate date];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex: 0];
@@ -159,33 +168,58 @@
     
 }
 
+- (void) loadObservationsFromURL:(NSURL *)aURL {
+    [self clearObservations];
+    [self appendObservationsFromURL:aURL];
+}
+
 /*
  This is how I transformed the traineo data:
  cat ~/my_traineo.csv |awk -F','  \
  '{printf("<dict><key>stamp</key><date>%sT04:00:00Z</date><key>value</key><integer>%d</interger></dict>\n",$1,$3*1000)}'
  
  */
-- (void) loadObservationsFromURL:(NSURL *)aURL {
+- (void) appendObservationsFromURL:(NSURL *)aURL {
 	NSLog (@"reading from URL %@", aURL);
     // make an array of dictionary
     NSMutableArray *nmsa = [NSMutableArray arrayWithContentsOfURL:aURL];
+    if (nmsa==nil) return;
     NSLog(@"Array of dics has %d dics",[nmsa count]);
     NSEnumerator *enumerator = [nmsa objectEnumerator];
     NSDictionary *dictionary;
     while(dictionary = (NSDictionary *)[enumerator nextObject]) {
         NSDate *stamp = (NSDate *)[dictionary objectForKey:@"stamp"];
         NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
-        NSLog(@"<<www<< stamp: %@, value: %@", stamp, value);
+        //NSLog(@"<<www<< stamp: %@, value: %@", stamp, value);
         
         Observation *observation = [[Observation alloc] init]; 
         observation.stamp = stamp;
         observation.value = [value integerValue];
         
         [observations addObject:observation];
+        
     }
     [self sort];
 	NSLog (@"Read %d obs from URL %@", [observations count],aURL);
     
+}
+
+- (void) test {
+    NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
+    //NSDate *now = [NSDate date];
+    
+	//NSLog (@"Test reading from URL %@", aURL);
+    ObservationFeed *feed = [[ObservationFeed alloc] init];
+    [feed parseXMLFileAtURL:aURL];
+    [feed release];
+    //NSLog(@"Read (%3d) obs in %7.2fs",777,-[now timeIntervalSinceNow]);
+    
+/*    // make an array of dictionary
+    NSMutableArray *nmsa = [[NSMutableArray arrayWithContentsOfURL:aURL] retain];
+    if (nmsa==nil) return;
+    NSLog(@"Read (%3d) obs in %7.2fs",[nmsa count],-[now timeIntervalSinceNow]);
+    [nmsa release];
+ */
 }
 
 #pragma mark Constructor/Destructor
