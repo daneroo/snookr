@@ -206,20 +206,19 @@
 
 - (void) test {
     NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
-    //NSDate *now = [NSDate date];
+    NSDate *now = [NSDate date];
     
 	//NSLog (@"Test reading from URL %@", aURL);
     ObservationFeed *feed = [[ObservationFeed alloc] init];
-    [feed parseXMLFileAtURL:aURL];
+    NSMutableArray *parsedObs = [[feed parseXMLFileAtURL:aURL] retain];
     [feed release];
-    //NSLog(@"Read (%3d) obs in %7.2fs",777,-[now timeIntervalSinceNow]);
+
+    [self clearObservations];
+    NSLog(@" received %d obs from feed",[parsedObs count]);
+    [observations addObjectsFromArray:parsedObs];
+    [parsedObs release];
+    NSLog(@"Read (%3d) obs in %7.2fs",[observations count],-[now timeIntervalSinceNow]);
     
-/*    // make an array of dictionary
-    NSMutableArray *nmsa = [[NSMutableArray arrayWithContentsOfURL:aURL] retain];
-    if (nmsa==nil) return;
-    NSLog(@"Read (%3d) obs in %7.2fs",[nmsa count],-[now timeIntervalSinceNow]);
-    [nmsa release];
- */
 }
 
 #pragma mark Constructor/Destructor

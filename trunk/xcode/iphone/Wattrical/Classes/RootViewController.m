@@ -12,7 +12,7 @@
 #import "ObservationCellView.h"
 #import "DateUtil.h"
 
-#define TIMER_INTERVAL 10.0
+#define TIMER_INTERVAL 1.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
@@ -21,8 +21,6 @@
 }
 
 -(void) loadFromLiveFeed {
-    //[obsarray test];
-    //if (YES) return;
     
     NSDate *now = [NSDate date];
 
@@ -31,7 +29,8 @@
 	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
 
 	//[obsarray appendObservationsFromURL:aURL];	  
-	[obsarray loadObservationsFromURL:aURL];	  
+	//[obsarray loadObservationsFromURL:aURL];	  
+    [obsarray test];
     NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
 
     //[self.view setNeedsDisplay];
