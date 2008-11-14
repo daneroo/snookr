@@ -18,11 +18,14 @@ import string
 import time
 
 def main():
+  usage = 'python %s --user [username] --pw [password] --watt [watts]  (--secs [secs] --stamp [\'2008-12-31 23:59:59\'])' % sys.argv[0]
+
   # parse command line options
   try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["user=", "pw=","secs=","watt=","stamp="])
   except getopt.error, msg:
-    print 'python spreadsheetExample.py --user [username] --pw [password] --watt [watts]  (--secs [secs] --stamp [\'2008-12-31 23:59:59\'])'
+    print 'error msg: %s' % msg
+    print usage
     sys.exit(2)
   
   user = ''
@@ -44,8 +47,9 @@ def main():
     elif o == "--stamp":
       stamp = a
 
+  print '+++++ user=|%s| pw=|%s| watt=|%s|'
   if user == '' or pw == '' or watt == '':
-    print 'python spreadsheetExample.py --user [username] --pw [password] --watt [watts]  (--secs [secs] --stamp [\'2008-12-31 23:59:59\'])'
+    print usage
     sys.exit(2)
 
   if stamp == '':
