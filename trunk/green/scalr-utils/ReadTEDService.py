@@ -72,7 +72,7 @@ while True:
 		break
 	# sleep to hit the second on the nose:
 	(frac,dummy) = math.modf(now)
-	delay = 1-frac 
+	delay = 1-frac + .1
 	# delay after first iteration should be 1-service time
 	#print "delay: %s  %s" % (delay,now)
 	time.sleep(delay)
