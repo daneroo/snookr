@@ -1,9 +1,9 @@
-
 import sys
 import os
-import sqlite
 import string
 import time
+import NoArch
+
 
 def cnvTime(tedTimeString):
 	secs = ( string.atol(tedTimeString) / 10000 - 62135582400000 ) / 1000
@@ -27,8 +27,9 @@ if not os.path.exists(filename):
 # 90000 seconds
 # print (633530465840008874 - 633529550800006250 ) / 10000000
 
-conn = sqlite.connect(filename)
+conn = NoArch.SqliteConnectNoArch(filename)
 c = conn.cursor()
-c.execute('select * from rdu_second_data')
+#c.execute('select * from rdu_second_data')
+c.execute('select * from rdu_second_data limit 1000')
 for row in c:
 	print cnvTime(row[0]), row[1]*1000, row[3]

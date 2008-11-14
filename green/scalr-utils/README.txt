@@ -7,7 +7,8 @@
 
   -PHP converts wattrical.watt db into plist for wattrical iPhone App.
 
-  -Architecture neutral sqlite code: consolidate pumpsqlite.
+  +Architecture neutral sqlite code: consolidate pumpsqlite.
+  +module scalr for code re-use
 
 -=-= Objective (mid):
   -Python daemon summarizes 'second' data into:
@@ -23,21 +24,47 @@
   -Objective-C binding for GData on iPhone
     
 -=-= Inventory:
+Bash cron:
+  doMirror:
+    copy cifs mounted ted directory's TED.db sqlite db
+      requires:  mount -t cifs //aria/ted /ted
+    compress and archive as per usual.
+    installed as cron for daniel:
+00 * * * *    cd /archive/mirror/ted; ./doMirror >>tedmirror.log 2>&1
 
+Python
  Incremental.py:
      sqlite.teddb > mysql text out.
           add params --days X, --hours Y, etc
      only works on linux: make Architexture neutral
 
+PumpSqliteToMysql.py
+PumpSqlite3ToMysql.py
+   Connect to name sqlite db, 
+   select all from ted. print as Mysql ready text to stdout.
+       REPLACE INTO....
+   Sqlite3 version is older, deprecated and was for osx.   
+
+ReadSqlite.py
+ReadSqlite3.py
+   Predates PumpXXX, and simply prints out data in column form
+   Sqlite3 is for sqlite3 on osx.
+
+ReadTEDService.py
+hierTed.py
+
+
 Python GDATA:
   DON'T FORGET 
   export PYTHONPATH=~/python/lib/python/;
   showGDATA.py: List SpreadSheet, WorkSheet, Data
-    python showGDATA.py --user=daniel.lauzon --pw=BLABLA
-   or
-    python showGDATA.py --user=daniel.lauzon --pw=BLABLA --key pEzZl0NxQ-0gFzvkp3oJsew --sheet od6
+    python showGDATA.py --user daniel.lauzon --pw BLABLA
+   or (for GDATA-TED Spreadseet/Worksheet-1
+    python showGDATA.py --user daniel.lauzon --pw BLABLA --key pEzZl0NxQ-0gFzvkp3oJsew --sheet od6
 
-  append
+  appendToGDATA.py: insert watt data into GDATA-TED Spreadsheet
+    python appendToGDATA.py --user=daniel.lauzon --pw=BLABLA --watt=125
+    python appendToGDATA.py --user daniel.lauzon --pw BLABLA --watt 126 --stamp '2008-11-16 23:34:55'
 
 Java
  WinTime.java:
