@@ -115,7 +115,7 @@ and then:
 # running 
 export PYTHONPATH=~/python/lib/python/; python appendToGDATA.py --user myname --pw mypass
 
-ssh euler 'mysql -B -N ted -e "select concat(left(stamp,13),\":00:00\") as g,avg(watt) from watt group by g"'| awk '{printf "python appendToGDATA.py --user daniel.lauzon --pw solosekret --stamp \"%s %s\" --watt %s\n",$1,$2,$3}' 
+ssh euler 'mysql -B -N ted -e "select concat(left(stamp,13),\":00:00\") as g,avg(watt) from watt group by g"'| awk '{printf "python appendToGDATA.py --user daniel.lauzon --pw PASS --stamp \"%s %s\" --watt %s\n",$1,$2,$3}' 
   or appen to: > coco.sh
   and
   source coco.sh
