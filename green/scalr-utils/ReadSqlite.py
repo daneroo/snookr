@@ -2,7 +2,7 @@ import sys
 import os
 import string
 import time
-import NoArch
+import scalr
 
 
 def cnvTime(tedTimeString):
@@ -27,7 +27,7 @@ if not os.path.exists(filename):
 # 90000 seconds
 # print (633530465840008874 - 633529550800006250 ) / 10000000
 
-conn = NoArch.SqliteConnectNoArch(filename)
+conn = scalr.SqliteConnectNoArch(filename)
 c = conn.cursor()
 #c.execute('select * from rdu_second_data')
 c.execute('select * from rdu_second_data limit 1000')
