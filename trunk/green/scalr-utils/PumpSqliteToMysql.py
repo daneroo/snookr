@@ -6,30 +6,9 @@ import time
 import scalr
 # for shortcuts, or even from scalr import *
 from scalr import logInfo,logWarn,logError
+from scalr import cnvTime,invTime,testTime
+from scalr import getScalar
 
-def cnvTime(tedTimeString):
-	secs = ( string.atol(tedTimeString) / 10000 - 62135582400000 ) / 1000
-	return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
-
-def invTime(secs):
-        tedTimeLong = long( ((secs * 1000) +  62135582400000)*10000 ) 
-        return "%019ld" % tedTimeLong
-
-def testTime():
-        secs = time.time()
-        logInfo("Testing time from secs:%d" % secs)
-        stamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
-        ted = invTime(secs)
-        logInfo("stamp=%s invTime=%s" % ( stamp, ted ) )
-        logInfo("ted=  %s cnvTime=%s" % ( ted, cnvTime(ted) ) )
-        sys.exit(0)
-
-def getScalar(sql):
-        curs = connsqlite.cursor()
-        curs.execute(sql)
-        row = curs.fetchone()
-        curs.close()
-        return row[0]
 
 if len(sys.argv) < 2:
 	print "usage : %s <SQLite3 db file>" % sys.argv[0]
@@ -40,20 +19,12 @@ else:
 if not os.path.exists(filename):
 	print "Could not find SQLite3 db file: %s" % filename
 	sys.exit(0);
-# time formatting:
-# 1 second between readings
-#  print 633530465840008874 - 633530465830000554
-# --> 10008320
-# 90000 seconds
-# print (633530465840008874 - 633529550800006250 ) / 10000000
-
 
 logInfo("Pump started")
-countRows=0
 connsqlite = scalr.SqliteConnectNoArch(filename)
 
-#logInfo("count: %s" % getScalar('select count(*) from rdu_second_data'))
-#logInfo("max: %s" % getScalar('select max(tick) from rdu_second_data'))
+#logInfo("count: %s" % getScalar(connsqlite,'select count(*) from rdu_second_data'))
+#logInfo("max: %s" % getScalar(connsqlite,'select max(tick) from rdu_second_data'))
 
 curssqlite = connsqlite.cursor()
 curssqlite.execute('select tick,kw from rdu_second_data')
@@ -66,6 +37,7 @@ curssqlite.execute('select tick,kw from rdu_second_data')
 #curssqlite.execute('select tick,kw from rdu_second_data where tick>"%s"' % hourAgo)
 
 logInfo("SQL executed");
+countRows=0
 for row in curssqlite:
         stamp = cnvTime(row[0])
         watt = row[1]*1000
