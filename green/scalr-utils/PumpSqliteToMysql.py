@@ -1,7 +1,8 @@
 
 import sys
 import os
-import sqlite
+#import sqlite
+from pysqlite2 import dbapi2 as sqlite
 import string
 import time
 import MySQLdb
