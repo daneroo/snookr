@@ -1,11 +1,11 @@
 
 import sys
 import os
-#import sqlite
-from pysqlite2 import dbapi2 as sqlite
 import string
 import time
-import MySQLdb
+import scalr
+# for shortcuts, or even from scalr import *
+from scalr import logInfo,logWarn,logError
 
 def cnvTime(tedTimeString):
 	secs = ( string.atol(tedTimeString) / 10000 - 62135582400000 ) / 1000
@@ -17,16 +17,12 @@ def invTime(secs):
 
 def testTime():
         secs = time.time()
-        log("Testing time from secs:%d" % secs)
+        logInfo("Testing time from secs:%d" % secs)
         stamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
         ted = invTime(secs)
-        log("stamp=%s invTime=%s" % ( stamp, ted ) )
-        log("ted=  %s cnvTime=%s" % ( ted, cnvTime(ted) ) )
+        logInfo("stamp=%s invTime=%s" % ( stamp, ted ) )
+        logInfo("ted=  %s cnvTime=%s" % ( ted, cnvTime(ted) ) )
         sys.exit(0)
-        
-def log(msg):
-	stamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())        
-        sys.stderr.write("%s %s\n" % (stamp,msg));
 
 def getScalar(sql):
         curs = connsqlite.cursor()
@@ -52,12 +48,12 @@ if not os.path.exists(filename):
 # print (633530465840008874 - 633529550800006250 ) / 10000000
 
 
-log("Pump started")
+logInfo("Pump started")
 countRows=0
-connsqlite = sqlite.connect(filename)
+connsqlite = scalr.SqliteConnectNoArch(filename)
 
-#log("count: %s" % getScalar('select count(*) from rdu_second_data'))
-#log("max: %s" % getScalar('select max(tick) from rdu_second_data'))
+#logInfo("count: %s" % getScalar('select count(*) from rdu_second_data'))
+#logInfo("max: %s" % getScalar('select max(tick) from rdu_second_data'))
 
 curssqlite = connsqlite.cursor()
 curssqlite.execute('select tick,kw from rdu_second_data')
@@ -69,13 +65,13 @@ curssqlite.execute('select tick,kw from rdu_second_data')
 #hourAgo = invTime(time.time()+100)
 #curssqlite.execute('select tick,kw from rdu_second_data where tick>"%s"' % hourAgo)
 
-log("SQL executed");
+logInfo("SQL executed");
 for row in curssqlite:
         stamp = cnvTime(row[0])
         watt = row[1]*1000
         countRows+=1
         if (countRows%20000 == 0):
-                log("rows: %8d stamp: %s [%s]" % (countRows,stamp,row[0]));
+                logInfo("rows: %8d stamp: %s [%s]" % (countRows,stamp,row[0]));
                 
         # print cnvTime(row[0]), row[1]*1000
         # could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
@@ -85,9 +81,10 @@ for row in curssqlite:
 curssqlite.close()
 connsqlite.close()
 
-log("Done");
+logInfo("Done");
 
 
+# import MySQLdb
 #connmysql = MySQLdb.connect (host = "127.0.0.1",
 #                             user = "aviso",
 #                             passwd = "",
