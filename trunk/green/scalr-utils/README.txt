@@ -33,22 +33,18 @@ Bash cron:
 00 * * * *    cd /archive/mirror/ted; ./doMirror >>tedmirror.log 2>&1
 
 Python
- Incremental.py:
+ Incremental.py: will be renamed as Pump
      sqlite.teddb > mysql text out.
           add params --days X, --hours Y, etc
      only works on linux: make Architexture neutral
 
 PumpSqliteToMysql.py
-PumpSqlite3ToMysql.py
    Connect to name sqlite db, 
    select all from ted. print as Mysql ready text to stdout.
        REPLACE INTO....
-   Sqlite3 version is older, deprecated and was for osx.   
 
 ReadSqlite.py
-ReadSqlite3.py
-   Predates PumpXXX, and simply prints out data in column form
-   Sqlite3 is for sqlite3 on osx.
+   Predates PumpXXX, and simply prints out data in column form (limit 1000)
 
 ReadTEDService.py
 hierTed.py
