@@ -47,7 +47,6 @@ def main():
     elif o == "--stamp":
       stamp = a
 
-  print '+++++ user=|%s| pw=|%s| watt=|%s|'
   if user == '' or pw == '' or watt == '':
     print usage
     sys.exit(2)
