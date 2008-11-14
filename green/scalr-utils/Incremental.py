@@ -77,10 +77,7 @@ else:
 	#logInfo("sql: %s" % fullSql)
 
 logInfo("using sql: %s" % sql)
-
-sys.exit(0)
 connsqlite = scalr.SqliteConnectNoArch(dbfilename)
-
 
 #logInfo("count: %s" % getScalar('select count(*) from rdu_second_data'))
 #logInfo("max: %s" % getScalar('select max(tick) from rdu_second_data'))
