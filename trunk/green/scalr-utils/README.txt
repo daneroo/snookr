@@ -48,7 +48,12 @@ ReadSqlite.py
    Predates PumpXXX, and simply prints out data in column form (limit 1000)
 
 ReadTEDService.py
-hierTed.py
+   Reads and prints ted: watt, volt : and current client-time
+   added --duration and --forever params
+   added a precise 1 second timing loop
+
+hierTed.py:
+  calculates summary tables: wattday,watthour,wattminute,watttensec.
 
 
 Python GDATA:
