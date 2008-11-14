@@ -1,7 +1,8 @@
 
 import sys
 import os
-import sqlite
+#import sqlite
+from pysqlite2 import dbapi2 as sqlite
 import string
 import time
 import MySQLdb
@@ -53,8 +54,8 @@ if not os.path.exists(filename):
 
 log("Incremental Pump started")
 daysAgo=0
-hoursAgo=1
-minutesAgo=0
+hoursAgo=0
+minutesAgo=5
 secondsAgo=0
 
 referenceTimeAsTed = invTime(time.time()-((daysAgo*24+hoursAgo)*60+minutesAgo)*60+secondsAgo)
