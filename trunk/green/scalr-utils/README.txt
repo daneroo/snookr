@@ -34,6 +34,7 @@ Bash cron:
 
 Python
  Incremental.py: will be renamed as Pump
+     use --all or --secs,--minutes,--hours,--days
      sqlite.teddb > mysql text out.
           add params --days X, --hours Y, etc
      only works on linux: make Architexture neutral
