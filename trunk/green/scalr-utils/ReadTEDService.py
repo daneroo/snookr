@@ -60,10 +60,12 @@ for o, a in opts:
 print "duration is %d" % duration
 start = time.time()
 while True:
-	if duration>0 and (time.time()-start)>duration:
+	datetimenow = datetime.datetime.now()
+	now=time.time()
+	if duration>0 and (now-start)>duration:
 		break
 	(isodatestr, watts,volts) = getTimeWattsAndVoltsFromTedService()
-	print "%s --- %s\t%.0f\t%.1f" % (datetime.datetime.now(),isodatestr, watts, volts) 
+	print "%s --- %s\t%.0f\t%.1f" % (datetimenow,isodatestr, watts, volts) 
 
 	now=time.time()
 	if duration>0 and (now-start)>duration:
