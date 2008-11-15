@@ -89,8 +89,8 @@ double myLogRandom(double min,double max){
         layoutLeftMargin = 40;   // leaves room at left for y axis labels & ticks
         layoutRightMargin = 10;  // leaves room at right just for breathing
         
-        startVal = 190.0 * 1000;
-        goalVal = 169.0 * 1000;
+        startVal = 2.08 * 1000; // 50 kWh
+        goalVal = 1.25 * 1000; // 30 kWh
 		desiredScopeInDays = 7;
     }
     return self;
@@ -135,12 +135,17 @@ double myLogRandom(double min,double max){
         }
     }
     // include goal in range:
+    BOOL includeYZero = YES;
+    if (includeYZero) {
+        if (localMinVal>0) localMinVal = 0;
+        if (localMaxVal<0) localMaxVal = 0;
+    }
     BOOL includeGoal = NO;
     if (includeGoal) {
         if (localMinVal>goalVal) localMinVal = goalVal;
         if (localMaxVal<goalVal) localMaxVal = goalVal;
     }
-    BOOL includeStart = NO;
+    BOOL includeStart = YES;
     if (includeStart) {
         if (localMinVal>startVal) localMinVal = startVal;
         if (localMaxVal<startVal) localMaxVal = startVal;
@@ -190,16 +195,12 @@ double myLogRandom(double min,double max){
 - (void)fillWithGradient:(CGContextRef)context {
 	CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
 	CGFloat colors[] = {
+		//1,1,1,1,
+		//0,1.0/3.0,0,1,
+		//1,1,1,1,
+        
 		0,0,0,1,
 		0,1.0/3.0,0,1,
-		/*
-		0,1.0/3.0,0,1,
-		0,1.0/3.0,0,1,
-		0,1.0/3.0,0,1,
-		0,1.0/3.0,0,1,
-		0,1.0/3.0,0,1,
-		1,1,1,1,
-		 */
 	};
 	CGGradientRef gradient;
 	gradient = CGGradientCreateWithColorComponents(rgb, colors, NULL, sizeof(colors)/(sizeof(colors[0])*4));
@@ -459,7 +460,7 @@ double myLogRandom(double min,double max){
         CGContextRestoreGState(context);
 	}
 
-    BOOL drawData = YES;
+    BOOL drawData = NO;
     if (drawData) {
         CGContextSaveGState(context);
         // Draw a connected sequence of line segments
@@ -481,7 +482,53 @@ double myLogRandom(double min,double max){
         // Equivalent to MoveToPoint(points[0]); for(i=1; i<count; ++i) AddLineToPoint(points[i]);
         CGContextAddLines(context, pointarray, sizeof(pointarray)/sizeof(pointarray[0]));
         CGContextStrokePath(context);
+        
+        CGContextRestoreGState(context);
+    }    
+    BOOL drawDataBars = YES;
+    if (drawDataBars) {
+        CGContextSaveGState(context);
+        // Draw a connected sequence of line segments
+        
+        CGFloat activeWidth = self.bounds.size.width - layoutLeftMargin - layoutRightMargin;
+        CGFloat widthOfBar4 = activeWidth/(4.0*[observations count]);
 
+        int numberofitems = [observations count];
+        CGPoint pointarray[numberofitems*2];
+        CGPoint shadowpointarray[numberofitems*2];
+        for (int i=0;i<numberofitems;i++) {
+            Observation *observation = (Observation *)[observations objectAtIndex:i];
+            NSTimeInterval obsx = [observation.stamp timeIntervalSince1970];
+            
+            CGFloat xActual = [self mapX:obsx];
+            CGFloat yActual = [self mapY:observation.value];
+            CGFloat yPrev = [self mapY:observation.value+myRandom(-100,100)];
+            BOOL fakeData = YES;
+            if (fakeData) {
+                CGFloat yFake = (.5+.5*sin(i*3*M_PI/numberofitems-(dataMaxTime*60/(numberofitems*2*M_PI))))*dataRangeValue+dataMinValue;
+                yActual = [self mapY:(yFake)];
+                srandom(obsx);
+                yPrev = [self mapY:yFake+myRandom(-100,100)];
+            }
+            shadowpointarray[2*i+0] = CGPointMake(xActual-widthOfBar4,[self mapY:0]);
+            shadowpointarray[2*i+1] = CGPointMake(xActual-widthOfBar4,yPrev);
+            
+            pointarray[2*i+0]       = CGPointMake(xActual,  [self mapY:0]);
+            pointarray[2*i+1]       = CGPointMake(xActual,  yActual);
+        }
+        
+        //CGRect clip = CGRectMake(40, 20, self.bounds.size.width-60, self.bounds.size.height-40);
+        CGRect clip = CGRectUnion(CGRectMake([self mapX:dataMinTime], [self mapY:dataMinValue], 0,0),
+                                  CGRectMake([self mapX:dataMaxTime], [self mapY:dataMaxValue], 0,0));
+        CGContextClipToRect(context, clip);
+        CGContextSetLineWidth(context, 2.0*widthOfBar4);
+        // Bulk call to add lines to the current path.
+        // Equivalent to MoveToPoint(points[0]); for(i=1; i<count; ++i) AddLineToPoint(points[i]);
+        CGContextSetRGBStrokeColor(context,.7,.7,.7,1);
+        CGContextStrokeLineSegments(context, shadowpointarray, sizeof(shadowpointarray)/sizeof(shadowpointarray[0]));
+        CGContextSetRGBStrokeColor(context, 1.0, 1.0, 1.0, 1.0);
+        CGContextStrokeLineSegments(context, pointarray, sizeof(pointarray)/sizeof(pointarray[0]));
+        
         CGContextRestoreGState(context);
     }    
     
