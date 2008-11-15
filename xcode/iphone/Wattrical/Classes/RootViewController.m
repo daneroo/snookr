@@ -45,9 +45,11 @@
 
 /*
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	return @"Wattrical Feeds:";
+	//return @"Wattrical Feeds:";
+	return @"Status:";
 }
 */
+
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	return [cellNameArray count];
@@ -61,11 +63,13 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        //cell.textColor = [UIColor darkGrayColor];
+        //cell.selectedTextColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
+        cell.selectionStyle = UITableViewCellSelectionStyleGray; //UITableViewCellSelectionStyleBlue  UITableViewCellSelectionStyleNone
     }
     
     // Set up the cell
     cell.accessoryType = UITableViewCellAccessoryNone;
-	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	cell.text = [cellNameArray objectAtIndex:[indexPath row]];
     
     return cell;
@@ -82,9 +86,9 @@
 }
 
 
-/*
 // Override to support editing the list
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+/*
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
@@ -95,7 +99,6 @@
     }   
 }
 */
-
 
 /*
 // Override to support conditional editing of the list
@@ -141,7 +144,10 @@
     //Set the title of the Main View here.
     self.title = @"Wattrical";
 
-    //self.tableView.rowHeight = ROW_HEIGHT;
+    self.tableView.rowHeight = 40;
+    self.tableView.sectionHeaderHeight=5;
+    self.tableView.backgroundColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
+
 
     UIBarButtonItem *addButton = [[[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem: UIBarButtonSystemItemCompose
@@ -153,7 +159,7 @@
 	cellNameArray = [[NSArray arrayWithObjects:@"Live", @"Hour", @"Day", @"Week", @"Month", nil] retain];
     
     //  GraphView as tableHeaderView Height 
-#define HEADERVIEW_HEIGHT 160.0
+#define HEADERVIEW_HEIGHT 200.0
 	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
     GraphView *graphView = [[GraphView alloc] initWithFrame:newFrame];
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
