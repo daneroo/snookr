@@ -2,8 +2,29 @@
 
 -=-= Objective (short):
   -Python daemon
-   -reads ted service every second and inserts into new database: wattrical
-   -uses 'now" as time stamp, wattrical db sores stamps in GMT
+   -? Rename ted database wattrical
+   - Fix Incremental for Better GMT timestamps
+         and rename to PumpTedNative
+   -hierTed.py: (rename ?)
+       
+     
+   _ wattrical database tables
+     -owner ? multiple accounts ? only on dae or morph
+     tedservice  (<- ted.tedlive )
+     tednative ( <- from pump  (remname Incremental)
+
+     watt
+     watt0010
+     watt0060
+     watt1800
+     watt3600
+     wattday
+     wattmonth
+
+   -reads ted service every second and inserts into new table: ted.tedlive
+
+
+   -uses 'now" as time stamp, ted db sores stamps in GMT
 
   -PHP converts wattrical.watt db into plist for wattrical iPhone App.
 
