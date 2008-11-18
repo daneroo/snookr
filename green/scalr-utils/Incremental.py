@@ -83,7 +83,7 @@ connsqlite = scalr.SqliteConnectNoArch(dbfilename)
 #logInfo("max: %s" % getScalar('select max(tick) from rdu_second_data'))
 
 curssqlite = connsqlite.cursor()
-curssqlite.execute(incrementalSql)
+curssqlite.execute(sql)
 
 logInfo("SQL executed");
 countRows=0
