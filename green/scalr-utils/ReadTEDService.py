@@ -19,6 +19,7 @@ import datetime
 import time
 import urllib 
 from xml.dom import minidom  
+import MySQLdb
 
 #def getkWAndVFromTedService():
 def getTimeWattsAndVoltsFromTedService():
@@ -40,6 +41,26 @@ def getTimeWattsAndVoltsFromTedService():
 	return (isodatestr , watts,volts)
 
 usage = 'python %s  ( --duration <secs> | --forever)' % sys.argv[0]
+conn = MySQLdb.connect (host = "127.0.0.1",
+                        user = "aviso",
+                        passwd = "",
+                        db = "ted")
+cursor = conn.cursor ()
+
+if False:
+        tablename='tedlive'
+        ddl = """
+        CREATE TABLE %s (
+        stamp datetime NOT NULL default '1970-01-01 00:00:00',
+        watt int(11) NOT NULL default '0',
+        PRIMARY KEY wattByStamp (stamp)
+        );
+""" % (tablename)
+        #cursor.execute ("DROP TABLE IF EXISTS %s" % tablename)
+        cursor.execute(ddl)
+        print "ddl executed for %s " % (tablename)
+else:
+        pass
 
 # parse command line options
 try:
@@ -64,8 +85,11 @@ while True:
 	now=time.time()
 	if duration>0 and (now-start)>duration:
 		break
-	(isodatestr, watts,volts) = getTimeWattsAndVoltsFromTedService()
-	print "%s --- %s\t%.0f\t%.1f" % (datetimenow,isodatestr, watts, volts) 
+	(stamp, watts,volts) = getTimeWattsAndVoltsFromTedService()
+	print "%s --- %s\t%d\t%.1f" % (datetimenow,stamp, watts, volts) 
+        
+        tablename='tedlive'
+        cursor.execute("INSERT IGNORE INTO %s (stamp, watt) VALUES ('%s', '%d')" % (tablename,stamp,watts))
 
 	now=time.time()
 	if duration>0 and (now-start)>duration:
@@ -80,4 +104,7 @@ while True:
 
 print "Done; lasted %f" % (time.time()-start)
 
+
+cursor.close ()
+conn.close ()
 
