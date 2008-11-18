@@ -3,6 +3,18 @@
 -=-= Objective (short):
   -Python daemon
    -? Rename ted database wattrical
+   - November tested and understood, what other DST boundary
+   - testTedDates: to validate tedStamps
+	what to keep ?
+        it seems that day/month tables 
+	are not populated at midnight localtime: 
+	always 86400 seconds between timestamps
+
+	other oddities of rdu_second_data:
+          duplicates <<<jitter
+          many skips >> 2 minutes, even more >>1 minute
+          most >> 2minutes are due to windows clock correction and restarts
+
    - Fix Incremental for Better GMT timestamps
          and rename to PumpTedNative
    -hierTed.py: (rename ?)
