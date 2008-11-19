@@ -135,10 +135,14 @@ if (showTedTimeUsage):
                                 print "  %s GMT : (%s) -> %s GMT -> (%s)" % (gmt,ted,gmtBack,reTed)
 # end of if showTedTimeUsage
 
-MYOFFSET = -4*3600  # == time.timezone offsets must match in tedToSecs and secsToTed
+TEDOFFSET = -4*3600  # =!= time.timezone offsets must match in tedToSecs and secsToTed
+GMTOFFSET = -5*3600  # =?= time.timezone
 
 def NEWsecsToTed(secs):
-	secs -= MYOFFSET  
+	#secs -= TEDOFFSET   # 4 or 5
+	if not localtime(secs-1*3600).tm_isdst:
+		secs -= 1*3600
+
         tedTimeLong = long( ((secs * 1000) +  62135582400000)*10000 ) 
         return "%019ld" % tedTimeLong
 
@@ -147,7 +151,12 @@ def NEWtedToSecs(tedTimeString):
 	try:
 		millis =  string.atol(tedTimeString) / 10000 - 62135582400000
 		secs =  millis / 1000;
-		secs += MYOFFSET
+		secs += {True:0*3600,False: 1*3600}[localtime(secs).tm_isdst]
+		#if localtime(secs).tm_isdst:
+		#	secs += -0*3600
+		#else:
+		#	secs += 1*3600
+			
 		return secs
 	except ValueError:
 		print "timestamp out of range: bad secs"
@@ -156,10 +165,10 @@ def NEWtedToSecs(tedTimeString):
 
 def NEWtedToLocal(tedTimeString):
 	secs = NEWtedToSecs(tedTimeString)
-	return strftime("%Y-%m-%d %H:%M:%S KKK",gmtime(secs))
+	return strftime("%Y-%m-%d %H:%M:%S %Z",localtime(secs))
 
 def NEWtedToGMT(tedTimeString):
-	secs = NEWtedToSecs(tedTimeString)-MYOFFSET
+	secs = NEWtedToSecs(tedTimeString) #-GMTOFFSET
 	return strftime("%Y-%m-%d %H:%M:%S",gmtime(secs))
 
 if (showMonthTable):
@@ -170,14 +179,15 @@ if (showMonthTable):
 	timeScopes = ["hour","day", "month"] # minute
 	timeScopes = ["day","month"] # minute
 	# timeScopes = ["month"] # minute
-	timeScopes = ["month","day","hour"] # minute
+	# timeScopes = ["month","day","hour"] # minute
+	timeScopes = ["hour","day"] # minute
 	for t in timeScopes:
 		print "-=-=-= Stamp Information from '%s' table (12 entries only) =-=-=-" % t
 		sql = 'select tick,kw from rdu_%s_data order by tick desc limit 3' % t
 		# sql = 'select tick,kw from rdu_%s_data limit 12' % t
 		# sql = "select tick,kw from rdu_%s_data where tick>='0633611862000000000' limit 12" % t
 		# sql = "select tick,kw from rdu_%s_data where tick>='0633611862000000000' and tick<'0633611970000000000' limit 12" % t
-		# sql = "select tick,kw from rdu_%s_data where tick>='0633611772000000000' and tick<'0633612744000000000'" % t
+		sql = "select tick,kw from rdu_%s_data where tick>='0633611772000000000' and tick<'0633612744000000000'" % t
 		
 		logInfo(" --using sql: %s" % sql)
 		curssqlite.execute(sql)
@@ -191,6 +201,13 @@ if (showMonthTable):
 			NEWsecs  = NEWtedToSecs(row[0])
 			NEWreted = NEWsecsToTed(NEWsecs)
 			#print "NEW roundtrip: %s %f %s" % (row[0],NEWsecs,NEWreted)
+			print "---------------"
+			print "NEW roundtrip: %s -> %f" % (row[0],NEWsecs)
+			print "NEW roundtrip: %s <- %f" % (NEWreted,NEWsecs)
+			if row[0]==NEWreted:
+				print "GOOD"
+			else:
+				print "BAD"
 
 			stampLocal = tedToLocal(row[0])
 			NEWstampLocal = NEWtedToLocal(row[0])

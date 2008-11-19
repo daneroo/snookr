@@ -5,10 +5,14 @@
    -? Rename ted database wattrical
    - November tested and understood, what other DST boundary
    - testTedDates: to validate tedStamps
+	OK TEDOFFSET has to vary so that we can use localtime
 	what to keep ?
         it seems that day/month tables 
 	are not populated at midnight localtime: 
 	always 86400 seconds between timestamps
+        in EST such as 2008-11-18 table is populated before 00:22 !
+
+        hourly table is updated before 01:05...
 
 	other oddities of rdu_second_data:
           duplicates <<<jitter
