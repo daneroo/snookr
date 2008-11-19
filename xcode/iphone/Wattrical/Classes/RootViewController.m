@@ -37,24 +37,29 @@
    	[self.tableView.tableHeaderView setNeedsDisplay];
 }
 
+-(void) updateStatusSectionHeaderView {
+    [sectionHeaderView updateIfNeeded];
+}
+
 #pragma mark UITableViewDataSource Protocol 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
-/*
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	//return @"Wattrical Feeds:";
-	return @"Status:";
+	//return @"Status:";
+    return @"";
 }
-*/
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	return [cellNameArray count];
 }
 
+
+#pragma mark UITableViewDelegate Protocol
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -82,10 +87,19 @@
 	 To conform to the Human Interface Guidelines, selections should not be persistent --
 	 deselect the row after it has been selected.
 	 */
+    NSLog(@"didSelect: %d",indexPath.row);
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-
+/* use     self.tableView.sectionHeaderHeight=XXX; instead
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 20.0;
+}
+*/ 
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    return sectionHeaderView;
+}
+#pragma mark Other
 // Override to support editing the list
 /*
  - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -140,12 +154,12 @@
     // How should I implement : "As fast as possible" ?
 	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
 
-    
+	[NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(updateStatusSectionHeaderView) userInfo:nil repeats:YES];
+
     //Set the title of the Main View here.
     self.title = @"Wattrical";
 
     self.tableView.rowHeight = 40;
-    self.tableView.sectionHeaderHeight=5;
     self.tableView.backgroundColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
 
 
@@ -159,12 +173,17 @@
 	cellNameArray = [[NSArray arrayWithObjects:@"Live", @"Hour", @"Day", @"Week", @"Month", nil] retain];
     
     //  GraphView as tableHeaderView Height 
-#define HEADERVIEW_HEIGHT 200.0
+#define HEADERVIEW_HEIGHT 180.0
 	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
     GraphView *graphView = [[GraphView alloc] initWithFrame:newFrame];
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
     [graphView release]; // now that it has been retained.
     graphView.observations = obsarray.observations;
+    
+#define SECTIONHEADERVIEW_HEIGHT 15.0
+    // Section Header View : used for status
+    self.tableView.sectionHeaderHeight=SECTIONHEADERVIEW_HEIGHT;
+    sectionHeaderView = [[StatusSectionHeaderView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, SECTIONHEADERVIEW_HEIGHT)];
 }
 
 
@@ -204,6 +223,7 @@
     [super dealloc];
     [cellNameArray release];
     [obsarray release];
+    [sectionHeaderView release];
 }
 
 
