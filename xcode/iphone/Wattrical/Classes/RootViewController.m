@@ -12,7 +12,7 @@
 #import "ObservationCellView.h"
 #import "DateUtil.h"
 
-#define TIMER_INTERVAL 2.0
+#define TIMER_INTERVAL 5.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
