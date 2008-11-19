@@ -21,6 +21,7 @@
 		653BC92E0ECA1A3600F721B2 /* ObservationArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BC9260ECA1A3600F721B2 /* ObservationArray.m */; };
 		653BC92F0ECA1A3600F721B2 /* ObservationCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BC9280ECA1A3600F721B2 /* ObservationCellView.m */; };
 		653BC9300ECA1A3600F721B2 /* ObservationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BC92A0ECA1A3600F721B2 /* ObservationView.m */; };
+		6540CB650ED4A79A00016EB7 /* StatusSectionHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6540CB640ED4A79A00016EB7 /* StatusSectionHeaderView.m */; };
 		655306D80ECB4F7E000D16A1 /* ObservationFeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 655306D70ECB4F7E000D16A1 /* ObservationFeed.m */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +50,8 @@
 		653BC9280ECA1A3600F721B2 /* ObservationCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationCellView.m; sourceTree = "<group>"; };
 		653BC9290ECA1A3600F721B2 /* ObservationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservationView.h; sourceTree = "<group>"; };
 		653BC92A0ECA1A3600F721B2 /* ObservationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationView.m; sourceTree = "<group>"; };
+		6540CB630ED4A79A00016EB7 /* StatusSectionHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatusSectionHeaderView.h; sourceTree = "<group>"; };
+		6540CB640ED4A79A00016EB7 /* StatusSectionHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusSectionHeaderView.m; sourceTree = "<group>"; };
 		655306D60ECB4F7E000D16A1 /* ObservationFeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservationFeed.h; sourceTree = "<group>"; };
 		655306D70ECB4F7E000D16A1 /* ObservationFeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationFeed.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -87,6 +90,8 @@
 				653BC92A0ECA1A3600F721B2 /* ObservationView.m */,
 				28C286DF0D94DF7D0034E888 /* RootViewController.h */,
 				28C286E00D94DF7D0034E888 /* RootViewController.m */,
+				6540CB630ED4A79A00016EB7 /* StatusSectionHeaderView.h */,
+				6540CB640ED4A79A00016EB7 /* StatusSectionHeaderView.m */,
 				1D3623240D0F684500981E51 /* WattricalAppDelegate.h */,
 				1D3623250D0F684500981E51 /* WattricalAppDelegate.m */,
 			);
@@ -213,6 +218,7 @@
 				653BC92F0ECA1A3600F721B2 /* ObservationCellView.m in Sources */,
 				653BC9300ECA1A3600F721B2 /* ObservationView.m in Sources */,
 				655306D80ECB4F7E000D16A1 /* ObservationFeed.m in Sources */,
+				6540CB650ED4A79A00016EB7 /* StatusSectionHeaderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

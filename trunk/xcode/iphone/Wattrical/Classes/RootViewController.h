@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "Observation.h"
 #import "ObservationArray.h"
+#import "StatusSectionHeaderView.h"
 
 @interface RootViewController : UITableViewController {
 	NSArray *cellNameArray;
     ObservationArray *obsarray;
+    StatusSectionHeaderView *sectionHeaderView;
 }
 
 @end
