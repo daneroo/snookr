@@ -502,8 +502,8 @@ double myLogRandom(double min,double max){
             
             CGFloat xActual = [self mapX:obsx];
             CGFloat yActual = [self mapY:observation.value];
-            CGFloat yPrev = [self mapY:observation.value+myRandom(-100,100)];
-            BOOL fakeData = YES;
+            CGFloat yPrev = [self mapY:observation.value+(50+myRandom(0*-100,0*100))];
+            BOOL fakeData = NO;
             if (fakeData) {
                 CGFloat yFake = (.5+.5*sin(i*3*M_PI/numberofitems-(dataMaxTime*60/(numberofitems*2*M_PI))))*dataRangeValue+dataMinValue;
                 yActual = [self mapY:(yFake)];
