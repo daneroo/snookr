@@ -193,26 +193,28 @@ if (showMonthTable):
 		curssqlite.execute(sql)
 		countRows=0
 		for row in curssqlite:
-			tedLong  =  string.atol(row[0])
+			tedStr = row[0]
+			tedStr = "%019ld" % (string.atol(tedStr) + 30*60*1000*10000)
+			tedLong  =  string.atol(tedStr)
 
-			OLDsecs  = tedToSecs(row[0])
+			OLDsecs  = tedToSecs(tedStr)
 			OLDreted = secsToTed(OLDsecs)
-			#print "OLD roundtrip: %s %f %s" % (row[0],OLDsecs,OLDreted)
-			NEWsecs  = NEWtedToSecs(row[0])
+			#print "OLD roundtrip: %s %f %s" % (tedStr,OLDsecs,OLDreted)
+			NEWsecs  = NEWtedToSecs(tedStr)
 			NEWreted = NEWsecsToTed(NEWsecs)
-			#print "NEW roundtrip: %s %f %s" % (row[0],NEWsecs,NEWreted)
+			#print "NEW roundtrip: %s %f %s" % (tedStr,NEWsecs,NEWreted)
 			print "---------------"
-			print "NEW roundtrip: %s -> %f" % (row[0],NEWsecs)
+			print "NEW roundtrip: %s -> %f" % (tedStr,NEWsecs)
 			print "NEW roundtrip: %s <- %f" % (NEWreted,NEWsecs)
 			if row[0]==NEWreted:
 				print "GOOD"
 			else:
 				print "BAD"
 
-			stampLocal = tedToLocal(row[0])
-			NEWstampLocal = NEWtedToLocal(row[0])
-			stampGMT = tedToGMT(row[0])
-			NEWstampGMT = NEWtedToGMT(row[0])
+			stampLocal = tedToLocal(tedStr)
+			NEWstampLocal = NEWtedToLocal(tedStr)
+			stampGMT = tedToGMT(tedStr)
+			NEWstampGMT = NEWtedToGMT(tedStr)
 			watt = row[1]*1000
 			print "OLD %7s %019ld %24s %24s GMT %5d" % (t,tedLong,stampLocal,stampGMT,watt)
 			print "NEW %7s %019ld %24s %24s GMT %5d" % (t,tedLong,NEWstampLocal,NEWstampGMT,watt)
