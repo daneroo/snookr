@@ -51,12 +51,16 @@ for o, a in opts:
 		try:
 			startSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
 		except ValueError:
-			print " Start Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a
+			logError(" Start Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
+			logError(usage)
+			sys.exit(2)
 	elif o == "--stop":
 		try:
 			stopSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
 		except ValueError:
-			print " Stop Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a
+			logError(" Stop Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
+			logError(usage)
+			sys.exit(2)
 
 totalSecondsAgo = ((daysAgo*24+hoursAgo)*60+minutesAgo)*60+secondsAgo
 

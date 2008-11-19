@@ -135,26 +135,71 @@ if (showTedTimeUsage):
                                 print "  %s GMT : (%s) -> %s GMT -> (%s)" % (gmt,ted,gmtBack,reTed)
 # end of if showTedTimeUsage
 
+MYOFFSET = -4*3600  # == time.timezone offsets must match in tedToSecs and secsToTed
+
+def NEWsecsToTed(secs):
+	secs -= MYOFFSET  
+        tedTimeLong = long( ((secs * 1000) +  62135582400000)*10000 ) 
+        return "%019ld" % tedTimeLong
+
+# returns ted time string in secs since EPOCH in UTC as time.time()
+def NEWtedToSecs(tedTimeString):
+	try:
+		millis =  string.atol(tedTimeString) / 10000 - 62135582400000
+		secs =  millis / 1000;
+		secs += MYOFFSET
+		return secs
+	except ValueError:
+		print "timestamp out of range: bad secs"
+	except TypeError:
+		print "Type Error: (%s)" % tedTimeString
+
+def NEWtedToLocal(tedTimeString):
+	secs = NEWtedToSecs(tedTimeString)
+	return strftime("%Y-%m-%d %H:%M:%S KKK",gmtime(secs))
+
+def NEWtedToGMT(tedTimeString):
+	secs = NEWtedToSecs(tedTimeString)-MYOFFSET
+	return strftime("%Y-%m-%d %H:%M:%S",gmtime(secs))
+
 if (showMonthTable):
 ##########################################################
-        print
-        print "TED stamps in other time scope tables month,day.hour,minute"
-        timeScopes = ["minute","hour", "day", "month"] # minute
-        # timeScopes = ["day", "month"] # minute
-        # timeScopes = ["month"] # minute
-        for t in timeScopes:
-                print "-=-=-= Stamp Information from '%s' table (12 entries only) =-=-=-" % t
-                sql = 'select tick,kw from rdu_%s_data limit 12' % t
-                logInfo(" --using sql: %s" % sql)
-                
-                curssqlite.execute(sql)
-                countRows=0
-                for row in curssqlite:
-                        tedLong  =  string.atol(row[0])
-                        stampLocal = tedToLocal(row[0])
-                        stampGMT = tedToGMT(row[0])
-                        watt = row[1]*1000
-                        print "%7s %019ld %19s %19s GMT %5d" % (t,tedLong,stampLocal,stampGMT,watt)
+	print
+	print "TED stamps in other time scope tables month,day.hour,minute"
+	# timeScopes = ["minute","hour", "day", "month"] # minute
+	timeScopes = ["hour","day", "month"] # minute
+	timeScopes = ["day","month"] # minute
+	# timeScopes = ["month"] # minute
+	timeScopes = ["month","day","hour"] # minute
+	for t in timeScopes:
+		print "-=-=-= Stamp Information from '%s' table (12 entries only) =-=-=-" % t
+		sql = 'select tick,kw from rdu_%s_data order by tick desc limit 3' % t
+		# sql = 'select tick,kw from rdu_%s_data limit 12' % t
+		# sql = "select tick,kw from rdu_%s_data where tick>='0633611862000000000' limit 12" % t
+		# sql = "select tick,kw from rdu_%s_data where tick>='0633611862000000000' and tick<'0633611970000000000' limit 12" % t
+		# sql = "select tick,kw from rdu_%s_data where tick>='0633611772000000000' and tick<'0633612744000000000'" % t
+		
+		logInfo(" --using sql: %s" % sql)
+		curssqlite.execute(sql)
+		countRows=0
+		for row in curssqlite:
+			tedLong  =  string.atol(row[0])
+
+			OLDsecs  = tedToSecs(row[0])
+			OLDreted = secsToTed(OLDsecs)
+			#print "OLD roundtrip: %s %f %s" % (row[0],OLDsecs,OLDreted)
+			NEWsecs  = NEWtedToSecs(row[0])
+			NEWreted = NEWsecsToTed(NEWsecs)
+			#print "NEW roundtrip: %s %f %s" % (row[0],NEWsecs,NEWreted)
+
+			stampLocal = tedToLocal(row[0])
+			NEWstampLocal = NEWtedToLocal(row[0])
+			stampGMT = tedToGMT(row[0])
+			NEWstampGMT = NEWtedToGMT(row[0])
+			watt = row[1]*1000
+			print "OLD %7s %019ld %24s %24s GMT %5d" % (t,tedLong,stampLocal,stampGMT,watt)
+			print "NEW %7s %019ld %24s %24s GMT %5d" % (t,tedLong,NEWstampLocal,NEWstampGMT,watt)
+
 # end of if (showMonthTable):
 
 if (showSequentialEvents):
@@ -173,8 +218,8 @@ if (showSequentialEvents):
                 tedDiff = tedLong-previousTedLong
                 tedDiffInSecs = tedDiff/10000/1000;
                 print "----------row %10d ----------" % rowNum
-                print " %6s %10d %019ld %19s" % (symbol,tedDiff,previousTedLong,tedToLocal(previousTedStr))
-                print " %6s %10.4f %019ld %19s" % ("",tedDiffInSecs,tedLong,tedToLocal(tedStr))
+                print " %6s %11d %019ld %19s" % (symbol,tedDiff,previousTedLong,tedToLocal(previousTedStr))
+                print " %6s %11.2f %019ld %19s" % ("",tedDiffInSecs,tedLong,tedToLocal(tedStr))
 
         curssqlite.execute(sql)
         logInfo("SQL executed")
@@ -229,12 +274,14 @@ if (showSequentialEvents):
                 if ( (tedDiff < -tedJitter) or ( tedDiff >= 120*expectedTedDiff) ):
                         showDiff(symbol,previousTedLong,tedLong, countRows)
 
-                        previousTedLong = tedLong;
-                        countRows+=1
-                        if (countRows%100000 == 1):
-                                # logInfo("row: %8d stamp: %s GMT [%s]" % (countRows,stampGMT,row[0]));
-                                logInfo("row: %8d stamp: %s GMT %s [%s]" % (countRows,stampGMT,tedToLocal(row[0]),row[0]));
+		previousTedLong = tedLong;
+                countRows+=1
+                if (countRows%100000 == 1):
+			# logInfo("row: %8d stamp: %s GMT [%s]" % (countRows,stampGMT,row[0]));
+			logInfo("row: %8d stamp: %s GMT %s [%s]" % (countRows,stampGMT,tedToLocal(row[0]),row[0]));
 
+	logInfo("Done (%d total rows)" % countRows);
+	print ""
         print "Histogram of Classified Sequential Time Differences"
         # for symbol, count in histogram.iteritems():
         #     print "%6s : %8d" % (symbol,count)
@@ -251,7 +298,6 @@ if (showSequentialEvents):
         curssqlite.close()
         connsqlite.close()
 
-logInfo("Done (%d total rows)" % countRows);
 
 
 # import MySQLdb
