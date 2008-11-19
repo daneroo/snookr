@@ -20,14 +20,14 @@ $xmldecl .= "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www
 echo $xmldecl;
 
 echo "<plist version=\"1.0\"><array>\n";
-$numPoints=30;
+$numPoints=10;
 $now = time();
 $timeRange = 60*60*24; // in seconds
 for ($i=0;$i<$numPoints;$i++) {
     $tt = $now - ($i/$numPoints)*$timeRange; 
     $nowstr = date('Y-m-d',$tt).'T'.date('H:i:s',$tt).'Z';
     //$watt = rand(1000,2000);
-    $angle = ( fmod($now/2,60)/60.0 - $i/$numPoints )  * 4 * pi() ;
+    $angle = ( fmod($now,60)/60.0 - $i/$numPoints )  * 6 * pi() ;
     $watt = round(5000.0 * (1+sin($angle))  );
 
     echo "<dict><key>stamp</key><date>$nowstr</date><key>value</key><integer>$watt</integer></dict>\n";
