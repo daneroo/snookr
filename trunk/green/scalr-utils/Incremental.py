@@ -11,11 +11,15 @@ from scalr import cnvTime,invTime,testTime
 from scalr import getScalar
 
 #def main():
-usage = 'python %s --db <dbfile> (--all | --secs <secs> --minutes <minutes> --hours <hours> --days <days>)' % sys.argv[0]
+usage = '''
+   python %s --db <dbfile> --all ' % sys.argv[0]
+or python %s --db <dbfile> [--secs <secs> --minutes <minutes> --hours <hours> --days <days>]' % sys.argv[0]
+or python %s --db <dbfile> [--start \'YYYY-MM-DD HH:mm:ss\' [--stop \'YYYY-MM-DD HH:mm:ss\']]' % sys.argv[0]
+'''
 
 # parse command line options
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["db=", "all", "secs=","minutes=","hours=","days="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["db=", "all", "secs=","minutes=","hours=","days=","start=","stop="])
 except getopt.error, msg:
 	logError('error msg: %s' % msg)
 	logError(usage)
@@ -26,6 +30,8 @@ daysAgo=0
 hoursAgo=0
 minutesAgo=0
 secondsAgo=0
+startSecs=0
+stopSecs=0
 allTime = False
 
 for o, a in opts:
@@ -41,6 +47,16 @@ for o, a in opts:
 		hoursAgo = string.atol(a)
 	elif o == "--days":
 		daysAgo = string.atol(a)
+	elif o == "--start":
+		try:
+			startSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
+		except ValueError:
+			print " Start Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a
+	elif o == "--stop":
+		try:
+			stopSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
+		except ValueError:
+			print " Stop Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a
 
 totalSecondsAgo = ((daysAgo*24+hoursAgo)*60+minutesAgo)*60+secondsAgo
 
@@ -53,35 +69,33 @@ if not os.path.exists(dbfilename):
 	logError("Could not find SQLite3 db file: %s" % dbfilename)
 	sys.exit(2);
 
-if not allTime and totalSecondsAgo == 0:
+if not (allTime or totalSecondsAgo or startSecs):
 	logError(usage)
-	logError('Use --all or at least one of --secs --minutes --hours --days')
+	logError('Use --all, --start YYYY-... or at least one of --secs --minutes --hours --days')
 	sys.exit(2)
 
+if (totalSecondsAgo):
+	startSecs = time.time()-totalSecondsAgo
 
 logInfo("Incremental Pump started")
 
 fullSql = 'select tick,kw from rdu_second_data'
 sql = fullSql
 if not allTime:
-	referenceTimeAsTed = invTime(time.time()-totalSecondsAgo)
-	logInfo("referenceTime: %s - %s" % (referenceTimeAsTed, cnvTime(referenceTimeAsTed)) )
-	# include cnvTime in select:
-	incrementalSql = "%s where tick>='%s'" % (fullSql,referenceTimeAsTed)
-	#convertedIncrementalSql = "select datetime((tick/10000-62135582400000)/1000,\"unixepoch\",\"localtime\"), kw from rdu_second_data where tick>='%s'" % referenceTimeAsTed
-	#logInfo("sql: %s" % incrementalSql)
-	#logInfo("sql: %s" % convertedIncrementalSql)
-	sql = incrementalSql
+	startTimeAsTed = invTime(startSecs)
+	if (stopSecs):
+		stopTimeAsTed = invTime(stopSecs)
+		logInfo(" interval: %s - %s" % (cnvTime(startTimeAsTed),cnvTime(stopTimeAsTed)) )
+		sql = "%s where tick>='%s' and tick<'%s'" % (fullSql,startTimeAsTed,stopTimeAsTed)
+	else:
+		logInfo(" interval: %s - " % cnvTime(startTimeAsTed) )
+		sql = "%s where tick>='%s'" % (fullSql,startTimeAsTed)
 else:
 	logInfo("Full Dump (--all) : %d" % allTime)
-	#logInfo("sql: %s" % fullSql)
 
-logInfo("using sql: %s" % sql)
+logInfo("Using sql: %s" % sql)
+
 connsqlite = scalr.SqliteConnectNoArch(dbfilename)
-
-#logInfo("count: %s" % getScalar('select count(*) from rdu_second_data'))
-#logInfo("max: %s" % getScalar('select max(tick) from rdu_second_data'))
-
 curssqlite = connsqlite.cursor()
 curssqlite.execute(sql)
 

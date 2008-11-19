@@ -25,21 +25,34 @@ from time import time,strftime,strptime,gmtime,localtime,mktime
 #    probable duplicates, system time changes, unavailable data.
 #
 
-usage = 'python %s --db <dbfile>' % sys.argv[0]
+usage = 'python %s --db <dbfile> [--all | [--showTedTimeUsage --showMonthTable --showSequentialEvents]]' % sys.argv[0]
 
 # parse command line options
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["db="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["db=","showTedTimeUsage","showMonthTable","showSequentialEvents"])
 except getopt.error, msg:
 	logError('error msg: %s' % msg)
 	logError(usage)
 	sys.exit(2)
 
 dbfilename = ''
+showTedTimeUsage = False
+showMonthTable = False
+showSequentialEvents = False
 
 for o, a in opts:
 	if o == "--db":
 		dbfilename = a
+	elif o == "--all":
+		showTedTimeUsage = True
+		showMonthTable = True
+		showSequentialEvents = True
+	elif o == "--showTedTimeUsage":
+		showTedTimeUsage = True
+	elif o == "--showMonthTable":
+		showMonthTable = True
+	elif o == "--showSequentialEvents":
+		showSequentialEvents = True
 
 if dbfilename == '':
 	logError('specify --db dbfile:')
@@ -49,6 +62,11 @@ if dbfilename == '':
 if not os.path.exists(dbfilename):
 	logError("Could not find SQLite3 db file: %s" % dbfilename)
 	sys.exit(2);
+
+if not (showTedTimeUsage or showMonthTable or showSequentialEvents):
+	logError('specify --all or at least one of --showTedTimeUsage --showMonthTable --showSequentialEvents')
+	logError(usage)
+	sys.exit(2)
 
 
 connsqlite = scalr.SqliteConnectNoArch(dbfilename)
@@ -67,35 +85,53 @@ print " and back again (roungind to second)"
 localTimeStr = "2008-07-29 19:04:40";
 print "  local time string: |%s|" % localTimeStr
 print "    --> TED  :       |%s|" % scalr. localTimeToTed(localTimeStr)
-print "How about DST boundary :  2008-11-02 01:59:59 EDT +:01 -> 2008-11-02 01:00:00 EST"
-atBoundarySecs = 1225605600;
-print "  just before : %s" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(atBoundarySecs-1))
-print "  just after  : %s" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(atBoundarySecs))
-boundaryTimeStr = "2008-11-02 01:00:00"
-print "The problem with parsing local Time: %s" % boundaryTimeStr 
-print " parsing local time without explicit timezone %Z is ambigous:"
-print "HOWEVER secs is never ambiguous!"
-withEST = "%s EST" % boundaryTimeStr
-withESTsecs = mktime(strptime(withEST,"%Y-%m-%d %H:%M:%S %Z"))
-withEDT = "%s EDT" % boundaryTimeStr
-withEDTsecs = mktime(strptime(withEDT,"%Y-%m-%d %H:%M:%S %Z"))
-withoutsecs = mktime(strptime(boundaryTimeStr,"%Y-%m-%d %H:%M:%S"))
-print " with EST: %-23s -> secs: %f -> %s" % (withEST, withESTsecs, strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withESTsecs)))
-print " with EDT: %-23s -> secs: %f -> %s" % (withEDT, withEDTsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withEDTsecs)))
-print " without : %-23s -> secs: %f -> %s" % (boundaryTimeStr, withoutsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withoutsecs)))
 
+print "How about DST boundary"
+print " 2008-03-09 01:59:59 EST +:01 -> 2008-11-02 03:00:00 EST skip ahead an hour"
+print " 2008-11-02 01:59:59 EDT +:01 -> 2008-11-02 01:00:00 EST skip back an hour"
+print " 2008-03-09 02:00:00 to 2008-03-09 02:59:59 don't exist"
+print " 2008-11-02 01:00:00 to 2008-03-09 01:59:59 exist twice"
+
+
+# 2008-03-09 02:00:00 and 2008-11-02 02:00:00
+dstSecs = [1205046000 , 1225605600]
+for atBoundarySecs in dstSecs:
+	print "DST Boundary  : %s " % strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(atBoundarySecs))
+	print "  just before : %s" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(atBoundarySecs-1))
+	print "  just after  : %s" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(atBoundarySecs))
+
+print ""
+dstTimeStr = ["2008-03-09 02:00:00","2008-11-02 01:00:00"] 
+for boundaryTimeStr in dstTimeStr:
+	print "The problem with parsing local Time: %s" % boundaryTimeStr 
+	print " parsing local time without explicit timezone %Z is ambigous:"
+	print "HOWEVER secs is never ambiguous!"
+	withEST = "%s EST" % boundaryTimeStr
+	withESTsecs = mktime(strptime(withEST,"%Y-%m-%d %H:%M:%S %Z"))
+	withEDT = "%s EDT" % boundaryTimeStr
+	withEDTsecs = mktime(strptime(withEDT,"%Y-%m-%d %H:%M:%S %Z"))
+	withoutsecs = mktime(strptime(boundaryTimeStr,"%Y-%m-%d %H:%M:%S"))
+	print " with EST: %-23s -> secs: %f -> %s" % (withEST, withESTsecs, strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withESTsecs)))
+	print " with EDT: %-23s -> secs: %f -> %s" % (withEDT, withEDTsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withEDTsecs)))
+	print " without : %-23s -> secs: %f -> %s" % (boundaryTimeStr, withoutsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withoutsecs)))
+
+print ""
 print " with Ted - this is how we roundtrip secs->ted->secs->ted"
-secsOfInterest = [atBoundarySecs-3600,atBoundarySecs-1,atBoundarySecs]
-for secs in secsOfInterest:
-	ted = secsToTed(secs)
-	secsBack = tedToSecs(ted)
-	reTed = secsToTed(secsBack)
-	print "   %f : (%s) -> %f -> (%s)" % (secs,ted,secsBack,reTed)
-	# print differently (without parsing GMT)
-	gmt = strftime("%Y-%m-%d %H:%M:%S",gmtime(secs))
-	gmtBack = strftime("%Y-%m-%d %H:%M:%S",gmtime(secsBack))
-	print "or %s GMT : (%s) -> %s GMT -> (%s)" % (gmt,ted,gmtBack,reTed)
+secsOfInterest = [dstSecs[0]-1,dstSecs[0],dstSecs[1]-3600,dstSecs[1]-1,dstSecs[1]]
+for pr in [0,1]:
+	print ""
+	for secs in secsOfInterest:
+		print "  %s Roundtrip" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(secs))
 
+		ted = secsToTed(secs)
+		secsBack = tedToSecs(ted)
+		reTed = secsToTed(secsBack)
+		gmt = strftime("%Y-%m-%d %H:%M:%S",gmtime(secs))
+		gmtBack = strftime("%Y-%m-%d %H:%M:%S",gmtime(secsBack))
+		if (pr==0):
+			print "  %d : (%s) -> %d -> (%s)" % (secs,ted,secsBack,reTed)
+		if (pr==1):
+			print "  %s GMT : (%s) -> %s GMT -> (%s)" % (gmt,ted,gmtBack,reTed)
 
 ##########################################################
 print
