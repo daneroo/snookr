@@ -13,8 +13,15 @@
 
 @implementation GraphView
 @synthesize observations;
+@synthesize rootViewController;
 
 #pragma mark State Management
+- (void) cycleScopeInController {
+    // find the controller
+    [self.rootViewController cycleScope];
+}
+
+//This was for local scope management in Weightrical
 - (void) cycleTimeRange {
 	switch (desiredScopeInDays) {
 		case 7:
@@ -32,7 +39,7 @@
 		default:
 			desiredScopeInDays=7;
 	}
-    [self randomize];
+    //[self randomize]; watch out replaces observations, disconects from controller
 	[self setNeedsDisplay];
 }
 
@@ -91,7 +98,8 @@
 
 // only handle single tap for now
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self cycleTimeRange];
+    [self cycleScopeInController];
+    //[self cycleTimeRange];
 	NSLog(@"touch ended Event  desiredScopeInDays: %d",desiredScopeInDays);
 }
 
@@ -461,7 +469,8 @@
         CGContextRestoreGState(context);
 	}
 
-    BOOL drawData = NO;
+    //BOOL drawData = NO;
+    BOOL drawData = (dataRangeTime<=3600); // 15 minutes
     if (drawData) {
         CGContextSaveGState(context);
         // Draw a connected sequence of line segments
@@ -486,7 +495,8 @@
         
         CGContextRestoreGState(context);
     }    
-    BOOL drawDataBars = YES;
+    //BOOL drawDataBars = YES;
+    BOOL drawDataBars = ! drawData;
     if (drawDataBars) {
         CGContextSaveGState(context);
         // Draw a connected sequence of line segments
@@ -533,7 +543,7 @@
         CGContextRestoreGState(context);
     }    
     
-    BOOL shadowTest = YES;
+    BOOL shadowTest = drawData; //YES;
     if (shadowTest) {
         // shadow test
         CGContextSaveGState(context);

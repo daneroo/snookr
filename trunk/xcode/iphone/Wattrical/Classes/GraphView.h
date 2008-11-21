@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "RootViewController.h"
 /*
  
  TODO refactor
@@ -74,11 +74,14 @@ Analysis Flow and actual Drawing:
     CGFloat layoutLeftMargin;   // leaves room at left for y axis labels & ticks
     CGFloat layoutRightMargin;  // leaves room at right just for breathing
 
+    // controller hook property
+    RootViewController *rootViewController;
     // UI State
 	int desiredScopeInDays; // desired Visible Days on Display
 }
 
 @property(nonatomic, retain) NSMutableArray *observations;
+@property(nonatomic, assign) RootViewController *rootViewController;
 
 - (void) randomize; //temporary
 
