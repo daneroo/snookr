@@ -9,6 +9,7 @@
 #import "GraphView.h"
 #import "Observation.h"
 #import "DateUtil.h"
+#import "RandUtil.h"
 
 @implementation GraphView
 @synthesize observations;
@@ -31,33 +32,23 @@
 		default:
 			desiredScopeInDays=7;
 	}
-    //[self randomize];
+    [self randomize];
 	[self setNeedsDisplay];
 }
 
-double myRandom(double min,double max){
-    static long rez = 100000;
-    double r01 = ((double)(random()%rez))/rez;
-    return r01*(max-min)+min;
-}
-
-double myLogRandom(double min,double max){
-    double lr = myRandom(log(min),log(max));
-    return exp(lr);
-}
-
 - (void) randomize {
-    desiredScopeInDays = myLogRandom(1, 365);
-    double d1 = myLogRandom(10000, 300000);
-    double d2 = myLogRandom(10000, 300000);
+    desiredScopeInDays = [RandUtil randomWithMin:1 andMax:365];
+    double d1 = [RandUtil logRandomWithMin:10000 andMax:300000];
+    double d2 = [RandUtil logRandomWithMin:10000 andMax:300000];
     NSMutableArray *newObs = [[NSMutableArray alloc] init];
     NSInteger newMinVal = (NSInteger)((d1<d2)?d1:d2);
     NSInteger newMaxVal = (NSInteger)((d1>d2)?d1:d2);
     NSLog(@"randomize: %.1f %.1f",newMinVal/1000.0,newMaxVal/1000.0);
     for (int i=0;i<100;i++) {
         Observation *observation = [[Observation alloc] init]; 
-        observation.stamp = [NSDate dateWithTimeIntervalSinceNow:myRandom(-desiredScopeInDays*24*3600,0)];
-        observation.value = myRandom(newMinVal,newMaxVal);
+        NSTimeInterval pastRandom = [RandUtil randomWithMin:-desiredScopeInDays*24*3600 andMax:0];
+        observation.stamp = [NSDate dateWithTimeIntervalSinceNow:pastRandom];
+        observation.value = [RandUtil randomWithMin:newMinVal andMax:newMaxVal];
         
         //NSLog(@"-loadObs retainCount: %d stamp: %d",[observation retainCount],[observation.stamp retainCount]);
         [newObs addObject:observation];
@@ -404,7 +395,7 @@ double myLogRandom(double min,double max){
     
 }
 
-- (void)drawRect:(CGRect)rect {
+- (void)drawOther:(CGRect)rect {
     NSDate *drawStart = [NSDate date];
     [self findRange];
     
@@ -427,6 +418,16 @@ double myLogRandom(double min,double max){
     // X Scope Label Text part
 	[[UIColor lightGrayColor] set];
 	NSString *text=[NSString stringWithFormat:@"%d Days",desiredScopeInDays];
+    if (dataRangeTime<60.0) {
+        text=[NSString stringWithFormat:@"%.0f seconds",dataRangeTime];
+    } else if (dataRangeTime<3600.0) {
+        text=[NSString stringWithFormat:@"%.0f minutes",round(dataRangeTime/60.0)];
+    } else if (dataRangeTime<86400.0) {
+        text=[NSString stringWithFormat:@"%.0f hours",round(dataRangeTime/3600.0)];
+    } else {
+        text=[NSString stringWithFormat:@"%.0f days",round(dataRangeTime/86400.0)];
+    }
+    
 	CGPoint point = CGPointMake([self mapX:dataMaxTime] - [text sizeWithFont:font].width,
 								[self mapY:dataMaxValue]);
 	[text drawAtPoint:point withFont:font];
@@ -502,13 +503,13 @@ double myLogRandom(double min,double max){
             
             CGFloat xActual = [self mapX:obsx];
             CGFloat yActual = [self mapY:observation.value];
-            CGFloat yPrev = [self mapY:observation.value+(50+myRandom(0*-100,0*100))];
+            CGFloat yPrev = [self mapY:observation.value+(50+[RandUtil randomWithMin:0*-100 andMax:0*100])];
             BOOL fakeData = NO;
             if (fakeData) {
                 CGFloat yFake = (.5+.5*sin(i*3*M_PI/numberofitems-(dataMaxTime*60/(numberofitems*2*M_PI))))*dataRangeValue+dataMinValue;
                 yActual = [self mapY:(yFake)];
                 srandom(obsx);
-                yPrev = [self mapY:yFake+myRandom(-100,100)];
+                yPrev = [self mapY:yFake+[RandUtil randomWithMin:-100 andMax:100]];
             }
             shadowpointarray[2*i+0] = CGPointMake(xActual-widthOfBar4,[self mapY:0]);
             shadowpointarray[2*i+1] = CGPointMake(xActual-widthOfBar4,yPrev);
@@ -594,6 +595,13 @@ double myLogRandom(double min,double max){
     NSTimeInterval duration = -[drawStart timeIntervalSinceNow];
     NSLog(@"Drawing time: %f",duration);
     
+}
+
+- (void)drawRect:(CGRect)rect {
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(context);
+    [self drawOther:rect];
+    CGContextRestoreGState(context);
 }
 
 

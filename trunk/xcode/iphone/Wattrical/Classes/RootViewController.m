@@ -11,8 +11,9 @@
 #import "GraphView.h"
 #import "ObservationCellView.h"
 #import "DateUtil.h"
+#import "RandUtil.h"
 
-#define TIMER_INTERVAL 5.0
+#define TIMER_INTERVAL 3.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
@@ -20,25 +21,70 @@
     NSLog(@"Hello from popupSettingsModal");
 }
 
+-(void) updateFakeStatusSpeed {
+    CGFloat randSpeed = [RandUtil logRandomWithMin:0.1 andMax:1.0];
+    NSLog(@"seting random speed to %f",randSpeed);
+    [sectionHeaderView setDesiredSpeed:randSpeed];
+    [sectionHeaderView setFadingStatus:[NSString stringWithFormat:@"speed=%.2f",randSpeed]];
+}
+
+-(void) updateOnMainThreadAfterLoad {
+    NSLog(@"updateOnMainThreadAfterLoad MainThread=%d",[NSThread isMainThread]);
+    //[self.view setNeedsDisplay];
+   	[self.tableView.tableHeaderView setNeedsDisplay];
+
+    if ([obsarray.observations count]>0) {
+        Observation *observation =  (Observation *)[obsarray.observations objectAtIndex:0];
+        CGFloat kW = observation.value/1000.0;
+        [sectionHeaderView setFadingStatus:[NSString stringWithFormat:@"%.2f kW  %.0f kWh/d",kW,kW*24.0]];
+        [sectionHeaderView setDesiredSpeed:kW/6.0];
+    }
+}
+
 -(void) loadFromLiveFeed {
     
     NSDate *now = [NSDate date];
+    NSLog(@"loadFromLiveFeed MainThread=%d",[NSThread isMainThread]);
 
     //[obsarray addObservation: 99000 withStamp:[NSDate dateWithTimeIntervalSinceNow:-3600*24*1]];
 	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
-	NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
+	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
 
 	//[obsarray appendObservationsFromURL:aURL];	  
-	//[obsarray loadObservationsFromURL:aURL];	  
+	//[obsarray loadObservationsFromURL:aURL];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     [obsarray test];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
 
-    //[self.view setNeedsDisplay];
-   	[self.tableView.tableHeaderView setNeedsDisplay];
+    // Must call the redraw stuff on main thread...
+    //[self updateOnMainThreadAfterLoad];
+    [self performSelectorOnMainThread:@selector(updateOnMainThreadAfterLoad) withObject:nil waitUntilDone:NO];
 }
 
--(void) updateStatusSectionHeaderView {
-    [sectionHeaderView updateIfNeeded];
+#pragma mark NSOperations
+
+//TODO make this a instance VAR
+static NSOperationQueue *oq=nil;
+
+- (void)launchFeedOperationIfRequired {
+    // Other method of launching
+    //[NSThread detachNewThreadSelector:@selector(getEarthquakeData) toTarget:self withObject:nil];
+
+    if (!oq) { oq = [NSOperationQueue new];}
+
+    NSLog(@"-Launching Operation: |q|=%d",[[oq operations] count]);
+    // NOT if already has work! : to be refined
+    if ([[oq operations] count]>0) {
+        NSLog(@"Feed Operation already Queued - call me later!");
+        return;
+    }
+    
+    NSInvocationOperation* theOp = [[[NSInvocationOperation alloc] initWithTarget:self 
+                                                                         selector:@selector(loadFromLiveFeed) object:nil] autorelease];
+    [oq addOperation:theOp];
+    NSLog(@"+Launched  Operation: |q|=%d",[[oq operations] count]);
+    
 }
 
 #pragma mark UITableViewDataSource Protocol 
@@ -149,12 +195,13 @@
 
     // or how about a +readFromFile +retain ?
     obsarray = [[ObservationArray alloc] init];
-    [self loadFromLiveFeed];
+    //[self loadFromLiveFeed];
 
     // How should I implement : "As fast as possible" ?
-	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
+	//[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
+	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(launchFeedOperationIfRequired) userInfo:nil repeats:YES];
 
-	[NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(updateStatusSectionHeaderView) userInfo:nil repeats:YES];
+	//[NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(updateFakeStatusSpeed) userInfo:nil repeats:YES];
 
     //Set the title of the Main View here.
     self.title = @"Wattrical";

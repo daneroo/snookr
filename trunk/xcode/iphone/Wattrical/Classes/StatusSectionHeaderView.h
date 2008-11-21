@@ -10,8 +10,17 @@
 
 
 @interface StatusSectionHeaderView : UIView {
-
+    CGFloat desiredSpeed;
+    CGFloat currentSpeed;
+    CGFloat zeroOneOffset;
+    NSString *statusMessage;
+    NSDate *statusMessageExpiry;
 }
 
-- (void) updateIfNeeded;
+@property(nonatomic, retain) NSString *statusMessage;
+@property(nonatomic, retain) NSDate *statusMessageExpiry;
+
+- (void) setDesiredSpeed:(CGFloat)aSpeed;
+- (void) setFadingStatus:(NSString *)statusMessage;
+
 @end
