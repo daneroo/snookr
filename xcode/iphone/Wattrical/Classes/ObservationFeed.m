@@ -21,6 +21,7 @@
     }
     //NSLog(@">>>> stack: STOP   (%d)",[stack count]);
 }
+
 - (NSMutableArray *)parseXMLFileAtURL:(NSURL *)xmlURL {
     NSDate *now = [NSDate date];
 	//stories = [[NSMutableArray alloc] init];
@@ -67,12 +68,14 @@
  */
 
 - (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError {
+    
 	NSString * errorString = [NSString stringWithFormat:@"Unable to fetch feed (Error code %i )", [parseError code]];
 	NSLog(@"error parsing XML: %@", errorString);
 
+    // Set status instead...
     // TODO THIS is probably not the place for this....
-	UIAlertView * errorAlert = [[UIAlertView alloc] initWithTitle:@"Network Problem" message:errorString delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[errorAlert show];
+	//UIAlertView * errorAlert = [[UIAlertView alloc] initWithTitle:@"Network Problem" message:errorString delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+	//[errorAlert show];
 }
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict{

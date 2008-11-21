@@ -23,6 +23,7 @@
 		653BC9300ECA1A3600F721B2 /* ObservationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 653BC92A0ECA1A3600F721B2 /* ObservationView.m */; };
 		6540CB650ED4A79A00016EB7 /* StatusSectionHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6540CB640ED4A79A00016EB7 /* StatusSectionHeaderView.m */; };
 		655306D80ECB4F7E000D16A1 /* ObservationFeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 655306D70ECB4F7E000D16A1 /* ObservationFeed.m */; };
+		65BFE9E40ED5F94D00995BA7 /* RandUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE9E30ED5F94D00995BA7 /* RandUtil.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,8 @@
 		6540CB640ED4A79A00016EB7 /* StatusSectionHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusSectionHeaderView.m; sourceTree = "<group>"; };
 		655306D60ECB4F7E000D16A1 /* ObservationFeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservationFeed.h; sourceTree = "<group>"; };
 		655306D70ECB4F7E000D16A1 /* ObservationFeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservationFeed.m; sourceTree = "<group>"; };
+		65BFE9E20ED5F94D00995BA7 /* RandUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandUtil.h; sourceTree = "<group>"; };
+		65BFE9E30ED5F94D00995BA7 /* RandUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RandUtil.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -76,6 +79,8 @@
 			children = (
 				653BC91F0ECA1A3600F721B2 /* DateUtil.h */,
 				653BC9200ECA1A3600F721B2 /* DateUtil.m */,
+				65BFE9E20ED5F94D00995BA7 /* RandUtil.h */,
+				65BFE9E30ED5F94D00995BA7 /* RandUtil.m */,
 				653BC9210ECA1A3600F721B2 /* GraphView.h */,
 				653BC9220ECA1A3600F721B2 /* GraphView.m */,
 				653BC9230ECA1A3600F721B2 /* Observation.h */,
@@ -219,6 +224,7 @@
 				653BC9300ECA1A3600F721B2 /* ObservationView.m in Sources */,
 				655306D80ECB4F7E000D16A1 /* ObservationFeed.m in Sources */,
 				6540CB650ED4A79A00016EB7 /* StatusSectionHeaderView.m in Sources */,
+				65BFE9E40ED5F94D00995BA7 /* RandUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

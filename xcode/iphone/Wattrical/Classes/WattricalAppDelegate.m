@@ -14,7 +14,7 @@
 @synthesize window;
 @synthesize navigationController;
 
-
+#pragma mark AppDelegate Overrides
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 	
 	// Configure and show the window

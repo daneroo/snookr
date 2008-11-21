@@ -11,6 +11,26 @@
 
 @implementation StatusSectionHeaderView
 
+@synthesize statusMessage;
+@synthesize statusMessageExpiry;
+
+- (void) setFadingStatus:(NSString *)newMessage {
+    self.statusMessage = newMessage;
+    self.statusMessageExpiry = [NSDate dateWithTimeIntervalSinceNow:5.0];
+}
+- (void) setDesiredSpeed:(CGFloat)aSpeed {
+    desiredSpeed = aSpeed;
+    // desired speed set from 0--1
+    if (desiredSpeed<0) {
+        //NSLog(@"Speed out of bounds %f<0 : capping at 0",desiredSpeed);
+        desiredSpeed=0;
+    }
+    if (desiredSpeed>1) {
+        //NSLog(@"Speed out of bounds %f>1 : capping at 1",desiredSpeed);
+        desiredSpeed=1;
+    }
+}
+// callback for timer redraw
 - (void) updateIfNeeded {
     //NSLog(@"updateroo");
     [self setNeedsDisplay];
@@ -20,8 +40,12 @@
     if (self = [super initWithFrame:frame]) {
         // Initialization code
         self.opaque = NO;
-        //self.backgroundColor = [UIColor yellowColor];
         self.backgroundColor = [UIColor clearColor];
+        //self.backgroundColor = [UIColor darkGrayColor];
+
+        desiredSpeed=0;
+        [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(updateIfNeeded) userInfo:nil repeats:YES];
+
     }
     return self;
 }
@@ -47,42 +71,98 @@ void HSVtoRGB(CGFloat h, CGFloat s, CGFloat v, CGFloat* r, CGFloat* g, CGFloat* 
     }
 }
 
-- (void)drawRect:(CGRect)rect {
+- (void)drawFadingMessage:(CGRect)rect {
+    if ([statusMessageExpiry timeIntervalSinceNow]<=0) return;
+    CGFloat fontSize = 10.0;
+    CGFloat alpha = [statusMessageExpiry timeIntervalSinceNow];
+    if (alpha>1) alpha=1.0;
+    [[UIColor colorWithWhite:.7 alpha:alpha] set];
+    CGPoint point = CGPointMake(20,0);
+    [statusMessage drawAtPoint:point withFont:[UIFont systemFontOfSize:fontSize]];
+}
+- (void)drawSpeedingDot:(CGRect)rect {
+    NSTimeInterval secs = [NSDate timeIntervalSinceReferenceDate];
+    // if speed has changed, calculate new offset so that there is no skip.
+    
+    // make zeroOne seamless on value change by calculating new offset
+    CGFloat OLDzeroOne = 0;
+    if (desiredSpeed!=currentSpeed) {
+        CGFloat OLDperiodInSecs=1.0/currentSpeed;
+        OLDzeroOne = fmod(fmod(secs,OLDperiodInSecs)/OLDperiodInSecs+zeroOneOffset,1);
+        currentSpeed = desiredSpeed;
+    }
+    
+    if (currentSpeed<=0) return;
+    
+    CGFloat periodInSecs=1.0/currentSpeed;
+    CGFloat zeroOne;
+    zeroOne = fmod(fmod(secs,periodInSecs)/periodInSecs+zeroOneOffset,1);
+    if (OLDzeroOne) {
+        // make zeroOne seamless on value change by calculating new offset
+        //NSLog(@"-OLD,NEW %f -> %f",OLDzeroOne,zeroOne);
+        zeroOneOffset += (OLDzeroOne-zeroOne) + 1; // 1 to preserve sign after mod
+    }
+    zeroOne = fmod(fmod(secs,periodInSecs)/periodInSecs+zeroOneOffset,1);
+    //if (OLDzeroOne) NSLog(@"+OLD,NEW %f -> %f",OLDzeroOne,zeroOne);
+    
+    
+    //NSLog(@"calculated Period:%f speed=%f",periodInSecs,desiredSpeed);
+
     // Drawing code
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    NSTimeInterval secs = [NSDate timeIntervalSinceReferenceDate];
-    CGFloat periodInSecs=5;
-	CGFloat zero0ne = fmod(secs,periodInSecs)/periodInSecs;
-    NSLog(@"z01: %f",zero0ne);
-    CGFloat fakeWidth = rect.size.width*1;
-    CGFloat dotWidth=10;
-    CGFloat xPos = zero0ne * fakeWidth;
+
+    //NSLog(@"z01: %f",zeroOne);
+    CGFloat dotWidth=6;
+    CGFloat xPos = zeroOne * self.bounds.size.width;
 	//CGFloat w = radius*cos(angle);
 
     CGSize          myShadowOffset = CGSizeMake (0,0);
     float           myColorValues[] = {1, 1, 0, 2};
     CGColorSpaceRef myColorSpace = CGColorSpaceCreateDeviceRGB ();
     CGColorRef      myColor  = CGColorCreate (myColorSpace, myColorValues);//
-    CGFloat blur = 8;
+    CGFloat blur = 4;
 
     CGFloat r=1,g=1,b=0;
-    CGFloat h=zero0ne/3,s=1,v=1;
+    //CGFloat h=zeroOne/3,s=1,v=1;
+    CGFloat h=(1-desiredSpeed)/3,s=1,v=1;
+    
     HSVtoRGB(h, s, v, &r, &g, &b);
     CGContextSetRGBStrokeColor(context, r,g,b,1);
 	CGContextSetLineWidth(context, 6.0);
     CGContextSetLineCap(context,kCGLineCapRound);
     CGContextSetShadowWithColor (context, myShadowOffset, blur, myColor);//
-    
-    CGContextMoveToPoint(context, xPos, rect.size.height/2);
-    CGContextAddLineToPoint(context, xPos+dotWidth, rect.size.height/2);
+
+    CGContextSaveGState(context);
+    CGFloat stretchFactor = 1.5; // >1 is invisible portion
+    // center the visible part
+    CGContextTranslateCTM(context, (1-stretchFactor)/2.0 * self.bounds.size.width,0);
+    CGContextScaleCTM(context,stretchFactor,1);
+    CGContextMoveToPoint(context, xPos, self.bounds.size.height/2);
+    CGContextAddLineToPoint(context, xPos+dotWidth, self.bounds.size.height/2);
     CGContextStrokePath(context);
+    CGContextRestoreGState(context);
     
+}
+
+- (void)drawRect:(CGRect)rect {
+    //NSLog(@"-StatusView drawRect MainThread=%d",[NSThread isMainThread]);
+
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(context);
+    [self drawSpeedingDot:rect];
+    CGContextRestoreGState(context);
+    CGContextSaveGState(context);
+    [self drawFadingMessage:rect];
+    CGContextSaveGState(context);
+
+    //NSLog(@"+StatusView drawRect MainThread=%d",[NSThread isMainThread]);
 }
 
 
 - (void)dealloc {
     [super dealloc];
+    [statusMessageExpiry release];
+    [statusMessage release];
 }
 
 
