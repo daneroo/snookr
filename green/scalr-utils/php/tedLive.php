@@ -24,9 +24,11 @@ if ($scope<0) $scope = fmod(intval(time()/10),4);
 //print "<!-- Scope value : $scope  --> \n"; 
 
 if ($scope == 0) {
-    $len = 18;   $rightpad = '0';           $secondsPerSample=10;    $samples=30;  // tensec
+    //    $len = 19;   $rightpad = '';           $secondsPerSample=1;    $samples=300;  // 1 sec
+    $len = 18;   $rightpad = '0';           $secondsPerSample=10;    $samples=90;  // tensec
  } elseif ($scope == 1) {
-     $len = 16;   $rightpad = ':00';         $secondsPerSample=60;    $samples=60;  // minute
+     $len = 18;   $rightpad = '0';           $secondsPerSample=10;    $samples=360;  //
+     //$len = 16;   $rightpad = ':00';         $secondsPerSample=60;    $samples=60;  // minute
  } elseif ($scope == 2) {
      $len = 13;   $rightpad = ':00:00';      $secondsPerSample=3600;  $samples=24;  // hour
  } elseif ($scope == 3) {
