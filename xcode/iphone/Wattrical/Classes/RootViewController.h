@@ -15,6 +15,11 @@
 	NSArray *cellNameArray;
     ObservationArray *obsarray;
     StatusSectionHeaderView *sectionHeaderView;
+    NSInteger currentScope;
 }
+
+- (void)cycleScope;
+- (void)setScope:(NSInteger) aScope;
+- (void)launchFeedOperationIfRequired;
 
 @end

@@ -12,11 +12,31 @@
 #import "ObservationCellView.h"
 #import "DateUtil.h"
 #import "RandUtil.h"
+// for Reachability
+#import <SystemConfiguration/SystemConfiguration.h>
 
-#define TIMER_INTERVAL 3.0
+#define TIMER_INTERVAL 5.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
+
+-(void)cycleScope {
+    [self setScope:currentScope+1];
+}
+
+-(void)setScope:(NSInteger) aScope {
+    NSInteger maxScope = 5;
+    currentScope = aScope % (maxScope+1);
+    NSLog(@"currentScope has been set to: %d",currentScope);
+    [self launchFeedOperationIfRequired];
+    
+    //NSIndexPath *currentIndexPath = [self.tableView indexPathForSelectedRow];
+    //NSLog(@"Current selected row: %@",currentIndexPath.row);
+    //NSIndexPath *indexPath = [NSIndexPath indexPathWithIndex:currentScope];
+    //[self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+    //NSLog(@"New selected row: %@",indexPath.row);
+}
+
 -(void) popupSettingsModal:(id)sender {
     NSLog(@"Hello from popupSettingsModal");
 }
@@ -41,19 +61,57 @@
     }
 }
 
+//  on 3G -->
+//  return 262147 = kSCNetworkReachabilityFlagsTransientConnection = 1<<0 |
+//                 kSCNetworkReachabilityFlagsReachable = 1<<1           |
+//                 kSCNetworkReachabilityFlagsIsWWAN = 1<< 18
+- (BOOL)isLocalDataSourceAvailable
+{
+    static BOOL _isDataSourceAvailable;
+    static NSDate *lastCheckedIfLocalDataSourceAvailable = nil;
+    //check every 30 seconds
+    BOOL checkNetwork = (!lastCheckedIfLocalDataSourceAvailable ||
+                         [lastCheckedIfLocalDataSourceAvailable timeIntervalSinceNow] <= -30.0);
+    if (checkNetwork) { // Since checking the reachability of a host can be expensive, cache the result and perform the reachability check once.
+        if (lastCheckedIfLocalDataSourceAvailable) [lastCheckedIfLocalDataSourceAvailable release];
+        lastCheckedIfLocalDataSourceAvailable = [[NSDate date] retain];
+        
+        Boolean success;    
+        const char *host_name = "192.168.5.2";
+        
+        SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, host_name);
+        SCNetworkReachabilityFlags flags;
+        success = SCNetworkReachabilityGetFlags(reachability, &flags);
+        NSLog(@"Reachability flags: %d",flags);
+        _isDataSourceAvailable = success && (flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired);
+        CFRelease(reachability);
+    }
+    //return NO;
+    return _isDataSourceAvailable;
+}
+
 -(void) loadFromLiveFeed {
     
     NSDate *now = [NSDate date];
-    NSLog(@"loadFromLiveFeed MainThread=%d",[NSThread isMainThread]);
+    NSLog(@"loadFromLiveFeed MainThread=%d scope:%d",[NSThread isMainThread],currentScope);
 
-    //[obsarray addObservation: 99000 withStamp:[NSDate dateWithTimeIntervalSinceNow:-3600*24*1]];
 	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
 	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
+    //NSURL *aURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/iMetrical/tedLive.php"];
+    //NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/tedLive.php"];
+
+    NSURL *baseURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/"];
+    if ([self isLocalDataSourceAvailable]) {
+        //baseURL = [NSURL URLWithString:@"http://192.168.5.2/"];
+    }
+    NSLog(@"Using baseURL: %@",baseURL);
+    NSString *path = [NSString stringWithFormat:@"iMetrical/tedLive.php?scope=%d",currentScope];
+    NSURL *aURL = [NSURL URLWithString:path relativeToURL:baseURL];
 
 	//[obsarray appendObservationsFromURL:aURL];	  
 	//[obsarray loadObservationsFromURL:aURL];
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    [obsarray test];
+    [obsarray loadObservationFeedFromURL:aURL];
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
 
@@ -135,6 +193,7 @@ static NSOperationQueue *oq=nil;
 	 */
     NSLog(@"didSelect: %d",indexPath.row);
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self setScope:indexPath.row];
 }
 
 /* use     self.tableView.sectionHeaderHeight=XXX; instead
@@ -198,6 +257,7 @@ static NSOperationQueue *oq=nil;
     //[self loadFromLiveFeed];
 
     // How should I implement : "As fast as possible" ?
+    currentScope=0;
 	//[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
 	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(launchFeedOperationIfRequired) userInfo:nil repeats:YES];
 
@@ -223,6 +283,7 @@ static NSOperationQueue *oq=nil;
 #define HEADERVIEW_HEIGHT 180.0
 	CGRect newFrame = CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, HEADERVIEW_HEIGHT);
     GraphView *graphView = [[GraphView alloc] initWithFrame:newFrame];
+    graphView.rootViewController = self; // hook back to us
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
     [graphView release]; // now that it has been retained.
     graphView.observations = obsarray.observations;

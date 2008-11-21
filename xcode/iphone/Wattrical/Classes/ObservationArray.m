@@ -204,11 +204,7 @@
     
 }
 
-- (void) test {
-    //NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
-    //NSURL *aURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/iMetrical/tedLive.php"];
-    //NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/tedLive.php"];
-    NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/tedLive.php?scope=-1"];
+- (void) loadObservationFeedFromURL:(NSURL *)aURL {
 	
     NSDate *now = [NSDate date];
     
