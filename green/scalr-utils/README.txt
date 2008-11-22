@@ -19,6 +19,30 @@
           many skips >> 2 minutes, even more >>1 minute
           most >> 2minutes are due to windows clock correction and restarts
 
+   -Excpetion Proof:
+Traceback (most recent call last):
+  File "ReadTEDService.py", line 88, in ?
+    (stamp, watts,volts) = getTimeWattsAndVoltsFromTedService()
+  File "ReadTEDService.py", line 28, in getTimeWattsAndVoltsFromTedService
+    usock = urllib.urlopen(TED_DASHBOARDDATA_URL)
+  File "/usr/lib/python2.4/urllib.py", line 82, in urlopen
+    return opener.open(url)
+  File "/usr/lib/python2.4/urllib.py", line 190, in open
+    return getattr(self, name)(url)
+  File "/usr/lib/python2.4/urllib.py", line 313, in open_http
+    h.endheaders()
+  File "/usr/lib/python2.4/httplib.py", line 804, in endheaders
+    self._send_output()
+  File "/usr/lib/python2.4/httplib.py", line 685, in _send_output
+    self.send(msg)
+  File "/usr/lib/python2.4/httplib.py", line 652, in send
+    self.connect()
+  File "/usr/lib/python2.4/httplib.py", line 620, in connect
+    socket.SOCK_STREAM):
+IOError: [Errno socket error] (-2, 'Name or service not known')
+[3]+  Done                    emacs PumpSqliteToMysql.py
+358207.550s
+
    - Fix Incremental for Better GMT timestamps
          and rename to PumpTedNative
    -hierTed.py: (rename ?)
