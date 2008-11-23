@@ -15,7 +15,7 @@
 // for Reachability
 #import <SystemConfiguration/SystemConfiguration.h>
 
-#define TIMER_INTERVAL 5.0
+#define TIMER_INTERVAL 3.0
 @implementation RootViewController
 
 #pragma mark Local Controller Hooks 
@@ -65,6 +65,10 @@
 //  return 262147 = kSCNetworkReachabilityFlagsTransientConnection = 1<<0 |
 //                 kSCNetworkReachabilityFlagsReachable = 1<<1           |
 //                 kSCNetworkReachabilityFlagsIsWWAN = 1<< 18
+// on Newton
+// return 131074 = kSCNetworkReachabilityFlagsIsDirect - 1<<17 |
+//                 kSCNetworkReachabilityFlagsReachable = 1<<1
+
 - (BOOL)isLocalDataSourceAvailable
 {
     static BOOL _isDataSourceAvailable;
@@ -102,7 +106,7 @@
 
     NSURL *baseURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/"];
     if ([self isLocalDataSourceAvailable]) {
-        //baseURL = [NSURL URLWithString:@"http://192.168.5.2/"];
+        baseURL = [NSURL URLWithString:@"http://192.168.5.2/"];
     }
     NSLog(@"Using baseURL: %@",baseURL);
     NSString *path = [NSString stringWithFormat:@"iMetrical/tedLive.php?scope=%d",currentScope];
