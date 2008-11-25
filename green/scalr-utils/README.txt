@@ -2,9 +2,6 @@
 
 -=-= Objective (short):
   -Python daemon
-   -DEPRECATION
-   -remove all referencese to invTime,cnvTime,testTime
-   -remove ReadSqlite.py PumpSqliteToMysql.py
 
    + Fix Incremental for Better GMT timestamps
    -?    and Rename to PumpTedNative

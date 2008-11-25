@@ -82,7 +82,7 @@ def tedToLocal(tedTimeString):
 	return time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime(secs))
 
 # Ambiguous may yield DST or not 
-# should only be used for display and with time zone
+# should only be used with caution
 # so I added %Z to format string
 # should probaly standardize on some
 #  YYYY-MM-DDTHH:mm:ssZ+/-0500 type format
@@ -90,27 +90,6 @@ def localTimeToTed(localTimeStr):
 	structTime = time.strptime(localTimeStr,"%Y-%m-%d %H:%M:%S")
 	secs = time.mktime(structTime)
 	return	secsToTed(secs)
-
-#deprecated
-def cnvTime(tedTimeString):
-	secs = tedToSecs(tedTimeString)
-	return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
-#deprecated
-def invTime(secs):
-        tedTimeLong = long( ((secs * 1000) +  62135582400000)*10000 ) 
-        return "%019ld" % tedTimeLong
-
-def testTime():
-        secs = time.time()
-        log("Testing time from secs:%d" % secs)
-        stamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(secs))
-        ted = invTime(secs)
-        log("stamp=%s invTime=%s" % ( stamp, ted ) )
-        log("ted=  %s cnvTime=%s" % ( ted, cnvTime(ted) ) )
-        sys.exit(0)
-
-
-
 
 if __name__ == "__main__":
 	
