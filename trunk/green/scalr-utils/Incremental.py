@@ -7,10 +7,8 @@ import getopt
 import scalr
 # for shortcuts, or even from scalr import *
 from scalr import logInfo,logWarn,logError
-# deprecated
-from scalr import cnvTime,invTime,testTime
 # new methods
-from scalr import secsToTed,tedToSecs,tedToGMT,tedToLocal,localTimeToTed
+from scalr import secsToTed,tedToSecs,tedToGMT,tedToLocal
 from scalr import getScalar
 
 #def main():
@@ -52,6 +50,8 @@ for o, a in opts:
         daysAgo = string.atol(a)
     elif o == "--start":
         try:
+            # parse local time: be careful ! how about a library function
+            # with multi formats, and DST warnings.
             startSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
         except ValueError:
             logError(" Start Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
@@ -59,6 +59,7 @@ for o, a in opts:
             sys.exit(2)
     elif o == "--stop":
         try:
+            # parse local time: be careful !
             stopSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
         except ValueError:
             logError(" Stop Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
@@ -89,18 +90,19 @@ logInfo("Incremental Pump started")
 fullSql = 'select tick,kw from rdu_second_data'
 sql = fullSql
 if not allTime:
-	startTimeAsTed = invTime(startSecs)
+	startTimeAsTed = secsToTed(startSecs)
 	if (stopSecs):
-		stopTimeAsTed = invTime(stopSecs)
-		logInfo(" interval: %s - %s" % (cnvTime(startTimeAsTed),cnvTime(stopTimeAsTed)) )
+		stopTimeAsTed = secsToTed(stopSecs)
+		logInfo(" interval: %s - %s" % (tedToLocal(startTimeAsTed),tedToLocal(stopTimeAsTed)) )
 		sql = "%s where tick>='%s' and tick<'%s'" % (fullSql,startTimeAsTed,stopTimeAsTed)
 	else:
-		logInfo(" interval: %s - " % cnvTime(startTimeAsTed) )
+		logInfo(" interval: %s - " % tedToLocal(startTimeAsTed) )
 		sql = "%s where tick>='%s'" % (fullSql,startTimeAsTed)
 else:
 	logInfo("Full Dump (--all) : %d" % allTime)
 
 logInfo("Using sql: %s" % sql)
+
 
 def GMTLocalAndTed(tedStr):
     return "GMT:[%s GMT] Local:[%s] Ted:[%s]" % (tedToGMT(tedStr),tedToLocal(tedStr),tedStr)
@@ -112,17 +114,14 @@ curssqlite.execute(sql)
 logInfo("SQL executed");
 countRows=0
 for row in curssqlite:
-    #stamp = cnvTime(row[0])
+    # stamp is now in GMT
     stamp = tedToGMT(row[0])
     watt = row[1]*1000
     countRows+=1
-    if (countRows%30000 == 1):
-        logInfo("")
-        logInfo("row: %8d stamp: %s [%s]" % (countRows,stamp,row[0]))
+    if (countRows%90000 == 1):
         logInfo("row: %8d %s" % (countRows,GMTLocalAndTed(row[0])))        
 
-    # print cnvTime(row[0]), row[1]*1000
-    # could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
+    # Using REPLACE INTO, instead, might have: ON DUPLICATE update count=count+1.
     #print ("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
     print ("REPLACE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
 
