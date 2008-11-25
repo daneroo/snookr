@@ -3,10 +3,30 @@
 -=-= Objective (short):
   -Python daemon
 
+   Flow:  when and who
+     to overwrite, --> watt 
+     to compare,     tednative,tedlive(,aztech) , watt
+     to summarize
+
+   Names: Incremental -> ReadTEDNative.py
+          unchanged   -> ReadTEDService.py
+          hierTed     -> Summarize.py
+
+   DB tables: (dbname ted->wattrical)
+         tedlive -> ted_service
+                 -> ted_native ? NOT: duplicating sqlite dumps, but might help compare
+                 -> aztech_service
+         current_state (all feed scopes, with averages, of projections ??)
+         watt -> (stamp,watt)  ? stampGMT: NO
+         watt_0010
+         watt_0060
+         watt_3600
+         watt_day -> special
+
    + Fix Incremental for Better GMT timestamps
    -?    and Rename to PumpTedNative
 
-   -hierTed.py: (rename ?)
+   -hierTed.py: (rename ?) to
 
    -rename watt to wattEDT to keep old data.
       RENAME TABLE watt TO wattEDT
