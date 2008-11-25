@@ -7,11 +7,8 @@ import getopt
 import scalr
 # for shortcuts, or even from scalr import *
 from scalr import logInfo,logWarn,logError
-#deprecated
-from scalr import cnvTime,invTime,testTime
-# new methods
+# TED Time methods
 from scalr import secsToTed,tedToSecs,tedToGMT,tedToLocal,localTimeToTed
-from scalr import getScalar
 from time import time,strftime,strptime,gmtime,localtime,mktime
 
 ############################################
@@ -29,7 +26,7 @@ usage = 'python %s --db <dbfile> [--all | [--showTedTimeUsage --showMonthTable -
 
 # parse command line options
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["db=","showTedTimeUsage","showMonthTable","showSequentialEvents"])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["db=","all","showTedTimeUsage","showMonthTable","showSequentialEvents"])
 except getopt.error, msg:
 	logError('error msg: %s' % msg)
 	logError(usage)
@@ -83,15 +80,15 @@ if (showTedTimeUsage):
         print "    --> GMT:       |%s|" % tedToGMT(ted)
         print "    --> Local:     |%s|" % tedToLocal(ted)
         print " and back again (roungind to second)"
-        localTimeStr = "2008-07-29 19:04:40";
+        localTimeStr = "2008-07-29 20:04:40";
         print "  local time string: |%s|" % localTimeStr
         print "    --> TED  :       |%s|" % scalr. localTimeToTed(localTimeStr)
         
         print "How about DST boundary"
         print " 2008-03-09 01:59:59 EST +:01 -> 2008-11-02 03:00:00 EST skip ahead an hour"
         print " 2008-11-02 01:59:59 EDT +:01 -> 2008-11-02 01:00:00 EST skip back an hour"
-        print " 2008-03-09 02:00:00 to 2008-03-09 02:59:59 don't exist"
-        print " 2008-11-02 01:00:00 to 2008-03-09 01:59:59 exist twice"
+        print " Local 2008-03-09 02:00:00 to 2008-03-09 02:59:59 doesn't exist"
+        print " Local 2008-11-02 01:00:00 to 2008-03-09 01:59:59 exists twice"
 
 
         # 2008-03-09 02:00:00 and 2008-11-02 02:00:00
@@ -101,20 +98,20 @@ if (showTedTimeUsage):
                 print "  just before : %s" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(atBoundarySecs-1))
                 print "  just after  : %s" % strftime("%Y-%m-%d %H:%M:%S %Z",localtime(atBoundarySecs))
                 
-                print ""
-                dstTimeStr = ["2008-03-09 02:00:00","2008-11-02 01:00:00"] 
-                for boundaryTimeStr in dstTimeStr:
-                        print "The problem with parsing local Time: %s" % boundaryTimeStr 
-                        print " parsing local time without explicit timezone %Z is ambigous:"
-                        print "HOWEVER secs is never ambiguous!"
-                        withEST = "%s EST" % boundaryTimeStr
-                        withESTsecs = mktime(strptime(withEST,"%Y-%m-%d %H:%M:%S %Z"))
-                        withEDT = "%s EDT" % boundaryTimeStr
-                        withEDTsecs = mktime(strptime(withEDT,"%Y-%m-%d %H:%M:%S %Z"))
-                        withoutsecs = mktime(strptime(boundaryTimeStr,"%Y-%m-%d %H:%M:%S"))
-                        print " with EST: %-23s -> secs: %f -> %s" % (withEST, withESTsecs, strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withESTsecs)))
-                        print " with EDT: %-23s -> secs: %f -> %s" % (withEDT, withEDTsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withEDTsecs)))
-                        print " without : %-23s -> secs: %f -> %s" % (boundaryTimeStr, withoutsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withoutsecs)))
+        print ""
+        print " Parsing local time without explicit timezone %Z is ambigous:"
+        print " HOWEVER secs is never ambiguous!"
+        dstTimeStr = ["2008-03-09 02:00:00","2008-11-02 01:00:00"] 
+        for boundaryTimeStr in dstTimeStr:
+                print "The problem with parsing local Time: %s" % boundaryTimeStr 
+                withEST = "%s EST" % boundaryTimeStr
+                withESTsecs = mktime(strptime(withEST,"%Y-%m-%d %H:%M:%S %Z"))
+                withEDT = "%s EDT" % boundaryTimeStr
+                withEDTsecs = mktime(strptime(withEDT,"%Y-%m-%d %H:%M:%S %Z"))
+                withoutsecs = mktime(strptime(boundaryTimeStr,"%Y-%m-%d %H:%M:%S"))
+                print " with EST: %-23s -> secs: %f -> %s" % (withEST, withESTsecs, strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withESTsecs)))
+                print " with EDT: %-23s -> secs: %f -> %s" % (withEDT, withEDTsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withEDTsecs)))
+                print " without : %-23s -> secs: %f -> %s" % (boundaryTimeStr, withoutsecs,strftime("%Y-%m-%d %H:%M:%S GMT",gmtime(withoutsecs)))
                         
         print ""
         print " with Ted - this is how we roundtrip secs->ted->secs->ted"
@@ -135,89 +132,28 @@ if (showTedTimeUsage):
                                 print "  %s GMT : (%s) -> %s GMT -> (%s)" % (gmt,ted,gmtBack,reTed)
 # end of if showTedTimeUsage
 
-TEDOFFSET = -4*3600  # =!= time.timezone offsets must match in tedToSecs and secsToTed
-GMTOFFSET = -5*3600  # =?= time.timezone
-
-def NEWsecsToTed(secs):
-	#secs -= TEDOFFSET   # 4 or 5
-	if not localtime(secs-1*3600).tm_isdst:
-		secs -= 1*3600
-
-        tedTimeLong = long( ((secs * 1000) +  62135582400000)*10000 ) 
-        return "%019ld" % tedTimeLong
-
-# returns ted time string in secs since EPOCH in UTC as time.time()
-def NEWtedToSecs(tedTimeString):
-	try:
-		millis =  string.atol(tedTimeString) / 10000 - 62135582400000
-		secs =  millis / 1000;
-		secs += {True:0*3600,False: 1*3600}[localtime(secs).tm_isdst]
-		#if localtime(secs).tm_isdst:
-		#	secs += -0*3600
-		#else:
-		#	secs += 1*3600
-			
-		return secs
-	except ValueError:
-		print "timestamp out of range: bad secs"
-	except TypeError:
-		print "Type Error: (%s)" % tedTimeString
-
-def NEWtedToLocal(tedTimeString):
-	secs = NEWtedToSecs(tedTimeString)
-	return strftime("%Y-%m-%d %H:%M:%S %Z",localtime(secs))
-
-def NEWtedToGMT(tedTimeString):
-	secs = NEWtedToSecs(tedTimeString) #-GMTOFFSET
-	return strftime("%Y-%m-%d %H:%M:%S",gmtime(secs))
 
 if (showMonthTable):
 ##########################################################
+        def GMTLocalAndTed(tedStr):
+                return "GMT:[%s GMT] Local:[%s] Ted:[%s]" % (tedToGMT(tedStr),tedToLocal(tedStr),tedStr)
 	print
-	print "TED stamps in other time scope tables month,day.hour,minute"
-	# timeScopes = ["minute","hour", "day", "month"] # minute
-	timeScopes = ["hour","day", "month"] # minute
-	timeScopes = ["day","month"] # minute
-	# timeScopes = ["month"] # minute
-	# timeScopes = ["month","day","hour"] # minute
+	print "TED stamps in all time scope tables month,day.hour,minute,second"
+	timeScopes = ["second","minute","hour","day","month"] # minute
 	timeScopes = ["hour","day"] # minute
 	for t in timeScopes:
 		print "-=-=-= Stamp Information from '%s' table (12 entries only) =-=-=-" % t
-		sql = 'select tick,kw from rdu_%s_data order by tick desc limit 3' % t
-		# sql = 'select tick,kw from rdu_%s_data limit 12' % t
-		# sql = "select tick,kw from rdu_%s_data where tick>='0633611862000000000' limit 12" % t
-		# sql = "select tick,kw from rdu_%s_data where tick>='0633611862000000000' and tick<'0633611970000000000' limit 12" % t
-		sql = "select tick,kw from rdu_%s_data where tick>='0633611772000000000' and tick<'0633612744000000000'" % t
+		sql = 'select tick,kw from rdu_%s_data limit 12' % t
+		sql = 'select tick,kw from rdu_%s_data' % t
 		
 		logInfo(" --using sql: %s" % sql)
 		curssqlite.execute(sql)
 		countRows=0
 		for row in curssqlite:
 			tedStr = row[0]
-			tedStr = "%019ld" % (string.atol(tedStr) + 30*60*1000*10000)
-			tedLong  =  string.atol(tedStr)
-
-			OLDsecs  = tedToSecs(tedStr)
-			OLDreted = secsToTed(OLDsecs)
-			#print "OLD roundtrip: %s %f %s" % (tedStr,OLDsecs,OLDreted)
-			NEWsecs  = NEWtedToSecs(tedStr)
-			NEWreted = NEWsecsToTed(NEWsecs)
-			#print "NEW roundtrip: %s %f %s" % (tedStr,NEWsecs,NEWreted)
-			print "---------------"
-			print "NEW roundtrip: %s -> %f" % (tedStr,NEWsecs)
-			print "NEW roundtrip: %s <- %f" % (NEWreted,NEWsecs)
-			if row[0]==NEWreted:
-				print "GOOD"
-			else:
-				print "BAD"
-
-			stampLocal = tedToLocal(tedStr)
-			NEWstampLocal = NEWtedToLocal(tedStr)
-			stampGMT = tedToGMT(tedStr)
-			NEWstampGMT = NEWtedToGMT(tedStr)
 			watt = row[1]*1000
-			print "OLD %7s %019ld %24s %24s GMT %5d" % (t,tedLong,stampLocal,stampGMT,watt)
-			print "NEW %7s %019ld %24s %24s GMT %5d" % (t,tedLong,NEWstampLocal,NEWstampGMT,watt)
+                        print " %7s %s %5.1f" % (t,GMTLocalAndTed(tedStr),watt)
+                        continue
 
 # end of if (showMonthTable):
 
@@ -227,6 +163,10 @@ if (showSequentialEvents):
         sql = 'select tick,kw from rdu_second_data'
         logInfo("using sql: %s" % sql)
 
+        # local output shortcut
+        def GMTLocalAndTed(tedStr):
+                return "GMT:[%s GMT] Local:[%s] Ted:[%s]" % (tedToGMT(tedStr),tedToLocal(tedStr),tedStr)
+        
         def showDiff(symbol,previousTedLong,tedLong,rowNum):
                 if (previousTedLong==0):
                         logWarn("No previous TED date")
@@ -237,8 +177,8 @@ if (showSequentialEvents):
                 tedDiff = tedLong-previousTedLong
                 tedDiffInSecs = tedDiff/10000/1000;
                 print "----------row %10d ----------" % rowNum
-                print " %6s %11d %019ld %19s" % (symbol,tedDiff,previousTedLong,tedToLocal(previousTedStr))
-                print " %6s %11.2f %019ld %19s" % ("",tedDiffInSecs,tedLong,tedToLocal(tedStr))
+                print " %6s %11d %s"   % (symbol,tedDiff,      GMTLocalAndTed(previousTedStr))
+                print " %6s %11.2f %s" % ("",    tedDiffInSecs,GMTLocalAndTed(tedStr))
 
         curssqlite.execute(sql)
         logInfo("SQL executed")
@@ -295,11 +235,13 @@ if (showSequentialEvents):
 
 		previousTedLong = tedLong;
                 countRows+=1
+
+                # logInfo every 10^5 rows
                 if (countRows%100000 == 1):
 			# logInfo("row: %8d stamp: %s GMT [%s]" % (countRows,stampGMT,row[0]));
-			logInfo("row: %8d stamp: %s GMT %s [%s]" % (countRows,stampGMT,tedToLocal(row[0]),row[0]));
+			logInfo("row: %8d %s" % (countRows,GMTLocalAndTed(row[0])))
 
-	logInfo("Done (%d total rows)" % countRows);
+	logInfo("Done (%d total rows)" % countRows)
 	print ""
         print "Histogram of Classified Sequential Time Differences"
         # for symbol, count in histogram.iteritems():
@@ -312,7 +254,7 @@ if (showSequentialEvents):
                         count = histogram[symbol]
                         total += count
                         print "%6s : %8d : %s" % (symbol,count,histoDescription[symbol])
-                        print "%6s : %8d" % ("total",total)
+        print "%6s : %8d" % ("total",total)
 
         curssqlite.close()
         connsqlite.close()

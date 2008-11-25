@@ -2,54 +2,53 @@
 
 -=-= Objective (short):
   -Python daemon
+   -DEPRECATION
+   -remove all referencese to invTime,cnvTime,testTime
+   -remove ReadSqlite.py PumpSqliteToMysql.py
+
+   + Fix Incremental for Better GMT timestamps
+   -?    and Rename to PumpTedNative
+
+   -hierTed.py: (rename ?)
+
+   -rename watt to wattEDT to keep old data.
+      RENAME TABLE watt TO wattEDT
+
+   -recreate watt and fill with new Incremental
+   -somehow compare (perhaps as we refill tensec,minute,hour)
+        wattEDT to watt (GMT)
+        compare with tedLive
+
+   -refill <=hour with gmt average
+
+   -convert tedLive.php to use watt...(GMT)<=hour
+   -automate filling watt(GMT) and hierarchical tables from tedlive and tedraw.
+
    -? Rename ted database wattrical
-   - November tested and understood, what other DST boundary
-   - testTedDates: to validate tedStamps
-	OK TEDOFFSET has to vary so that we can use localtime
-	what to keep ?
-        it seems that day/month tables 
-	are not populated at midnight localtime: 
-	always 86400 seconds between timestamps
+
+   + testTedDates: to validate tedStamps
+        It seems that day/month tables are not populated exactly at midnight localtime: 
+	Always 86400 seconds between timestamps
         in EST such as 2008-11-18 table is populated before 00:22 !
 
-        hourly table is updated before 01:05...
-
-	other oddities of rdu_second_data:
+	Other oddities of rdu_second_data:
           duplicates <<<jitter
           many skips >> 2 minutes, even more >>1 minute
           most >> 2minutes are due to windows clock correction and restarts
 
-   -Excpetion Proof:
+   -Excpetion Proof: ReadTEDService: output to log
 Traceback (most recent call last):
   File "ReadTEDService.py", line 88, in ?
     (stamp, watts,volts) = getTimeWattsAndVoltsFromTedService()
   File "ReadTEDService.py", line 28, in getTimeWattsAndVoltsFromTedService
     usock = urllib.urlopen(TED_DASHBOARDDATA_URL)
-  File "/usr/lib/python2.4/urllib.py", line 82, in urlopen
-    return opener.open(url)
-  File "/usr/lib/python2.4/urllib.py", line 190, in open
-    return getattr(self, name)(url)
-  File "/usr/lib/python2.4/urllib.py", line 313, in open_http
-    h.endheaders()
-  File "/usr/lib/python2.4/httplib.py", line 804, in endheaders
-    self._send_output()
-  File "/usr/lib/python2.4/httplib.py", line 685, in _send_output
-    self.send(msg)
-  File "/usr/lib/python2.4/httplib.py", line 652, in send
-    self.connect()
-  File "/usr/lib/python2.4/httplib.py", line 620, in connect
-    socket.SOCK_STREAM):
 IOError: [Errno socket error] (-2, 'Name or service not known')
-[3]+  Done                    emacs PumpSqliteToMysql.py
-358207.550s
 
-   - Fix Incremental for Better GMT timestamps
-         and rename to PumpTedNative
-   -hierTed.py: (rename ?)
+
        
      
-   _ wattrical database tables
-     -owner ? multiple accounts ? only on dae or morph
+   _ wattrical database tables (GMT)
+     -owner ? multiple accounts ? only on gae or morph
      tedservice  (<- ted.tedlive )
      tednative ( <- from pump  (remname Incremental)
 
@@ -61,7 +60,7 @@ IOError: [Errno socket error] (-2, 'Name or service not known')
      wattday
      wattmonth
 
-   -reads ted service every second and inserts into new table: ted.tedlive
+   +reads ted service every second and inserts into new table: ted.tedlive
 
 
    -uses 'now" as time stamp, ted db sores stamps in GMT

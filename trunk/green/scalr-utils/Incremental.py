@@ -7,23 +7,26 @@ import getopt
 import scalr
 # for shortcuts, or even from scalr import *
 from scalr import logInfo,logWarn,logError
+# deprecated
 from scalr import cnvTime,invTime,testTime
+# new methods
+from scalr import secsToTed,tedToSecs,tedToGMT,tedToLocal,localTimeToTed
 from scalr import getScalar
 
 #def main():
 usage = '''
-   python %s --db <dbfile> --all ' % sys.argv[0]
-or python %s --db <dbfile> [--secs <secs> --minutes <minutes> --hours <hours> --days <days>]' % sys.argv[0]
-or python %s --db <dbfile> [--start \'YYYY-MM-DD HH:mm:ss\' [--stop \'YYYY-MM-DD HH:mm:ss\']]' % sys.argv[0]
-'''
+   python %s --db <dbfile> --all
+or python %s --db <dbfile> [--secs <secs> --minutes <minutes> --hours <hours> --days <days>]
+or python %s --db <dbfile> [--start \'YYYY-MM-DD HH:mm:ss\' [--stop \'YYYY-MM-DD HH:mm:ss\']]
+''' % ( sys.argv[0], sys.argv[0], sys.argv[0] )
 
 # parse command line options
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["db=", "all", "secs=","minutes=","hours=","days=","start=","stop="])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["db=", "all", "secs=","minutes=","hours=","days=","start=","stop="])
 except getopt.error, msg:
-	logError('error msg: %s' % msg)
-	logError(usage)
-	sys.exit(2)
+    logError('error msg: %s' % msg)
+    logError(usage)
+    sys.exit(2)
 
 dbfilename = ''
 daysAgo=0
@@ -35,32 +38,32 @@ stopSecs=0
 allTime = False
 
 for o, a in opts:
-	if o == "--db":
-		dbfilename = a
-	elif o == "--secs":
-		secondsAgo = string.atol(a)
-	elif o == "--all":
-		allTime = True
-	elif o == "--minutes":
-		minutesAgo = string.atol(a)
-	elif o == "--hours":
-		hoursAgo = string.atol(a)
-	elif o == "--days":
-		daysAgo = string.atol(a)
-	elif o == "--start":
-		try:
-			startSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
-		except ValueError:
-			logError(" Start Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
-			logError(usage)
-			sys.exit(2)
-	elif o == "--stop":
-		try:
-			stopSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
-		except ValueError:
-			logError(" Stop Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
-			logError(usage)
-			sys.exit(2)
+    if o == "--db":
+        dbfilename = a
+    elif o == "--secs":
+        secondsAgo = string.atol(a)
+    elif o == "--all":
+        allTime = True
+    elif o == "--minutes":
+        minutesAgo = string.atol(a)
+    elif o == "--hours":
+        hoursAgo = string.atol(a)
+    elif o == "--days":
+        daysAgo = string.atol(a)
+    elif o == "--start":
+        try:
+            startSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
+        except ValueError:
+            logError(" Start Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
+            logError(usage)
+            sys.exit(2)
+    elif o == "--stop":
+        try:
+            stopSecs = time.mktime(time.strptime(a,"%Y-%m-%d %H:%M:%S"))
+        except ValueError:
+            logError(" Stop Date (%s) does not match format:  \'YYYY-MM-DD HH:mm:ss\'" % a)
+            logError(usage)
+            sys.exit(2)
 
 totalSecondsAgo = ((daysAgo*24+hoursAgo)*60+minutesAgo)*60+secondsAgo
 
@@ -99,6 +102,9 @@ else:
 
 logInfo("Using sql: %s" % sql)
 
+def GMTLocalAndTed(tedStr):
+    return "GMT:[%s GMT] Local:[%s] Ted:[%s]" % (tedToGMT(tedStr),tedToLocal(tedStr),tedStr)
+
 connsqlite = scalr.SqliteConnectNoArch(dbfilename)
 curssqlite = connsqlite.cursor()
 curssqlite.execute(sql)
@@ -106,16 +112,19 @@ curssqlite.execute(sql)
 logInfo("SQL executed");
 countRows=0
 for row in curssqlite:
-        stamp = cnvTime(row[0])
-        watt = row[1]*1000
-        countRows+=1
-        if (countRows%10000 == 1):
-                logInfo("rows: %8d stamp: %s [%s]" % (countRows,stamp,row[0]));
-                
-        # print cnvTime(row[0]), row[1]*1000
-        # could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
-        #print ("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
-        print ("REPLACE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
+    #stamp = cnvTime(row[0])
+    stamp = tedToGMT(row[0])
+    watt = row[1]*1000
+    countRows+=1
+    if (countRows%30000 == 1):
+        logInfo("")
+        logInfo("row: %8d stamp: %s [%s]" % (countRows,stamp,row[0]))
+        logInfo("row: %8d %s" % (countRows,GMTLocalAndTed(row[0])))        
+
+    # print cnvTime(row[0]), row[1]*1000
+    # could use REPLACE INTO, instead, or ON DUPLICATE update count=count+1.
+    #print ("INSERT IGNORE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
+    print ("REPLACE INTO watt (stamp, watt) VALUES ('%s', '%d');" % (stamp,watt))
 
 curssqlite.close()
 connsqlite.close()

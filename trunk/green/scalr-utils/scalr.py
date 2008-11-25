@@ -60,14 +60,14 @@ def SqliteConnectNoArch(filename): # return either a sqlite3/2/1 connection
 # mostly for use in building sql qualifiers on ted database
 # the leading zero is important as ted sores the timestamp as a string
 def secsToTed(secs):
-        tedTimeLong = long( ((secs * 1000) +  62135582400000)*10000 ) 
+        tedTimeLong = long( (secs+62135578800) * 1000 * 10000 )
         return "%019ld" % tedTimeLong
 
 # returns ted time string in secs since EPOCH in UTC as time.time()
 def tedToSecs(tedTimeString):
-	try:
-		millis =  string.atol(tedTimeString) / 10000 - 62135582400000
-		return millis / 1000;
+        try:
+		millis = string.atol(tedTimeString)/10000
+                return millis / 1000 - 62135578800;
 	except ValueError:
 		print "timestamp out of range: bad secs"
 	except TypeError:
@@ -77,15 +77,15 @@ def tedToGMT(tedTimeString):
 	secs = tedToSecs(tedTimeString)
 	return time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(secs))
 
+def tedToLocal(tedTimeString):
+	secs = tedToSecs(tedTimeString)
+	return time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime(secs))
+
 # Ambiguous may yield DST or not 
 # should only be used for display and with time zone
 # so I added %Z to format string
 # should probaly standardize on some
 #  YYYY-MM-DDTHH:mm:ssZ+/-0500 type format
-def tedToLocal(tedTimeString):
-	secs = tedToSecs(tedTimeString)
-	return time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime(secs))
-
 def localTimeToTed(localTimeStr):
 	structTime = time.strptime(localTimeStr,"%Y-%m-%d %H:%M:%S")
 	secs = time.mktime(structTime)
