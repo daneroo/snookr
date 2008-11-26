@@ -2,7 +2,7 @@
 
 -=-= Objective (short):
   -Python daemon
-
+   Historical data (billing) into watt_day
    Flow:  when and who
      to overwrite, --> watt 
      to compare,     tednative,tedlive(,aztech) , watt
@@ -18,10 +18,12 @@
                  -> aztech_service
          current_state (all feed scopes, with averages, of projections ??)
          watt -> (stamp,watt)  ? stampGMT: NO
-         watt_0010
-         watt_0060
-         watt_3600
-         watt_day -> special
+           Decided not to use watt_0010,..watt_3600
+         watt_tensec
+         watt_minute
+         watt_hour
+         watt_day 
+         watt_month
 
    + Fix Incremental for Better GMT timestamps
    -?    and Rename to PumpTedNative
