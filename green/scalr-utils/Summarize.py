@@ -39,6 +39,12 @@ watt int(11) NOT NULL default '0',
 PRIMARY KEY %sByStamp (stamp)
 );
 """ % (tablename,tablename)
+    ddl = """CREATE TABLE %s (
+stamp datetime NOT NULL default '1970-01-01 00:00:00',
+watt int(11) NOT NULL default '0',
+PRIMARY KEY %sByStamp (stamp)
+);
+""" % (tablename,tablename)
     cursor.execute ("DROP TABLE IF EXISTS %s" % tablename)
     cursor.execute(ddl)
     logInfo(" ddl executed for %s " % (tablename))
@@ -54,7 +60,7 @@ def dropAndCreateTables():
         dropAndCreateTable(suffix);
     logInfo("Done creating Tables")
 
-def fillDayTable(start,stop):
+def fillDayTable(start,stop,fromTableSuffix):
     # ********   TODO
     # check that startStop form a proper day!
     # also check stop,
@@ -66,8 +72,13 @@ def fillDayTable(start,stop):
 
     timerstart = time.time()
 
+
+    if fromTableSuffix is None:
+        fromTable = "watt"
+    else:
+        fromTable="watt_%s" % fromTableSuffix
+
     suffix="day"
-    fromTable = "watt" #might be passed or deduced
     intoTableName="watt_%s" % suffix
     startGMT = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(start))
     stopGMT  = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(stop))
@@ -89,7 +100,7 @@ def fillDayTable(start,stop):
     #print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,getScalar("select count(*) from %s" % intoTableName),time.time()-timerstart)
     
     
-def fillTable(suffix,groupingWidth,rightPad,start,stop):
+def fillTable(suffix,groupingWidth,rightPad,start,stop,fromTableSuffix):
     distantPast = time.mktime((1970,01,01,0,0,0,0,0,-1))
     distantFuture = time.mktime((2035,01,01,0,0,0,0,0,-1))
     if start is None: start=distantPast
@@ -97,7 +108,11 @@ def fillTable(suffix,groupingWidth,rightPad,start,stop):
 
     timerstart = time.time()
 
-    fromTable = "watt" #might be passed or deduced
+    if fromTableSuffix is None:
+        fromTable = "watt"
+    else:
+        fromTable="watt_%s" % fromTableSuffix
+        
     intoTableName="watt_%s" % suffix
     startGMT = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(start))
     stopGMT  = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(stop))
@@ -105,20 +120,19 @@ def fillTable(suffix,groupingWidth,rightPad,start,stop):
     selectSql =  "select concat(left(stamp,%d),'%s') as g,avg(watt) from %s where stamp>='%s' and stamp<'%s' group by g" % (groupingWidth,rightPad,fromTable,startGMT,stopGMT)
 
     replaceSql = "replace into %s %s" % (intoTableName,selectSql)
-    print replaceSql
+    #print replaceSql
     cursor.execute(replaceSql)
     print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,cursor.rowcount,time.time()-timerstart)
     #print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,getScalar("select count(*) from %s" % intoTableName),time.time()-timerstart)
 
     
 def fillTables(start,stop):
-    fillTable("tensec",18, '0'        ,start, stop)
-    fillTable("minute",16, ':00'      ,start, stop)
-    fillTable("hour",  13, ':00:00'   ,start, stop)
-
+    fillTable("tensec",18, '0'        ,start, stop,None)
+    fillTable("minute",16, ':00'      ,start, stop,None)
+    fillTable("hour",  13, ':00:00'   ,start, stop,None)
     #replaced day
     ##fillTable("day",   10, ' 00:00:00',start, stop)
-    fillDayTable(start, stop)
+    fillDayTable(start, stop, None)
 
 def getScalar(sql):
     cursor.execute(sql)
@@ -157,13 +171,15 @@ def startOfDay(secs,offsetInDays):
 # This is a GENERATOR not a function
 # generates a sequence of (startSecs,stopSecs) tuples representing the start/end of Day in local time
 # and walks backwards in time
-def walkBackDaysGenerator(laterSecs,earlierSecs): # see generators docs
-    # boundary Conditions ?
-    # both directions ?
+def walkBackDaysGenerator(earlierSecs,laterSecs): # see generators docs
+    # Initial Values
     startOfDaySecs = startOfDay(laterSecs,0)
     endOfDaySecs = startOfDay(startOfDaySecs,1)
+    # Termination Boundary
+    startOfEarliestDay = startOfDay(earliestSecs,0)
+
     while True:
-        if (startOfDaySecs<earlierSecs): # < or <= ???????
+        if (startOfDaySecs<startOfEarliestDay): # < or <= ???????
             return  # termination of generator
         yield (startOfDaySecs,endOfDaySecs)
         #currentSecs = startOfDay(currentSecs,-1)
@@ -204,53 +220,86 @@ if __name__ == "__main__":
     dropAndCreateTables()
 
     latestSecs = time.time()   +(1*86400)
-    earliestSecs =  latestSecs -(86400*122)
+    earliestSecs =  latestSecs -(86400*120)
 
     print " Summarizing [ %s ,  %s ) (~%.1f days)" % (localTimeWithTZ(earliestSecs),localTimeWithTZ(latestSecs),(latestSecs-earliestSecs)/86400)
 
     timerstart = time.time()
-    
-    startOfEarliestDay = startOfDay(earliestSecs,0)
-    #for startOfDaySecs in walkBackDaysGenerator(latestSecs,earliestSecs):
-    for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(latestSecs,startOfEarliestDay):
-        #endOfDaySecs = startOfDay(startOfDaySecs,1)
-        #print "%s" % GMTTimeWithTZ(startOfDaySecs)
-        #dayLengthInHours = (endOfDaySecs-startOfDaySecs)/3600
-        print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
 
-        continue
+    ## I Think the fastest way (for 120 day load) is
+    ## iterate by day for tensec
+    ##  global minute, hour
+    ## iterate for days: (no choice)
+    for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+        dayLengthInHours = (endOfDaySecs-startOfDaySecs)/3600
+        #print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
         # intersection of dayIteration and original interval 
-        start = max(earliestSecs,startOfDaySecs)
-        stop  = min(latestSecs,endOfDaySecs)
+        (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
         #print " partial  [ %s ,  %s ) " % (localTimeWithTZ(start),localTimeWithTZ(stop))
-        #Do each scope in turn finding appropriate start,stop
 
-        #fillTables(start,stop)
-
-        fillTable("tensec",18, '0'        ,start, stop)
-        ##fillTable("minute",16, ':00'      ,start, stop)
-        #fillTable("hour",  13, ':00:00'   ,start, stop)
-        fillDayTable(start, stop)
-
-    tbl='hour'
-    print "++ %s inserted %d entries (%6.2fs.)" % ("%s-by-day"%tbl,getScalar("select count(*) from watt_%s"%tbl),time.time()-timerstart)
 
     timerstart = time.time()
-    #dropAndCreateTables()
-    #fillTables(None,None)
-    #fillTable("tensec",18, '0',None,None)
-    fillTable("minute",16, ':00'      ,None,None)
-    fillTable("hour",  13, ':00:00'   ,None,None)
+    if True:
+        # this took 69 seconds for 117 days
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
+            fillTable("tensec",18, '0'        ,start, stop,None)
+            fillTable("minute",16, ':00'      ,start, stop,'tensec')
+            fillTable("hour",  13, ':00:00'   ,start, stop,'minute')
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            fillDayTable(start, stop,'hour')
 
-    print "++ %s inserted %d entries (%6.2fs.)" % ("%s-oneshot"%tbl,getScalar("select count(*) from watt_%s"%tbl),time.time()-timerstart)
+    elif False:
+        # this took 69 seconds for 117 days
+        # this took 162 seconds for 117 days - always to watt
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            fillTable("tensec",18, '0'        ,start, stop,None)
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            fillTable("minute",16, ':00'      ,start, stop,'tensec')
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            fillTable("hour",  13, ':00:00'   ,start, stop,'minute')
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            fillDayTable(start, stop,'hour')
 
+    elif False:
+        # this took 164 seconds for 117 days - always to watt
+        # this took 159 seconds for 117 days - always to watt, exept day from hour
+        # this took 119 seconds for 117 days - always to watt, except minute from tensec,and day from hour
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
+            fillTable("tensec",18, '0'        ,start, stop,None)
+            fillTable("minute",16, ':00'      ,start, stop,None)
+            fillTable("hour",  13, ':00:00'   ,start, stop,None)
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            fillDayTable(start, stop,None)
 
+    else:
+        # this took 62 seconds for 117 days
+        # this took 92 seconds for 117 days - always to watt
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            # intersection of dayIteration and original interval 
+            (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
+            fillTable("tensec",18, '0'        ,start, stop,None)
+
+        #fillTable("minute",16, ':00'      ,None,None,None)
+        #fillTable("hour",  13, ':00:00'   ,None,None,None)
+        fillTable("minute",16, ':00'      ,None,None,'tensec')
+        fillTable("hour",  13, ':00:00'   ,None,None,'minute')
+
+        for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+            # intersection of dayIteration and original interval 
+            #(start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
+            (start,stop) = ( startOfDaySecs , endOfDaySecs )
+            #fillDayTable(start, stop,None)
+            fillDayTable(start, stop,'hour')
+
+    print " Handled %d days (%6.2fs.)" % (getScalar("select count(*) from watt_day"),time.time()-timerstart)
     cursor.close ()
     conn.close ()
 
 
-
-## Table watt_tensec now has 946847 entries (271.55s.)
-## Table watt_minute now has 166055 entries ( 18.56s.)
-## Table watt_hour now has 2779 entries ( 16.14s.)
-## Table watt_day now has 117 entries ( 15.98s.)
+# conclusion trensec is everything, what is it's optimal size
