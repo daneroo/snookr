@@ -1,13 +1,34 @@
 import MySQLdb
 import sys
 import time
+import math
 from scalr import logInfo,logWarn,logError
 
 
-# add main, usage
-# create if necessary
 # args --drop --start,... --mysqldb --update (select >current (+ offset))
-# walk up the dates for day-month, or find some clever mysql dst expressions
+##     So Here is the flow
+##       reference table is watt
+##       find max(stamp) from watt --> that will be our 'latestSecs'
+##         our earliestSecs, will be either max(stamp) from watttensec,...
+##         or a passed param --start, --hours 2, --days 2
+
+##        Now for each day (possibly partial) in [earliest,latest)
+##           perform averageing for each scope in order
+##              tensec, minute, (tenminute), hour, day, (week, month)
+##           Where only stop is adjusted for each scope (inside fillTableXXX)
+##             start is not adjusted to allow a value for non dayStarting data Table
+##                        fillTable(tensec,start,stop)    
+##                        fillTable(minutes,start,stop)    
+##                        fillTable(hours,start,stop)    
+##                        filltable(day,start,stop)
+## As in:
+##  Summarizing [ 2008-10-29 23:28:37 EDT ,  2008-11-03 22:28:37 EST ) (~5.0 days)
+##  partial  [ 2008-11-03 00:00:00 EST ,  2008-11-03 22:28:37 EST )
+##  partial  [ 2008-11-02 00:00:00 EDT ,  2008-11-03 00:00:00 EST )
+##  partial  [ 2008-11-01 00:00:00 EDT ,  2008-11-02 00:00:00 EDT )
+##  partial  [ 2008-10-31 00:00:00 EDT ,  2008-11-01 00:00:00 EDT )
+##  partial  [ 2008-10-30 00:00:00 EDT ,  2008-10-31 00:00:00 EDT )
+##  partial  [ 2008-10-29 23:28:37 EDT ,  2008-10-30 00:00:00 EDT )
 
 def dropAndCreateTable(name):
     tablename="watt_%s" % name
@@ -24,85 +45,207 @@ PRIMARY KEY %sByStamp (stamp)
     #print ddl
 
 def dropAndCreateTables():
-    suffixes = ["tensec","minute","hour","day","month"]
+    #existence
+    #print getScalar("show tables like 'watt_day'")
+    #print getScalar("show tables like 'watt\_notexist'")
+
+    suffixes = ["tensec","minute","hour","day"]
     for suffix in suffixes:
         dropAndCreateTable(suffix);
     logInfo("Done creating Tables")
 
-def fillTable(suffix,groupingWidth,rightPad):
-    # example for watttensec - why we have rightPad
-    # replace into watttensec select concat(left(stamp,18),'0') as g,avg(watt) from watt where stamp>'2008-09-15 11:00:00' group by g;
+def fillDayTable(start,stop):
+    # ********   TODO
+    # check that startStop form a proper day!
+    # also check stop,
+    # otherwise iterate
+    checkStart = startOfDay(start,0)
+    if (checkStart!=start):
+        logError("bad day for fillDayTable")
+        return
+
+    timerstart = time.time()
+
+    suffix="day"
+    fromTable = "watt" #might be passed or deduced
+    intoTableName="watt_%s" % suffix
+    startGMT = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(start))
+    stopGMT  = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(stop))
+
+    selectSql =  "select avg(watt) from %s where stamp>='%s' and stamp<'%s'" % (fromTable,startGMT,stopGMT)
+    #print selectSql
+    avgForDay = getScalar(selectSql)
+    if avgForDay is None:
+        #print "got avg %s, NULL" % startGMT
+        return
     
-    # example : cursor.execute("replace into wattminute select left(stamp,16) as g,avg(watt) from watt group by g")
-    tablename="watt_%s" % suffix
-    now = time.time()
-    cursor.execute("replace into %s select concat(left(stamp,%d),'%s') as g,avg(watt) from watt group by g" % (tablename,groupingWidth,rightPad))
-    print "Table %s now has %d entries (%6.2fs.)" % (tablename,getScalar("select count(*) from %s" % tablename),time.time()-now)
+    #print "got avg %s, %s" %(startGMT,avgForDay)
+    replaceSql = "replace into %s (stamp,watt) values ('%s',%.0f)" % (intoTableName,startGMT,avgForDay)
+    #print replaceSql
+    cursor.execute(replaceSql)
+
+    #### CHECK that rowcount is exactly 1  (how about updating
+    print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,cursor.rowcount,time.time()-timerstart)
+    #print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,getScalar("select count(*) from %s" % intoTableName),time.time()-timerstart)
+    
+    
+def fillTable(suffix,groupingWidth,rightPad,start,stop):
+    distantPast = time.mktime((1970,01,01,0,0,0,0,0,-1))
+    distantFuture = time.mktime((2035,01,01,0,0,0,0,0,-1))
+    if start is None: start=distantPast
+    if stop  is None: stop=distantFuture
+
+    timerstart = time.time()
+
+    fromTable = "watt" #might be passed or deduced
+    intoTableName="watt_%s" % suffix
+    startGMT = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(start))
+    stopGMT  = time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(stop))
+    
+    selectSql =  "select concat(left(stamp,%d),'%s') as g,avg(watt) from %s where stamp>='%s' and stamp<'%s' group by g" % (groupingWidth,rightPad,fromTable,startGMT,stopGMT)
+
+    replaceSql = "replace into %s %s" % (intoTableName,selectSql)
+    print replaceSql
+    cursor.execute(replaceSql)
+    print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,cursor.rowcount,time.time()-timerstart)
+    #print " -- %s inserted %d entries (%6.2fs.)" % (intoTableName,getScalar("select count(*) from %s" % intoTableName),time.time()-timerstart)
 
     
-def fillTables():
-    fillTable("tensec",18,'0')
-    fillTable("minute",16,':00')
-    fillTable("hour",13,':00:00')
-    fillTable("day",10,' 00:00:00')
-    fillTable("month",7,'-01 00:00:00')
+def fillTables(start,stop):
+    fillTable("tensec",18, '0'        ,start, stop)
+    fillTable("minute",16, ':00'      ,start, stop)
+    fillTable("hour",  13, ':00:00'   ,start, stop)
+
+    #replaced day
+    ##fillTable("day",   10, ' 00:00:00',start, stop)
+    fillDayTable(start, stop)
 
 def getScalar(sql):
     cursor.execute(sql)
     row = cursor.fetchone()
+    if row is None: return None
     return row[0]
 
+def startOfTenSec(secs):
+    # must keep the dst flag in converting
+    secsTuple = time.localtime(secs)
+    roundToTen = int(10*math.floor(secsTuple[5]/10))
+    startOfPeriodTuple = (secsTuple[0],secsTuple[1],secsTuple[2],secsTuple[3],secsTuple[4],roundToTen,0,0,secsTuple[8])
+    startOfPeriodSecs  = time.mktime(startOfPeriodTuple)
+    return startOfPeriodSecs
+
+def startOfMinute(secs):
+    # must keep the dst flag in converting
+    secsTuple = time.localtime(secs)
+    startOfPeriodTuple = (secsTuple[0],secsTuple[1],secsTuple[2],secsTuple[3],secsTuple[4],0,0,0,secsTuple[8])
+    startOfPeriodSecs  = time.mktime(startOfPeriodTuple)
+    return startOfPeriodSecs
+def startOfHour(secs):
+    # must keep the dst flag in converting
+    secsTuple = time.localtime(secs)
+    startOfPeriodTuple = (secsTuple[0],secsTuple[1],secsTuple[2],secsTuple[3],0,0,0,0,secsTuple[8])
+    startOfPeriodSecs  = time.mktime(startOfPeriodTuple)
+    return startOfPeriodSecs
+    
 def startOfDay(secs,offsetInDays):
+    # don't keep DST flag in converting with offset..(unlike hour,minute)
     secsTuple = time.localtime(secs)
     startOfDayWithOffsetTuple = (secsTuple[0],secsTuple[1],secsTuple[2]+offsetInDays,0,0,0,0,0,-1)
     startOfDayWithOffsetSecs  = time.mktime(startOfDayWithOffsetTuple)
     return startOfDayWithOffsetSecs
     
 # This is a GENERATOR not a function
-def walkBackDaysGenerator(startSecs,stopSecs): # see generators docs
+# generates a sequence of (secs) representing the start of Day in local time
+# and walks backwards in time
+def walkBackDaysGenerator(laterSecs,earlierSecs): # see generators docs
     # boundary Conditions ?
     # both directions ?
-    currentSecs = startOfDay(startSecs,0)
+    currentSecs = startOfDay(laterSecs,0)
     while True:
-        if (currentSecs<=stopSecs): # < or <= ???????
+        if (currentSecs<earlierSecs): # < or <= ???????
             return  # termination of generator
         yield currentSecs
         currentSecs = startOfDay(currentSecs,-1)
     
-        
+def GMTTimeWithTZ(secs):
+    return time.strftime("%Y-%m-%d %H:%M:%S GMT",time.gmtime(secs))
+
+def localTimeWithTZ(secs):
+    #return time.strftime("%Y-%m-%d %H:%M:%S %Z (day:%j)",time.localtime(secs))
+    return time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime(secs))
+
+def testStartOfPeriods():
+
+    for now in [time.time(),
+                time.mktime((2008,11,02,1,00,00,0,0,0)), # maps to 01:00:00 EDT
+                time.mktime((2008,11,02,1,59,59,0,0,1)),
+                time.mktime((2008,11,02,2,00,00,0,0,1)), # maps to 01:00:00 EST
+                ]:
+        print "Rounding time    : %s" % localTimeWithTZ(now)
+        print "  Start of tenSec: %s" % localTimeWithTZ(startOfTenSec(now))
+        print "  Start of minute: %s" % localTimeWithTZ(startOfMinute(now))
+        print "  Start of hour  : %s" % localTimeWithTZ(startOfHour(now))
+        print "  Start of day   : %s" % localTimeWithTZ(startOfDay(now,0))
+
+    
 if __name__ == "__main__":
 
-## shall I get rid of Month ?
-##     So Here is the flow
-##       reference table is watt
-##       find max(stamp) from watt --> that will be our startTime (going backwards)
-##                     --bad name use stop for end of watt
-##     for all days, including (current partial day)
-##     for each scope: tensec,minute,hour,day
-##         filltable(..,start,stop) will do appropriate rounding
-##          TO BE CONTINUED..
-    
 
-    #for daySecs in walkBackDaysGenerator(startOfDay(time.time(),0),startOfDay(time.time(),-2)):
-    for daySecs in walkBackDaysGenerator(time.time(),time.time()-(86400*2)):
-        tomorrow = startOfDay(daySecs,1)
-        print "  GMT:[%s GMT] Local:[%s]   lasts %.1f hours" % (
-            time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(daySecs)),
-            time.strftime("%Y-%m-%d %H:%M:%S %Z day:%j",time.localtime(daySecs)),
-            (tomorrow-daySecs)/3600
-            )
-
-    print "Done"
-    sys.exit(0)
+    #testStartOfPeriods()
 
     conn = MySQLdb.connect (host="127.0.0.1",user="aviso",passwd="",db="ted")
     cursor = conn.cursor ()
 
+    
+    dropAndCreateTables()
+
+    latestSecs = time.time()   +(1*86400)
+    earliestSecs =  latestSecs -(86400*122)
+
+    print " Summarizing [ %s ,  %s ) (~%.1f days)" % (localTimeWithTZ(earliestSecs),localTimeWithTZ(latestSecs),(latestSecs-earliestSecs)/86400)
+
+    timerstart = time.time()
+    
+    startOfEarliestDay = startOfDay(earliestSecs,0)
+    #for startOfDaySecs in walkBackDaysGenerator(latestSecs,earliestSecs):
+    for startOfDaySecs in walkBackDaysGenerator(latestSecs,startOfEarliestDay):
+        endOfDaySecs = startOfDay(startOfDaySecs,1)
+        #print "%s" % GMTTimeWithTZ(startOfDaySecs)
+        #dayLengthInHours = (endOfDaySecs-startOfDaySecs)/3600
+        #print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
+
+        # intersection of dayIteration and original interval 
+        start = max(earliestSecs,startOfDaySecs)
+        stop  = min(latestSecs,endOfDaySecs)
+        #print " partial  [ %s ,  %s ) " % (localTimeWithTZ(start),localTimeWithTZ(stop))
+        #Do each scope in turn finding appropriate start,stop
+
+        #fillTables(start,stop)
+
+        fillTable("tensec",18, '0'        ,start, stop)
+        ##fillTable("minute",16, ':00'      ,start, stop)
+        #fillTable("hour",  13, ':00:00'   ,start, stop)
+        fillDayTable(start, stop)
+
+    tbl='hour'
+    print "++ %s inserted %d entries (%6.2fs.)" % ("%s-by-day"%tbl,getScalar("select count(*) from watt_%s"%tbl),time.time()-timerstart)
+
+    timerstart = time.time()
     #dropAndCreateTables()
-    fillTables()
+    #fillTables(None,None)
+    #fillTable("tensec",18, '0',None,None)
+    fillTable("minute",16, ':00'      ,None,None)
+    fillTable("hour",  13, ':00:00'   ,None,None)
+
+    print "++ %s inserted %d entries (%6.2fs.)" % ("%s-oneshot"%tbl,getScalar("select count(*) from watt_%s"%tbl),time.time()-timerstart)
+
 
     cursor.close ()
     conn.close ()
 
 
 
+## Table watt_tensec now has 946847 entries (271.55s.)
+## Table watt_minute now has 166055 entries ( 18.56s.)
+## Table watt_hour now has 2779 entries ( 16.14s.)
+## Table watt_day now has 117 entries ( 15.98s.)
