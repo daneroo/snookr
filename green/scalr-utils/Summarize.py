@@ -155,17 +155,21 @@ def startOfDay(secs,offsetInDays):
     return startOfDayWithOffsetSecs
     
 # This is a GENERATOR not a function
-# generates a sequence of (secs) representing the start of Day in local time
+# generates a sequence of (startSecs,stopSecs) tuples representing the start/end of Day in local time
 # and walks backwards in time
 def walkBackDaysGenerator(laterSecs,earlierSecs): # see generators docs
     # boundary Conditions ?
     # both directions ?
-    currentSecs = startOfDay(laterSecs,0)
+    startOfDaySecs = startOfDay(laterSecs,0)
+    endOfDaySecs = startOfDay(startOfDaySecs,1)
     while True:
-        if (currentSecs<earlierSecs): # < or <= ???????
+        if (startOfDaySecs<earlierSecs): # < or <= ???????
             return  # termination of generator
-        yield currentSecs
-        currentSecs = startOfDay(currentSecs,-1)
+        yield (startOfDaySecs,endOfDaySecs)
+        #currentSecs = startOfDay(currentSecs,-1)
+        endOfDaySecs = startOfDaySecs
+        startOfDaySecs = startOfDay(startOfDaySecs,-1)
+        
     
 def GMTTimeWithTZ(secs):
     return time.strftime("%Y-%m-%d %H:%M:%S GMT",time.gmtime(secs))
@@ -208,12 +212,13 @@ if __name__ == "__main__":
     
     startOfEarliestDay = startOfDay(earliestSecs,0)
     #for startOfDaySecs in walkBackDaysGenerator(latestSecs,earliestSecs):
-    for startOfDaySecs in walkBackDaysGenerator(latestSecs,startOfEarliestDay):
-        endOfDaySecs = startOfDay(startOfDaySecs,1)
+    for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(latestSecs,startOfEarliestDay):
+        #endOfDaySecs = startOfDay(startOfDaySecs,1)
         #print "%s" % GMTTimeWithTZ(startOfDaySecs)
         #dayLengthInHours = (endOfDaySecs-startOfDaySecs)/3600
-        #print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
+        print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
 
+        continue
         # intersection of dayIteration and original interval 
         start = max(earliestSecs,startOfDaySecs)
         stop  = min(latestSecs,endOfDaySecs)
