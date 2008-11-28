@@ -1,53 +1,66 @@
 <?php
 header("Content-type: text/plain");
-$dbhost = 'localhost'; $dbuser = 'aviso'; $dbpass = '';
-$conn = mysql_connect($dbhost, $dbuser, $dbpass) or die ('Error connecting to mysql');
 
-$dbname = 'ted';
-mysql_select_db($dbname);
-
-$xmldecl = "<?xml version=\"1.0\"?>\n"; 
-$xmldecl .= "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-echo $xmldecl;
-
-echo "<plist version=\"1.0\"><array>\n";
-# old live query
-#$query = 'SELECT unix_timestamp(stamp),watt FROM tedlive order by stamp desc limit 30';
+// Parse params
 //print "<!-- Scope param : ".htmlspecialchars($_GET["scope"])."  --> \n"; 
 $scope=0;
 $scope=intval(htmlspecialchars($_GET["scope"]));
 if ($scope>4) $scope = fmod($scope,5);
 if ($scope<0) $scope = fmod(intval(time()/10),5);
-//print "<!-- Scope value : $scope  --> \n"; 
 
-if ($scope == 0) {
-    $table = 'watt';         $secondsPerSample=1;      $samples=180;  // live
- } elseif ($scope == 1) {
-    $table = 'watt_tensec';  $secondsPerSample=10;     $samples=300;  // minutes
- } elseif ($scope == 2) {
-    $table = 'watt_minute';  $secondsPerSample=60;     $samples=60;  // hour
- } elseif ($scope == 3) {
-    $table = 'watt_hour';    $secondsPerSample=3600;   $samples=48;  // day
- } elseif ($scope == 4) {
-    $table = 'watt_day';     $secondsPerSample=86400;  $samples=62;  // MOnth
- }
+// Connect to db
+$dbname = 'ted'; $dbhost = 'localhost'; $dbuser = 'aviso'; $dbpass = '';
+$conn = mysql_connect($dbhost, $dbuser, $dbpass) or die ('Error connecting to mysql');
+mysql_select_db($dbname);
 
-$secondsInWhere = $secondsPerSample * (1+$samples);
-$query = "select stamp,watt from $table order by stamp desc limit $samples";
-//print "<!-- Query: ".$query."  --> \n"; 
-
-$result = mysql_query($query) or die('Query failed: ' . mysql_error());
-
-while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
-    $watt = $row[1];
-    $stamp = substr($row[0],0,10).'T'.substr($row[0],-8).'Z';
-    //$tt = $row[0];
-    //$stamp = date('Y-m-d',$tt).'T'.date('H:i:s',$tt).'Z';
-    echo "<dict><key>stamp</key><date>$stamp</date><key>value</key><integer>$watt</integer></dict>\n";
+function queryForTableSince($table,$since,$samples) {
+    $query =  "select stamp,watt from $table ";
+    if (!is_null($since)) { $query .= " where stamp<'$since'"; }
+    $query .= " order by stamp desc";
+    $query .= " limit $samples";
+    //print "<!-- Query: ".$sql."  --> \n"; 
+    return $query;
+}
+// this function also return le last stamp
+function plistEntriesForQuery($sql) {
+    $result = mysql_query($sql) or die('Query failed: ' . mysql_error());
+    $lastStamp = '';
+    while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
+        $stamp = substr($row[0],0,10).'T'.substr($row[0],-8).'Z';
+        $lastStamp=$row[0];
+        $watt = $row[1];
+        echo "<dict><key>stamp</key><date>$stamp</date><key>value</key><integer>$watt</integer></dict>\n";
+    }
+    mysql_free_result($result);
+    return $lastStamp;
 }
 
-// Free resultset
-mysql_free_result($result);
+function entriesForTableSince($table,$since,$samples) {
+    $sql = queryForTableSince($table,$since,$samples);
+    return plistEntriesForQuery( $sql );
+}
+
+$xmldecl = "<?xml version=\"1.0\"?>\n"; 
+$xmldecl .= "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
+echo $xmldecl;
+
+// plist header
+echo "<plist version=\"1.0\"><array>\n";
+print "<!-- Scope value : $scope  --> \n"; 
+if ($scope == 0) { // Live
+    $lastStamp = entriesForTableSince('watt',NULL,10);
+    print "<!-- LastStamp: ".$lastStamp."  --> \n"; 
+    $lastStamp = entriesForTableSince('watt_tensec',$lastStamp,30);
+    print "<!-- LastStamp: ".$lastStamp."  --> \n"; 
+ } elseif ($scope == 1) { // Hour
+    $lastStamp = entriesForTableSince('watt_minute',NULL,60);
+ } elseif ($scope == 2) { // Day
+    $lastStamp = entriesForTableSince('watt_hour',NULL,48);
+ } elseif ($scope == 3) { // Week
+    $lastStamp = entriesForTableSince('watt_day',NULL,14);
+ } elseif ($scope == 4) { // Month
+    $lastStamp = entriesForTableSince('watt_day',NULL,62);
+ }
 
 echo "</array></plist>\n";
 
