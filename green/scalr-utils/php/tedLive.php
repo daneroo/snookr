@@ -19,38 +19,33 @@ echo "<plist version=\"1.0\"><array>\n";
 //print "<!-- Scope param : ".htmlspecialchars($_GET["scope"])."  --> \n"; 
 $scope=0;
 $scope=intval(htmlspecialchars($_GET["scope"]));
-if ($scope>3) $scope = fmod($scope,4);
-if ($scope<0) $scope = fmod(intval(time()/10),4);
+if ($scope>4) $scope = fmod($scope,5);
+if ($scope<0) $scope = fmod(intval(time()/10),5);
 //print "<!-- Scope value : $scope  --> \n"; 
 
 if ($scope == 0) {
-    //    $len = 19;   $rightpad = '';           $secondsPerSample=1;    $samples=300;  // 1 sec
-    $len = 18;   $rightpad = '0';           $secondsPerSample=10;    $samples=90;  // tensec
+    $table = 'watt';         $secondsPerSample=1;      $samples=180;  // live
  } elseif ($scope == 1) {
-     $len = 18;   $rightpad = '0';           $secondsPerSample=10;    $samples=360;  //
-     //$len = 16;   $rightpad = ':00';         $secondsPerSample=60;    $samples=60;  // minute
+    $table = 'watt_tensec';  $secondsPerSample=10;     $samples=300;  // minutes
  } elseif ($scope == 2) {
-     $len = 13;   $rightpad = ':00:00';      $secondsPerSample=3600;  $samples=24;  // hour
+    $table = 'watt_minute';  $secondsPerSample=60;     $samples=60;  // hour
  } elseif ($scope == 3) {
-     $len = 10;   $rightpad = ' 00:00:00';   $secondsPerSample=86400; $samples=31;  // day
+    $table = 'watt_hour';    $secondsPerSample=3600;   $samples=48;  // day
+ } elseif ($scope == 4) {
+    $table = 'watt_day';     $secondsPerSample=86400;  $samples=62;  // MOnth
  }
 
 $secondsInWhere = $secondsPerSample * (1+$samples);
-$query = "select ";
-$query .= " unix_timestamp(str_to_date(concat(left(stamp,$len),'$rightpad'),'%Y-%m-%d %H:%i:%s')) as g, round(avg(watt)) ";
-$query .= " from tedlive ";
-$query .= " where stamp>date_sub(now(), interval $secondsInWhere second) ";
-$query .= " group by g  order by g desc";
-$query .= " limit $samples";
-
+$query = "select stamp,watt from $table order by stamp desc limit $samples";
 //print "<!-- Query: ".$query."  --> \n"; 
 
 $result = mysql_query($query) or die('Query failed: ' . mysql_error());
 
 while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
-    $tt = $row[0];
     $watt = $row[1];
-    $stamp = date('Y-m-d',$tt).'T'.date('H:i:s',$tt).'Z';
+    $stamp = substr($row[0],0,10).'T'.substr($row[0],-8).'Z';
+    //$tt = $row[0];
+    //$stamp = date('Y-m-d',$tt).'T'.date('H:i:s',$tt).'Z';
     echo "<dict><key>stamp</key><date>$stamp</date><key>value</key><integer>$watt</integer></dict>\n";
 }
 
