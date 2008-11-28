@@ -1,5 +1,7 @@
 2008-11-14 Inventory and new plan.
 
+28d prevTable:1661.0714 w/ minmax
+              1669.2143 wo/ minmax
 -=-= Objective (short):
   -Python daemon
    Summarize comparison:
@@ -16,7 +18,7 @@ for i in 'day' 'hour' 'minute' 'tensec' ; do echo $i `mysql ted -N -B -e "select
    Historical data (billing) into watt_day
    Flow:  when and who
      to overwrite, --> watt 
-     to compare,     tednative,tedlive(,aztech) , watt
+     to compare,     TED.db, ted_service(,aztech_service) , watt
      to summarize
 
    Names: Incremental -> ReadTEDNative.py
@@ -24,17 +26,12 @@ for i in 'day' 'hour' 'minute' 'tensec' ; do echo $i `mysql ted -N -B -e "select
           hierTed     -> Summarize.py
 
    DB tables: (dbname ted->wattrical)
-         tedlive -> ted_service
-                 -> ted_native ? NOT: duplicating sqlite dumps, but might help compare
-                 -> aztech_service
-         current_state (all feed scopes, with averages, of projections ??)
-         watt -> (stamp,watt)  ? stampGMT: NO
-           Decided not to use watt_0010,..watt_3600
+         ted_service
+         watt : (stamp,watt)
          watt_tensec
          watt_minute
          watt_hour
          watt_day 
-         watt_month
 
    + Fix Incremental for Better GMT timestamps
    -?    and Rename to PumpTedNative
