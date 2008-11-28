@@ -1,4 +1,5 @@
 <?php
+  //header("Content-type: text/xml");
 header("Content-type: text/plain");
 
 // Parse params
@@ -21,48 +22,63 @@ function queryForTableSince($table,$since,$samples) {
     //print "<!-- Query: ".$sql."  --> \n"; 
     return $query;
 }
+
 // this function also return le last stamp
-function plistEntriesForQuery($sql) {
+function entriesForQuery($sql,$formatter) {
     $result = mysql_query($sql) or die('Query failed: ' . mysql_error());
     $lastStamp = '';
     while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
         $stamp = substr($row[0],0,10).'T'.substr($row[0],-8).'Z';
         $lastStamp=$row[0];
         $watt = $row[1];
-        echo "<dict><key>stamp</key><date>$stamp</date><key>value</key><integer>$watt</integer></dict>\n";
+        $formatter($stamp,$watt);
     }
     mysql_free_result($result);
     return $lastStamp;
 }
 
-function entriesForTableSince($table,$since,$samples) {
-    $sql = queryForTableSince($table,$since,$samples);
-    return plistEntriesForQuery( $sql );
+// formatters are used with 'Variable functions'
+function plistRowFormatter($stamp,$watt) {
+    echo "<dict><key>stamp</key><date>$stamp</date><key>value</key><integer>$watt</integer></dict>\n";
+}
+function observationtRowFormatter($stamp,$watt) {
+    echo "<observation stamp='$stamp' value='$watt' />\n";
 }
 
-$xmldecl = "<?xml version=\"1.0\"?>\n"; 
-$xmldecl .= "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-echo $xmldecl;
+// might be called more than once ?
+function entriesForTableSince($table,$since,$samples) {
+    $sql = queryForTableSince($table,$since,$samples);
+    $formatter = 'plistRowFormatter';
+    //$formatter = 'observationtRowFormatter';
+    return entriesForQuery( $sql ,$formatter);
+}
 
-// plist header
-echo "<plist version=\"1.0\"><array>\n";
-print "<!-- Scope value : $scope  --> \n"; 
-if ($scope == 0) { // Live
-    $lastStamp = entriesForTableSince('watt',NULL,10);
-    print "<!-- LastStamp: ".$lastStamp."  --> \n"; 
-    $lastStamp = entriesForTableSince('watt_tensec',$lastStamp,30);
-    print "<!-- LastStamp: ".$lastStamp."  --> \n"; 
- } elseif ($scope == 1) { // Hour
-    $lastStamp = entriesForTableSince('watt_minute',NULL,60);
- } elseif ($scope == 2) { // Day
-    $lastStamp = entriesForTableSince('watt_hour',NULL,48);
- } elseif ($scope == 3) { // Week
-    $lastStamp = entriesForTableSince('watt_day',NULL,14);
- } elseif ($scope == 4) { // Month
-    $lastStamp = entriesForTableSince('watt_day',NULL,62);
- }
+function plist($scope) {
+    // xml declaration
+    $xmldecl = "<?xml version=\"1.0\"?>\n"; 
+    $xmldecl .= "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
+    echo $xmldecl;
 
-echo "</array></plist>\n";
+    // plist header
+    echo "<plist version=\"1.0\"><array>\n";
+    //print "<!-- Scope value : $scope  --> \n"; 
+    if ($scope == 0) { // Live
+        $lastStamp = entriesForTableSince('watt',NULL,10);
+        //print "<!-- LastStamp: ".$lastStamp."  --> \n"; 
+        $lastStamp = entriesForTableSince('watt_tensec',$lastStamp,30);
+    } elseif ($scope == 1) { // Hour
+        $lastStamp = entriesForTableSince('watt_minute',NULL,60);
+    } elseif ($scope == 2) { // Day
+        $lastStamp = entriesForTableSince('watt_hour',NULL,48);
+    } elseif ($scope == 3) { // Week
+        $lastStamp = entriesForTableSince('watt_day',NULL,14);
+    } elseif ($scope == 4) { // Month
+        $lastStamp = entriesForTableSince('watt_day',NULL,62);
+    }
+    // plist footer
+    echo "</array></plist>\n";
+}
 
+plist($scope);
 mysql_close($conn);
 ?>
