@@ -73,24 +73,44 @@
 {
     static BOOL _isDataSourceAvailable;
     static NSDate *lastCheckedIfLocalDataSourceAvailable = nil;
-    //check every 30 seconds
+    //check every 60 seconds
     BOOL checkNetwork = (!lastCheckedIfLocalDataSourceAvailable ||
-                         [lastCheckedIfLocalDataSourceAvailable timeIntervalSinceNow] <= -30.0);
+                         [lastCheckedIfLocalDataSourceAvailable timeIntervalSinceNow] <= -60.0);
     if (checkNetwork) { // Since checking the reachability of a host can be expensive, cache the result and perform the reachability check once.
         if (lastCheckedIfLocalDataSourceAvailable) [lastCheckedIfLocalDataSourceAvailable release];
         lastCheckedIfLocalDataSourceAvailable = [[NSDate date] retain];
         
-        Boolean success;    
-        const char *host_name = "192.168.5.2";
-        
-        SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, host_name);
-        SCNetworkReachabilityFlags flags;
-        success = SCNetworkReachabilityGetFlags(reachability, &flags);
-        NSLog(@"Reachability flags: %d",flags);
-        _isDataSourceAvailable = success && (flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired);
-        CFRelease(reachability);
+		/*
+		 Fail fast : dl.sologlobe.com:9999 will point to the wrong machine
+		    but return immediately if we are inside.
+	        192.168.5.2 will fail slower but is our prefered choice
+		 So we should try dl.solo, if it fails, then confirm that 192.168.5.2 works
+		 */
+		NSURL *checkURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/iMetrical/pingplist.php"];
+		NSMutableArray *nsd = [NSDictionary dictionaryWithContentsOfURL:checkURL];
+		if (nsd==nil) {
+			checkURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/pingplist.php"];
+			nsd = [NSDictionary dictionaryWithContentsOfURL:checkURL];
+			//NSDate *stamp = (NSDate *)[nsd objectForKey:@"stamp"];
+			NSLog(@"ping local: %@",nsd);
+			_isDataSourceAvailable = YES;
+		}  else {
+			NSLog(@"ping remote: %@",nsd);
+			_isDataSourceAvailable = NO;
+		}
+		/* 
+		 // apple Connectivity Way - Not appropriateHere
+				Boolean success;    
+				const char *host_name = "192.168.5.2";
+				
+				SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, host_name);
+				SCNetworkReachabilityFlags flags;
+				success = SCNetworkReachabilityGetFlags(reachability, &flags);
+				NSLog(@"Reachability flags: %d",flags);
+				_isDataSourceAvailable = success && (flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired);
+				CFRelease(reachability);
+		 */
     }
-    //return NO;
     return _isDataSourceAvailable;
 }
 
