@@ -118,7 +118,9 @@
     CGFloat localMinVal=100000000.0, localMaxVal=0.0;
     while(observation = (Observation *)[enumerator nextObject]) {
 
-		if ([observation.stamp compare:ago]<0) continue;
+		bool filterDesiredScopeInDays = NO;
+		if (filterDesiredScopeInDays && [observation.stamp compare:ago]<0) continue;
+
         //NSLog(@"-- stamp: %@, value: %d", observation.stamp, observation.value);
         if (!minDate || [minDate compare:observation.stamp]>0) {
             minDate = observation.stamp;
@@ -294,7 +296,18 @@
     //NSLog(@"approx days: %f",approxDays);
 
     NSMutableDictionary *tickDates = [[NSMutableDictionary alloc] init];
-    if (approxDays<20) { // days
+    if (approxDays<=1) { // Hours
+		dateFormat = iMDateFormatHM24;
+		NSTimeInterval offset = dataRangeTime / 4;
+		NSLog(@"offset = %f",offset);
+		NSDate *xTickDate = [minDate addTimeInterval:offset/2];//[self startOfDay:minDate after:NO offsetInDays:0];    
+		NSDate *endDate = maxDate;//[self startOfDay:xTickDate after:NO offsetInDays:2];    
+        while ([xTickDate compare:endDate]<=0) {
+            NSString *xtickText = [DateUtil formatDate:xTickDate withFormat:dateFormat];
+            [tickDates setObject:xtickText forKey:xTickDate];
+            xTickDate = [xTickDate addTimeInterval:offset];
+        }
+	} else if (approxDays<20) { // days
         if (approxDays<8) {
             dateFormat = iMDateFormatShortWeekDay;
         } else if (approxDays<15) {

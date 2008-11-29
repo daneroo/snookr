@@ -109,7 +109,8 @@
         baseURL = [NSURL URLWithString:@"http://192.168.5.2/"];
     }
     NSLog(@"Using baseURL: %@",baseURL);
-    NSString *path = [NSString stringWithFormat:@"iMetrical/tedLive.php?scope=%d",currentScope];
+    //NSString *path = [NSString stringWithFormat:@"iMetrical/tedLive.php?scope=%d",currentScope];
+    NSString *path = [NSString stringWithFormat:@"iMetrical/wattrical.php?scope=%d",currentScope];
     NSURL *aURL = [NSURL URLWithString:path relativeToURL:baseURL];
 
 	//[obsarray appendObservationsFromURL:aURL];	  
