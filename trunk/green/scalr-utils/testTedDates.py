@@ -21,6 +21,15 @@ from time import time,strftime,strptime,gmtime,localtime,mktime
 #  -analyzes ted's sequences of timestamps to discover stability issues:
 #    probable duplicates, system time changes, unavailable data.
 #
+##    Other Notes:
+##    It seems that day/month tables are
+##      not populated exactly at midnight localtime: 
+##    Always 86400 seconds between timestamps
+##      in EST such as 2008-11-18 table is populated before 00:22 !
+##    Other oddities of rdu_second_data:
+##      duplicates <<<jitter
+##      many skips >> 2 minutes, even more >>1 minute
+##      most >> 2minutes are due to windows clock correction and restarts
 
 usage = 'python %s --db <dbfile> [--all | [--showTedTimeUsage --showMonthTable --showSequentialEvents]]' % sys.argv[0]
 
