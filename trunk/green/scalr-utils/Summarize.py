@@ -177,7 +177,6 @@ def walkBackDaysGenerator(earlierSecs,laterSecs): # see generators docs
         if (startOfDaySecs<startOfEarliestDay): # < or <= ???????
             return  # termination of generator
         yield (startOfDaySecs,endOfDaySecs)
-        #currentSecs = startOfDay(currentSecs,-1)
         endOfDaySecs = startOfDaySecs
         startOfDaySecs = startOfDay(startOfDaySecs,-1)
         
@@ -219,7 +218,7 @@ if __name__ == "__main__":
 
     import calendar
     latestSecs = calendar.timegm(getScalar("select max(stamp) from watt").timetuple())
-    earliestSecs =  startOfDay(latestSecs,-1)
+    ##earliestSecs =  startOfDay(latestSecs,-20)
     earliestSecs =  startOfDay(latestSecs,0)
 
     print " Summarizing [ %s ,  %s ) (~%.1f days)" % (localTimeWithTZ(earliestSecs),localTimeWithTZ(latestSecs),(latestSecs-earliestSecs)/86400)
