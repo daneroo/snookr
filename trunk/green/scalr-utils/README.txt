@@ -1,95 +1,58 @@
 2008-11-14 Inventory and new plan.
 
--=-= Objective (short):
-  -Python daemon
-
-   Historical data (billing) into watt_day
+-=-= Overview:
    Flow:  when and who
-     to overwrite, --> watt 
+     to feed: ReadTEDService.py loads every second into watt, and ted_service
+     to overwrite: HOWTO Incremental to Reload TED.db over watt
      to compare,     TED.db, ted_service(,aztech_service) , watt
      to summarize
 
-   Names: Incremental -> ReadTEDNative.py
-          unchanged   -> ReadTEDService.py
-          hierTed     -> Summarize.py
+   Script Names
+          ReadTEDNative.py <- Incremental.py
+          ReadTEDService.py
+          Summarize.py
 
-   DB tables: (dbname ted->wattrical)
-         ted_service
+   DB tables: (dbname ted->wattrical not yet)
          watt : (stamp,watt)
          watt_tensec
          watt_minute
          watt_hour
          watt_day 
+         ted_service
+     -owner ? multiple accounts ? only on gae or morph
 
-   + Fix Incremental for Better GMT timestamps
-   -?    and Rename to PumpTedNative
 
-   -hierTed.py: (rename ?) to
+-=-= Objective (short):
+   -Python daemon 
+     -Exception Proof (see below)
+     -Cron (all parts) 
+         packaging for deployment into /archive/mirror (remove scalr.py ?)
 
-   -rename watt to wattEDT to keep old data.
-      RENAME TABLE watt TO wattEDT
+   -Historical data (billing) into watt_day
 
-   -recreate watt and fill with new Incremental
-   -somehow compare (perhaps as we refill tensec,minute,hour)
-        wattEDT to watt (GMT)
-        compare with tedLive
+   -HOWTO for Incremental.py invocation
+   -HOWTO for copying ted_service back over watt ?
+   -HOWTO for Summarize.py invocation (continuous+after reload)
 
-   -refill <=hour with gmt average
+   -Compare feeds (perhaps as we refill tensec,minute,hour)
+        watt vs TED.db vs ted_service
 
-   -convert tedLive.php to use watt...(GMT)<=hour
-   -automate filling watt(GMT) and hierarchical tables from tedlive and tedraw.
-
-   -? Rename ted database wattrical
-
-   + testTedDates: to validate tedStamps
-        It seems that day/month tables are not populated exactly at midnight localtime: 
-	Always 86400 seconds between timestamps
-        in EST such as 2008-11-18 table is populated before 00:22 !
-
-	Other oddities of rdu_second_data:
-          duplicates <<<jitter
-          many skips >> 2 minutes, even more >>1 minute
-          most >> 2minutes are due to windows clock correction and restarts
+   -API for wattrical.php feeds (for iphone)
+      dtd , url map
 
    -Excpetion Proof: ReadTEDService: output to log
-Traceback (most recent call last):
   File "ReadTEDService.py", line 88, in ?
     (stamp, watts,volts) = getTimeWattsAndVoltsFromTedService()
   File "ReadTEDService.py", line 28, in getTimeWattsAndVoltsFromTedService
     usock = urllib.urlopen(TED_DASHBOARDDATA_URL)
-IOError: [Errno socket error] (-2, 'Name or service not known')
-
-
-       
+  IOError: [Errno socket error] (-2, 'Name or service not known')
      
-   _ wattrical database tables (GMT)
-     -owner ? multiple accounts ? only on gae or morph
-     tedservice  (<- ted.tedlive )
-     tednative ( <- from pump  (remname Incremental)
-
-     watt
-     watt0010
-     watt0060
-     watt1800
-     watt3600
-     wattday
-     wattmonth
-
-   +reads ted service every second and inserts into new table: ted.tedlive
-
-
-   -uses 'now" as time stamp, ted db sores stamps in GMT
-
-  -PHP converts wattrical.watt db into plist for wattrical iPhone App.
-
-  +Architecture neutral sqlite code: consolidate pumpsqlite.
-  +module scalr for code re-use
 
 -=-= Objective (mid):
   -Python daemon summarizes 'second' data into:
      tensec,minute,tenminute,halfhour,hour,day,month summary tables
      -possibly have accumulation table for mainting averaging state
-   compare live tedservice feed to ted sqlite archive
+
 
   -Alternative feed xml format: GData
   -GAppEngine repository (mirrors local daemon data (through synch/push))
@@ -109,26 +72,19 @@ Bash cron:
 
 Python
  Incremental.py: will be renamed as Pump
-     use --all or --secs,--minutes,--hours,--days
+     use --all or 
+         --secs,--minutes,--hours,--days
+         --start  [--stop]
      sqlite.teddb > mysql text out.
           add params --days X, --hours Y, etc
-     only works on linux: make Architexture neutral
-
-PumpSqliteToMysql.py
-   Connect to name sqlite db, 
-   select all from ted. print as Mysql ready text to stdout.
-       REPLACE INTO....
-
-ReadSqlite.py
-   Predates PumpXXX, and simply prints out data in column form (limit 1000)
 
 ReadTEDService.py
    Reads and prints ted: watt, volt : and current client-time
    added --duration and --forever params
    added a precise 1 second timing loop
 
-hierTed.py:
-  calculates summary tables: wattday,watthour,wattminute,watttensec.
+Summarize.py:  (renamed from hierTed.py
+  calculates summary tables: watt_day,watt_hour,watt_minute,watt_tensec.
 
 
 Python GDATA:

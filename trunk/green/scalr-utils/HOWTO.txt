@@ -1,44 +1,72 @@
+-=-=-= Until There are CRON scripts:
+  SCREEN 6 on cantor
+   cd netbeans-workspace/green/scalr-utils/
+
+ -ReadTEDService.py populates watt and ted_service
+    while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --forever; done
+  or for a trace every day ...
+    while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --duration 86400; done
+ -Summarize.py until there is a cron
+   No switches yet, Summarize does 'today':
+    while true; do time python Summarize.py; sleep 9; echo; done
+ -And watching the Live and Summary tables:
+    while true; do for i in 'watt_day ' 'watt_hour' 'watt_minute' 'watt_tensec' 'watt' 'ted_service' ; do echo `mysql ted -N -B -e "select now(),'--',stamp,watt from $i order by stamp desc limit 1"` $i; done; sleep 9; echo; done
+
+
+-=-=-= Invoking Incremental to reload TED.db over watt
+  This might be automated !
+
+Database
+ --db /archive/mirror/ted/TED.db
+ --db /ted/TED.db
+
+Redirecting : > coco.sql or  | mysql ted
+
+Date range
+  START=`date +%Y-%m-%d -d '15 day ago'`; END=`date +%Y-%m-%d -d '1 day ago'`; echo ${START} ${END}
+  time python Incremental.py --db /archive/mirror/ted/TED.db  --start "${START} 00:00:00" --stop "${END} 00:00:00" 
+
+As in:
+START=`date +%Y-%m-%d -d '15 day ago'`; END=`date +%Y-%m-%d -d '1 day ago'`; echo ${START} ${END}; time python Incremental.py --db /archive/mirror/ted/TED.db --start "${START} 00:00:00" --stop "${END} 00:00:00"  > coco.sql
+
+Deleting wat db before reload - to avoid mixed data from ted_service/ted_native
+  Note the start/end time in coco.sql and delete that range before loading
+head -1 coco.sql; tail -1 coco.sql
+REPLACE INTO watt (stamp, watt) VALUES ('2008-11-14 05:00:00', '530');
+REPLACE INTO watt (stamp, watt) VALUES ('2008-11-28 04:59:27', '530');
+convert that into delete statement:
+mysql -vvv ted -e "select count(*) from watt where stamp>='2008-11-14 05:00:00' and stamp<'2008-11-28 05:00:00'"
+mysql -vvv ted -e "delete from watt where stamp>='2008-11-14 05:00:00' and stamp<'2008-11-28 05:00:00'"
+
+Now load the data: (170s for 14 days)
+time mysql ted < coco.sql
+
+-=-=-= Invoking Summary after data reload
+ Hmm Summarize has no switches yet. handcode 
+    earliestSecs =  startOfDay(latestSecs,-20)
+
 -=-=-= Data Query from TED SQLite DB
+  The offset may not be right! Also may try other tables:
+     sqlite3 /archive/mirror/ted/TED.db ".tables"
+     sqlite3 /archive/mirror/ted/TED.db ".schema"
+         /ted/TED.db  /archive/mirror/ted/TED.db
 
-(echo ".mode column"; echo ".width 20 10"; echo "select datetime((tick/10000-62135582400000)/1000,\"unixepoch\",\"localtime\"),kw*1000 from RDU_day_DATA;") | sqlite3 /ted/TED.db  
-select datetime((tick/10000-62135582400000)/1000,"unixepoch","localtime") from RDU_day_DATA
+(echo ".mode column"; echo ".width 20 10"; echo "select datetime((tick/10000-62135582400000)/1000,\"unixepoch\",\"localtime\"),kw*1000 from RDU_day_DATA;") | sqlite3 /archive/mirror/ted/TED.db
 
--=-= Comparing summary MySQL vs TED
+or how about with new offset and simpler arith:
+
+(echo ".mode column"; echo ".width 20 10"; echo "select datetime(tick/10000000-62135578800,\"unixepoch\",\"localtime\"),kw*1000 from RDU_day_DATA;") | sqlite3 /archive/mirror/ted/TED.db
+
+
+-=-=-= Comparing summary MySQL vs TED
+
 sqlite:
 for i in 'day' 'hour' 'minute' ; do echo $i `sqlite3 /ted/TED.db "select count(*),sum(kw),avg(kw)*1000 from RDU_${i}_DATA"`; done
 mysql
 for i in 'day' 'hour' 'minute' 'tensec' ; do echo $i `mysql ted -N -B -e "select count(*),avg(watt) as $i from watt_$i"`; done
 
-2008-09-10
-  incremental pumping straight from sqlite.
 
-  old way:
-  time python PumpSqliteToMysql.py /archive/mirror/ted/TED.db >coco.sql
-  time mysql ted < coco.sql
-
-  experiments: 
-    -sqlite dump:
-        sqlite3 /archive/mirror/ted/TED.db ".dumo rdu_second_data
-    -sqlite incremental select
-        getInv Time as watermark
-        .mode insert rdu_second_data
-
-        Time stuff:
-        # unix time for now
-        select strftime("%s","now"); 
-        # round trip
-        select datetime(strftime("%s","now"),"unixepoch","localtime");
-
-        # convert time from ted to iso
-        datetime((tick/10000-62135582400000)/1000,"unixepoch","localtime")
-        # convert time to ted:
-
-        select tick,kw from rdu_second_data where tick>=watermark;
-        select tick,kw from rdu_second_data where tick>='0633566196000008750';
-
-    -sqlite transform for mysql
---------------------------------
-To pull TED.db from aria:
+-=-=-= To pull TED.db from aria:
 
 from  aria: to acerama
 scp -p Programs/EnergyInc/TEDFootprints/TED.db .
