@@ -1,19 +1,7 @@
 2008-11-14 Inventory and new plan.
 
-28d prevTable:1661.0714 w/ minmax
-              1669.2143 wo/ minmax
 -=-= Objective (short):
   -Python daemon
-   Summarize comparison:
-
-SQLite
-(echo ".mode column"; echo ".width 20 10"; echo "select datetime((tick/10000-62135582400000)/1000,\"unixepoch\",\"localtime\"),kw*1000 from RDU_day_DATA;") | sqlite3 /ted/TED.db  
-select datetime((tick/10000-62135582400000)/1000,"unixepoch","localtime") from RDU_day_DATA
-
-sqlite:
-for i in 'day' 'hour' 'minute' ; do echo $i `sqlite3 /ted/TED.db "select count(*),sum(kw),avg(kw)*1000 from RDU_${i}_DATA"`; done
-mysql
-for i in 'day' 'hour' 'minute' 'tensec' ; do echo $i `mysql ted -N -B -e "select count(*),avg(watt) as $i from watt_$i"`; done
 
    Historical data (billing) into watt_day
    Flow:  when and who
