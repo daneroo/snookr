@@ -12,6 +12,8 @@
 
 @interface LogoPainter : NSObject {
 	NSDate *animateUntil;
+	UIImage *l1Image;
+	UIImage *l2Image;
 }
 
 @property(nonatomic, retain) NSDate *animateUntil;
