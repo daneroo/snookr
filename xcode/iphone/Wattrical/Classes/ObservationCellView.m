@@ -34,10 +34,19 @@
     // Configure the view for the selected state
 }
 
+- (void)setFeedName:(NSString *)feedname { 
+	observationView.feedname = feedname;
+}
+
+- (void)setUnits:(NSString *)units {
+	observationView.units = units;
+}
+
 - (void)setObservation:(Observation *)newObservation {
 	// Pass the observation to the view
 	observationView.observation = newObservation;
 }
+
 
 
 - (void)dealloc {

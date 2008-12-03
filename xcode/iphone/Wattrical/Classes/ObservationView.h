@@ -11,8 +11,12 @@
 
 @interface ObservationView : UIView {
 	Observation *observation;
+	NSString *feedname;
+	NSString *units;
 }
 
 @property (nonatomic, retain) Observation *observation;
+@property (nonatomic, retain) NSString *feedname;
+@property (nonatomic, retain) NSString *units;
 
 @end

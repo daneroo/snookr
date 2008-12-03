@@ -15,6 +15,9 @@
     ObservationView *observationView;
 }
 
+- (void)setFeedName:(NSString *)feedname;
+- (void)setUnits:(NSString *)units;
+
 - (void)setObservation:(Observation *)newObservation;
 @property (nonatomic, retain) ObservationView *observationView;
 
