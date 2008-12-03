@@ -78,10 +78,12 @@ Analysis Flow and actual Drawing:
     RootViewController *rootViewController;
     // UI State
 	int desiredScopeInDays; // desired Visible Days on Display
+	NSDate *animateUntil;
 }
 
 @property(nonatomic, retain) NSMutableArray *observations;
 @property(nonatomic, assign) RootViewController *rootViewController;
+@property(nonatomic, retain) NSDate *animateUntil;
 
 - (void) randomize; //temporary
 

@@ -10,10 +10,12 @@
 #import "Observation.h"
 #import "DateUtil.h"
 #import "RandUtil.h"
+#import "LogoPainter.h"
 
 @implementation GraphView
 @synthesize observations;
 @synthesize rootViewController;
+@synthesize animateUntil;
 
 #pragma mark State Management
 - (void) cycleScopeInController {
@@ -623,13 +625,23 @@
 - (void)drawRect:(CGRect)rect {
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSaveGState(context);
-    [self drawOther:rect];
+	
+	if (animateUntil) {
+		[self fillWithGradient:context];
+		LogoPainter *logoPainter = [[LogoPainter alloc] init];
+		logoPainter.animateUntil = self.animateUntil;
+		[logoPainter paint:self.bounds];
+		[logoPainter release];
+	} else {
+		[self drawOther:rect];
+	}
     CGContextRestoreGState(context);
 }
 
 
 - (void)dealloc {
     [observations release];
+	[animateUntil release];
     [super dealloc];
 }
 
