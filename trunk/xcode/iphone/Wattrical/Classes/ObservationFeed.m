@@ -118,6 +118,8 @@
     } else 	if ([elementName isEqualToString:@"date"]) {
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         NSString *iMDateFormatPlist = @"yyyy-MM-dd'T'HH:mm:ss'Z'"; // with a Z
+		[formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+		//NSLog(@"formatter time zone: %@",[formatter timeZone]);
         [formatter setDateFormat:iMDateFormatPlist];
         NSDate *theDate = [formatter dateFromString:accumulatedString];
         [formatter release];

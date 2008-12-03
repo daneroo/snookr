@@ -209,35 +209,38 @@ static NSOperationQueue *oq=nil;
 #pragma mark UITableViewDelegate Protocol
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    static NSString *CellIdentifier = @"Cell";
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    static NSString *cellReuseIdentifier = @"ObsCellId";
+    ObservationCellView *cell = (ObservationCellView *)[tableView dequeueReusableCellWithIdentifier:cellReuseIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-        //cell.textColor = [UIColor darkGrayColor];
-        //cell.selectedTextColor = [UIColor colorWithRed:0.0 green:1.0/3.0 blue:0.0 alpha:1.0];
+		CGFloat ROW_HEIGHT = self.tableView.rowHeight; //40 set in viewDidLoad
+		CGRect startingRect = CGRectMake(0.0, 0.0, 320.0, ROW_HEIGHT);
+        cell = [[[ObservationCellView alloc] initWithFrame:startingRect reuseIdentifier:cellReuseIdentifier] autorelease];
         cell.selectionStyle = UITableViewCellSelectionStyleGray; //UITableViewCellSelectionStyleBlue  UITableViewCellSelectionStyleNone
+		//cell.accessoryType = UITableViewCellAccessoryNone;
     }
     
     // Set up the cell
-    cell.accessoryType = UITableViewCellAccessoryNone;
-	cell.text = [cellNameArray objectAtIndex:indexPath.row];
+	[cell setFeedName:[cellNameArray objectAtIndex:indexPath.row]];
+	[cell setObservation:nil];
 	if ([obsarray.observations count]>0) {
+		//Observation *observation = [obsarray.observations objectAtIndex:indexPath.row];
 		Observation *observation =  (Observation *)[obsarray.observations objectAtIndex:0];
-		CGFloat watt = observation.value/1.0;
-		CGFloat kWh = observation.value*24.0/1000.0;
 		if (indexPath.row==0) {
-			cell.text=[NSString stringWithFormat:@"%@ %42.0f W",cell.text,watt];
-		}
-		if (indexPath.row==2) {
-			cell.text=[NSString stringWithFormat:@"%@ %40.1f kWh",cell.text,kWh];
+			[cell setUnits:@"W"];
+			[cell setObservation:observation];
+			//cell.text=[NSString stringWithFormat:@"%@ %42.0f W",cell.text,watt];
+		} else if (indexPath.row==2) {
+			[cell setUnits:@"kWh"];
+			[cell setObservation:observation];
+			//cell.text=[NSString stringWithFormat:@"%@ %40.1f kWh",cell.text,kWh];
+		} else {
+			[cell setObservation:nil];
 		}
 	}
-    
-    return cell;
+	
+	return cell;
 }
-
+	
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic -- create and push a new view controller
