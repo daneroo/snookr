@@ -75,6 +75,7 @@
         CGFloat kW = observation.value/1000.0;
         [sectionHeaderView setFadingStatus:[NSString stringWithFormat:@"%.2f kW  %.0f kWh/d",kW,kW*24.0]];
         [sectionHeaderView setDesiredSpeed:kW/6.0];
+		[self.tableView reloadData];
     }
 }
 
@@ -221,7 +222,18 @@ static NSOperationQueue *oq=nil;
     
     // Set up the cell
     cell.accessoryType = UITableViewCellAccessoryNone;
-	cell.text = [cellNameArray objectAtIndex:[indexPath row]];
+	cell.text = [cellNameArray objectAtIndex:indexPath.row];
+	if ([obsarray.observations count]>0) {
+		Observation *observation =  (Observation *)[obsarray.observations objectAtIndex:0];
+		CGFloat watt = observation.value/1.0;
+		CGFloat kWh = observation.value*24.0/1000.0;
+		if (indexPath.row==0) {
+			cell.text=[NSString stringWithFormat:@"%@ %42.0f W",cell.text,watt];
+		}
+		if (indexPath.row==2) {
+			cell.text=[NSString stringWithFormat:@"%@ %40.1f kWh",cell.text,kWh];
+		}
+	}
     
     return cell;
 }
