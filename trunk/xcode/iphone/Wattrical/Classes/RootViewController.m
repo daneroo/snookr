@@ -41,6 +41,19 @@
     NSLog(@"Hello from popupSettingsModal");
 }
 
+-(void) updateLogoAnimation {
+	NSDate *animateUntil = ((GraphView *)self.tableView.tableHeaderView).animateUntil;
+
+	//NSLog(@"timer %f",[animateUntil timeIntervalSinceNow]);
+    if ([animateUntil timeIntervalSinceNow]<=0) { // expired
+		[logoAnimTimer invalidate];
+		[logoAnimTimer release];
+		logoAnimTimer=nil;
+		((GraphView *)self.tableView.tableHeaderView).animateUntil = nil;
+	}
+   	[self.tableView.tableHeaderView setNeedsDisplay];
+}
+
 -(void) updateFakeStatusSpeed {
     CGFloat randSpeed = [RandUtil logRandomWithMin:0.1 andMax:1.0];
     NSLog(@"seting random speed to %f",randSpeed);
@@ -52,6 +65,10 @@
     NSLog(@"updateOnMainThreadAfterLoad MainThread=%d",[NSThread isMainThread]);
     //[self.view setNeedsDisplay];
    	[self.tableView.tableHeaderView setNeedsDisplay];
+
+	// prevent animation of status until main animation stoped
+	NSDate *animateUntil = ((GraphView *)self.tableView.tableHeaderView).animateUntil;
+	if (animateUntil) return;
 
     if ([obsarray.observations count]>0) {
         Observation *observation =  (Observation *)[obsarray.observations objectAtIndex:0];
@@ -287,6 +304,7 @@ static NSOperationQueue *oq=nil;
 	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(launchFeedOperationIfRequired) userInfo:nil repeats:YES];
 
 	//[NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(updateFakeStatusSpeed) userInfo:nil repeats:YES];
+	logoAnimTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(updateLogoAnimation)  userInfo:nil repeats:YES];
 
     //Set the title of the Main View here.
     self.title = @"Wattrical";
@@ -311,6 +329,8 @@ static NSOperationQueue *oq=nil;
     graphView.rootViewController = self; // hook back to us
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
     [graphView release]; // now that it has been retained.
+	graphView.animateUntil = [NSDate dateWithTimeIntervalSinceNow:10.0];
+
     graphView.observations = obsarray.observations;
     
 #define SECTIONHEADERVIEW_HEIGHT 15.0
@@ -357,6 +377,7 @@ static NSOperationQueue *oq=nil;
     [cellNameArray release];
     [obsarray release];
     [sectionHeaderView release];
+	[logoAnimTimer release]; // should already be nil and released
 }
 
 

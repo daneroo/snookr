@@ -16,6 +16,7 @@
     ObservationArray *obsarray;
     StatusSectionHeaderView *sectionHeaderView;
     NSInteger currentScope;
+	NSTimer *logoAnimTimer;
 }
 
 - (void)cycleScope;
