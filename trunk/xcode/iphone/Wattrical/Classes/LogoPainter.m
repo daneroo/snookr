@@ -40,6 +40,72 @@ void ZZHSVtoRGB(CGFloat h, CGFloat s, CGFloat v, CGFloat* r, CGFloat* g, CGFloat
     }
 }
 
+- (void)fillWithGradient:(CGRect)bounds {
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
+	CGFloat colors[] = {
+		0,0,0,1,
+		0,0,0,1,
+		0,1.0/3.0,0,1,
+	};
+	CGGradientRef gradient;
+	gradient = CGGradientCreateWithColorComponents(rgb, colors, NULL, sizeof(colors)/(sizeof(colors[0])*4));
+	CGColorSpaceRelease(rgb);
+	
+	CGContextSaveGState(context);
+	//CGContextClipToRect(context, clips[0]);
+
+	CGRect b = bounds;
+	CGPoint start = CGPointMake(b.origin.x, b.origin.y + b.size.height * 0.0);
+	CGPoint end = CGPointMake(b.origin.x, b.origin.y + b.size.height * 0.95);
+	CGContextDrawLinearGradient(context, gradient, start, end, 0);
+	//not needed here kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation
+	CGContextRestoreGState(context);
+	
+	CGGradientRelease(gradient);
+}
+
+- (void) drawLightning:(CGRect)bounds {
+	NSTimeInterval secs = [animateUntil timeIntervalSinceNow]-3;
+
+	
+	if (!l1Image) {
+		l1Image = [[UIImage imageNamed:@"lightning01.png"] retain];
+	}
+	if (!l2Image) {
+		l2Image = [[UIImage imageNamed:@"lightning02.png"] retain];
+	}
+
+	if (secs>=0){
+		//NSLog(@"shoud be NO: %d",lightningEnabled);
+		return;
+	}
+	
+	CGPoint center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
+
+	//secs/=2;
+	CGFloat t = remainder(secs,2.0);
+	// angle stays constant for 1 second (round)
+	// and is randomized by *17
+
+	//CGFloat angle = round(remainder(secs,60.0))*17*M_PI/30.0 - M_PI/2;
+	CGFloat alpha = sin(fabs(t*1.3)*M_PI*3); // actually goes negative !! cool
+	//CGFloat scale = (6+fabs(sin(fabs(t/1.0)*M_PI)))/6.0; // actually goes negative !! cool
+	//NSLog(@"drawLightning image: t=%f angle=%f scale:%f",t,angle,scale);
+	UIImage *img = (t<0)?l1Image:l2Image;
+	//[img drawAtPoint:imgPoint];
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGContextSaveGState(context);
+	CGContextTranslateCTM(context, center.x, center.y);
+    //CGContextRotateCTM(context, angle);
+    CGContextRotateCTM(context, M_PI/2);
+	//CGContextScaleCTM(context,scale,scale);
+	CGPoint imgPoint = CGPointMake(-img.size.width/2.0,-img.size.height/2.0);
+	//[img drawAtPoint:imgPoint blendMode:kCGBlendModeNormal alpha:alpha];
+	[img drawAtPoint:imgPoint blendMode:kCGBlendModeLighten alpha:alpha];
+	CGContextRestoreGState(context);
+}
+
 - (void)drawMovingDot:(CGRect)bounds angle:(CGFloat)angle radius:(CGFloat)radius hue:(CGFloat)hue {
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	CGPoint center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
@@ -135,17 +201,23 @@ void ZZHSVtoRGB(CGFloat h, CGFloat s, CGFloat v, CGFloat* r, CGFloat* g, CGFloat
 
 - (void)paint:(CGRect)bounds {
     CGContextRef context = UIGraphicsGetCurrentContext();
+	
+	[self fillWithGradient:bounds];
+	
     CGContextSaveGState(context);
 	[self drawBandsAndDots:bounds];
     CGContextRestoreGState(context);
-
+	
     CGContextSaveGState(context);
+	[self drawLightning:bounds];
 	[self drawText:bounds];
     CGContextRestoreGState(context);
 }
 
 - (void)dealloc {
     [animateUntil release];
+	[l1Image release];
+	[l2Image release];
     [super dealloc];
 }
 

@@ -627,7 +627,7 @@
     CGContextSaveGState(context);
 	
 	if (animateUntil) {
-		[self fillWithGradient:context];
+		//[self fillWithGradient:context];
 		LogoPainter *logoPainter = [[LogoPainter alloc] init];
 		logoPainter.animateUntil = self.animateUntil;
 		[logoPainter paint:self.bounds];
