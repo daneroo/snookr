@@ -57,7 +57,7 @@
         lbl.font = font;
         lbl.textColor = [UIColor darkGrayColor];
         lbl.backgroundColor = [UIColor clearColor];
-        lbl.textAlignment = UITextAlignmentCenter;
+        lbl.textAlignment = UITextAlignmentLeft;
 		lbl.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
 		[self addSubview:lbl];
         [lbl release];
