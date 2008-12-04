@@ -49,7 +49,8 @@ def getScalar(sql):
     return row[0]
 
 def getGMTTimeWattsAndVoltsFromTedService():
-	TED_DASHBOARDDATA_URL = 'http://aria.dl.sologlobe.com:9090/DashboardData'
+	#TED_DASHBOARDDATA_URL = 'http://aria.dl.sologlobe.com:9090/DashboardData'
+	TED_DASHBOARDDATA_URL = 'http://192.168.5.14:9090/DashboardData'
 	ISO_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 	usock = urllib.urlopen(TED_DASHBOARDDATA_URL)
 	xmldoc = minidom.parse(usock)                              
