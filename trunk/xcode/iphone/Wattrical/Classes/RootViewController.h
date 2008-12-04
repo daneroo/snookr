@@ -8,16 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "Observation.h"
-#import "ObservationArray.h"
+#import "Feed.h"
 #import "StatusSectionHeaderView.h"
 
 @interface RootViewController : UITableViewController {
 	NSArray *cellNameArray;
-    ObservationArray *obsarray;
+	NSDictionary *feedsByName;
     StatusSectionHeaderView *sectionHeaderView;
-    NSInteger currentScope;
+    NSInteger currentScope; // rename as index into cellnameArray..
 	NSTimer *logoAnimTimer;
 }
+@property(nonatomic, retain) NSDictionary *feedsByName;
 
 - (void)cycleScope;
 - (void)setScope:(NSInteger) aScope;

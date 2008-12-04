@@ -12,11 +12,13 @@
 #import "ObservationCellView.h"
 #import "DateUtil.h"
 #import "RandUtil.h"
-// for Reachability
-#import <SystemConfiguration/SystemConfiguration.h>
+// temporary
+#include "FeedParser.h"
 
 #define TIMER_INTERVAL 3.0
+
 @implementation RootViewController
+@synthesize feedsByName;
 
 #pragma mark Local Controller Hooks 
 
@@ -63,6 +65,21 @@
 
 -(void) updateOnMainThreadAfterLoad {
     NSLog(@"updateOnMainThreadAfterLoad MainThread=%d",[NSThread isMainThread]);
+	// feedsByName has been replaced..
+	// unless error... test and differnet message
+
+	// graphView.observations = nil; from feedsByName[cellNameArray[currentXcope]]
+	if (feedsByName) {
+		Feed *activeFeed = nil;
+		activeFeed = [feedsByName valueForKey:[cellNameArray objectAtIndex:currentScope]];
+		if (activeFeed) {
+			GraphView *graphView = (GraphView *)self.tableView.tableHeaderView;
+			graphView.observations = activeFeed.observations;
+		}
+	}
+
+	[sectionHeaderView setFadingStatus:[NSString stringWithFormat:@"Last updated: %@",[NSDate date]]];
+	
     //[self.view setNeedsDisplay];
    	[self.tableView.tableHeaderView setNeedsDisplay];
 
@@ -70,22 +87,16 @@
 	NSDate *animateUntil = ((GraphView *)self.tableView.tableHeaderView).animateUntil;
 	if (animateUntil) return;
 
-    if ([obsarray.observations count]>0) {
-        Observation *observation =  (Observation *)[obsarray.observations objectAtIndex:0];
-        CGFloat kW = observation.value/1000.0;
-        [sectionHeaderView setFadingStatus:[NSString stringWithFormat:@"%.2f kW  %.0f kWh/d",kW,kW*24.0]];
-        [sectionHeaderView setDesiredSpeed:kW/6.0];
+    if (feedsByName) {
 		[self.tableView reloadData];
+		Feed *liveFeed = [feedsByName valueForKey:@"Live"];
+		if (liveFeed) {
+			CGFloat kW = liveFeed.value/1000.0;
+			[sectionHeaderView setDesiredSpeed:kW/6.0];
+		}
     }
 }
 
-//  on 3G -->
-//  return 262147 = kSCNetworkReachabilityFlagsTransientConnection = 1<<0 |
-//                 kSCNetworkReachabilityFlagsReachable = 1<<1           |
-//                 kSCNetworkReachabilityFlagsIsWWAN = 1<< 18
-// on Newton
-// return 131074 = kSCNetworkReachabilityFlagsIsDirect - 1<<17 |
-//                 kSCNetworkReachabilityFlagsReachable = 1<<1
 
 - (BOOL)isLocalDataSourceAvailable
 {
@@ -116,18 +127,6 @@
 			NSLog(@"ping remote: %@",nsd);
 			_isDataSourceAvailable = NO;
 		}
-		/* 
-		 // apple Connectivity Way - Not appropriateHere
-				Boolean success;    
-				const char *host_name = "192.168.5.2";
-				
-				SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, host_name);
-				SCNetworkReachabilityFlags flags;
-				success = SCNetworkReachabilityGetFlags(reachability, &flags);
-				NSLog(@"Reachability flags: %d",flags);
-				_isDataSourceAvailable = success && (flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired);
-				CFRelease(reachability);
-		 */
     }
     return _isDataSourceAvailable;
 }
@@ -137,26 +136,27 @@
     NSDate *now = [NSDate date];
     NSLog(@"loadFromLiveFeed MainThread=%d scope:%d",[NSThread isMainThread],currentScope);
 
-	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/getTED.php"];
-	//NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/iPhoneTest.php"];
-    //NSURL *aURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/iMetrical/tedLive.php"];
-    //NSURL *aURL = [NSURL URLWithString:@"http://192.168.5.2/iMetrical/tedLive.php"];
-
     NSURL *baseURL = [NSURL URLWithString:@"http://dl.sologlobe.com:9999/"];
     if ([self isLocalDataSourceAvailable]) {
         baseURL = [NSURL URLWithString:@"http://192.168.5.2/"];
     }
     NSLog(@"Using baseURL: %@",baseURL);
-    //NSString *path = [NSString stringWithFormat:@"iMetrical/tedLive.php?scope=%d",currentScope];
-    NSString *path = [NSString stringWithFormat:@"iMetrical/wattrical.php?scope=%d",currentScope];
+    NSString *path = [NSString stringWithFormat:@"iMetrical/feeds.php?scope=%d",currentScope];
     NSURL *aURL = [NSURL URLWithString:path relativeToURL:baseURL];
 
-	//[obsarray appendObservationsFromURL:aURL];	  
-	//[obsarray loadObservationsFromURL:aURL];
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    [obsarray loadObservationFeedFromURL:aURL];
+	
+    self.feedsByName = [FeedParser feedsByNameAtURL:aURL];
+	if (YES) {
+		int count=0;
+		for (id feedName in feedsByName) {
+			Feed *feed = (Feed *)[feedsByName valueForKey:feedName];
+			count+= [feed.observations count];
+		}		
+		NSLog(@"Parsed %d feeds with %d observations in %7.2fs",[feedsByName count],count,-[now timeIntervalSinceNow]);
+	}
+	
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    NSLog(@"time to load (%3d) obs : %7.2f",[obsarray.observations count],-[now timeIntervalSinceNow]);
 
     // Must call the redraw stuff on main thread...
     //[self updateOnMainThreadAfterLoad];
@@ -222,22 +222,20 @@ static NSOperationQueue *oq=nil;
     // Set up the cell
 	[cell setFeedName:[cellNameArray objectAtIndex:indexPath.row]];
 	[cell setObservation:nil];
-	if ([obsarray.observations count]>0) {
-		//Observation *observation = [obsarray.observations objectAtIndex:indexPath.row];
-		Observation *observation =  (Observation *)[obsarray.observations objectAtIndex:0];
-		if (indexPath.row==0) {
-			[cell setUnits:@"W"];
-			[cell setObservation:observation];
-			//cell.text=[NSString stringWithFormat:@"%@ %42.0f W",cell.text,watt];
-		} else if (indexPath.row==2) {
-			[cell setUnits:@"kWh"];
-			[cell setObservation:observation];
-			//cell.text=[NSString stringWithFormat:@"%@ %40.1f kWh",cell.text,kWh];
-		} else {
-			[cell setObservation:nil];
-		}
-	}
 	
+	// feedForScope, or such
+	Feed *feedForRow = nil;
+	if (feedsByName) {
+		feedForRow = [feedsByName valueForKey:[cellNameArray objectAtIndex:indexPath.row]];
+	}
+	if (feedForRow) {
+		Observation *observation =  [[Observation alloc] init];
+		observation.stamp = feedForRow.stamp;
+		observation.value = feedForRow.value;
+		[cell setUnits: (indexPath.row<2) ? @"W" : @"kWh"];
+		[cell setObservation:observation];
+		[observation release];
+	}
 	return cell;
 }
 	
@@ -309,9 +307,8 @@ static NSOperationQueue *oq=nil;
     UIApplication *app = [UIApplication sharedApplication];
     app.statusBarStyle = UIStatusBarStyleBlackOpaque;
 
-    // or how about a +readFromFile +retain ?
-    obsarray = [[ObservationArray alloc] init];
-    //[self loadFromLiveFeed];
+    feedsByName = [[NSDictionary alloc] init];
+    //[self loadFromLiveFeed]; // not now too early
 
     // How should I implement : "As fast as possible" ?
     currentScope=0;
@@ -346,7 +343,7 @@ static NSOperationQueue *oq=nil;
     [graphView release]; // now that it has been retained.
 	graphView.animateUntil = [NSDate dateWithTimeIntervalSinceNow:10.0];
 
-    graphView.observations = obsarray.observations;
+    graphView.observations = nil;
     
 #define SECTIONHEADERVIEW_HEIGHT 15.0
     // Section Header View : used for status
@@ -390,7 +387,7 @@ static NSOperationQueue *oq=nil;
 - (void)dealloc {
     [super dealloc];
     [cellNameArray release];
-    [obsarray release];
+    [feedsByName release];
     [sectionHeaderView release];
 	[logoAnimTimer release]; // should already be nil and released
 }
