@@ -1,7 +1,19 @@
 2008-10-28
+ Wattrical
 
-  (TBVAdd) Weightrical - TODOS
--Observation Cell View:
+  FeedCellView rename ....
+  makesure graphView can handle nil observations array
+- Replace NSMutablearray of obs by Feeds.
+  Root controller, and Graphview
+
+- Deprecated ObservationArray,
+    ? keep code for sort , loding, adding.
+- Deprecated ObservationFeed
+   was the plist nsxml based parser, replaced by FeedParser
+
+
+ (TBVAdd) Weightrical - TODOS
+-Observation Cell View
    Custom drawing with Day|Month -- Time <--> Weight
 - GraphView:
     -Axis Labeling - Rewquirements
