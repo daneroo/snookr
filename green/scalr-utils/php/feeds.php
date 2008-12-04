@@ -76,10 +76,12 @@ function plistRowFormatter($stamp,$watt) {
 function observationtRowFormatter($stamp,$watt) {
     echo "    <observation stamp='$stamp' value='$watt' />\n";
 }
-function feedFormatter($aggrow) {
+function feedFormatter($feed,$aggrow) {
+    $name = $feed['name'];
+    $scopeId = $feed['scopeId'];
     $stamp=$aggrow[1];
     $value=round($aggrow[2]);
-    echo "  <feed stamp='$stamp' value='$value'>\n";
+    echo "  <feed scopeId='$scopeId' name='$name' stamp='$stamp' value='$value'>\n";
 }
 
 // might be called more than once ?
@@ -131,7 +133,7 @@ foreach ($feeds as $feed) {
     $aggsql = aggregateForFeed($agg[0],$agg[1]);
     //echo "feed $i: ".$aggsql;
     //print_r(getAggRow($aggsql));
-    feedFormatter(getAggRow($aggsql));
+    feedFormatter($feed,getAggRow($aggsql));
     $lastStamp=NULL;
     foreach ($feed['observations'] as $obs) {
         $lastStamp = entriesForTableSince($obs[0],$lastStamp,$obs[1]);
