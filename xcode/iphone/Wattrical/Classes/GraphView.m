@@ -441,14 +441,17 @@
     // X Scope Label Text part
 	[[UIColor lightGrayColor] set];
 	NSString *text=[NSString stringWithFormat:@"%d Days",desiredScopeInDays];
-    if (dataRangeTime<60.0) {
-        text=[NSString stringWithFormat:@"%.0f seconds",dataRangeTime];
-    } else if (dataRangeTime<3600.0) {
-        text=[NSString stringWithFormat:@"%.0f minutes",round(dataRangeTime/60.0)];
-    } else if (dataRangeTime<86400.0) {
-        text=[NSString stringWithFormat:@"%.0f hours",round(dataRangeTime/3600.0)];
+	//Compensate: max-min=59 minutes, 23 hours, etc...
+	// should really add sample duration of last sample...
+	CGFloat dataRangeTimeCompensated=dataRangeTime*([observations count]+1)/[observations count];
+    if (dataRangeTimeCompensated<60.0) {
+        text=[NSString stringWithFormat:@"%.0f seconds",dataRangeTimeCompensated];
+    } else if (dataRangeTimeCompensated<3600.0) {
+        text=[NSString stringWithFormat:@"%.0f minutes",round(dataRangeTimeCompensated/60.0)];
+    } else if (dataRangeTimeCompensated<86400.0) {
+        text=[NSString stringWithFormat:@"%.0f hours",round(dataRangeTimeCompensated/3600.0)];
     } else {
-        text=[NSString stringWithFormat:@"%.0f days",round(dataRangeTime/86400.0)];
+        text=[NSString stringWithFormat:@"%.0f days",round(dataRangeTimeCompensated/86400.0)];
     }
     
 	CGPoint point = CGPointMake([self mapX:dataMaxTime] - [text sizeWithFont:font].width,

@@ -27,8 +27,7 @@
 }
 
 -(void)setScope:(NSInteger) aScope {
-    NSInteger maxScope = 5;
-    currentScope = aScope % (maxScope+1);
+    currentScope = aScope % [cellNameArray count];
     NSLog(@"currentScope has been set to: %d",currentScope);
     [self launchFeedOperationIfRequired];
     
@@ -83,14 +82,13 @@
     //[self.view setNeedsDisplay];
    	[self.tableView.tableHeaderView setNeedsDisplay];
 
-	// prevent animation of status until main animation stoped
-	NSDate *animateUntil = ((GraphView *)self.tableView.tableHeaderView).animateUntil;
-	if (animateUntil) return;
-
+	// prevent animation of status::setDesiredSpeed until main animation stoped
+	BOOL logoAnimationIsDone = NULL==((GraphView *)self.tableView.tableHeaderView).animateUntil;
+    NSLog(@"logoAnimationIsDone: %d",logoAnimationIsDone);
     if (feedsByName) {
 		[self.tableView reloadData];
 		Feed *liveFeed = [feedsByName valueForKey:@"Live"];
-		if (liveFeed) {
+		if (liveFeed &&	logoAnimationIsDone) {
 			CGFloat kW = liveFeed.value/1000.0;
 			[sectionHeaderView setDesiredSpeed:kW/6.0];
 		}
