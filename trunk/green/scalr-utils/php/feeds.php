@@ -17,9 +17,9 @@ mysql_select_db($dbname);
 $feeds = array(
                array( 'name'=>"Live",  'scopeId'=>0, 'aggregate'=>array("watt",1),
                       'observations'=>array(array('watt',10),array('watt_tensec',30) )),
-               array( 'name'=>"Hour",  'scopeId'=>1, 'aggregate'=>array("watt_hour",1),
+               array( 'name'=>"Hour",  'scopeId'=>1, 'aggregate'=>array("watt_minute",60),
                       'observations'=>array(array('watt_minute',60) )),
-               array( 'name'=>"Day",   'scopeId'=>2, 'aggregate'=>array("watt_day",1),
+               array( 'name'=>"Day",   'scopeId'=>2, 'aggregate'=>array("watt_hour",24),
                       'observations'=>array(array('watt_hour',24) )),
                array( 'name'=>"Week",  'scopeId'=>3, 'aggregate'=>array("watt_day",7),
                       'observations'=>array(array('watt_day',7) )),
