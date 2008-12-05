@@ -309,9 +309,10 @@ static NSOperationQueue *oq=nil;
     //[self loadFromLiveFeed]; // not now too early
 
     // How should I implement : "As fast as possible" ?
-    currentScope=0;
-	//[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(loadFromLiveFeed) userInfo:nil repeats:YES];
+    currentScope=1; // Hour
 	[NSTimer scheduledTimerWithTimeInterval:TIMER_INTERVAL target:self selector:@selector(launchFeedOperationIfRequired) userInfo:nil repeats:YES];
+	// one time fire sooner... 0.5 seconds
+	//[NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(launchFeedOperationIfRequired) userInfo:nil repeats:NO];
 
 	//[NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(updateFakeStatusSpeed) userInfo:nil repeats:YES];
 	logoAnimTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(updateLogoAnimation)  userInfo:nil repeats:YES];
