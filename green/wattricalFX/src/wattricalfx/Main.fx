@@ -13,11 +13,12 @@ import javafx.scene.text.Font;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.paint.Color;
+import javafx.scene.input.MouseEvent;
+import java.lang.System;
 
 /**
  * @author daniel
  */
-
 Stage {
     title: "Wattrical FX"
     width: 480
@@ -34,7 +35,7 @@ Stage {
             stops: [
                 Stop {
                     offset: 0.0
-                    color: Color.BLACK},
+                    color: Color.WHITE},
                 Stop {
                     offset: 1.0
                     color: Color.GREEN}
