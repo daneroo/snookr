@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.paint.Color;
 
 /**
  * @author daniel
@@ -17,15 +20,25 @@ import javafx.scene.text.Font;
 
 Stage {
     title: "Wattrical FX"
-    width: 250
-    height: 80
+    width: 480
+    height: 320
     scene: Scene {
-        content: Text {
-            font : Font {
-                size : 24
-            }
-            x: 10, y: 30
-            content: "iMetrical - Wattrical"
+        content: Graph {
+        }
+        fill: LinearGradient {
+            startX: 0.0,
+            startY: 0.0,
+            endX: 0.0,
+            endY: 1.0,
+            proportional: true
+            stops: [
+                Stop {
+                    offset: 0.0
+                    color: Color.BLACK},
+                Stop {
+                    offset: 1.0
+                    color: Color.GREEN}
+            ]
         }
     }
 }
