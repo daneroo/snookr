@@ -1,3 +1,7 @@
+2008-12-16 Native interface...
+   ReadTedNative.py : read device directly
+      modeled after ReadTEDService.py, and ted.py
+
 2008-11-14 Inventory and new plan.
 
 -=-= Overview:
@@ -8,7 +12,8 @@
      to summarize
 
    Script Names
-          ReadTEDNative.py <- Incremental.py
+          SQLiteToMysql???.py <- Incremental.py
+          ReadTedNative.py 
           ReadTEDService.py
           Summarize.py
 
@@ -19,6 +24,7 @@
          watt_hour
          watt_day 
          ted_service
+         ted_native
      -owner ? multiple accounts ? only on gae or morph
 
 

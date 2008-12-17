@@ -2,6 +2,7 @@
   SCREEN 6 on cantor
    cd netbeans-workspace/green/scalr-utils/
 
+   in a screen:
  -ReadTEDService.py populates watt and ted_service
     while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --forever; done
   or for a trace every day ...
@@ -12,6 +13,15 @@
  -And watching the Live and Summary tables:
     while true; do for i in 'watt_day ' 'watt_hour' 'watt_minute' 'watt_tensec' 'watt' 'ted_service' ; do echo `mysql ted -N -B -e "select now(),'--',stamp,watt from $i order by stamp desc limit 1"` $i; done; sleep 9; echo; done
 
+-=-=-= Installing serial package: pyserial-2.4.tar.gz
+   Note pyserial has an example for py2exe in
+    pyserial-2.4/examples/setup_demo.py
+
+   -- From README.txt (as root)
+   Installation
+   ------------
+   Extract files from the archive, open a shell/console in that directory and
+   let Distutils do the rest: "python setup.py install"
 
 -=-=-= Invoking Incremental to reload TED.db over watt
   This might be automated !
