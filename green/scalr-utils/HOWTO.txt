@@ -2,11 +2,18 @@
   SCREEN 6 on cantor
    cd netbeans-workspace/green/scalr-utils/
 
+   in a screen as root:
+ -ReadTEDNative.py populates watt and ted_native
+    while true; do echo `date` Restarted ReadTEDNative | tee -a TEDNative.log; python ReadTEDNative.py --forever --device /dev/ttyUSB0; sleep 1; done
+  or for a trace every day ...
+    while true; do echo `date` Restarted ReadTEDNative | tee -a TEDNative.log; python ReadTEDNative.py --duration 86400 --device /dev/ttyUSB0; sleep 1; done
+
    in a screen:
  -ReadTEDService.py populates watt and ted_service
     while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --forever; done
   or for a trace every day ...
     while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --duration 86400; done
+
  -Summarize.py until there is a cron
    No switches yet, Summarize does 'today':
     while true; do time python Summarize.py; sleep 9; echo; done
