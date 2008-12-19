@@ -2,6 +2,10 @@ import MySQLdb
 import sys
 import time
 import math
+import getopt
+import string
+import calendar
+import datetime
 from scalr import logInfo,logWarn,logError
 
 
@@ -180,6 +184,19 @@ def walkBackDaysGenerator(earlierSecs,laterSecs): # see generators docs
         endOfDaySecs = startOfDaySecs
         startOfDaySecs = startOfDay(startOfDaySecs,-1)
         
+#    # examle iteration through days
+#    latestSecs = time.time()   +(1*86400)
+#    earliestSecs =  startOfDay(latestSecs,-20)
+#    for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
+#        dayLengthInHours = (endOfDaySecs-startOfDaySecs)/3600
+#        #print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
+#        # intersection of dayIteration and original interval 
+#        (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
+#        #print " partial  [ %s ,  %s ) " % (localTimeWithTZ(start),localTimeWithTZ(stop))
+
+
+
+
     
 def GMTTimeWithTZ(secs):
     return time.strftime("%Y-%m-%d %H:%M:%S GMT",time.gmtime(secs))
@@ -204,40 +221,69 @@ def testStartOfPeriods():
     
 if __name__ == "__main__":
 
-
     #testStartOfPeriods()
+    #sys.exit(0)
 
+    usage = 'python %s --days n_days(default=1) ( --duration <secs> | --forever)' % sys.argv[0]
+
+    # parse command line options
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["duration=", "forever", "days="])
+    except getopt.error, msg:
+        logError('error msg: %s' % msg)
+        logError(usage)
+        sys.exit(2)
+
+    # default values 
+    days=1;
+    # (forever-> duration=-1)
+    duration=1;
+
+    for o, a in opts:
+        if o == "--duration":
+            duration = string.atol(a)
+        elif o == "--forever":
+            duration = -1
+        elif o == "--days":
+            days = string.atol(a)
+
+    # Check tables once
     conn = MySQLdb.connect (host="127.0.0.1",user="aviso",passwd="",db="ted")
     cursor = conn.cursor ()
 
     forceDrop=False
     checkOrCreateTables(forceDrop)
 
-    latestSecs = time.time()   +(1*86400)
-    earliestSecs =  latestSecs -(86400*365)
-
-    import calendar
-    latestSecs = calendar.timegm(getScalar("select max(stamp) from watt").timetuple())
-    ##earliestSecs =  startOfDay(latestSecs,-20)
-    earliestSecs =  startOfDay(latestSecs,0)
-
-    print " Summarizing [ %s ,  %s ) (~%.1f days)" % (localTimeWithTZ(earliestSecs),localTimeWithTZ(latestSecs),(latestSecs-earliestSecs)/86400)
-
-    # examle iteration through days
-    for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
-        dayLengthInHours = (endOfDaySecs-startOfDaySecs)/3600
-        #print "day [ %s ,  %s ) (%.0fh)" % (localTimeWithTZ(startOfDaySecs),localTimeWithTZ(endOfDaySecs),dayLengthInHours)
-        # intersection of dayIteration and original interval 
-        (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
-        #print " partial  [ %s ,  %s ) " % (localTimeWithTZ(start),localTimeWithTZ(stop))
+    cursor.close ()
+    conn.close ()
+    
+    logInfo("Duration for loop is: %d seconds(-1==forever)" % duration)
+    logInfo("Expected days for summarizing: %d" % days)
 
 
-    for i in range(1, 2):
+    loopstart = time.time()
+    while True:
+        datetimenow = datetime.datetime.now()
+        now=time.time()
+        if duration>0 and (now-loopstart)>duration:
+            break
+        
+        #---------------loop
+        conn = MySQLdb.connect (host="127.0.0.1",user="aviso",passwd="",db="ted")
+        cursor = conn.cursor ()
+
+        # latestSecs = time.time()   +(1*86400)
+        latestSecs = calendar.timegm(getScalar("select max(stamp) from watt").timetuple())
+        earliestSecs =  startOfDay(latestSecs,-days+1)
+
+        print "%s Summarizing [ %s ,  %s ) (~%.1f days)" % (datetimenow,localTimeWithTZ(earliestSecs),localTimeWithTZ(latestSecs),(latestSecs-earliestSecs)/86400)
+
         timerstart = time.time()
     
         # this took 69s for 117d, 14s for 28d
+        handledDays=0;
         for (startOfDaySecs,endOfDaySecs) in walkBackDaysGenerator(earliestSecs,latestSecs):
-            (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
+            # (start,stop) = ( max(earliestSecs,startOfDaySecs) ,  min(latestSecs,endOfDaySecs) )
             (start,stop) = ( startOfDaySecs , endOfDaySecs )
             
             print " partial  [ %s ,  %s ) " % (localTimeWithTZ(start),localTimeWithTZ(stop))
@@ -246,11 +292,26 @@ if __name__ == "__main__":
             fillTable("hour",  13, ':00:00'   ,start, stop,'minute')
             (start,stop) = ( startOfDaySecs , endOfDaySecs )
             fillDayTable(start,'hour')
+            handledDays+=1
         
-        print " Handled %d days (%6.2fs.)" % (getScalar("select count(*) from watt_day"),time.time()-timerstart)
+        print " Handled %d days (%6.2fs.)" % (handledDays,time.time()-timerstart)
         
-    cursor.close ()
-    conn.close ()
+        cursor.close()
+        conn.close()
+
+        now=time.time()
+        if duration>0 and (now-loopstart)>duration:
+            break
+        # sleep to hit the 10 second mark on the nose (+desiredOffest)
+        # This is not working quite right... redo 10 second thing
+        (frac,dummy) = math.modf(now)
+        desiredFractionalOffset = .2
+        delay = 10-frac + desiredFractionalOffset
+        print "delay is :%f" %delay
+        time.sleep(delay)
+   
+#---------------------loop
+print "Done: running for %f seconds" % (time.time()-start)
 
 
 # conclusion tensec is everything, what is it's optimal size

@@ -1,4 +1,18 @@
-2008-12-16 Native interface...
+2008-12-18 TODO
+  -Turn Summarize into a forever loop (sleep 10.2 secs)
+  -Invoke ReadTedNative --forever, and SUmmarize --forever (--duration )
+    into wdog daemons:
+      make config file (for summarize first)
+      redirect output and error?
+
+  --Rethink 
+      watt + ted_native duplication, 
+      Secondary ouput of ReadTEDNative (files (sql,xml,cvs))
+
+  -Reseed TED.db > watt, (? and ted_service ? - or ted_footprints)
+  -Refactor all code (rename scalr? classes..., make installer ?) 
+
+2008-12-17 Native interface... WORKING
    ReadTedNative.py : read device directly
       modeled after ReadTEDService.py, and ted.py
 
