@@ -6,7 +6,6 @@
 
 package wattricalfx.parser;
 
-
 import java.io.InputStream;
 import java.lang.Exception;
 import java.lang.System;
@@ -56,12 +55,13 @@ public class ObsFeedParser {
 
                     if(pullEvt.qname.name == "feed" and pullEvt.level == 1) {
                         def feed = Feed {
-                            name: pullEvt.getAttributeValue(nameQname) as String
+                            name:
+                            pullEvt.getAttributeValue(nameQname) as String
                             scopeId:java.lang.Integer.parseInt( pullEvt.getAttributeValue(scopeIdQname))
                             stamp: pullEvt.getAttributeValue(stampQname) as String
                             value: java.lang.Integer.parseInt(pullEvt.getAttributeValue(valueQname))
                         }
-                        println("- {feed}");
+                        //println("- {feed}");
                         currentFeed=feed;
                         insert feed into feeds;
 
@@ -71,7 +71,7 @@ public class ObsFeedParser {
                             stamp: pullEvt.getAttributeValue(stampQname) as String
                             value: java.lang.Integer.parseInt(pullEvt.getAttributeValue(valueQname))
                         }
-                        println("  - {observation}");
+                        //println("  - {observation}");
                         insert observation into currentFeed.observations;
                         insert observation into accumFeed.observations;
 
@@ -82,6 +82,10 @@ public class ObsFeedParser {
 
         parser.parse();
         println("Accumulated feed: {accumFeed}");
+        for (feed in feeds) {
+            println("+ {feed}");
+        }
+
 
     }
 
@@ -94,7 +98,8 @@ public class ObsFeedParser {
         var request: HttpRequest =
         HttpRequest {
 
-            location: "http://192.168.5.2/iMetrical/feeds.php"
+            //location: "http://192.168.5.2/iMetrical/feeds.php"
+            location: "http://imetrical.morphexchange.com/feeds.xml"
             method: HttpRequest.GET
 
             onException: function(exception: Exception) {

@@ -18,7 +18,7 @@ public class Feed {
     public var observations: Observation[]=[];
 
     public override function toString() : java.lang.String{
-        return "feed [ stamp:{stamp} value={value}] |obs|=[{sizeof observations}";
+        return "feed ({name}) [ stamp:{stamp} value={value}] |obs|=[{sizeof observations}";
     }
 
 }
