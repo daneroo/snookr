@@ -7,7 +7,9 @@
 package wattricalfx;
 
 import java.lang.Long;
+import java.lang.Math;
 import java.util.Date;
+import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
@@ -18,12 +20,54 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import wattricalfx.Graph;
+import wattricalfx.model.Feed;
+import wattricalfx.model.Observation;
+import wattricalfx.parser.ObsFeedParser;
 
 /**
  * @author daniel
  */
 
-var graph:Graph =  Graph {}
+var fakeFeed:Feed = Feed {
+    name:"Fake"
+    scopeId:-1
+    stamp: new Date()
+    value:1000;
+}
+
+def now = new Date().getTime();
+for (t in [0..300 step 2]) {
+    var rnd:Random = new Random();
+    var v = ( Math.sin(t/300.0 * 4*Math.PI) + 1)/2 * 2000 + rnd.nextInt(200);
+    def observation = Observation {
+        stamp: new Date(now-t*1000);
+        value: v.intValue()
+    }
+    println("  - {observation}");
+    insert observation into fakeFeed.observations;
+}
+
+var graph:Graph =  Graph {
+    feed: fakeFeed
+}
+
+var liveText = Text {
+    font: Font {
+        size: 18
+    }
+    x: 10,
+    y: 80
+    content: "live"
+}
+var dayText = Text {
+    font: Font {
+        size: 18
+    }
+    x: 10,
+    y: 100
+    content: "day"
+}
+
 
 Stage {
     title: "Wattrical FX"
@@ -40,14 +84,8 @@ Stage {
                 y: 50
                 content: "iMetrical - Wattrical"
             },
-            Text {
-                font: Font {
-                    size: 24
-                }
-                x: 10,
-                y: 80
-                content: "100"
-            }
+            liveText,
+            dayText,
 
         ]
         fill: LinearGradient {
@@ -76,16 +114,26 @@ watcher.timer.play();
 class Watcher {
     var secs:Long;
     var graph:Graph;
+
+    def parser:ObsFeedParser = ObsFeedParser {}
+
     public var timer : Timeline = Timeline {
         repeatCount: Timeline.INDEFINITE
         keyFrames: KeyFrame {
-            time: 3s
+            time: 2s
             canSkip:true
             action: function() {
                 var now:Date = new Date();
                 secs=now.getTime();
-                graph.invokeParser();
-                println("Disconected timer: {now}");
+                parser.parseURL();
+                if (parser.parsedFeeds != null) {
+                    //liveText.content = now.toString();
+                    liveText.content = "{parser.parsedFeeds[0].stamp} {parser.parsedFeeds[0].value} W";
+                    dayText.content = "{parser.parsedFeeds[2].stamp} {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
+                    var whichFeed = if ( ((new Date().getSeconds()/10) mod 2) == 0) 0 else 1;
+                    graph.feed = parser.parsedFeeds[whichFeed];
+                }
+                println("Watcher timeline: {now}");
             }
         },
     };

@@ -5,16 +5,17 @@
  */
 
 package wattricalfx.model;
+import java.util.Date;
 
 /**
  * @author daniel
  */
 
 public class Observation {
-    public var stamp: String;
+    public var stamp: Date;
     public var value: Integer;
 
-    public override function toString() : java.lang.String{
+    public override function toString() : String {
         return "obs [ stamp:{stamp} value={value}]";
     }
 }
