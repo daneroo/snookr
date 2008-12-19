@@ -1,7 +1,8 @@
 2008-12-18 TODO
-  -Turn Summarize into a forever loop (sleep 10.2 secs)
-  -Invoke ReadTedNative --forever, and SUmmarize --forever (--duration )
-    into wdog daemons:
+  +doSQLDump : see /home/daniel/java/solochain/heads/wdel/ext_resources/masterslave/doSqlDumpOnSlave as example
+  +Turn Summarize into a forever loop (sleep 10.2 secs)
+  +Invoke ReadTedNative --forever, and SUmmarize --forever (--duration )
+    -into wdog daemons:
       make config file (for summarize first)
       redirect output and error?
 
