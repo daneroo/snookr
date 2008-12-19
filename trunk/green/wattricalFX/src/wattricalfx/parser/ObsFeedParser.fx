@@ -9,12 +9,13 @@ package wattricalfx.parser;
 import java.io.InputStream;
 import java.lang.Exception;
 import java.lang.System;
+import java.util.Date;
 import javafx.data.pull.Event;
 import javafx.data.pull.PullParser;
 import javafx.data.xml.QName;
 import javafx.io.http.HttpRequest;
-import wattricalfx.model.Observation;
 import wattricalfx.model.Feed;
+import wattricalfx.model.Observation;
 
 /**
  * @author daniel
@@ -22,7 +23,7 @@ import wattricalfx.model.Feed;
 
 public class ObsFeedParser {
 
-
+    public var parsedFeeds:Feed[]=null;
     var errorMessage = "";
     def nameQname = QName{
         name:"name"}
@@ -33,13 +34,24 @@ public class ObsFeedParser {
     def valueQname = QName{
         name:"value"}
 
-    function parseInputStream(input: InputStream) {
+    function getStrAttr(pullEvt: javafx.data.pull.Event,qname:QName) : String {
+        return pullEvt.getAttributeValue(qname) as String;
+    }
+    function getIntAttr(pullEvt: javafx.data.pull.Event,qname:QName) : Integer {
+        return java.lang.Integer.parseInt(pullEvt.getAttributeValue(qname));
+    }
+    function getDateAttr(pullEvt: javafx.data.pull.Event,qname:QName) : Date {
+        var strVal =
+        pullEvt.getAttributeValue(qname) as String;
+        return new Date();
+    }
+    function parseInputStream(input: InputStream):Feed[] {
         System.out.println("Gonna Parse");
 
         var feeds: Feed[];
         var currentFeed:Feed=null;
         var accumFeed:Feed= Feed {
-            stamp: "2008-11-02 14:35:56"
+            stamp: new Date()
             value: 654
             name: "Accum"
             scopeId: -1;
@@ -55,11 +67,10 @@ public class ObsFeedParser {
 
                     if(pullEvt.qname.name == "feed" and pullEvt.level == 1) {
                         def feed = Feed {
-                            name:
-                            pullEvt.getAttributeValue(nameQname) as String
-                            scopeId:java.lang.Integer.parseInt( pullEvt.getAttributeValue(scopeIdQname))
-                            stamp: pullEvt.getAttributeValue(stampQname) as String
-                            value: java.lang.Integer.parseInt(pullEvt.getAttributeValue(valueQname))
+                            name:   getStrAttr(pullEvt,  nameQname)
+                            scopeId:getIntAttr(pullEvt,  scopeIdQname)
+                            stamp:  getDateAttr(pullEvt, stampQname)
+                            value:  getIntAttr(pullEvt,  valueQname)
                         }
                         //println("- {feed}");
                         currentFeed=feed;
@@ -68,8 +79,8 @@ public class ObsFeedParser {
                     }
                     if(pullEvt.qname.name == "observation" and pullEvt.level == 2) {
                         def observation = Observation {
-                            stamp: pullEvt.getAttributeValue(stampQname) as String
-                            value: java.lang.Integer.parseInt(pullEvt.getAttributeValue(valueQname))
+                            stamp:  getDateAttr(pullEvt, stampQname)
+                            value:  getIntAttr(pullEvt,  valueQname)
                         }
                         //println("  - {observation}");
                         insert observation into currentFeed.observations;
@@ -85,6 +96,7 @@ public class ObsFeedParser {
         for (feed in feeds) {
             println("+ {feed}");
         }
+        return feeds;
 
 
     }
@@ -98,8 +110,8 @@ public class ObsFeedParser {
         var request: HttpRequest =
         HttpRequest {
 
-            //location: "http://192.168.5.2/iMetrical/feeds.php"
-            location: "http://imetrical.morphexchange.com/feeds.xml"
+            location: "http://192.168.5.2/iMetrical/feeds.php"
+            //location: "http://imetrical.morphexchange.com/feeds.xml"
             method: HttpRequest.GET
 
             onException: function(exception: Exception) {
@@ -116,7 +128,7 @@ public class ObsFeedParser {
 
             onInput: function(input: java.io.InputStream) {
                 try {
-                    parseInputStream(input);
+                    parsedFeeds = parseInputStream(input);
                     if(errorMessage.length() > 0) {
                         //alert("Error", parser.errorMessage);
                         httpRequestError = true;
@@ -128,9 +140,9 @@ public class ObsFeedParser {
 
             onDone: function() {
                 if(not httpRequestError) {
-                    println("I am Done with no Errors");
+                    println("-I am Done with no Errors");
                 } else {
-                    println("I am Done with Error: {errorMessage}");
+                    println("-I am Done with Error: {errorMessage}");
                 }
             }
         }
