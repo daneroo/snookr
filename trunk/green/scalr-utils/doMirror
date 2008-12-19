@@ -20,9 +20,9 @@ DBNAME=TED.db
 ARCNAME=TED.db.$stamp
 
 
-cp /ted/$DBNAME $DBNAME
+cp -p /ted/$DBNAME $DBNAME
 echo `date` "TED mirror copied from aria smbmount"
-cp $DBNAME $ARCNAME
+cp -p $DBNAME $ARCNAME
 echo `date` "TED mirror copied for compression - stamped archival"
 
 # removed the --fast option for now 
