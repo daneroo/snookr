@@ -8,17 +8,20 @@
   or for a trace every day ...
     while true; do echo `date` Restarted ReadTEDNative | tee -a TEDNative.log; python ReadTEDNative.py --duration 86400 --device /dev/ttyUSB0; sleep 1; done
 
-   in a screen:
+ -Summarize.py until there is a cron
+       The while is for unexpected death...
+       New switches --days 1, --forever
+    while true; do time python Summarize.py --days 1 --forever; sleep 10; done
+
+ -And watching the Live and Summary tables:
+    while true; do for i in 'watt_day ' 'watt_hour' 'watt_minute' 'watt_tensec' 'watt' 'ted_service' ; do echo `mysql ted -N -B -e "select now(),'--',stamp,watt from $i order by stamp desc limit 1"` $i; done; sleep 9; echo; done
+
+  DEPRECATED:  in a screen:
  -ReadTEDService.py populates watt and ted_service
     while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --forever; done
   or for a trace every day ...
     while true; do echo `date` Restarted ReadTEDService | tee -a TEDService.log; python ReadTEDService.py --duration 86400; done
 
- -Summarize.py until there is a cron
-   No switches yet, Summarize does 'today':
-    while true; do time python Summarize.py; sleep 9; echo; done
- -And watching the Live and Summary tables:
-    while true; do for i in 'watt_day ' 'watt_hour' 'watt_minute' 'watt_tensec' 'watt' 'ted_service' ; do echo `mysql ted -N -B -e "select now(),'--',stamp,watt from $i order by stamp desc limit 1"` $i; done; sleep 9; echo; done
 
 -=-=-= Installing serial package: pyserial-2.4.tar.gz
    Note pyserial has an example for py2exe in
