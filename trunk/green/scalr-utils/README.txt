@@ -1,5 +1,22 @@
 2008-12-18 TODO
-  +doSQLDump : see /home/daniel/java/solochain/heads/wdel/ext_resources/masterslave/doSqlDumpOnSlave as example
+  -doSQLDump : see /home/daniel/java/solochain/heads/wdel/ext_resources/masterslave/doSqlDumpOnSlave as example
+
+    Could also remote slave from solaris box at office...
+
+    Watch while dumping:
+         while true; do mysql ted -e "select stamp as 'stamp@watt',watt from watt order by stamp desc limit 20"; sleep 1; done
+         while true; do mysql ted -e "select stamp as 'stamp@native',watt from ted_native order by stamp desc limit 20"; sleep 1; done
+
+     to see if they lock while taking a dump...
+
+     seems NOT to lock the inserts although the dump stops at moment of start.
+     does seem to lock_out the Summarizing.
+
+      45 secs: time mysqldump --opt ted >ted.sql
+      95 secs: time mysqldump --opt --extended-insert=0  ted >ted.sql
+
+     Could dump just once a day..
+.
   +Turn Summarize into a forever loop (sleep 10.2 secs)
   +Invoke ReadTedNative --forever, and SUmmarize --forever (--duration )
     -into wdog daemons:
