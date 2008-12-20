@@ -23,6 +23,7 @@ import wattricalfx.model.Feed;
  * @author daniel
  */
 public class Graph extends CustomNode {
+    public-init var env: Env;
     public var feed:Feed;
     def movetoseq = bind
     if (sizeof(feed.observations) > 0) MoveTo {
@@ -39,11 +40,12 @@ public class Graph extends CustomNode {
             };
         }
     }
+
     public override function create(): Node {
         return Group {
-            content: bind [
+            content: [
                 Path {
-                    elements: [
+                    elements: bind [
                         movetoseq,
                         linetoseq
                     ] // elements
@@ -53,9 +55,10 @@ public class Graph extends CustomNode {
                     font: Font {
                         size: 12
                     }
-                    x: 300,
-                    y: 200
-                    content: "Note {sizeof(feed.observations)}"
+                    x: env.screenWidth - 200;
+                    y: env.screenHeight - 40;
+
+                    content: bind "Note {sizeof(feed.observations)}"
                 }
 
             ]
