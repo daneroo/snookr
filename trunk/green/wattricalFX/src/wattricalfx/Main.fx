@@ -46,40 +46,34 @@ new Date().getTime();
 for (t in [0..300 step 2]) {
     var rnd:Random = new Random();
     var v = ( Math.sin(t  /  300.0 * 4  *  Math.PI) + 1) / 2 * 2000 + rnd.nextInt(200);
+    v = t;
     def observation = Observation {
         stamp: new Date(
             now - t * 1000);
         value: v.intValue()
     }
-    println("  - {observation}");
+    //println("  - {observation}");
     insert observation into fakeFeed.observations;
 }
 
 var graph:Graph =  Graph {
     env:env
     feed: fakeFeed
-    effect: Reflection {
+    /*effect: Reflection {
         fraction: 0.9
         topOpacity: 0.5
         topOffset: 0.3
-    }
+    }*/
 }
 
-var liveText = Text {
+var statusText = Text {
     font: Font {
-        size: 18
+        size: 14
     }
+    fill: Color.WHITE
     x: 10,
-    y: 80
-    content: "live"
-}
-var dayText = Text {
-    font: Font {
-        size: 18
-    }
-    x: 10,
-    y: 100
-    content: "day"
+    y: env.screenHeight - 30
+    content: "Status"
 }
 
 
@@ -94,13 +88,12 @@ Stage {
                 font: Font {
                     size: 24
                 }
-                x: 10,
-                y: 50
+                x: 100,
+                y: 20
                 content: "iMetrical - Wattrical"
+                fill: Color.WHITE
             },
-            liveText,
-            dayText,
-
+            statusText,
         ]
         fill: LinearGradient {
             startX: 0.0,
@@ -111,7 +104,7 @@ Stage {
             stops: [
                 Stop {
                     offset: 0.0
-                    color: Color.WHITE},
+                    color: Color.BLACK},
                 Stop {
                     offset: 1.0
                     color: Color.GREEN}
@@ -141,9 +134,10 @@ class Watcher {
                 secs=now.getTime();
                 parser.parseURL();
                 if (parser.parsedFeeds != null) {
-                    //liveText.content = now.toString();
-                    liveText.content = "{parser.parsedFeeds[0].stamp} {parser.parsedFeeds[0].value} W";
-                    dayText.content = "{parser.parsedFeeds[2].stamp} {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
+                    //println("  LOCAL : {parser.parsedFeeds[0].isoStamp}");
+                    //println("  GMT   : {parser.parsedFeeds[0].isoGMT()}");
+                    var stamp = parser.parsedFeeds[0].isoStamp; //isoGMT()
+                    statusText.content = "{stamp} {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
                     var whichFeed =
                     if ( ((
                     new Date().getSeconds() / 10) mod 2) == 0) 0 else 1;

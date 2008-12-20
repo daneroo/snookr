@@ -9,7 +9,10 @@ package wattricalfx.parser;
 import java.io.InputStream;
 import java.lang.Exception;
 import java.lang.System;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.SimpleTimeZone;
 import javafx.data.pull.Event;
 import javafx.data.pull.PullParser;
 import javafx.data.xml.QName;
@@ -34,15 +37,35 @@ public class ObsFeedParser {
     def valueQname = QName{
         name:"value"}
 
+    def sdf:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'Z");
+    def sdfGMT:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'Z");
+    init {
+        /*var ids:String[] = TimeZone.getAvailableIDs(0);
+        for (i in ids){
+         println("id is {i}");
+         }*/
+        def gmt:SimpleTimeZone = new SimpleTimeZone(0,"GMT");
+        def cal:GregorianCalendar = new GregorianCalendar();
+        cal.setTimeZone(gmt);
+        sdfGMT.setCalendar(cal);
+    }
     function getStrAttr(pullEvt: javafx.data.pull.Event,qname:QName) : String {
-        return pullEvt.getAttributeValue(qname) as String;
+        return
+        pullEvt.getAttributeValue(qname) as String;
     }
     function getIntAttr(pullEvt: javafx.data.pull.Event,qname:QName) : Integer {
-        return java.lang.Integer.parseInt(pullEvt.getAttributeValue(qname));
+        return
+        java.lang.Integer.parseInt(pullEvt.getAttributeValue(qname));
     }
     function getDateAttr(pullEvt: javafx.data.pull.Event,qname:QName) : Date {
-        var strVal =
+        try {
+            var strVal =
         pullEvt.getAttributeValue(qname) as String;
+            var d:Date = sdf.parse("{strVal}+0000");
+            //println("{strVal} ->{d} ->{sdf.format(d)}");
+            return d;
+        } catch (e:Exception){
+        }
         return new Date();
     }
     function parseInputStream(input: InputStream):Feed[] {
@@ -67,10 +90,10 @@ public class ObsFeedParser {
 
                     if(pullEvt.qname.name == "feed" and pullEvt.level == 1) {
                         def feed = Feed {
-                            name:   getStrAttr(pullEvt,  nameQname)
+                            name: getStrAttr(pullEvt,  nameQname)
                             scopeId:getIntAttr(pullEvt,  scopeIdQname)
-                            stamp:  getDateAttr(pullEvt, stampQname)
-                            value:  getIntAttr(pullEvt,  valueQname)
+                            stamp: getDateAttr(pullEvt, stampQname)
+                            value: getIntAttr(pullEvt,  valueQname)
                         }
                         //println("- {feed}");
                         currentFeed=feed;
@@ -79,8 +102,8 @@ public class ObsFeedParser {
                     }
                     if(pullEvt.qname.name == "observation" and pullEvt.level == 2) {
                         def observation = Observation {
-                            stamp:  getDateAttr(pullEvt, stampQname)
-                            value:  getIntAttr(pullEvt,  valueQname)
+                            stamp: getDateAttr(pullEvt, stampQname)
+                            value: getIntAttr(pullEvt,  valueQname)
                         }
                         //println("  - {observation}");
                         insert observation into currentFeed.observations;
