@@ -133,7 +133,8 @@ public class ObsFeedParser {
         var request: HttpRequest =
         HttpRequest {
 
-            location: "http://192.168.5.2/iMetrical/feeds.php"
+            //location: "http://192.168.5.2/iMetrical/feeds.php"
+            location: "http://imetrical.appspot.com/feeds?owner=daniel"
             //location: "http://imetrical.morphexchange.com/feeds.xml"
             method: HttpRequest.GET
 
