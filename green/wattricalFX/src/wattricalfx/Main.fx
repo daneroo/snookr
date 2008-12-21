@@ -137,7 +137,8 @@ class Watcher {
                     //println("  LOCAL : {parser.parsedFeeds[0].isoStamp}");
                     //println("  GMT   : {parser.parsedFeeds[0].isoGMT()}");
                     var stamp = parser.parsedFeeds[0].isoStamp; //isoGMT()
-                    statusText.content = "{stamp} {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
+                    var latency = (new Date().getTime()-parser.parsedFeeds[0].stamp.getTime())/1000.0;
+                    statusText.content = "{stamp} ({-latency}s.)  {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
                     var whichFeed =
                     if ( ((
                     new Date().getSeconds() / 10) mod 2) == 0) 0 else 1;

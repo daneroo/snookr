@@ -101,7 +101,7 @@ public class Graph extends CustomNode {
                     x: env.screenWidth - 70;
                     y: 20;
 
-                    content: bind "Note {sizeof(feed.observations)}"
+                    content: bind "|{feed.name}|={sizeof(feed.observations)}"
                 }
 
             ]
