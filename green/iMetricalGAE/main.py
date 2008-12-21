@@ -57,6 +57,8 @@ class PublishPage(webapp.RequestHandler):
 """)
 
 class SubscribePage (webapp.RequestHandler):
+  """ http://imetrical.appspot.com/feeds?owner=daniel
+"""
   def get(self):
     feeds = Feeds.get_by_key_name(self.request.get("owner"))
     if feeds.content:
