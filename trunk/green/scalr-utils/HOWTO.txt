@@ -1,20 +1,22 @@
 -=-=-= Until There are CRON scripts:
   SCREEN 6 on cantor
    cd netbeans-workspace/green/scalr-utils/
+   
+  A-ReadTEDNative  #alternative --duration 86400 instead of --forever for periodic log statement
+    # in a screen as root:
 
-   in a screen as root:
- -ReadTEDNative.py populates watt and ted_native
     while true; do echo `date` Restarted ReadTEDNative | tee -a TEDNative.log; python ReadTEDNative.py --forever --device /dev/ttyUSB0; sleep 1; done
-  or for a trace every day ...
-    while true; do echo `date` Restarted ReadTEDNative | tee -a TEDNative.log; python ReadTEDNative.py --duration 86400 --device /dev/ttyUSB0; sleep 1; done
 
- -Summarize.py until there is a cron
-       The while is for unexpected death...
-       New switches --days 1, --forever
+  B-Summarize.py until there is a cron
+    #   The while is for unexpected death.- New switches --days 1, --forever
+
     while true; do time python Summarize.py --days 1 --forever; sleep 10; done
 
  -And watching the Live and Summary tables:
     while true; do for i in 'watt_day ' 'watt_hour' 'watt_minute' 'watt_tensec' 'watt' 'ted_service' ; do echo `mysql ted -N -B -e "select now(),'--',stamp,watt from $i order by stamp desc limit 1"` $i; done; sleep 9; echo; done
+
+
+
 
   DEPRECATED:  in a screen:
  -ReadTEDService.py populates watt and ted_service
