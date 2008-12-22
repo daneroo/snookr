@@ -72,9 +72,10 @@ class PublishPage(webapp.RequestHandler):
     feeds.put()
 
     lastRead = memcache.get("lastRead:%s" % owner)
+    now = datetime.datetime.now()
     accessedSecondsAgo=-1;
     if (lastRead is not None):
-        accessedSecondsAgo = stamp-lastRead
+        accessedSecondsAgo = (now-lastRead).seconds
 
     logging.info("Updated Feed entity: %s %s" % (feeds.key().name(),feeds.stamp))
 
@@ -89,7 +90,8 @@ class SubscribePage (webapp.RequestHandler):
   def get(self):
     owner = self.request.get("owner")
     lastRead = datetime.datetime.now()
-    memcache.set("lastRead:%s" % owner, lastRead)
+    expireSeconds = 8 * 3600
+    memcache.set("lastRead:%s" % owner, lastRead,expire)
 
     feeds = Feeds.get_by_key_name(owner)
     self.response.headers['Content-Type'] = "text/xml"
@@ -104,10 +106,30 @@ l.com/DTDs/ObservationFeeds-1.0.dtd">
 </feeds>
 """ % owner)
 
+
+class LivenessPage (webapp.RequestHandler):
+  """ Comet style poller reports lastRead
+"""
+  def get(self):
+    owner = self.request.get("owner")
+    lastRead = memcache.get("lastRead:%s" % owner)
+    now = datetime.datetime.now()
+    accessedSecondsAgo=-1;
+
+    if (lastRead is not None):
+        accessedSecondsAgo = (now-lastRead).seconds
+        self.response.out.write("""Feed:%s Accessed %ss. ago
+""" % (owner,accessedSecondsAgo))
+    else:
+        self.response.out.write("""Feed:%s Never Accessed
+""" % owner)
+
+
 application = webapp.WSGIApplication([
   ('/', MainPage),
   ('/post', PublishPage),
   ('/feeds', SubscribePage),
+  ('/q', LivenessPage),
 ],debug=True)
 
 def main():
