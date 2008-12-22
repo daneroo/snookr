@@ -24,6 +24,7 @@ import datetime
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
+from google.appengine.api import memcache
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -69,10 +70,16 @@ class PublishPage(webapp.RequestHandler):
     feeds.content = content
     feeds.stamp = stamp
     feeds.put()
+
+    lastRead = memcache.get("lastRead:%s" % owner)
+    accessedSecondsAgo=-1;
+    if (lastRead is not None):
+        accessedSecondsAgo = stamp-lastRead
+
     logging.info("Updated Feed entity: %s %s" % (feeds.key().name(),feeds.stamp))
 
-    self.response.out.write("""Published for %s @ %s |content|=%d 
-""" % (feeds.owner,feeds.stamp,len(feeds.content)))
+    self.response.out.write("""Published for %s @ %s (%s) |content|=%d
+""" % (feeds.owner,feeds.stamp,accessedSecondsAgo,len(feeds.content)))
 
 
 
@@ -81,6 +88,9 @@ class SubscribePage (webapp.RequestHandler):
 """
   def get(self):
     owner = self.request.get("owner")
+    lastRead = datetime.datetime.now()
+    memcache.set("lastRead:%s" % owner, lastRead)
+
     feeds = Feeds.get_by_key_name(owner)
     self.response.headers['Content-Type'] = "text/xml"
     if feeds and feeds.content:
