@@ -91,7 +91,7 @@ class SubscribePage (webapp.RequestHandler):
     owner = self.request.get("owner")
     lastRead = datetime.datetime.now()
     expireSeconds = 8 * 3600
-    memcache.set("lastRead:%s" % owner, lastRead,expire)
+    memcache.set("lastRead:%s" % owner, lastRead,expireSeconds)
 
     feeds = Feeds.get_by_key_name(owner)
     self.response.headers['Content-Type'] = "text/xml"
