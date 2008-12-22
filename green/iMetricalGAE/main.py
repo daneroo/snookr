@@ -20,6 +20,7 @@
 
 import wsgiref.handlers
 import logging
+import datetime
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -29,13 +30,16 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 class Feeds(db.Model):
   owner   = db.StringProperty()
-  content     = db.BlobProperty()
-  date    = db.DateTimeProperty(auto_now_add=True)
+  content = db.TextProperty()
+  stamp   = db.DateTimeProperty()
 
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    self.response.out.write('Hello iMetrical World!')
+    count = db.GqlQuery("SELECT * FROM Feeds").count()
+    self.response.out.write("""Hello iMetrical World!
+I have retreived %d records
+""" % count)
 
 class PublishPage(webapp.RequestHandler):
   """  To publish content:
@@ -49,23 +53,46 @@ class PublishPage(webapp.RequestHandler):
 """
   def post(self):
     owner = self.request.get("owner")
-    feeds = Feeds(key_name=owner)
-    feeds.owner = owner
-    feeds.content = db.Blob(self.request.get("content"))
+    keyName = owner
+    content = db.Text(self.request.get("content"))
+    stamp = datetime.datetime.now()
+
+    # no need for this expense
+    #testfeeds = Feeds.get_by_key_name(keyName)
+    #if testfeeds is None: # new
+    #    logging.info("New Feed entity for key/owner: %s", keyName)
+
+    # get or create feed:
+    #   get_or_insert will not update the fields if the entity exists
+    #  feeds = Feeds.get_or_insert(keyName,owner=owner,content=content,stamp=stamp)
+    feeds = Feeds.get_or_insert(keyName,owner=owner)
+    feeds.content = content
+    feeds.stamp = stamp
     feeds.put()
-    self.response.out.write("""
-""")
+    logging.info("Updated Feed entity: %s %s" % (feeds.key().name(),feeds.stamp))
+
+    self.response.out.write("""Published for %s @ %s |content|=%d 
+""" % (feeds.owner,feeds.stamp,len(feeds.content)))
+
+
 
 class SubscribePage (webapp.RequestHandler):
   """ http://imetrical.appspot.com/feeds?owner=daniel
 """
   def get(self):
-    feeds = Feeds.get_by_key_name(self.request.get("owner"))
-    if feeds.content:
-      self.response.headers['Content-Type'] = "text/xml"
+    owner = self.request.get("owner")
+    feeds = Feeds.get_by_key_name(owner)
+    self.response.headers['Content-Type'] = "text/xml"
+    if feeds and feeds.content:
       self.response.out.write(feeds.content)
     else:
-      self.response.out.write("<feeds/>")
+      self.response.out.write("""<?xml version="1.0"?>
+<!DOCTYPE plist PUBLIC "-//iMetrical//DTD OBSFEEDS 1.0//EN" "http://www.imetrica
+l.com/DTDs/ObservationFeeds-1.0.dtd">
+<feeds>
+  <!-- feeds for %s is empty -->
+</feeds>
+""" % owner)
 
 application = webapp.WSGIApplication([
   ('/', MainPage),
