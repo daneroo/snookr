@@ -24,11 +24,6 @@ import wattricalfx.model.Feed;
 public class Graph extends CustomNode {
     public-init var env: Env;
     public var feed:Feed;
-    def movetoseq = bind
-    if (sizeof(feed.observations) > 0) MoveTo {
-        x: xFromStamp(feed.observations[0].stamp)
-        y: yFromValue(feed.observations[0].value)
-    } else null;
 
     def yBottom=250.0;
     def yHeight=200.0;
@@ -47,6 +42,12 @@ public class Graph extends CustomNode {
         //println("v:{value} y:{y} min:{feed.minValue} max:{feed.maxValue} r:{feed.rangeValue} height: {layoutBounds.height}");
         return y;
     }
+
+    def movetoseq = bind
+    if (sizeof(feed.observations) > 0) MoveTo {
+        x: xFromStamp(feed.observations[0].stamp)
+        y: yFromValue(feed.observations[0].value)
+    } else null;
 
     def linetoseq = bind {
         for (index in [0..<sizeof(feed.observations)]) {
@@ -98,7 +99,7 @@ public class Graph extends CustomNode {
                         size: 14
                     }
                     fill: Color.LIGHTGRAY
-                    x: env.screenWidth - 70;
+                    x: env.screenWidth - 100;
                     y: 20;
 
                     content: bind "|{feed.name}|={sizeof(feed.observations)}"

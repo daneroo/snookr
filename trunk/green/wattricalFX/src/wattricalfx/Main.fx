@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.Scene;
+import javafx.scene.Group;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -41,12 +43,11 @@ var fakeFeed:Feed = Feed {
     value:1000;
 }
 
-def now =
-new Date().getTime();
+def now = new Date().getTime();
 for (t in [0..300 step 2]) {
     var rnd:Random = new Random();
     var v = ( Math.sin(t  /  300.0 * 4  *  Math.PI) + 1) / 2 * 2000 + rnd.nextInt(200);
-    v = t;
+    //v = t; // ramp instead
     def observation = Observation {
         stamp: new Date(
             now - t * 1000);
@@ -70,10 +71,66 @@ var statusText = Text {
     font: Font {
         size: 14
     }
-    fill: Color.WHITE
+    fill: Color.LIGHTGRAY
     x: 10,
     y: env.screenHeight - 30
     content: "Status"
+}
+
+var titleText = Text {
+    font: Font {
+        size: 24
+    }
+    x: 100,
+    y: 20
+    content: "iMetrical - Wattrical"
+    fill: Color.WHITE
+};
+
+var wattStr = "1234 W";
+var kWhStr = "30.0 kWH/d";
+
+var powerGroup = Group {
+    content: [
+        Rectangle {
+            fill: Color.DARKGRAY
+            opacity: .4
+            width: 200
+            height: 40
+            arcWidth: 20
+            arcHeight: 20
+        },
+        Text {
+            font: Font {
+                size: 24
+            }
+            x: 20
+            y: 30
+            content: bind wattStr
+            fill: Color.LIGHTGREEN
+        },
+        Rectangle {
+            fill: Color.DARKGRAY
+            opacity: .4
+            width: 200
+            height: 40
+            arcWidth: 20
+            arcHeight: 20
+            translateY: 60
+        },
+        Text {
+            font: Font {
+                size: 24
+            }
+            x: 20
+            y: 30
+            content: bind kWhStr
+            fill: Color.LIGHTGREEN
+            translateY: 60
+        },
+    ]
+    translateX:30
+    translateY:90
 }
 
 
@@ -84,18 +141,13 @@ Stage {
     scene: Scene {
         content: [
             graph,
-            Text {
-                font: Font {
-                    size: 24
-                }
-                x: 100,
-                y: 20
-                content: "iMetrical - Wattrical"
-                fill: Color.WHITE
-            },
+            titleText,
+            powerGroup,
             statusText,
         ]
-        fill: LinearGradient {
+        fill:
+        if (false) Color.BLACK else
+        LinearGradient {
             startX: 0.0,
             startY: 0.0,
             endX: 0.0,
@@ -109,7 +161,7 @@ Stage {
                     offset: 1.0
                     color: Color.GREEN}
             ]
-        }
+        };
     }
 }
 
@@ -137,8 +189,12 @@ class Watcher {
                     //println("  LOCAL : {parser.parsedFeeds[0].isoStamp}");
                     //println("  GMT   : {parser.parsedFeeds[0].isoGMT()}");
                     var stamp = parser.parsedFeeds[0].isoStamp; //isoGMT()
-                    var latency = (new Date().getTime()-parser.parsedFeeds[0].stamp.getTime())/1000.0;
-                    statusText.content = "{stamp} ({-latency}s.)  {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
+                    var latency = (
+                    new Date().getTime() - parser.parsedFeeds[0].stamp.getTime()) / 1000.0;
+                    //statusText.content = "{stamp} ({-latency}s.)  {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
+                    statusText.content = "{stamp} ({-latency}s.)";
+                    wattStr = "{parser.parsedFeeds[0].value} W";
+                    kWhStr = "{parser.parsedFeeds[2].value*24.0/1000} kWh/d";
                     var whichFeed =
                     if ( ((
                     new Date().getSeconds() / 10) mod 2) == 0) 0 else 1;
