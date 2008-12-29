@@ -26,6 +26,7 @@ import wattricalfx.model.Observation;
 
 public class ObsFeedParser {
 
+    public-init var feedLocation:String;
     public var parsedFeeds:Feed[]=null;
     var errorMessage = "";
     def nameQname = QName{
@@ -133,9 +134,7 @@ public class ObsFeedParser {
         var request: HttpRequest =
         HttpRequest {
 
-            //location: "http://192.168.5.2/iMetrical/feeds.php"
-            location: "http://imetrical.appspot.com/feeds?owner=daniel"
-            //location: "http://imetrical.morphexchange.com/feeds.xml"
+            location: feedLocation
             method: HttpRequest.GET
 
             onException: function(exception: Exception) {
