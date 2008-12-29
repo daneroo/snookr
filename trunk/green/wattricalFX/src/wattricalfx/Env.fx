@@ -13,5 +13,6 @@ package wattricalfx;
 public class Env {
     public-init var screenWidth: Number;
     public-init var screenHeight: Number;
+    public-init var feedLocation: String;
 
 }

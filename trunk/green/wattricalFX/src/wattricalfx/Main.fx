@@ -26,6 +26,7 @@ import wattricalfx.Graph;
 import wattricalfx.model.Feed;
 import wattricalfx.model.Observation;
 import wattricalfx.parser.ObsFeedParser;
+import wattricalfx.view.RoundPanel;
 
 /**
  * @author daniel
@@ -34,7 +35,11 @@ import wattricalfx.parser.ObsFeedParser;
  //def env = Env{screenWidth: 320, screenHeight: 240};
 def env = Env{
     screenWidth: 480,
-    screenHeight: 320};
+    screenHeight: 320
+    feedLocation: "http://192.168.5.2/iMetrical/feeds.php"
+    //feedLocation: "http://imetrical.appspot.com/feeds?owner=daniel"
+    //feedLocation: "http://imetrical.morphexchange.com/feeds.xml"
+};
 
 var fakeFeed:Feed = Feed {
     name:"Fake"
@@ -81,56 +86,34 @@ var titleText = Text {
     font: Font {
         size: 24
     }
-    x: 100,
+    x: 150,
     y: 20
-    content: "iMetrical - Wattrical"
+    content: "iMetrical"
     fill: Color.WHITE
 };
 
-var wattStr = "1234 W";
-var kWhStr = "30.0 kWH/d";
+var wattStr = "1234";
+var kWhStr = "30.0";
+var kWhMoStr = "30.0";
 
 var powerGroup = Group {
     content: [
-        Rectangle {
-            fill: Color.DARKGRAY
-            opacity: .4
-            width: 200
-            height: 40
-            arcWidth: 20
-            arcHeight: 20
-        },
-        Text {
-            font: Font {
-                size: 24
-            }
-            x: 20
-            y: 30
-            content: bind wattStr
-            fill: Color.LIGHTGREEN
-        },
-        Rectangle {
-            fill: Color.DARKGRAY
-            opacity: .4
-            width: 200
-            height: 40
-            arcWidth: 20
-            arcHeight: 20
+        RoundPanel { value:  bind wattStr units:"W" scope:"live"}
+        RoundPanel {
+            value:  bind kWhStr
+            units: "kWh/d"
+            scope: "day"
             translateY: 60
-        },
-        Text {
-            font: Font {
-                size: 24
-            }
-            x: 20
-            y: 30
-            content: bind kWhStr
-            fill: Color.LIGHTGREEN
-            translateY: 60
-        },
+        }
+        RoundPanel {
+            value:  bind kWhMoStr
+            units: "kWh/d"
+            scope:"month"
+            translateY: 120
+        }
     ]
     translateX:30
-    translateY:90
+    translateY:70
 }
 
 
@@ -174,7 +157,10 @@ class Watcher {
     var secs:Long;
     var graph:Graph;
 
-    def parser:ObsFeedParser = ObsFeedParser {}
+    def parser:ObsFeedParser = ObsFeedParser {
+            feedLocation: env.feedLocation
+    }
+
 
     public var timer : Timeline = Timeline {
         repeatCount: Timeline.INDEFINITE
@@ -193,12 +179,12 @@ class Watcher {
                     new Date().getTime() - parser.parsedFeeds[0].stamp.getTime()) / 1000.0;
                     //statusText.content = "{stamp} ({-latency}s.)  {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
                     statusText.content = "{stamp} ({-latency}s.)";
-                    wattStr = "{parser.parsedFeeds[0].value} W";
-                    kWhStr = "{parser.parsedFeeds[2].value*24.0/1000} kWh/d";
-                    var whichFeed =
-                    if ( ((
-                    new Date().getSeconds() / 10) mod 2) == 0) 0 else 1;
+                    wattStr = "{parser.parsedFeeds[0].value}";
+                    kWhStr = "{parser.parsedFeeds[2].value*24.0/1000}";
+                    kWhMoStr = "{parser.parsedFeeds[4].value*24.0/1000}";
+                    var whichFeed = ((now.getSeconds() / 10) mod 3);
                     graph.feed = parser.parsedFeeds[whichFeed];
+                    println(" selected feed:{whichFeed}");
                 }
                 println("Watcher timeline: {now}");
             }
