@@ -53,7 +53,8 @@
          }
         var domdata = xmlhttp.responseXML.documentElement;
         responseCommon(domdata);
-        setTimeout("makeNativeDOMRequest()", 5*1000)
+        var refreshRate = 5;
+        setTimeout("makeNativeDOMRequest()", refreshRate*1000)
       };
 
       function makeDOMRequest() {    
@@ -70,7 +71,7 @@
         responseCommon(domdata)
       };
   
-      function responseCommon(domdata) { 
+      function responseCommon(domdata) {
         var html = "<table>";
         html += "<tr><th>Scope</th><th>Stamp</th><th>W</th><th>kWh/d</th></tr>"
         var feedList = domdata.getElementsByTagName("feed");
@@ -90,6 +91,7 @@
           //dstamp.setISO8601("2008-12-30T04:23:13Z");
           dstamp.setISO8601(latestStampStr);
 
+        var refreshRate = 5;
         html += "<pre>Refresh Rate: "+refreshRate+" latency: "+(new Date().getTime()-dstamp.getTime())/1000+"<pre>"
 
         document.getElementById('content_div').innerHTML = html;
