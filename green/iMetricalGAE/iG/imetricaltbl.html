@@ -73,7 +73,7 @@
       function responseCommon(domdata) { 
         var html = "<table>";
         html += "<tr><th>Scope</th><th>Stamp</th><th>W</th><th>kWh/d</th></tr>"
-        var feedList = response.getElementsByTagName("feed");
+        var feedList = domdata.getElementsByTagName("feed");
         for (var i = 0; i < feedList.length ; i++) {
           // For each <food> node, get child nodes.
           var name = feedList.item(i).getAttribute("name");
