@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="http://imetrical.appspot.com/fx/" href="wattricalFX.jnlp">
+    <information>
+        <title>wattricalFX</title>
+        <vendor>daniel</vendor>
+        <homepage href=""/>
+        <description>wattricalFX</description>
+        <offline-allowed/>
+        <shortcut>
+            <desktop/>
+        </shortcut>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+"/>
+        <extension name="JavaFX Runtime" href="http://dl.javafx.com/javafx-rt.jnlp"/>
+        <jar href="wattricalFX.jar" main="true"/>
+    </resources>
+    <application-desc main-class="wattricalfx.Main"/>
+</jnlp>
