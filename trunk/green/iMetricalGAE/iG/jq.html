@@ -1,25 +1,38 @@
 <html>
     <head>
         <style type="text/css">
-            a.test { font-weight: bold; }
-        </style>
+            body, div, h1 { font-family: 'trebuchet ms', verdana, arial; margin: 0; padding: 0 }
+            div.inner {
+                color: #fff; text-align: center; font: verdana, arial, sans-serif;
+                float: left; width: 18em; padding: 10px; margin: 1em;
+                margin: 0; background: #090; padding: 10px; border:0;}
+            div.outer { float: left; margin: 5px; background: #070; padding: 2px; wwidth: 22em }
 
+        </style>
         <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="jquery.corner.js"></script>
+        <script type="text/javascript" src="jquery.timer.js"></script>
+        <script type="text/javascript" src="obsfeed.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                $("a").addClass("test");
-                $("a").click(function(event){
-                    event.preventDefault();
-                    $(this).hide("slow");
-                });
+                $('div.inner').wrap('<div class="outer"></div>');
 
+                $("div.inner").click(function(event){
+                    //event.preventDefault();
+                    $(this).hide("slow").show();
+                });
+                $("div.inner").corner().parent().css('padding', '4px').corner();
+
+                $.timer(5000, function (timer) {
+                    //$("div.obs").hide().html(""+new Date()).fadeIn("slow");
+                    //timer.stop();
+                    makeJQueryRequest();
+                });
             });
 
         </script>
     </head>
     <body>
-        <a href="http://jquery.com/">jQuery</a>
-        <br>
-        <a href="http://jquery.com/">jQuery</a>
+        <div class="inner"><div class="obs">Cornered With a Bunch</div></div>
     </body>
 </html>
