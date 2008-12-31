@@ -9,10 +9,10 @@
             div.outer { float: left; margin: 5px; background: #070; padding: 2px; wwidth: 22em }
 
         </style>
-        <script type="text/javascript" src="jquery.js"></script>
-        <script type="text/javascript" src="jquery.corner.js"></script>
-        <script type="text/javascript" src="jquery.timer.js"></script>
-        <script type="text/javascript" src="obsfeed.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.corner.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.timer.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/obsfeed.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
                 $('div.inner').wrap('<div class="outer"></div>');
@@ -24,9 +24,9 @@
                 $("div.inner").corner().parent().css('padding', '4px').corner();
 
                 $.timer(5000, function (timer) {
-                    //$("div.obs").hide().html(""+new Date()).fadeIn("slow");
+                    $("div.obs").hide().html(""+new Date()).fadeIn("slow");
                     //timer.stop();
-                    makeJQueryRequest();
+                    //makeJQueryRequest();
                 });
             });
 
