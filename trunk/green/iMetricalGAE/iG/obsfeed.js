@@ -4,7 +4,7 @@
 
 var globalurl = "http://imetrical.appspot.com/feeds?owner=daniel";
 // while true; do curl -o feeds.xml "http://imetrical.appspot.com/feeds?owner=daniel"; sleep 3; done
-// globalurl = "feeds.xml";
+globalurl = "feeds.xml";
 
 function makeJQueryRequest() {
     $.ajax({
@@ -18,9 +18,12 @@ function makeJQueryRequest() {
 
             var feedList = xmlData.getElementsByTagName("feed");
             for (var i = 0; i < feedList.length ; i++) {
+                var stamp = new Date();
+                stamp.setISO8601(feedList.item(i).getAttribute("stamp"));
                 var feed = {
                     name: feedList.item(i).getAttribute("name"),
-                    stamp: feedList.item(i).getAttribute("stamp").substring(11,19),
+                    //stamp: feedList.item(i).getAttribute("stamp").substring(11,19),
+                    stamp: stamp,
                     value: feedList.item(i).getAttribute("value"),
                 }
                 feeds.push(feed);
@@ -30,7 +33,7 @@ function makeJQueryRequest() {
             html += "<tr><th>Scope</th><th>Stamp</th><th>W</th><th>kWh/d</th></tr>"
             for (var i = 0; i < feeds.length; i++) {
                 var f = feeds[i];
-                html += "<tr><td>"+f.name+"</td><td>"+f.stamp+"</td><td>"+f.value+"</td><td>"+(f.value*24.0/1000)+"</td></tr>"
+                html += "<tr><td>"+f.name+"</td><td>"+f.stamp.getHMS()+"</td><td>"+f.value+"</td><td>"+(f.value*24.0/1000)+"</td></tr>"
             }
             html += "</table>";
             $("div.obs").hide().html(html).fadeIn("fast");
@@ -111,7 +114,8 @@ function responseCommon(domdata) {
 
 };
 
-// Date Handling
+// Date Handling - http://delete.me.uk/2005/03/iso8601.html
+// see also http://blog.stevenlevithan.com/archives/date-time-format
 Date.prototype.setISO8601 = function (string) {
     var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
     "(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
@@ -149,3 +153,14 @@ Date.prototype.setISO8601 = function (string) {
     this.setTime(Number(time));
 };
 
+pad = function (val, len) {
+    val = String(val);
+    len = len || 2;
+    while (val.length < len) val = "0" + val;
+    return val;
+};
+
+
+Date.prototype.getHMS = function () {
+    return ""+pad(this.getHours())+":"+pad(this.getMinutes())+":"+pad(this.getSeconds());
+}

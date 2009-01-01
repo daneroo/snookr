@@ -6,13 +6,26 @@
                 color: #fff; text-align: center; font: verdana, arial, sans-serif;
                 float: left; width: 18em; padding: 10px; margin: 1em;
                 margin: 0; background: #090; padding: 10px; border:0;}
-            div.outer { float: left; margin: 5px; background: #070; padding: 2px; wwidth: 22em }
+            div.outer { float: left; margin: 5px; background: #070; padding: 2px; width: 22em }
+            div.cornered {
+                background: #090;
+                padding: 10px;
+                margin: 2px;
+            }
+            div.outcornered {
+                width: 23em; background: #070; padding: 1px; margin:0px;
+            }
+            div.hoverstuff {
+                background: #0a0;
+
+            }
 
         </style>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.corner.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.timer.js"></script>
-        <script type="text/javascript" src="http://imetrical.appspot.com/iG/obsfeed.js"></script>
+        <!--<script type="text/javascript" src="http://imetrical.appspot.com/iG/obsfeed.js"></script>-->
+        <script type="text/javascript" src="obsfeed.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
                 $('div.inner').wrap('<div class="outer"></div>');
@@ -22,17 +35,42 @@
                     $(this).hide("slow").show();
                 });
                 $("div.inner").corner().parent().css('padding', '4px').corner();
+                $("div.cornered").corner(/*"6px"*/);
+                $("div.outcornered").corner(/*"6px"*/);
+                $("div.cornered").hover(function() {
+                    $(this).addClass('hoverstuff');
+                }, function() {
+                    $(this).removeClass('hoverstuff');
+                });
 
-                $.timer(5000, function (timer) {
-                    $("div.obs").hide().html(""+new Date()).fadeIn("slow");
+                $("div.cornered").click(function () {
+                    //$(this).hide("puff",function(){}, 1000);
+                    $(this).hide().fadeIn("slow");
+                });
+
+                $.timer(10000, function (timer) {
+                    //$("div.obs").hide().html(""+new Date()).fadeIn("slow");
                     //timer.stop();
-                    //makeJQueryRequest();
+                    makeJQueryRequest();
                 });
             });
 
         </script>
     </head>
     <body>
+        <div class="outcornered">
+            <div class="cornered" style="width:10em; float:right;">C11</div>
+            <div class="cornered" style="width:10em; ffloat:right;">C21</div>
+            <div style="clear: both;"></div>
+            <div class="cornered" style="width:10em; float:right;">C12</div>
+            <div class="cornered" style="width:10em; ffloat:right;">C22</div>
+            <div class="cornered" style="width:15em;">C3</div>
+            <div class="cornered" style="width:5em;">C4</div>
+            <div class="cornered" style="width:5em;">C5</div>
+            <div class="cornered" style="width:5em;">C6</div>
+            <div class="cornereddd" style="color:#333; padding-left:2em; background:#080; width:21em;">latency: 3.234s</div>
+        </div>
+        <div style="clear: both;"/>
         <div class="inner"><div class="obs">Cornered With a Bunch</div></div>
     </body>
 </html>
