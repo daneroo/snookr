@@ -2,6 +2,10 @@
     <head>
         <style type="text/css">
             body, div, h1 { font-family: 'trebuchet ms', verdana, arial; margin: 0; padding: 0 }
+            a {text-decoration: none}
+            div.outerbox {
+                width: 23em; background: #070; padding: 1px; margin:0px;
+            }
             div.inner {
                 color: #fff; text-align: center; font: verdana, arial, sans-serif;
                 float: left; width: 18em; padding: 10px; margin: 1em;
@@ -11,24 +15,112 @@
                 background: #090;
                 padding: 10px;
                 margin: 2px;
-                height: 50px;
+                //height: 50px;
             }
-            div.outcornered {
-                width: 23em; background: #070; padding: 1px; margin:0px;
-            }
+            div.buttonbar { height:2em;}
+            div.b { width:13%; float:left; text-align:center; vertical-align:middle; height:100%;}
             div.hoverstuff {
                 background: #0a0;
-
+            }
+            div.details {
+                margin: 0; background: #999; padding: 10px; border:0;
             }
 
         </style>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.corner.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.timer.js"></script>
-        <!--<script type="text/javascript" src="http://imetrical.appspot.com/iG/obsfeed.js"></script>-->
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.effects.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/obsfeed.js"></script>-->
+        <!--<script type="text/javascript" src="jquery.ui.effects.js"></script>-->
         <script type="text/javascript" src="obsfeed.js"></script>
         <script type="text/javascript">
+            function indexForScopeName(scopeName) {
+                if ("Hour"  == scopeName) return 1;
+                if ("Day"   == scopeName) return 2;
+                if ("Week"  == scopeName) return 3;
+                if ("Month" == scopeName) return 4;
+                return 0;
+            }
             $(document).ready(function(){
+                $("div.b").addClass("cornered");
+                $("div.cornered").corner(/*"6px"*/);
+                //$("div.outcornered").corner(/*"6px"*/);
+
+                $("div.cornered").hover(function() {
+                    $(this).addClass('hoverstuff');
+                    //globalSelectedFeed=indexForScopeName(this.id);
+                    //updateFeeds();
+                }, function() {
+                    $(this).removeClass('hoverstuff');
+                    //globalSelectedFeed=0;
+                    //updateFeeds();
+                });
+
+                $("#top").click(function () {
+                    alert("top")
+                    globalSelectedFeed=0;
+                    updateFeeds();
+                });
+                $("div.b").click(function () {
+                    var scopeName = this.id;
+                    globalSelectedFeed=indexForScopeName(scopeName);
+                    updateFeeds();
+                });
+
+                $.timer(5000, function (timer) {
+                    //$("div.obs").hide().html(""+new Date().getHMS()).fadeIn("slow");
+                    makeJQueryRequest();
+                });
+
+                $('#main').hide();
+                $.timer(2000, function (timer) {
+                    $("#intro").hide("puff",null,2000,function(){
+                        $('#main').show();
+                    });
+                    //$("#intro").hide("explode",{ pieces: 25 },4000);
+                    timer.stop();
+                });
+
+            });
+
+        </script>
+    </head>
+    <body style="background:#060">
+        <div class="outerbox">
+            <div class="top" style="height:110px;">
+                <div id="intro" class="cornered" style="text-align:center; font-size:150%; margin: 15px auto; padding: 20px; height:auto; width:320px; ">iMetrical</div>
+                <div id="main" class="cornered" style="margin: 5px auto; width:20em;">
+                    <div class="cornered" style="background:#080; float:right; font-size:200%; vertical-align:middle; text-align:right; width:2.5em; height:50%">
+                        <span id="change">+0%</span>
+                    </div>
+                    <div style="height:70%; padding-top:0px;">
+                        <span id="scopename" style="color:#555;">Live</span>
+                        <br>
+                        <span id="value" style="font-size:200%; color:white">0000</span>
+                        <span id="units" style="margin-left:0.5em;font-size:120%;">Watt</span>
+                        <br>
+                        <span id="stamp" style="color:#555;"></span>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+            <div class="buttonbar">
+                <div id="Hour" class="b"><div class="feed">Hour</div><div class="kWh">--.--</div></div>
+                <div id="Day" class="b"><div class="feed">Day</div><div class="kWh">--.--</div></div>
+                <div id="Week" class="b"><div class="feed">Week</div><div class="kWh">--.--</div></div>
+                <div id="Month" class="b"><div class="feed">Month</div><div class="kWh">--.--</div></div>
+                <a href="http://imetrical.appspot.com/fx/wattricalFX.html" target="_blank">
+                    <div class="b">
+                        JavaFX<br><span style="font-size:70%">application</span>
+                    </div>
+                </a>
+            </div>
+            <div style="clear: both;"></div>
+            <div id="status" style="color:#555; padding-left:1em; background:#070; width:21em;">status</div>
+        </div>
+        <div style="clear: both;"></div>
+        <!--
                 $('div.inner').wrap('<div class="outer"></div>');
 
                 $("div.inner").click(function(event){
@@ -36,43 +128,9 @@
                     $(this).hide("slow").show();
                 });
                 $("div.inner").corner().parent().css('padding', '4px').corner();
-                $("div.cornered").corner(/*"6px"*/);
-                $("div.outcornered").corner(/*"6px"*/);
-                $("div.cornered").hover(function() {
-                    $(this).addClass('hoverstuff');
-                }, function() {
-                    $(this).removeClass('hoverstuff');
-                });
 
-                $("div.cornered").click(function () {
-                    //$(this).hide("puff",function(){}, 1000);
-                    $(this).hide().fadeIn("slow");
-                });
-
-                $.timer(10000, function (timer) {
-                    //$("div.obs").hide().html(""+new Date()).fadeIn("slow");
-                    //timer.stop();
-                    makeJQueryRequest();
-                });
-            });
-
-        </script>
-    </head>
-    <body>
-        <div class="outcornered">
-            <div class="cornered" style="width:10em; float:right;">C11</div>
-            <div class="cornered" style="width:10em; height:auto; ffloat:right;">C21</div>
-            <div style="clear: both;"></div>
-            <div class="cornered" style="width:10em; height:auto; float:right;">C12</div>
-            <div class="cornered" style="width:10em; ffloat:right;">C22</div>
-            <div style="clear: both;"></div>
-            <div class="cornered" style="width:17em;">C3</div>
-            <div class="cornered" style="width:5em;">C4</div>
-            <div class="cornered" style="width:5em;">C5</div>
-            <div class="cornered" style="width:5em;">C6</div>
-            <div class="cornereddd" style="color:#333; padding-left:2em; background:#080; width:21em;">latency: 3.234s</div>
-        </div>
-        <div style="clear: both;"/>
         <div class="inner"><div class="obs">Cornered With a Bunch</div></div>
+        -->
+        <div class="inner" style="visibility:hidden"><div class="details">Details</div></div>
     </body>
 </html>
