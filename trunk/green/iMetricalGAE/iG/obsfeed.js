@@ -4,8 +4,65 @@
 
 var globalurl = "http://imetrical.appspot.com/feeds?owner=daniel";
 // while true; do curl -o feeds.xml "http://imetrical.appspot.com/feeds?owner=daniel"; sleep 3; done
-globalurl = "feeds.xml";
+//globalurl = "feeds.xml";
 
+var globalFeedArray = null;
+var globalSelectedFeed = 0;
+function updateFeeds() {
+    var feeds = globalFeedArray;
+    if (!feeds) return;
+    // show the main panel.
+    //$("#main").hide("puff").show();
+    $("#main").hide("puff",{
+        percent:110
+    },null,function () {
+        var feeds = globalFeedArray;
+        if (!feeds) return;
+        // change contents
+
+        //var coco=""+feeds[0].value+" Watts";
+        //$("#main").html(coco).corner();
+        var feed = feeds[globalSelectedFeed];
+        $("#scopename").html(""+feed.name);
+        $("#stamp").html(""+feed.stamp.getYMDHMS());
+        if (globalSelectedFeed==0) {
+            $("#value").html(""+feed.value);
+            $("#units").html("Watt");
+
+        } else {
+            $("#value").html(""+(feed.value*24/1000));
+            $("#units").html("kWh/d");
+
+        }
+        var target=1250.0;
+        var percentChange = Math.round( (feed.value/target -1) * 100 );
+        var percentChangeStr = ((percentChange>0)?"+":"")+percentChange+"%";
+        $("#change").html(percentChangeStr);
+
+        // fade back in
+        $("#main").fadeIn("fast");
+        
+    });
+
+    // set the 1..len kWh elements
+    for (var i = 1; i < feeds.length; i++) {
+        var f = feeds[i];
+        $('#'+f.name+' div.kWh').html(""+(f.value*24.0/1000));
+    }
+
+
+    // details panel
+    var html = "<table>";
+    //html += "<tr><th>Scope</th><th>Stamp</th><th>W</th><th>kWh/d</th></tr>"
+    for (var i = 0; i < feeds.length; i++) {
+        var f = feeds[i];
+        html += "<tr><td>"+f.name+"</td><td>"+f.stamp.getHMS()+"</td><td>"+f.value+"</td><td>"+(f.value*24.0/1000)+"</td></tr>"
+    }
+    html += "</table>";
+    //$("div.details").hide("puff").html(html).fadeIn("fast");
+    $("div.details").html(html);
+
+}
 function makeJQueryRequest() {
     $.ajax({
         type: "GET",
@@ -28,15 +85,13 @@ function makeJQueryRequest() {
                 }
                 feeds.push(feed);
             }
+            lastUpdate = feeds[0].stamp;
+            latency = new Date().getTime() - lastUpdate.getTime();
+            latency = Math.round(latency/100)/10;
+            globalFeedArray=feeds;
+            $('#status').html("update: "+lastUpdate.getYMDHMS()+" (delay: "+latency+"s.)");
+            updateFeeds();
 
-            var html = "<table>";
-            html += "<tr><th>Scope</th><th>Stamp</th><th>W</th><th>kWh/d</th></tr>"
-            for (var i = 0; i < feeds.length; i++) {
-                var f = feeds[i];
-                html += "<tr><td>"+f.name+"</td><td>"+f.stamp.getHMS()+"</td><td>"+f.value+"</td><td>"+(f.value*24.0/1000)+"</td></tr>"
-            }
-            html += "</table>";
-            $("div.obs").hide().html(html).fadeIn("fast");
         }
     });
 
@@ -160,7 +215,13 @@ pad = function (val, len) {
     return val;
 };
 
-
 Date.prototype.getHMS = function () {
     return ""+pad(this.getHours())+":"+pad(this.getMinutes())+":"+pad(this.getSeconds());
-}
+};
+Date.prototype.getYMD = function () {
+    return ""+pad(this.getFullYear())+"-"+pad(this.getMonth()+1)+"-"+pad(this.getDate());
+};
+Date.prototype.getYMDHMS = function () {
+    return this.getYMD()+" "+this.getHMS();
+};
+
