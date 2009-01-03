@@ -29,7 +29,7 @@ function fetchDOM(feedurl,successCallback,errorCallback) {
     // default values
     feedurl = feedurl || defaultiMetricalURL;
     successCallback = successCallback || function(xmlDoc) {
-        var message = "success with jQ.ajax: "+latestStringFromDoc(xmlDoc);
+        var message = "success: "+latestStringFromDoc(xmlDoc);
         pushMessageString(message);
     };
     errorCallback = errorCallback || function(message) {
