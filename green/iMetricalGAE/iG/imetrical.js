@@ -16,7 +16,16 @@
 
 var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 
+// works but does not yet report errors in all cases
 function iMetricalDetect(feedurl,successCallback,errorCallback) {
+    try {
+        fetchDOM(feedurl,successCallback,errorCallback);
+    } catch (error) {
+        alert(message);
+    }
+}
+
+function fetchDOM(feedurl,successCallback,errorCallback) {
     // default values
     feedurl = feedurl || defaultiMetricalURL;
     successCallback = successCallback || function(xmlDoc) {
@@ -27,41 +36,47 @@ function iMetricalDetect(feedurl,successCallback,errorCallback) {
         alert(message);
     };
 
-    var fetchMethod = "Undtermined";
-    if (typeof(_IG_FetchXmlContent) != "undefined") {
-        fetchMethod = "iG.Fetch";
-        // Disable caching completely and fetch fresh content every time --  !! Try to avoid using this !!
-        var nocacheoption = {
-            refreshInterval: 0
+    try {
+
+        var fetchMethod = "Undtermined";
+        if (typeof(_IG_FetchXmlContent) != "undefined") {
+            fetchMethod = "iG.Fetch";
+            // Disable caching completely and fetch fresh content every time --  !! Try to avoid using this !!
+            var nocacheoption = {
+                refreshInterval: 0
+            }
+            _IG_FetchXmlContent(feedurl, function (xmlDoc) {
+                if (xmlDoc == null || typeof(xmlDoc) != "object" || xmlDoc.firstChild == null) {
+                    var message = "error fetching data with: "+fetchMethod;
+                    errorCallback(message);
+                    return;
+                } else { // everything is ok
+                    successCallback(xmlDoc);
+                }
+            },nocacheoption);
+        } else {
+            fetchMethod = "jQ.ajax";
+            $.ajax({
+                type: "GET",
+                url: feedurl,
+                dataType: "xml",
+                success: successCallback,
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    //var message = "error: "+textStatus+" (exception: "+errorThrown+")";
+                    var message = "error fetching data with: "+fetchMethod;
+                    errorCallback(message);
+                },
+                complete:function (XMLHttpRequest, textStatus) {
+                // NOT USED
+                //this; // the options for this ajax request
+                //var message = "complete: "+textStatus;
+                //pushMessageString(message);
+                }
+            });
         }
-        _IG_FetchXmlContent(feedurl, function (xmlDoc) {
-            if (xmlDoc == null || typeof(xmlDoc) != "object" || xmlDoc.firstChild == null) {
-                var message = "error fetching data: "+fetchMethod;
-                errorCallback(message);
-                return;
-            } else { // everything is ok
-                successCallback(xmlDoc);
-            }
-        },nocacheoption);
-    } else {
-        fetchMethod = "jQ.ajax";
-        $.ajax({
-            type: "GET",
-            url: feedurl,
-            dataType: "xml",
-            success: successCallback,
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                //var message = "error: "+textStatus+" (exception: "+errorThrown+")";
-                var message = "error fetching data: "+fetchMethod;
-                errorCallback(message);
-            },
-            complete:function (XMLHttpRequest, textStatus) {
-            // NOT USED
-            //this; // the options for this ajax request
-            //var message = "complete: "+textStatus;
-            //pushMessageString(message);
-            }
-        });
+    } catch (error) {
+        var message = "error fetching data with: "+fetchMethod;
+        errorCallback(message);
     }
 
 }
