@@ -26,6 +26,7 @@
    <div>
      <div>Bootstrap , on load will load latest feed values and put the into message box below</div>
      <div>Message: <span id="message">Message content</span></div>
+     <div><a id="refresh">Click Me Refresh</a></div>
    </div>
 ]]> 
     </Content>
