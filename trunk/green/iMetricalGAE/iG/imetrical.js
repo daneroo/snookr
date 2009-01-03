@@ -14,7 +14,7 @@
  *    then call AjaxDetect, like on a button callback ?
  */
 
-var defaultiMetricalURL = "http://imetrical.appspot.comNOT/feeds?owner=daniel";
+var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 
 function iMetricalDetect(feedurl,successCallback,errorCallback) {
     // default values
