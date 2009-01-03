@@ -18,24 +18,45 @@ var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 
 function iMetricalDetect(feedurl) {
     feedurl = feedurl || defaultiMetricalURL;
-    $.ajax({
-        type: "GET",
-        url: feedurl,
-        dataType: "xml",
-        success: function(xmlDoc) {
-            var message = "success with jQ.ajax: "+latestStringFromDoc(xmlDoc);
-            pushMessageString(message);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            //this; // the options for this ajax request
-            $('#status').html("error: "+textStatus+" (exception: "+errorThrown+")");
-        },
-        complete:function (XMLHttpRequest, textStatus) {
-            //this; // the options for this ajax request
-            $('#status').html("complete: "+textStatus);
-        }
 
-    });
+    if (_IG_FetchXmlContent) {
+        // Disable caching completely and fetch fresh content every time --  !! Try to avoid using this !!
+        var nocacheoption = {
+            refreshInterval: 0
+        }
+        _IG_FetchXmlContent(feedurl, function (xmlDoc) {
+            if (xmlDoc == null || typeof(xmlDoc) != "object" || xmlDoc.firstChild == null) {
+                var message = "_IG_Fetch error.";
+                pushMessageString(message);
+                return;
+            } else { // everything is ok
+                var message = "success with iG.Fetch: "+latestStringFromDoc(xmlDoc);
+                pushMessageString(message);
+            }
+        },nocacheoption);
+
+
+    } else {
+        $.ajax({
+            type: "GET",
+            url: feedurl,
+            dataType: "xml",
+            success: function(xmlDoc) {
+                var message = "success with jQ.ajax: "+latestStringFromDoc(xmlDoc);
+                pushMessageString(message);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                //this; // the options for this ajax request
+                var message = "error: "+textStatus+" (exception: "+errorThrown+")";
+                pushMessageString(message);
+            },
+            complete:function (XMLHttpRequest, textStatus) {
+                //this; // the options for this ajax request
+                var message = "complete: "+textStatus;
+            //pushMessageString(message);
+            }
+        });
+    }
 
 }
 
