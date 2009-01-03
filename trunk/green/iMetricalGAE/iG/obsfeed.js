@@ -12,10 +12,8 @@ function updateFeeds() {
     var feeds = globalFeedArray;
     if (!feeds) return;
     // show the main panel.
-    //$("#main").hide("puff").show();
-    $("#main").hide("puff",{
-        percent:110
-    },null,function () {
+    //$("#main").hide("puff",{percent:110},null,function () {
+    $("#main").fadeOut("slow",function () {
         var feeds = globalFeedArray;
         if (!feeds) return;
         // change contents
