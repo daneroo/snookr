@@ -14,44 +14,51 @@
  *    then call AjaxDetect, like on a button callback ?
  */
 
-var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
+var defaultiMetricalURL = "http://imetrical.appspot.comNOT/feeds?owner=daniel";
 
-function iMetricalDetect(feedurl) {
+function iMetricalDetect(feedurl,successCallback,errorCallback) {
+    // default values
     feedurl = feedurl || defaultiMetricalURL;
+    successCallback = successCallback || function(xmlDoc) {
+        var message = "success with jQ.ajax: "+latestStringFromDoc(xmlDoc);
+        pushMessageString(message);
+    };
+    errorCallback = errorCallback || function(message) {
+        alert(message);
+    };
+
+    var fetchMethod = "Undtermined";
     if (typeof(_IG_FetchXmlContent) != "undefined") {
+        fetchMethod = "iG.Fetch";
         // Disable caching completely and fetch fresh content every time --  !! Try to avoid using this !!
         var nocacheoption = {
             refreshInterval: 0
         }
         _IG_FetchXmlContent(feedurl, function (xmlDoc) {
             if (xmlDoc == null || typeof(xmlDoc) != "object" || xmlDoc.firstChild == null) {
-                var message = "_IG_Fetch error.";
-                pushMessageString(message);
+                var message = "error fetching data: "+fetchMethod;
+                errorCallback(message);
                 return;
             } else { // everything is ok
-                var message = "success with iG.Fetch: "+latestStringFromDoc(xmlDoc);
-                pushMessageString(message);
+                successCallback(xmlDoc);
             }
         },nocacheoption);
-
-
     } else {
+        fetchMethod = "jQ.ajax";
         $.ajax({
             type: "GET",
             url: feedurl,
             dataType: "xml",
-            success: function(xmlDoc) {
-                var message = "success with jQ.ajax: "+latestStringFromDoc(xmlDoc);
-                pushMessageString(message);
-            },
+            success: successCallback,
             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                //this; // the options for this ajax request
-                var message = "error: "+textStatus+" (exception: "+errorThrown+")";
-                pushMessageString(message);
+                //var message = "error: "+textStatus+" (exception: "+errorThrown+")";
+                var message = "error fetching data: "+fetchMethod;
+                errorCallback(message);
             },
             complete:function (XMLHttpRequest, textStatus) {
-                //this; // the options for this ajax request
-                var message = "complete: "+textStatus;
+            // NOT USED
+            //this; // the options for this ajax request
+            //var message = "complete: "+textStatus;
             //pushMessageString(message);
             }
         });
