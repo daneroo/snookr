@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+    <ModulePrefs title="iMetrical-boot-html"
+     scrolling="false" 
+     height="240" width="320" 
+     description="Description"
+     author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
+    <UserPref name="refreshRate" display_name="Refresh Rate" default_value="10"/>
+    <Content type="html">
+<![CDATA[ 
+  
+  <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.js"></script>
+  <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.corner.js"></script>
+  <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.timer.js"></script>
+  <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.ui.effects.js"></script>
+  <!-- <script type="text/javascript" src="http://imetrical.appspot.com/iG/imetrical.js"></script>-->
+  <!-- <script type="text/javascript" src="imetrical.js"></script> -->
+  <script type="text/javascript" src="http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/iG/imetrical.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      iMetricalDetect();
+    });
+   </script>
+   <div>
+     <div>Bootstrap , on load will load lates feed values and put the into message box below</div>
+     <div>Message: <span id="message">Message content</span></div>
+   </div>
+]]> 
+    </Content>
+</Module>
