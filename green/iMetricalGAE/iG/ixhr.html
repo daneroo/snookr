@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <style type="text/css">
+            body, div, h1 {
+                font-family: 'trebuchet ms', verdana, arial;
+                margin: 0; padding: 0;
+                color:white;
+            }
+            div {margin:20px; width: 400px;}
+            a {text-decoration: none}
+
+        </style>
+        <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#status').html('Status set at '+new Date());
+            });
+
+            try {alert('legacy '+_IG_FetchXmlContent);}
+            catch(err) {alert("legacy error: "+err.description); }
+
+            try {alert("gadgets.* "+gadgets.io.makeRequest);}
+            catch(err) {alert("gadgets.* error: "+err.description);}
+
+            //alert("coco");
+        </script>
+    </head>
+    <body style="background:#060">
+        <div id="status" style="float:right">Status</div>
+        <div>This is a test to determine a re-useable strategy
+        for deploying widgets/gadget to multiple contexts:</div>
+        <div>local-dev, appspot, iGoogle, opensocial, mac Dashboard, Vista Sidebar</div>
+
+        <dl><dt>js import</dt>
+            <dd>Can I use cross domain import ? YES, fully qualified url<br>
+                &lt;script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.js"&gt;&lt;/script&gt;
+
+            </dd>
+        </dl>
+        <dl><dt>iGoogle, OpenSocial</dt>
+            <dd>Can I detect API presence, version(Legacy vs gadgets.* API) ? Yes.<br>
+                check if _IG_FetchXmlContent, or gadgets.io.makeRequest are defined.
+            </dd>
+        </dl>
+        <dl><dt>iGoogle deploy xml,url</dt>
+            <dd>Can I url include xml, html? Answer.<br>
+            </dd>
+        </dl>
+        <dl><dt>Topic</dt>
+            <dd>Question? Answer.<br>
+            </dd>
+        </dl>
+        <dl><dt>Topic</dt>
+            <dd>Question? Answer.<br>
+            </dd>
+        </dl>
+        <dl><dt>Topic</dt>
+            <dd>Question? Answer.<br>
+            </dd>
+        </dl>
+    </body>
+</html>
