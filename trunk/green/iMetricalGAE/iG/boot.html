@@ -7,16 +7,19 @@
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.corner.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.timer.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/iG/jquery.ui.effects.js"></script>
-        <script type="text/javascript" src="http://imetrical.appspot.com/iG/imetrical.js"></script>
+        <!--<script type="text/javascript" src="http://imetrical.appspot.com/iG/imetrical.js"></script>-->
         <script type="text/javascript" src="imetrical.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                iMetricalDetect();
+                $("#refresh").click(function () {
+                    iMetricalDetect();
+                });
             });
         </script>
     </head>
     <body>
-        <div>Bootstrap , on load will load lates feed values and put the into message box below</div>
+        <div>Bootstrap , on click will load latest feed values and put the result into message box below</div>
         <div>Message: <span id="message">Message content</span></div>
+        <div><a id="refresh">Refresh</a></div>
     </body>
 </html>
