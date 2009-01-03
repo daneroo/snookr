@@ -22,6 +22,12 @@
             try {alert("gadgets.* "+gadgets.io.makeRequest);}
             catch(err) {alert("gadgets.* error: "+err.description);}
 
+            try {
+                if (netscape.security.PrivilegeManager.enablePrivilege) {
+                    netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+                }
+            } catch (err) { alert("UniversalBrowserRead error: "+err.description);}
+
             //alert("coco");
         </script>
     </head>
@@ -46,11 +52,11 @@
             <dd>Can I url include xml, html? Answer.<br>
             </dd>
         </dl>
-        <dl><dt>Topic</dt>
+        <dl><dt>iPhone Directive</dt>
             <dd>Question? Answer.<br>
             </dd>
         </dl>
-        <dl><dt>Topic</dt>
+        <dl><dt>XMLHttpRequest from MacDashboard</dt>
             <dd>Question? Answer.<br>
             </dd>
         </dl>
