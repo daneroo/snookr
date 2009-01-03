@@ -18,7 +18,9 @@
   <script type="text/javascript" src="http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/iG/imetrical.js"></script>
   <script type="text/javascript">
     $(document).ready(function(){
-      iMetricalDetect();
+      $("#refresh").click(function () {
+        iMetricalDetect();
+      });
     });
    </script>
    <div>
