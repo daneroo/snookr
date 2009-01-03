@@ -22,7 +22,7 @@
     });
    </script>
    <div>
-     <div>Bootstrap , on load will load lates feed values and put the into message box below</div>
+     <div>Bootstrap , on load will load latest feed values and put the into message box below</div>
      <div>Message: <span id="message">Message content</span></div>
    </div>
 ]]> 
