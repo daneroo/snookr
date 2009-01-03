@@ -18,8 +18,7 @@ var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 
 function iMetricalDetect(feedurl) {
     feedurl = feedurl || defaultiMetricalURL;
-
-    if (_IG_FetchXmlContent) {
+    if (typeof(_IG_FetchXmlContent) != "undefined") {
         // Disable caching completely and fetch fresh content every time --  !! Try to avoid using this !!
         var nocacheoption = {
             refreshInterval: 0
