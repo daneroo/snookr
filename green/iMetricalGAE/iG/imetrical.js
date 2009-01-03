@@ -17,14 +17,6 @@
 var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 
 // works but does not yet report errors in all cases
-function iMetricalDetect(feedurl,successCallback,errorCallback) {
-    try {
-        fetchDOM(feedurl,successCallback,errorCallback);
-    } catch (error) {
-        alert(message);
-    }
-}
-
 function fetchDOM(feedurl,successCallback,errorCallback) {
     // default values
     feedurl = feedurl || defaultiMetricalURL;
@@ -98,8 +90,6 @@ function latestStringFromDoc(xmlDoc){
     return "LatestString DefaultValue (exeption?)";
 
 }
-
-
 
 // Date Handling - http://delete.me.uk/2005/03/iso8601.html
 // see also http://blog.stevenlevithan.com/archives/date-time-format
