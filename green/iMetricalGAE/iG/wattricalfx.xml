@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
-<Module>
-    <ModulePrefs title="iMetrical FX"
-     scrolling="false" 
-     height="320" width="480"
-     description="Description"
-     author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
-    <Content type="html" href="http://imetrical.appspot.com/fx/wattricalFX.html"/>
-</Module>
