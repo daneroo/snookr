@@ -40,9 +40,9 @@ function fetchAndMapFeeds(feedurl,feedsCallback,errorCallback) {
         } catch (err) {}
         latency = Math.round(latency/100)/10;
 
-        //$('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
-        $('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
-        
+        $('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
+        // latency test reveals &dum=stamp necessary
+        //$('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
     };
     errorCallback = errorCallback || function(message) {
         if ($('#error').length) {
@@ -94,6 +94,9 @@ function fetchDOM(feedurl,successCallback,errorCallback) {
             var nocacheoption = {
                 refreshInterval: 0
             }
+            // Using the nocache approach above yields sync delays of ~5 seconds more
+            // NOTE This is just to expire the cache !!!!
+            // THIS should be fixed elsewhere....
             feedurl = feedurl+"&dum="+new Date().getTime();
             _IG_FetchXmlContent(feedurl, function (xmlDoc) {
                 if (xmlDoc == null || typeof(xmlDoc) != "object" || xmlDoc.firstChild == null) {
