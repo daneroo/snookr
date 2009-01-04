@@ -16,16 +16,71 @@
 
 var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 
+/*
+ * Default mapping from feeds array to DOM-elements
+ *    #FEEDNAME div.wattVal <--  f.value
+ *    #FEEDNAME div.kWhVal  <--  f.value*24/1000
+ *    also
+ *    #status <- update time and latency
+ *    #error  <- any error messages
+ *     *    e.g.
+ *    #Live div.wattVal <--  feeds[0].value
+ *    #Hour div.kWhVal  <--  f.value*24/1000
+ */
+function fetchAndMapFeeds(feedurl,feedsCallback,errorCallback) {
+    feedsCallback = feedsCallback || function(feeds) {
+        for (var i = 0; i < feeds.length; i++) {
+            var f = feeds[i];
+            $('#'+f.name+' div.wattVal').html(""+f.value);
+            $('#'+f.name+' div.kWhVal').html(""+(f.value*24.0/1000));
+        }
+        var latency = 0;
+        try {
+            latency = (new Date().getTime()) - (feeds[0].stamp.getTime());
+        } catch (err) {}
+        latency = Math.round(latency/100)/10;
+
+        $('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
+    };
+    errorCallback = errorCallback || function(message) {
+        if ($('#error').length) {
+            $('#error').html(message);
+        } else {
+            alert(message);
+        }
+    };
+    fetchFeeds(feedurl,feedsCallback,errorCallback);
+}
+function fetchFeeds(feedurl,feedsCallback,errorCallback) {
+    // default value
+    feedsCallback = feedsCallback || function(feeds) {
+        var message = "success.f: "+latestStringFromFeeds(feeds);
+        alert(message);
+    }
+
+    var xmlCallbackAdapter = function(xmlDoc){
+        var feeds = feedArrayFromXmlDoc(xmlDoc);
+        feedsCallback(feeds);
+    };
+    fetchDOM(feedurl,xmlCallbackAdapter,errorCallback);
+}
+
+
 // works but does not yet report errors in all cases
+// default implementation: alert on success, and error
 function fetchDOM(feedurl,successCallback,errorCallback) {
     // default values
     feedurl = feedurl || defaultiMetricalURL;
     successCallback = successCallback || function(xmlDoc) {
-        var message = "success: "+latestStringFromDoc(xmlDoc);
-        pushMessageString(message);
+        var message = "success.x: "+latestStringFromDoc(xmlDoc);
+        alert(message);
     };
     errorCallback = errorCallback || function(message) {
-        alert(message);
+        if ($('#error').length) { // if the element exists
+            $('#error').html(message);
+        } else {
+            alert(message);
+        }
     };
 
     try {
@@ -62,7 +117,7 @@ function fetchDOM(feedurl,successCallback,errorCallback) {
                 // NOT USED
                 //this; // the options for this ajax request
                 //var message = "complete: "+textStatus;
-                //pushMessageString(message);
+                //alert(message);
                 }
             });
         }
@@ -73,22 +128,36 @@ function fetchDOM(feedurl,successCallback,errorCallback) {
 
 }
 
-function pushMessageString(message) {
-    $('#message').html(message);
+function feedArrayFromXmlDoc(xmlDoc){
+    var feeds=[]; // result array
+    var feedList = xmlDoc.getElementsByTagName("feed");
+    for (var i = 0; i < feedList.length ; i++) {
+        var stamp = new Date();
+        stamp.setISO8601(feedList.item(i).getAttribute("stamp"));
+        var feed = {
+            name: feedList.item(i).getAttribute("name"),
+            stamp: stamp,
+            value: feedList.item(i).getAttribute("value")
+        }
+        feeds.push(feed);
+    }
+    return feeds;
+}
+
+function latestStringFromFeeds(feeds){
+    try {
+        var feed = feeds[0];
+        return(""+feed.name+": "+feed.stamp.getYMDHMS()+" - "+feed.value);
+    } catch (err){}
+    return "LatestString DefaultValue (exeption?)";
 }
 
 function latestStringFromDoc(xmlDoc){
     try {
-        var feedList = xmlDoc.getElementsByTagName("feed");
-        var latestValueStr = feedList.item(0).getAttribute("value");
-        var latestStampStr = feedList.item(0).getAttribute("stamp");
-        var stamp = new Date();
-        stamp.setISO8601(latestStampStr);
-        latestStampStr = stamp.getYMDHMS();
-        return("latest: "+latestStampStr+" - "+latestValueStr);
+        var feeds = feedArrayFromXmlDoc(xmlDoc);
+        return latestStringFromFeeds(feeds);
     } catch (err){}
     return "LatestString DefaultValue (exeption?)";
-
 }
 
 // Date Handling - http://delete.me.uk/2005/03/iso8601.html
