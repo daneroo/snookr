@@ -42,6 +42,7 @@
             var getRefreshIntervalMS = function() {
                 var refreshInterval = 5;
                 if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                if (refreshInterval<2) refreshInterval=5;
                 return refreshInterval*1000; // every n seconds
             };
 
