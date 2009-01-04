@@ -5,7 +5,9 @@
 // Parse params
 //print "<!-- Scope param : ".htmlspecialchars($_GET["scope"])."  --> \n"; 
 $scope=0;
-$scope=intval(htmlspecialchars($_GET["scope"]));
+if (array_key_exists('scope', $_GET)) {
+    $scope=intval(htmlspecialchars($_GET["scope"]));
+ }
 if ($scope>4) $scope = fmod($scope,5);
 if ($scope<0) $scope = fmod(intval(time()/10),5);
 
