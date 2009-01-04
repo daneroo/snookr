@@ -94,6 +94,7 @@ function fetchDOM(feedurl,successCallback,errorCallback) {
             var nocacheoption = {
                 refreshInterval: 0
             }
+            feedurl = feedurl+"&dum="+new Date().getTime();
             _IG_FetchXmlContent(feedurl, function (xmlDoc) {
                 if (xmlDoc == null || typeof(xmlDoc) != "object" || xmlDoc.firstChild == null) {
                     var message = "error fetching data with: "+fetchMethod;
