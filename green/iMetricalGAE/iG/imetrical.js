@@ -40,7 +40,9 @@ function fetchAndMapFeeds(feedurl,feedsCallback,errorCallback) {
         } catch (err) {}
         latency = Math.round(latency/100)/10;
 
-        $('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
+        //$('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
+        $('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
+        
     };
     errorCallback = errorCallback || function(message) {
         if ($('#error').length) {
