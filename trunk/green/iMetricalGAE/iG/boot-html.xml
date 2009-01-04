@@ -5,7 +5,7 @@
      scrolling="true"
      description="Description"
      author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
-    <UserPref name="refreshRate" display_name="Refresh Rate" default_value="10"/>
+    <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
     <Content type="html">
 <![CDATA[ 
           <style type="text/css">
@@ -35,8 +35,12 @@
         <!--<script type="text/javascript" src="imetrical.js"></script>-->
         <script type="text/javascript">
             // getting ready to inject from settings..
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
             var getRefreshIntervalMS = function() {
-                return 5*1000; // every 5 seconds
+                var refreshInterval = 5;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                return refreshInterval*1000; // every n seconds
             };
 
             $(document).ready(function(){
