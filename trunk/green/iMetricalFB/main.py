@@ -20,6 +20,7 @@
 
 import wsgiref.handlers
 import logging
+import datetime
 
 import cgi
 import facebook
@@ -93,6 +94,18 @@ class MainPage(webapp.RequestHandler):
 <p>Welcome to the facebook edition of iMetrical Power Monitoring application. </p>
 <p>Here you can see your current power consumption levels for different time scales.</p>
 """ % user['name'])
+
+        self.response.out.write('<fb:add-section-button section="profile" />');
+
+        stamp = datetime.datetime.now()
+        fbmlprofile = 'Profile Box Last Updated at %s' % stamp
+        fbmlprofilemain = 'Wall and Info, Last Updated at %s' % stamp
+        self.facebookapi.profile.setFBML('', self.facebookapi.uid, fbmlprofile, '', '', fbmlprofilemain)
+
+        # this just confirmed the previous setFBML worked
+        #self.response.out.write('<p>profile fbml</p>');
+        #self.response.out.write('<p>profile (1): <pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,1)))
+        #self.response.out.write('<p>profile_main (2):<pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,2)))
 
         self.response.out.write('<fb:iframe  src="http://imetrical.appspot.com/iG/boot-fb.html" frameborder="0"/>');
 
