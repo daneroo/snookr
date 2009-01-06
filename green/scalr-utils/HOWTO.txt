@@ -12,9 +12,14 @@
 
     while true; do time python Summarize.py --days 1 --forever; sleep 10; done
 
- -And watching the Live and Summary tables:
+  C-Monitoring
+    # watch live and summary tables
+
     while true; do for i in 'watt_day ' 'watt_hour' 'watt_minute' 'watt_tensec' 'watt' 'ted_service' ; do echo `mysql ted -N -B -e "select now(),'--',stamp,watt from $i order by stamp desc limit 1"` $i; done; sleep 9; echo; done
 
+    #Log output of TedNative Restarts
+
+    tail -f netbeans-workspace/green/scalr-utils/TEDNative.log
 
 
 
