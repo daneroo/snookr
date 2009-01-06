@@ -95,19 +95,37 @@ class MainPage(webapp.RequestHandler):
 <p>Here you can see your current power consumption levels for different time scales.</p>
 """ % user['name'])
 
-        self.response.out.write('<fb:add-section-button section="profile" />');
-
+        # create profiles using fbml refhandle
         stamp = datetime.datetime.now()
-        fbmlprofile = 'Profile Box Last Updated at %s' % stamp
-        fbmlprofilemain = 'Wall and Info, Last Updated at %s' % stamp
+        fbml = 'Last Updated at %s' % stamp
+        self.facebookapi.fbml.setRefHandle('myhandle',fbml)
+        fbmlprofile = 'Box <fb:ref handle="myhandle" />'
+        fbmlprofilemain = 'Wall <fb:ref handle="myhandle" />'
         self.facebookapi.profile.setFBML('', self.facebookapi.uid, fbmlprofile, '', '', fbmlprofilemain)
 
+        # create Info section
+        #jsonArray=' {"label": "Day"}','{"link": "" }'
+        #jsonArray='{{"label": "Day", "description": "37.45 kWh power consumption for 2009-01-05 (+31%)", "image":"", "link": "" }}'
+        #{"label": "Week", "description": "34.23 kWh power consumption for week of 2009-01-04 (+9%)" , "image":"", "link": ""},
+        #{"label": "Month", "description": "36.00 kWh power consumption for 2008-02 (+25%)" , "image":"", "link": ""},
+        #self.facebookapi.profile.setInfo('iMetrical Info', 5,'',self.facebookapi.uid)
+        #self.facebookapi.profile.setInfoOptions("Time Scales",jsonArray)
+        # {u'info_fields': {}, u'type': 5, u'title': u'iMetrical Info'}
+        #gotinfo = self.facebookapi.profile.getInfo(self.facebookapi.uid)
+        #self.response.out.write('<br>info:<pre>%s</pre><br>'%gotinfo);
+
+        # add section buttons
+        self.response.out.write('<fb:add-section-button section="profile" />');
+        self.response.out.write('<fb:add-section-button section="info" />');
+
+
         # this just confirmed the previous setFBML worked
-        #self.response.out.write('<p>profile fbml</p>');
-        #self.response.out.write('<p>profile (1): <pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,1)))
-        #self.response.out.write('<p>profile_main (2):<pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,2)))
+        self.response.out.write('<p>profile fbml</p>');
+        self.response.out.write('<p>profile (1): <pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,1)))
+        self.response.out.write('<p>profile_main (2):<pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,2)))
 
         self.response.out.write('<fb:iframe  src="http://imetrical.appspot.com/iG/boot-fb.html" frameborder="0"/>');
+        #self.response.out.write('<br><br><fb:iframe src="http://imetrical.appspot.com/iG/jq.html" frameborder="0"/>');
 
         # requires appName to be set in Facebook object above: use / relative path
         signurl = self.facebookapi.get_app_url('sign')
