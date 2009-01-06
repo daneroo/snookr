@@ -120,9 +120,10 @@ class MainPage(webapp.RequestHandler):
 
 
         # this just confirmed the previous setFBML worked
-        self.response.out.write('<p>profile fbml</p>');
-        self.response.out.write('<p>profile (1): <pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,1)))
-        self.response.out.write('<p>profile_main (2):<pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,2)))
+        # temp code to confirm fbml...
+        #self.response.out.write('<p>profile fbml</p>');
+        #self.response.out.write('<p>profile (1): <pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,1)))
+        #self.response.out.write('<p>profile_main (2):<pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,2)))
 
         self.response.out.write('<fb:iframe  src="http://imetrical.appspot.com/iG/boot-fb.html" frameborder="0"/>');
         #self.response.out.write('<br><br><fb:iframe src="http://imetrical.appspot.com/iG/jq.html" frameborder="0"/>');
