@@ -71,7 +71,7 @@
 
                 var data = new google.visualization.DataTable();
                 data.addColumn('string', 'Minute');
-                data.addColumn('number', 'Watts');
+                data.addColumn('number', units);
                 data.addRows(feed.observations.length);
                 // reverso order ..
                 for (var i = 0; i < feed.observations.length ; i++) {
