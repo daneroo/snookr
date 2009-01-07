@@ -11,8 +11,11 @@
             #status { clear:both;}
             #status, #error { padding-left:1em; font-size:smaller;}
             /* colors */
-            body { background:#3b5998; color:white; font-weight: bold; }
-            div.b {background: #7f93bc; }
+            body { /*background:#3b5998; color:white;*/ font-weight: bold; }
+            /* facebook blues: #7f93bc, and #3b5998 */
+            div.b {background: #3b5998; color:white}
+            div.hoverbutton {background: #7f93bc; color:black}
+
             #status { color:#333; }
             #error { color:#f00; }
 
@@ -30,28 +33,26 @@
         <script type="text/javascript">
             // new google viz stuff
             google.load("visualization", "1", {packages:["columnchart"]});
-            google.setOnLoadCallback(drawChart);
-            function drawChart() {
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Year');
-                data.addColumn('number', 'Sales');
-                data.addColumn('number', 'Expenses');
-                data.addRows(4);
-                data.setValue(0, 0, '2004');
-                data.setValue(0, 1, 1000);
-                data.setValue(0, 2, 400);
-                data.setValue(1, 0, '2005');
-                data.setValue(1, 1, 1170);
-                data.setValue(1, 2, 460);
-                data.setValue(2, 0, '2006');
-                data.setValue(2, 1, 660);
-                data.setValue(2, 2, 1120);
-                data.setValue(3, 0, '2007');
-                data.setValue(3, 1, 1030);
-                data.setValue(3, 2, 540);
+            vizLoaded = false;
+            google.setOnLoadCallback(function(){vizLoaded=true});
 
+            function drawChart(feed,timeFormat) {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Minute');
+                data.addColumn('number', 'Watts');
+                data.addRows(feed.observations.length);
+                // reverso order ..
+                for (var i = 0; i < feed.observations.length ; i++) {
+                    var o = feed.observations[i];
+                    var timeLabel = ""+timeFormat(o.stamp);
+                    data.setValue(feed.observations.length-i-1, 0, timeLabel);
+                    data.setValue(feed.observations.length-i-1, 1, o.value/1.0); // div by 1 to get Number ?
+                }
+
+                $('#chart').html("");
                 var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
-                chart.draw(data, {width: 400, height: 240, is3D: false, title: 'Company Performance', legend:'none'});
+                // color 3b5998
+                chart.draw(data, {colors:["#7f93bc","#3b5998"], width: 400, height: 240, is3D: false, title: 'Power Consumption (W) - '+feed.name, legend:'none' } );
             }
 
             // getting ready to inject from settings..
@@ -63,14 +64,71 @@
                 return refreshInterval*1000; // every n seconds
             };
 
+            var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=1;
+            function indexForScopeName(scopeName) {
+                if ("Hour"  == scopeName) return 1;
+                if ("Day"   == scopeName) return 2;
+                if ("Week"  == scopeName) return 3;
+                if ("Month" == scopeName) return 4;
+                return 0;
+            }
+
+            function drawAChart(whichOne) {
+                feed = feedsRef[whichOne%feedsRef.length];
+                switch (feed.name){
+                    case "Live":
+                        break;
+                    case "Hour":
+                        drawChart(feed, function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())});
+                        break;
+                    case "Day":
+                        drawChart(feed, function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())});
+                        break;
+                    case "Week":
+                        drawChart(feed, function(stamp){return weekDayNames[stamp.getDay()];});
+                        break;
+                    case "Month":
+                        drawChart(feed, function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getDate();});
+                        break;
+                    default : // nothing
+                }
+            }
+
+
+            function myInjector(feeds) {
+                feedsRef = feeds;
+                standardInjector(feeds);
+                if (vizLoaded) {
+                    drawAChart(currentFeed);
+                    currentFeed= (currentFeed+1)%5;
+                }
+            }
             $(document).ready(function(){
                 $("div.b").corner(/*"6px"*/);
-                fetchAndMapFeeds();
+                $("div.b").hover(function() {
+                    $(this).addClass('hoverbutton');
+                    //globalSelectedFeed=indexForScopeName(this.id);
+                    //updateFeeds();
+                }, function() {
+                    $(this).removeClass('hoverbutton');
+                    //globalSelectedFeed=0;
+                    //updateFeeds();
+                });
+                $("div.b").click(function () {
+                    var scopeName = this.id;
+                    selectedFeed=indexForScopeName(scopeName);
+                    drawAChart(selectedFeed);
+                });
+
+                fetchAndMapFeeds(null,myInjector);
+                //fetchAndMapFeeds();
                 $.timer(getRefreshIntervalMS(), function (timer) {
                     //timer.reset(getRefreshIntervalMS()); // secs to milis
-                    //fetchDOM(); //calls alert(latest)
-                    //fetchFeeds(); //calls alert(latest)
-                    fetchAndMapFeeds();
+                    fetchAndMapFeeds(null,myInjector);
                 });
             });
         </script>
@@ -82,10 +140,9 @@
         <div id="Day"   class="b"><div class="feed">Day</div><div class="kWhVal">00.00</div></div>
         <div id="Week"  class="b"><div class="feed">Week</div><div class="kWhVal">00.00</div></div>
         <div id="Month" class="b"><div class="feed">Month</div><div class="kWhVal">00.00</div></div>
+        <div id="chart"></div>
         <div id="status"></div>
         <div id="error"></div>
-
-        <div id="chart"></div>
 
 
     </body>

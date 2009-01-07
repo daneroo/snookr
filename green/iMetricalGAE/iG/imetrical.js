@@ -149,6 +149,7 @@ function feedArrayFromXmlDoc(xmlDoc){
         }
         feeds.push(feed);
 
+        // Observations section
         // add an array member: feed.observations
         feed.observations = [] // observation array
         var obsList = feedList.item(i).getElementsByTagName("observation");
@@ -161,7 +162,7 @@ function feedArrayFromXmlDoc(xmlDoc){
             }
             feed.observations.push(observation);
         }
-
+    
     }
     return feeds;
 }
