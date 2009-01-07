@@ -1,0 +1,92 @@
+<html>
+    <head>
+        <style type="text/css">
+            body, div, h1 { font-family: 'trebuchet ms', verdana, arial; margin: 0; padding: 0 }
+            div.b { width:3.5em; float:left; text-align:center; vertical-align:middle;}
+            div.b {
+                background: #090;
+                padding: 10px;
+                margin: 2px;
+            }
+            #status { clear:both;}
+            #status, #error { padding-left:1em; font-size:smaller;}
+            /* colors */
+            body { background:#3b5998; color:white; font-weight: bold; }
+            div.b {background: #7f93bc; }
+            #status { color:#333; }
+            #error { color:#f00; }
+
+        </style>
+        <!-- not sure what this is: related to Facebook COnnect ? -->
+        <script src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" type="text/javascript"> </script>
+        <!-- new google viz stuff --->
+        <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="jquery.corner.js"></script>
+        <script type="text/javascript" src="jquery.timer.js"></script>
+        <script type="text/javascript" src="jquery.ui.effects.js"></script>
+        <script type="text/javascript" src="imetrical.js"></script>
+        <script type="text/javascript">
+            // new google viz stuff
+            google.load("visualization", "1", {packages:["columnchart"]});
+            google.setOnLoadCallback(drawChart);
+            function drawChart() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Year');
+                data.addColumn('number', 'Sales');
+                data.addColumn('number', 'Expenses');
+                data.addRows(4);
+                data.setValue(0, 0, '2004');
+                data.setValue(0, 1, 1000);
+                data.setValue(0, 2, 400);
+                data.setValue(1, 0, '2005');
+                data.setValue(1, 1, 1170);
+                data.setValue(1, 2, 460);
+                data.setValue(2, 0, '2006');
+                data.setValue(2, 1, 660);
+                data.setValue(2, 2, 1120);
+                data.setValue(3, 0, '2007');
+                data.setValue(3, 1, 1030);
+                data.setValue(3, 2, 540);
+
+                var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+                chart.draw(data, {width: 400, height: 240, is3D: false, title: 'Company Performance', legend:'none'});
+            }
+
+            // getting ready to inject from settings..
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 5;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                return refreshInterval*1000; // every n seconds
+            };
+
+            $(document).ready(function(){
+                $("div.b").corner(/*"6px"*/);
+                fetchAndMapFeeds();
+                $.timer(getRefreshIntervalMS(), function (timer) {
+                    //timer.reset(getRefreshIntervalMS()); // secs to milis
+                    //fetchDOM(); //calls alert(latest)
+                    //fetchFeeds(); //calls alert(latest)
+                    fetchAndMapFeeds();
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <!-- this dom uses default mapping id=feedName/class={wattVal,kWhVal} -->
+        <div id="Live"  class="b"><div class="feed">Live</div><div class="wattVal">00.00</div></div>
+        <div id="Hour"  class="b"><div class="feed">Hour</div><div class="kWhVal">00.00</div></div>
+        <div id="Day"   class="b"><div class="feed">Day</div><div class="kWhVal">00.00</div></div>
+        <div id="Week"  class="b"><div class="feed">Week</div><div class="kWhVal">00.00</div></div>
+        <div id="Month" class="b"><div class="feed">Month</div><div class="kWhVal">00.00</div></div>
+        <div id="status"></div>
+        <div id="error"></div>
+
+        <div id="chart"></div>
+
+
+    </body>
+</html>
