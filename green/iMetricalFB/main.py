@@ -125,7 +125,7 @@ class MainPage(webapp.RequestHandler):
         #self.response.out.write('<p>profile (1): <pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,1)))
         #self.response.out.write('<p>profile_main (2):<pre>%s</pre></p>' % (self.facebookapi.profile.getFBML(self.facebookapi.uid,2)))
 
-        self.response.out.write('<fb:iframe  src="http://imetrical.appspot.com/iG/googleviz-fb.html" frameborder="0"/>');
+        self.response.out.write('<fb:iframe  src="http://imetrical.appspot.com/iG/googleviz-fb.html" width="400" height="400" frameborder="0"/>');
         #self.response.out.write('<fb:iframe  src="http://imetrical.appspot.com/iG/boot-fb.html" frameborder="0"/>');
         #self.response.out.write('<br><br><fb:iframe src="http://imetrical.appspot.com/iG/jq.html" frameborder="0"/>');
 

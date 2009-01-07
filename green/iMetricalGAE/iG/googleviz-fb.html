@@ -32,11 +32,43 @@
         <script type="text/javascript" src="imetrical.js"></script>
         <script type="text/javascript">
             // new google viz stuff
-            google.load("visualization", "1", {packages:["columnchart"]});
+            google.load("visualization", "1", {packages:["columnchart","areachart"]});
             vizLoaded = false;
             google.setOnLoadCallback(function(){vizLoaded=true});
 
-            function drawChart(feed,timeFormat) {
+            function drawChart(feed) {
+                var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                var isBarChart=true; // switch areachart(line) or columnchart(bar)
+                var units = "Watts";
+                var multiplier=1.0;
+                switch (feed.name){
+                    case "Live":
+                        timeFormat = function(stamp){ return ""+stamp.getHMS()};
+                        isBarChart=false;
+                        break;
+                    case "Hour":
+                        timeFormat = function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())};
+                        isBarChart=false;
+                        break;
+                    case "Day":
+                        timeFormat = function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())};
+                        units = "kWh";
+                        multiplier=1.0/1000.0;
+                        break;
+                    case "Week":
+                        timeFormat = function(stamp){return weekDayNames[stamp.getDay()];};
+                        units = "kWh";
+                        multiplier=24.0/1000.0;
+                        break;
+                    case "Month":
+                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getDate();};
+                        var units = "kWh";
+                        multiplier=24.0/1000.0;
+                        break;
+                    default : // nothing
+                }
+
                 var data = new google.visualization.DataTable();
                 data.addColumn('string', 'Minute');
                 data.addColumn('number', 'Watts');
@@ -46,26 +78,37 @@
                     var o = feed.observations[i];
                     var timeLabel = ""+timeFormat(o.stamp);
                     data.setValue(feed.observations.length-i-1, 0, timeLabel);
-                    data.setValue(feed.observations.length-i-1, 1, o.value/1.0); // div by 1 to get Number ?
+                    data.setValue(feed.observations.length-i-1, 1, o.value*multiplier); // div by 1 to get Number ?
                 }
 
                 $('#chart').html("");
-                var chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+                var chart;
+                if (isBarChart){
+                    chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+                } else {
+                    chart = new google.visualization.AreaChart(document.getElementById('chart'));
+                }
                 // color 3b5998
-                chart.draw(data, {colors:["#7f93bc","#3b5998"], width: 400, height: 240, is3D: false, title: 'Power Consumption (W) - '+feed.name, legend:'none' } );
+                options =  {
+                    colors:["#7f93bc","#3b5998"],
+                    width: 400,
+                    height: 240,
+                    is3D: false,
+                    title: 'Power Consumption ('+units+') - '+feed.name,
+                    legend:'none'
+                };
+                chart.draw(data, options);
             }
 
             // getting ready to inject from settings..
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
             var getRefreshIntervalMS = function() {
-                var refreshInterval = 5;
+                var refreshInterval = 10;
                 if (prefs) refreshInterval = prefs.getString("refreshInterval");
                 return refreshInterval*1000; // every n seconds
             };
 
-            var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-            var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
             var feedsRef; // keep a reference to the feeds array
             var currentFeed=1;
@@ -79,23 +122,7 @@
 
             function drawAChart(whichOne) {
                 feed = feedsRef[whichOne%feedsRef.length];
-                switch (feed.name){
-                    case "Live":
-                        break;
-                    case "Hour":
-                        drawChart(feed, function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())});
-                        break;
-                    case "Day":
-                        drawChart(feed, function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())});
-                        break;
-                    case "Week":
-                        drawChart(feed, function(stamp){return weekDayNames[stamp.getDay()];});
-                        break;
-                    case "Month":
-                        drawChart(feed, function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getDate();});
-                        break;
-                    default : // nothing
-                }
+                drawChart(feed);
             }
 
 
