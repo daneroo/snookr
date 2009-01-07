@@ -37,10 +37,11 @@ class Feeds(db.Model):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    count = db.GqlQuery("SELECT * FROM Feeds").count()
-    self.response.out.write("""Hello iMetrical World!
-I have retreived %d records
-""" % count)
+    self.redirect("/iG/googleviz-fb.html");
+    #count = db.GqlQuery("SELECT * FROM Feeds").count()
+    #self.response.out.write("""Hello iMetrical World!
+    #  I have retreived %d records
+    # """ % count)
 
 class PublishPage(webapp.RequestHandler):
   """  To publish content:
