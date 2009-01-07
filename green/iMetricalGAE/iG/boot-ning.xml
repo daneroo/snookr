@@ -96,10 +96,10 @@
                 } else {
                     chart = new google.visualization.AreaChart(document.getElementById('chart'));
                 }
-                // color 3b5998
-                //colors:["#7f93bc","#3b5998"],
+                //    colors:["#090","#060"],
+                //    colors:["#7f93bc","#3b5998"],
                 options =  {
-                    colors:["#090","#060"],
+                    colors:["#009900","#006600"],
                     width: 400,
                     height: 240,
                     is3D: false,
