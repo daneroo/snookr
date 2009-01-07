@@ -27,23 +27,25 @@ var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
  *    #Live div.wattVal <--  feeds[0].value
  *    #Hour div.kWhVal  <--  f.value*24/1000
  */
-function fetchAndMapFeeds(feedurl,feedsCallback,errorCallback) {
-    feedsCallback = feedsCallback || function(feeds) {
-        for (var i = 0; i < feeds.length; i++) {
-            var f = feeds[i];
-            $('#'+f.name+' div.wattVal').html(""+f.value);
-            $('#'+f.name+' div.kWhVal').html(""+(f.value*24.0/1000));
-        }
-        var latency = 0;
-        try {
-            latency = (new Date().getTime()) - (feeds[0].stamp.getTime());
-        } catch (err) {}
-        latency = Math.round(latency/100)/10;
+function standardInjector(feeds) {
+    for (var i = 0; i < feeds.length; i++) {
+        var f = feeds[i];
+        $('#'+f.name+' div.wattVal').html(""+f.value);
+        $('#'+f.name+' div.kWhVal').html(""+(f.value*24.0/1000));
+    }
+    var latency = 0;
+    try {
+        latency = (new Date().getTime()) - (feeds[0].stamp.getTime());
+    } catch (err) {}
+    latency = Math.round(latency/100)/10;
 
-        $('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
-        // latency test reveals &dum=stamp necessary
-        //$('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
-    };
+    $('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
+// latency test reveals &dum=stamp necessary
+//$('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
+
+}
+function fetchAndMapFeeds(feedurl,feedsCallback,errorCallback) {
+    feedsCallback = feedsCallback || standardInjector;
     errorCallback = errorCallback || function(message) {
         if ($('#error').length) {
             $('#error').html(message);
@@ -144,6 +146,37 @@ function feedArrayFromXmlDoc(xmlDoc){
             name: feedList.item(i).getAttribute("name"),
             stamp: stamp,
             value: feedList.item(i).getAttribute("value")
+        }
+        feeds.push(feed);
+
+        // add an array member: feed.observations
+        feed.observations = [] // observation array
+        var obsList = feedList.item(i).getElementsByTagName("observation");
+        for (var j = 0; j < obsList.length ; j++) {
+            var ostamp = new Date();
+            ostamp.setISO8601(obsList.item(j).getAttribute("stamp"));
+            var observation = {
+                stamp: ostamp,
+                value: obsList.item(j).getAttribute("value")
+            }
+            feed.observations.push(observation);
+        }
+
+    }
+    return feeds;
+}
+
+// used to get feed from feeds, and observations from feed..
+function observationArrayFromFeed(node){
+    var observations=[]; // result array
+    var obsList = xmlDoc.getElementsByTagName('observation');
+    for (var i = 0; i < obsList.length ; i++) {
+        var stamp = new Date();
+        stamp.setISO8601(obsList.item(i).getAttribute("stamp"));
+        var feed = {
+            name: obsList.item(i).getAttribute("name"),
+            stamp: stamp,
+            value: obsList.item(i).getAttribute("value")
         }
         feeds.push(feed);
     }
