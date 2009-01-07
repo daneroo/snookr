@@ -164,7 +164,11 @@
                     //timer.reset(getRefreshIntervalMS()); // secs to milis
                     fetchAndMapFeeds(null,myInjector);
                 });
+
+                gadgets.window.adjustHeight();
+
             });
+
         </script>
 
    <div>
