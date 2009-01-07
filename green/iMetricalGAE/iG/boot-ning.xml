@@ -21,6 +21,7 @@
             }
             #status { clear:both;}
             #status, #error { padding-left:1em; font-size:smaller;}
+            #chart { height:250px;}
             /* colors */
             body { /*background:#3b5998; color:white;*/ font-weight: bold; }
             /* facebook blues: #7f93bc, and #3b5998 */
