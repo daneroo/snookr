@@ -6,7 +6,6 @@
      description="Description"
      author="Daneroo" author_email="daniel.nojunk@gmail.com">
      <Require feature="opensocial-0.7" />
-     <Require feature="dynamic-height"/>
     </ModulePrefs>
     <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
     <Content type="html">
@@ -21,7 +20,6 @@
             }
             #status { clear:both;}
             #status, #error { padding-left:1em; font-size:smaller;}
-            #chart { height:250px;}
             /* colors */
             body { /*background:#3b5998; color:white;*/ font-weight: bold; }
             /* facebook blues: #7f93bc, and #3b5998 */
@@ -165,14 +163,10 @@
                     //timer.reset(getRefreshIntervalMS()); // secs to milis
                     fetchAndMapFeeds(null,myInjector);
                 });
-
-                gadgets.window.adjustHeight();
-
             });
-
         </script>
 
-   <div>
+   <div style="height:400px;">
         <!-- this dom uses default mapping id=feedName/class={wattVal,kWhVal} -->
         <div id="Live"  class="b"><div class="feed">Live</div><div class="wattVal">00.00</div></div>
         <div id="Hour"  class="b"><div class="feed">Hour</div><div class="kWhVal">00.00</div></div>
