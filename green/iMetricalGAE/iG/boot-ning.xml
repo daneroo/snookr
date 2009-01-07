@@ -4,6 +4,7 @@
     <ModulePrefs title="iMetrical-boot-ning"
      scrolling="true"
      description="Description"
+     height="400"
      author="Daneroo" author_email="daniel.nojunk@gmail.com">
      <Require feature="opensocial-0.7" />
     </ModulePrefs>
