@@ -7,6 +7,7 @@
      height="400" width="400"
      author="Daneroo" author_email="daniel.nojunk@gmail.com">
      <Require feature="opensocial-0.7" />
+     <Require feature="dynamic-height"/>
     </ModulePrefs>
     <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
     <Content type="html">
@@ -141,6 +142,7 @@
                     drawAChart(currentFeed);
                     currentFeed= (currentFeed+1)%5;
                 }
+                gadgets.window.adjustHeight();
             }
             $(document).ready(function(){
                 $("div.b").corner(/*"6px"*/);
@@ -166,6 +168,8 @@
                     fetchAndMapFeeds(null,myInjector);
                 });
             });
+            gadgets.window.adjustHeight();
+
         </script>
 
    <div style="height:400px;">
