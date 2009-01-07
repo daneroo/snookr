@@ -1,0 +1,10 @@
+Working fbml handle update :
+php updateRefhandle.php
+
+Also pasted in a gooogle chart api by hand:
+Code forthcoming:
+    python getFeed.py
+      produces local png's and urls for google chart
+
+Dropping
+The python side is having problems with library dependancies
