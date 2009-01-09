@@ -14,6 +14,7 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello iMetrical-Morph!</h1>
+        <h1>iMetrical-Morph</h1>
+        <h3>v-2 2009-01-08</h3>
     </body>
 </html>
