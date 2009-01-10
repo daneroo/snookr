@@ -7,6 +7,7 @@
                 background: #090;
                 padding: 10px;
                 margin: 2px;
+                /*border: 1px solid black;*/
             }
             #status { clear:both;}
             #status, #error { padding-left:1em; font-size:smaller;}
@@ -14,10 +15,14 @@
             body { /*background:#3b5998; color:white;*/ font-weight: bold; }
             /* facebook blues: #7f93bc, and #3b5998 */
             div.b {background: #3b5998; color:white}
-            div.hoverbutton {background: #7f93bc; color:black}
+            div.hoverbutton {
+                background: #7f93bc;
+                color:black;
+            }
 
             #status { color:#333; }
             #error { color:#f00; }
+            /*div.units, div.wattVal, div.kWhVal {display:inline;}*/
 
         </style>
         <!-- not sure what this is: related to Facebook COnnect ? -->
@@ -136,7 +141,7 @@
                 }
             }
             $(document).ready(function(){
-                $("div.b").corner(/*"6px"*/);
+                //$("div.b").corner(/*"6px"*/);
                 $("div.b").hover(function() {
                     $(this).addClass('hoverbutton');
                     //globalSelectedFeed=indexForScopeName(this.id);
