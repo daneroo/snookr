@@ -146,7 +146,7 @@
                 gadgets.window.adjustHeight();
             }
             $(document).ready(function(){
-                $("div.b").corner(/*"6px"*/);
+                //$("div.b").corner(/*"6px"*/);
                 $("div.b").hover(function() {
                     $(this).addClass('hoverbutton');
                     //globalSelectedFeed=indexForScopeName(this.id);
