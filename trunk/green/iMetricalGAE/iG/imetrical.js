@@ -31,7 +31,9 @@ function standardInjector(feeds) {
     for (var i = 0; i < feeds.length; i++) {
         var f = feeds[i];
         $('#'+f.name+' div.wattVal').html(""+f.value);
-        $('#'+f.name+' div.kWhVal').html(""+(f.value*24.0/1000));
+        // round kWh/d to .1
+        var kWh = Math.round((f.value*24.0/1000)*10)/10.0;
+        $('#'+f.name+' div.kWhVal').html(""+kWh);
     }
     var latency = 0;
     try {
