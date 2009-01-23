@@ -2,6 +2,10 @@
  OSX: tee.pl or rather python -u (unbuffered out)
  python -u ReadAztechNative.py --device /dev/tty.usbserial-A50022xp|tee Aztech-01.txt
  python -u ReadAztechNative.py --device /dev/tty.usbserial-A50022xp|./tee.pl Aztech-01.txt
+
+ Extracting unique device id's from DEBUGON
+ grep "\[R\]" Aztech-01.txt | awk 'BEGIN {FS=","} {print $3}'|sort|uniq -c|sort -n
+
 -=-=-= Until There are CRON scripts:
   SCREEN 6 on cantor
    cd netbeans-workspace/green/scalr-utils/
