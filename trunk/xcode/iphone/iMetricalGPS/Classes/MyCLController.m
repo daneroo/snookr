@@ -148,7 +148,31 @@ static MyCLController *sharedCLDelegate = nil;
         }
     }	
     //Log it
-    NSLog(@"/params%@",params);
+    NSLog(@"/gps.php%@",params);
+    // ping it http://acerama.lan/~daniel/gps.php?lat=43.19&long=122.34555&acc=47.344
+    // perform http get:
+    NSString *baseURLString = @"http://192.168.3.143/~daniel/";
+    NSString *resource = @"gps.php";
+    NSString *urlString = [[NSString alloc] initWithFormat:@"%@%@%@", baseURLString, resource, params];
+    NSURL *url = [[NSURL alloc] initWithString:urlString];
+    NSLog(@"attempting write to url %@", url);
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:url];
+    NSHTTPURLResponse* urlResponse = nil;  
+    NSError* error = [[NSError alloc] init];  
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:req
+                                                 returningResponse:&urlResponse   
+                                                             error:&error];  
+    NSString *result = [[NSString alloc] initWithData:responseData
+                                             encoding:NSUTF8StringEncoding];
+    NSLog(@"Response Code: %d", [urlResponse statusCode]);
+    if ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)
+        NSLog(@"Result: %@", result);
+    [urlString release];
+    [url release];
+    [result release];
+    [req release];
+    
+    
 	// Send the update to our delegate
 	[self.delegate newLocationUpdate:update];
 }
