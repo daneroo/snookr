@@ -34,26 +34,23 @@ def oneIteration(device,doCommand):
 
     zeroAttempts=0
     while True:
-        #resp = ser.read(4096)
-        #inWaiting = ser.inWaiting()
-        #while (False and inWaiting>50 and inWaiting<500):
-        #    print "|W|=%d " % (inWaiting)
-        #    time.sleep(.1)
-        #    inWaiting = ser.inWaiting()
-
         resp = ser.readline()
-        #print "last 2 |||%s|||" % (resp[-2:])
         if (len(resp)==0):
             zeroAttempts+=1
-        if (zeroAttempts>3000):
-            break
+        #if (zeroAttempts>3000):
+        #    break
 
         stamp = time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime())
-        if (len(resp)>2):
-            print "%s |Response|=%4d : %s" % (stamp,len(resp),resp[:-2]) #remove cr+lf
-        #time.sleep(0.2)
+        # leading whitespace on OSX beacause of readline cr+lf mismatch ?
+        resp = resp.lstrip() # remove leading whitespace
+        resp = resp.rstrip() # remove trailing whitespace
+        #print "+%s |Response|=%4d : %s" % (stamp,len(resp),resp)
+        if (len(resp)>0):
+            print "%s |Response|=%4d : %s" % (stamp,len(resp),resp)
+        #else:
+            # distinguishe timeout len==0 with empty line stripped-len==0
+            #print "%s Still Alive" % (stamp)
 
-    #print "CTS:%s DSR:%s RI:%s CD:%d" % (ser.getCTS(),ser.getDSR(),ser.getRI(),ser.getCD())
     ser.close()
     print "Exited loop"
     #time.sleep(1)
