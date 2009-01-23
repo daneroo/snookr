@@ -9,7 +9,7 @@ import getopt
 from scalr import logInfo,logWarn,logError
 import datetime
 import time
-import MySQLdb
+#import MySQLdb
 ########################### START of ted.py Stuff
 
 import serial
@@ -19,37 +19,40 @@ import struct
 # Special bytes
 
 def oneIteration(device,doCommand):
-    print " One Iteration %s" % (time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime()))
-    ser = serial.Serial(device,38400,timeout=0.1,rtscts=0,dsrdtr=0,xonxoff=0)
+    stamp = time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime())
+    print " One Iteration %s" % (stamp)
+    ser = serial.Serial(device,38400,timeout=60,rtscts=0,dsrdtr=0,xonxoff=0)
     #print "Used port: %s" % ser.portstr
     #print " Serial object: %s" % ser
     #print "CTS:%s DSR:%s RI:%s CD:%d" % (ser.getCTS(),ser.getDSR(),ser.getRI(),ser.getCD())
-    #ser.write("DEBUGON\r\n")
-    #ser.write("DEBUGOFF\r\n")
     if (doCommand):
         print "Executing Command"
-        ser.write("RLOGDUMP\r\n")
-    #else:
-    #    print "NOT Executing Command"
-    #ser.write("LOGDUMP\r\n")
+        ser.write("DEBUGOFF\r\n")
+        ser.write("LOGDUMP\r\n")
+        #ser.write("RLOGDUMP\r\n")
+        ser.write("DEBUGON\r\n")
+
     zeroAttempts=0
     while True:
         #resp = ser.read(4096)
-        inWaiting = ser.inWaiting()
-        while (False and inWaiting>50 and inWaiting<500):
-            print "|W|=%d " % (inWaiting)
-            time.sleep(.1)
-            inWaiting = ser.inWaiting()
+        #inWaiting = ser.inWaiting()
+        #while (False and inWaiting>50 and inWaiting<500):
+        #    print "|W|=%d " % (inWaiting)
+        #    time.sleep(.1)
+        #    inWaiting = ser.inWaiting()
 
         resp = ser.readline()
         #print "last 2 |||%s|||" % (resp[-2:])
-        resp = resp[:-1] # maybe 2?
         if (len(resp)==0):
             zeroAttempts+=1
-        if (zeroAttempts>0):
+        if (zeroAttempts>3000):
             break
-        print "|W|=%4d |Response|=%4d : %s" % (inWaiting,len(resp),resp)
+
+        stamp = time.strftime("%Y-%m-%d %H:%M:%S %Z",time.localtime())
+        if (len(resp)>2):
+            print "%s |Response|=%4d : %s" % (stamp,len(resp),resp[:-2]) #remove cr+lf
         #time.sleep(0.2)
+
     #print "CTS:%s DSR:%s RI:%s CD:%d" % (ser.getCTS(),ser.getDSR(),ser.getRI(),ser.getCD())
     ser.close()
     print "Exited loop"
