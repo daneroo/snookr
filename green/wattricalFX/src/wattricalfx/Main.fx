@@ -48,7 +48,8 @@ var fakeFeed:Feed = Feed {
     value:1000;
 }
 
-def now = new Date().getTime();
+def now =
+new Date().getTime();
 for (t in [0..300 step 2]) {
     var rnd:Random = new Random();
     var v = ( Math.sin(t  /  300.0 * 4  *  Math.PI) + 1) / 2 * 2000 + rnd.nextInt(200);
@@ -62,25 +63,6 @@ for (t in [0..300 step 2]) {
     insert observation into fakeFeed.observations;
 }
 
-var graph:Graph =  Graph {
-    env:env
-    feed: fakeFeed
-    /*effect: Reflection {
-        fraction: 0.9
-        topOpacity: 0.5
-        topOffset: 0.3
-    }*/
-}
-
-var statusText = Text {
-    font: Font {
-        size: 14
-    }
-    fill: Color.LIGHTGRAY
-    x: 10,
-    y: env.screenHeight - 30
-    content: "Status"
-}
 
 var titleText = Text {
     font: Font {
@@ -98,15 +80,18 @@ var kWhMoStr = "30.0";
 
 var powerGroup = Group {
     content: [
-        RoundPanel { value:  bind wattStr units:"W" scope:"live"}
+        RoundPanel { 
+            value: bind wattStr
+            units:"W"
+        scope:"live"}
         RoundPanel {
-            value:  bind kWhStr
+            value: bind kWhStr
             units: "kWh/d"
             scope: "day"
             translateY: 60
         }
         RoundPanel {
-            value:  bind kWhMoStr
+            value: bind kWhMoStr
             units: "kWh/d"
             scope:"month"
             translateY: 120
@@ -116,17 +101,47 @@ var powerGroup = Group {
     translateY:70
 }
 
-
+var graph:Graph;
+var statusText:Text;
 Stage {
+    var scene:Scene;
+    var trackingEnv = Env{
+        screenWidth: bind {
+            if (scene.width > 10) scene.width else 480;
+        }
+        screenHeight: bind {
+            if (scene.height > 10) scene.height else 320;
+        }
+        feedLocation: "http://192.168.5.2/iMetrical/feeds.php"
+        //feedLocation: "http://imetrical.appspot.com/feeds?owner=daniel"
+        //feedLocation: "http://imetrical.morphexchange.com/feeds.xml"
+    };
+
     title: "Wattrical FX"
     width: env.screenWidth
     height: env.screenHeight
-    scene: Scene {
+    scene:
+    scene = Scene {
         content: [
-            graph,
+            graph =  Graph {
+                env:trackingEnv
+                feed: fakeFeed
+                    /*effect: Reflection {
+                    fraction: 0.9
+                     topOpacity: 0.5
+                     topOffset: 0.3
+                     }*/
+            },
             titleText,
             powerGroup,
-            statusText,
+            statusText = Text {
+                font: Font {
+                    size: 14
+                }
+                fill: Color.LIGHTGRAY
+                x: 10,
+                y: bind trackingEnv.screenHeight - 30
+                content: "Status"},
         ]
         fill:
         if (false) Color.BLACK else
@@ -158,7 +173,7 @@ class Watcher {
     var graph:Graph;
 
     def parser:ObsFeedParser = ObsFeedParser {
-            feedLocation: env.feedLocation
+        feedLocation: env.feedLocation
     }
 
 

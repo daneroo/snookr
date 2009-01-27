@@ -25,18 +25,23 @@ public class Graph extends CustomNode {
     public-init var env: Env;
     public var feed:Feed;
 
-    def yBottom=250.0;
-    def yHeight=200.0;
-    def xLeft = 10;
-    def xWidth= env.screenWidth-2*xLeft;
+    def xLeft = 40.0;
 
-    function xFromStamp(stamp:Date){
+    //def xWidth = env.screenWidth-2*xLeft;
+    def xWidth = bind {
+        env.screenWidth - 2 * xLeft };
+    def yBottom= bind {
+        env.screenHeight - 70.0 };
+    def yHeight= bind {
+        env.screenHeight - 70.0 - 50.0 };
+
+    bound function xFromStamp(stamp:Date){
         var normalized = DateRange.normalize(stamp, feed.minStamp, feed.maxStamp);
         var x = xLeft + xWidth * normalized;
         //println("s:{stamp} x:{x} min:{feed.minStamp} max:{feed.maxStamp}  width: {layoutBounds.width}");
         return x;
     }
-    function yFromValue(value:Integer){
+    bound function yFromValue(value:Integer){
         var normalized = (value - feed.minValue) * 1.0 / feed.rangeValue;
         var y = yBottom -   yHeight * normalized;
         //println("v:{value} y:{y} min:{feed.minValue} max:{feed.maxValue} r:{feed.rangeValue} height: {layoutBounds.height}");
@@ -63,19 +68,28 @@ public class Graph extends CustomNode {
     def borderoo = [
         MoveTo{
             x:xLeft
-            y:yBottom},
+            y:bind yBottom},
         LineTo{
             x:xLeft
-            y:yBottom - yHeight},
+            y:bind{
+                yBottom - yHeight
+            }},
         LineTo{
-            x:xLeft + xWidth
-            y:yBottom - yHeight},
+            x:bind{
+                xLeft + xWidth
+            }
+            y:bind{
+                yBottom - yHeight
+            }},
         LineTo{
-            x:xLeft + xWidth
-            y:yBottom},
+            x:bind {
+                xLeft + xWidth
+            }
+            y:bind { yBottom
+            }},
         LineTo{
             x:xLeft
-            y:yBottom},
+            y:bind yBottom},
     ];
 
     public override function create(): Node {
