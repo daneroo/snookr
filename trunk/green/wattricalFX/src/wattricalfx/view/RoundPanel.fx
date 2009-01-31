@@ -69,7 +69,7 @@ public class RoundPanel extends CustomNode {
             content: [
                 Rectangle {
                     fill: Color.DARKGRAY
-                    opacity: bind .2 +strokeAlpha/3
+                    opacity: bind .2 +strokeAlpha/2.0
                     width: width
                     height: height
                     arcWidth: arc
@@ -100,7 +100,8 @@ public class RoundPanel extends CustomNode {
 
                 },
                 Text{
-                    opacity: .5
+                    //opacity: .5
+                    opacity: bind .5 +strokeAlpha/2.0
                     font: Font{
                         size: 24
                     }
