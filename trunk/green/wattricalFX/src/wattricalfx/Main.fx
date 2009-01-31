@@ -21,6 +21,7 @@ import javafx.scene.Group;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextOrigin;
 import javafx.stage.Stage;
 import wattricalfx.Graph;
 import wattricalfx.model.Feed;
@@ -33,12 +34,14 @@ import wattricalfx.view.RoundPanel;
  */
 
  //def env = Env{screenWidth: 320, screenHeight: 240};
+def feedURL = "http://imetrical.appspot.com/feeds?owner=daniel";
+//def feedURL = "http://192.168.5.2/iMetrical/feeds.php";;
+//def feedURL = "http://imetrical.morphexchange.com/feeds.xml";
+
 def env = Env{
     screenWidth: 480,
     screenHeight: 320
-    feedLocation: "http://192.168.5.2/iMetrical/feeds.php"
-    //feedLocation: "http://imetrical.appspot.com/feeds?owner=daniel"
-    //feedLocation: "http://imetrical.morphexchange.com/feeds.xml"
+    feedLocation: feedURL
 };
 
 var fakeFeed:Feed = Feed {
@@ -83,7 +86,7 @@ var powerGroup = Group {
         RoundPanel { 
             value: bind wattStr
             units:"W"
-        scope:"live"}
+            scope:"live"}
         RoundPanel {
             value: bind kWhStr
             units: "kWh/d"
@@ -112,55 +115,52 @@ Stage {
         screenHeight: bind {
             if (scene.height > 10) scene.height else 320;
         }
-        feedLocation: "http://192.168.5.2/iMetrical/feeds.php"
-        //feedLocation: "http://imetrical.appspot.com/feeds?owner=daniel"
-        //feedLocation: "http://imetrical.morphexchange.com/feeds.xml"
+        feedLocation: feedURL
     };
 
     title: "Wattrical FX"
     width: env.screenWidth
     height: env.screenHeight
-    scene:
-    scene = Scene {
-        content: [
-            graph =  Graph {
-                env:trackingEnv
-                feed: fakeFeed
+    scene: scene = Scene {
+            content: [
+                graph =  Graph {
+                    env:trackingEnv
+                    feed: fakeFeed
                     /*effect: Reflection {
                     fraction: 0.9
                      topOpacity: 0.5
                      topOffset: 0.3
                      }*/
-            },
+                },
             titleText,
             powerGroup,
-            statusText = Text {
-                font: Font {
-                    size: 14
-                }
-                fill: Color.LIGHTGRAY
-                x: 10,
-                y: bind trackingEnv.screenHeight - 30
-                content: "Status"},
-        ]
-        fill:
-        if (false) Color.BLACK else
-        LinearGradient {
-            startX: 0.0,
-            startY: 0.0,
-            endX: 0.0,
-            endY: 1.0,
-            proportional: true
-            stops: [
-                Stop {
-                    offset: 0.0
-                    color: Color.BLACK},
-                Stop {
-                    offset: 1.0
-                    color: Color.GREEN}
+                statusText = Text {
+                    font: Font {
+                        size: 14
+                    }
+                    fill: Color.LIGHTGRAY
+                    x: 10,
+                    y: bind trackingEnv.screenHeight-5
+                    textOrigin:TextOrigin.BOTTOM
+                    content: "Status"},
             ]
-        };
-    }
+            fill: if (false) Color.BLACK else
+                LinearGradient {
+                    startX: 0.0,
+                    startY: 0.0,
+                    endX: 0.0,
+                    endY: 1.0,
+                    proportional: true
+                    stops: [
+                        Stop {
+                            offset: 0.0
+                            color: Color.BLACK},
+                        Stop {
+                            offset: 1.0
+                            color: Color.GREEN}
+                    ]
+                };
+        }
 }
 
 
