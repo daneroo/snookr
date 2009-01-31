@@ -176,11 +176,11 @@ class Watcher {
         feedLocation: env.feedLocation
     }
 
-
+    var whichFeed = 0;
     public var timer : Timeline = Timeline {
         repeatCount: Timeline.INDEFINITE
         keyFrames: KeyFrame {
-            time: 2s
+            time: 5s
             canSkip:true
             action: function() {
                 var now:Date = new Date();
@@ -197,11 +197,12 @@ class Watcher {
                     wattStr = "{parser.parsedFeeds[0].value}";
                     kWhStr = "{parser.parsedFeeds[2].value*24.0/1000}";
                     kWhMoStr = "{parser.parsedFeeds[4].value*24.0/1000}";
-                    var whichFeed = ((now.getSeconds() / 10) mod 3);
+                    //var whichFeed = ((now.getSeconds() / 10) mod 3);
+                    whichFeed = ( whichFeed + 1 ) mod (sizeof parser.parsedFeeds);
                     graph.feed = parser.parsedFeeds[whichFeed];
                     println(" selected feed:{whichFeed}");
                 }
-                println("Watcher timeline: {now}");
+                //println("Watcher timeline: {now}");
             }
         },
     };
