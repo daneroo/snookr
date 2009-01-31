@@ -45,7 +45,7 @@ def env = Env{
 };
 
 var fakeFeed:Feed = Feed {
-    name:"Fake"
+    name:"Splash"
     scopeId:-1
     stamp: new Date()
     value:1000;
