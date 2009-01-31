@@ -55,7 +55,8 @@ def now =
 new Date().getTime();
 for (t in [0..300 step 2]) {
     var rnd:Random = new Random();
-    var v = ( Math.sin(t  /  300.0 * 4  *  Math.PI) + 1) / 2 * 2000 + rnd.nextInt(200);
+    //var v = ( Math.sin(t  /  300.0 * 4  *  Math.PI) + 1) / 2 * 2000 + rnd.nextInt(200);
+    var v = ( Math.sin(t  /  300.0 * 8  *  Math.PI) + 1) / 2 * 4000;
     //v = t; // ramp instead
     def observation = Observation {
         stamp: new Date(
@@ -77,30 +78,30 @@ var titleText = Text {
     fill: Color.WHITE
 };
 
-var wattStr = "1234";
-var kWhStr = "30.0";
-var kWhMoStr = "30.0";
+var wattStr = "----";
+var kWhStr = "----";
+var kWhMoStr = "----";
 
 var powerGroup = Group {
     content: [
         RoundPanel { 
             value: bind wattStr
             units:"W"
-            scope:"live"}
+            scope:"Live"}
         RoundPanel {
             value: bind kWhStr
             units: "kWh/d"
-            scope: "day"
+            scope: "Day"
             translateY: 60
         }
         RoundPanel {
             value: bind kWhMoStr
             units: "kWh/d"
-            scope:"month"
+            scope:"Month"
             translateY: 120
         }
     ]
-    translateX:30
+    translateX:60
     translateY:70
 }
 

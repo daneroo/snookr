@@ -17,6 +17,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import wattricalfx.model.Feed;
+import javafx.scene.shape.Line;
 
 /**
  * @author daniel
@@ -25,15 +26,21 @@ public class Graph extends CustomNode {
     public-init var env: Env;
     public var feed:Feed;
 
-    def xLeft = 40.0;
+    def smallFont:Font = Font {
+        size: 14
+    }
+    def leftSpace = 40;   // room for yTicks
+    def rightSpace = 20;
+    def topSpace = 40;    // room for title
+    def bottomSpace = 50; // room for status+xTicks
 
-    //def xWidth = env.screenWidth-2*xLeft;
+    def xLeft = leftSpace;
     def xWidth = bind {
-        env.screenWidth - 2 * xLeft };
+        env.screenWidth - leftSpace - rightSpace };
     def yBottom= bind {
-        env.screenHeight - 70.0 };
+        env.screenHeight - bottomSpace };
     def yHeight= bind {
-        env.screenHeight - 70.0 - 50.0 };
+        env.screenHeight - bottomSpace - topSpace };
 
     bound function xFromStamp(stamp:Date){
         var normalized = DateRange.normalize(stamp, feed.minStamp, feed.maxStamp);
@@ -65,41 +72,104 @@ public class Graph extends CustomNode {
             };
         }
     }
-    def borderoo = [
-        MoveTo{
-            x:xLeft
-            y:bind yBottom},
-        LineTo{
-            x:xLeft
-            y:bind{
-                yBottom - yHeight
-            }},
-        LineTo{
-            x:bind{
-                xLeft + xWidth
-            }
-            y:bind{
-                yBottom - yHeight
-            }},
-        LineTo{
-            x:bind {
-                xLeft + xWidth
-            }
-            y:bind { yBottom
-            }},
-        LineTo{
-            x:xLeft
-            y:bind yBottom},
+
+    /* Borderoo
+    Path {
+     elements: borderoo
+     stroke: Color.GRAY
+     strokeWidth: 1;
+     },
+
+     def borderoo = [
+     MoveTo{
+     x:xLeft
+     y:bind yBottom},
+     LineTo{
+     x:xLeft
+     y:bind{
+     yBottom - yHeight
+     }},
+     LineTo{
+     x:bind{
+     xLeft + xWidth
+     }
+     y:bind{
+     yBottom - yHeight
+     }},
+     LineTo{
+     x:bind {
+     xLeft + xWidth
+     }
+     y:bind { yBottom
+     }},
+     LineTo{
+     x:xLeft
+     y:bind yBottom},
+     ];
+     */
+
+     // 0 .. 99 kW - 4 Labels no 0 < 2.5
+    def yTickRange:Integer = bind (feed.maxValue + 1000 - 1) / 1000 - 1;
+    def yTickRange2:Integer = bind (feed.maxValue + 500 - 1) / 500 - 1;
+    def halfLine = 7;
+    def axisColor = Color.LIGHTGRAY;
+    def yLabels = [
+            Text {  // units
+            x:10
+            y: topSpace - 15
+            content: "kW"
+            fill: axisColor
+            font: smallFont
+        },
+        Text {
+            x:20
+            y: bind yFromValue(yTickRange * 1000)+halfLine
+            content: bind "{yTickRange}"
+            //y: bind yFromValue(yTickRange2 * 500)
+            //content: bind "{yTickRange2/2.0} kW"
+            fill: axisColor
+            font: smallFont
+        }
+        Text {
+            x:20
+            y: bind yFromValue(1000)+halfLine
+            content: "1"
+            fill: axisColor
+            font: smallFont
+        }
     ];
+    def yAxis =  Line{
+        startX: xLeft
+        startY: topSpace
+        endX: xLeft
+        endY: bind yBottom
+        strokeWidth: 1
+        stroke: axisColor
+    };
+    def yTicks = bind
+    for (tck in [1..yTickRange2]) {
+        Line {
+            startX: xLeft,
+            startY: bind yFromValue(tck * 500)
+            endX: xLeft - 3,
+            endY: bind yFromValue(tck * 500)
+            strokeWidth: 1
+            stroke: axisColor
+        }
+    };
+    def xAxis =  Line{
+        startX: xLeft
+        startY: bind yBottom
+        endX: bind xLeft + xWidth
+        endY: bind yBottom
+        strokeWidth: 1
+        stroke: axisColor
+    };
+
 
     public override function create(): Node {
         return Group {
             content: [
-                Path {
-                    elements: borderoo
-                    stroke: Color.GRAY
-                    strokeWidth: 1;
-                },
                 Path {
                     elements: bind [
                         movetoseq,
@@ -109,15 +179,18 @@ public class Graph extends CustomNode {
                     strokeWidth: 2;
                 },
                 Text {
-                    font: Font {
-                        size: 14
-                    }
+                    font: smallFont
                     fill: Color.LIGHTGRAY
-                    x: env.screenWidth - 100;
+                    x: env.screenWidth - 200;
                     y: 20;
-
-                    content: bind "|{feed.name}|={sizeof(feed.observations)}"
-                }
+                    //content: bind "|{feed.name}|={sizeof(feed.observations)}"
+                    content: bind "|{feed.name}|<{yTickRange}<{yTickRange2/2.0}<{feed.maxValue}"
+                },
+                Group{
+                    content:yLabels},
+                yAxis,
+                yTicks,
+                xAxis,
 
             ]
             onMouseClicked: showBounds;
