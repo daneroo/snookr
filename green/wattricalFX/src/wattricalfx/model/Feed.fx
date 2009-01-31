@@ -91,6 +91,8 @@ public class Feed {
                 maxStamp=stamp;
             }
         }
+        // Override  min to 0
+        minValue=0;
         rangeValue= maxValue - minValue;
     }
 }
