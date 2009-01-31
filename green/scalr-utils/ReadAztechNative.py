@@ -28,7 +28,7 @@ def oneIteration(device,doCommand):
     if (doCommand):
         print "Executing Command"
         ser.write("DEBUGOFF\r\n")
-        ser.write("LOGDUMP\r\n")
+        #ser.write("LOGDUMP\r\n")
         #ser.write("RLOGDUMP\r\n")
         ser.write("DEBUGON\r\n")
 
