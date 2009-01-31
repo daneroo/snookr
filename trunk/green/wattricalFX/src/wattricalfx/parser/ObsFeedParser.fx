@@ -116,10 +116,11 @@ public class ObsFeedParser {
         }
 
         parser.parse();
+        /* verbose output
         println("Accumulated feed: {accumFeed}");
         for (feed in feeds) {
             println("+ {feed}");
-        }
+        }*/
         return feeds;
 
 
