@@ -10,6 +10,8 @@ import javafx.animation.Interpolator;
 import javafx.animation.Timeline;
 import javafx.scene.CustomNode;
 import javafx.scene.Group;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -24,6 +26,8 @@ public class RoundPanel extends CustomNode {
     public var value:String;
     public-init var units:String;
     public-init var scope:String;
+    public-init var onClickAction:function():Void;
+
 
     def width = 170;
     def height = 40;
@@ -60,16 +64,16 @@ public class RoundPanel extends CustomNode {
     };
 
     override function create():Node {
-        println("unitText = {unitText.layoutBounds}");
+        //println("unitText = {unitText.layoutBounds}");
         unitText.translateX = width - unitText.layoutBounds.width - 5;
-        unitText.translateY = 0*(height - unitText.layoutBounds.height) +2;
+        unitText.translateY = 0 * (height - unitText.layoutBounds.height) + 2;
         scopeText.translateX = width - scopeText.layoutBounds.width - 5;
-        scopeText.translateY = (height - scopeText.layoutBounds.height) -3;
+        scopeText.translateY = (height - scopeText.layoutBounds.height) - 3;
         return Group {
             content: [
                 Rectangle {
                     fill: Color.DARKGRAY
-                    opacity: bind .2 +strokeAlpha/2.0
+                    opacity: bind .2 + strokeAlpha / 2.0
                     width: width
                     height: height
                     arcWidth: arc
@@ -97,11 +101,16 @@ public class RoundPanel extends CustomNode {
                         fade.rate = -10.0;
                         fade.play();
                     }
+                    onMouseClicked:function(e):Void {
+                        if(e.button == MouseButton.PRIMARY) {
+                            onClickAction();
+                        }
+                    }
 
                 },
                 Text{
                     //opacity: .5
-                    opacity: bind .5 +strokeAlpha/2.0
+                    opacity: bind .5 + strokeAlpha / 2.0
                     font: Font{
                         size: 24
                     }

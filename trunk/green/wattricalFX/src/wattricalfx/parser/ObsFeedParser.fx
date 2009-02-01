@@ -70,7 +70,7 @@ public class ObsFeedParser {
         return new Date();
     }
     function parseInputStream(input: InputStream):Feed[] {
-        System.out.println("Gonna Parse");
+        //System.out.println("Gonna Parse");
 
         var feeds: Feed[];
         var currentFeed:Feed=null;
@@ -164,7 +164,7 @@ public class ObsFeedParser {
 
             onDone: function() {
                 if(not httpRequestError) {
-                    println("-I am Done with no Errors");
+                    //println("-I am Done with no Errors");
                 } else {
                     println("-I am Done with Error: {errorMessage}");
                 }

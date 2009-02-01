@@ -43,7 +43,7 @@ public class Graph extends CustomNode {
     
     public-init var env: Env;
     public var feed:Feed on replace {
-        println("replacing feed with {feed.name}");
+        //println("replacing feed with {feed.name}");
         graphLineOrBar =  makeNewGraphLineOrBar();
         graphYAxis = makeNewGraphYAxis();
     };

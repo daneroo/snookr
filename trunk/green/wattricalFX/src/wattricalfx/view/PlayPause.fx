@@ -33,7 +33,7 @@ import javafx.scene.Node;
  *  make a button a 0,0 size 40,40
  */
 public class PlayPause extends CustomNode {
-    public-init var play: Boolean = false;
+    public var play: Boolean = false;
 
     public override function create(): Node {
         return playPauseGrp;
