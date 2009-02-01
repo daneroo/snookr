@@ -12,22 +12,24 @@ import java.util.Date;
 import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.effect.Reflection;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.Scene;
-import javafx.scene.Group;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextOrigin;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import wattricalfx.Env;
 import wattricalfx.Graph;
 import wattricalfx.model.Feed;
 import wattricalfx.model.Observation;
 import wattricalfx.parser.ObsFeedParser;
+import wattricalfx.view.PlayPause;
 import wattricalfx.view.RoundPanel;
+
 
 /**
  * @author daniel
@@ -105,8 +107,12 @@ var powerGroup = Group {
     translateY:70
 }
 
+
+
 var graph:Graph;
 var statusText:Text;
+var playPause:PlayPause;
+
 Stage {
     var scene:Scene;
     var trackingEnv = Env{
@@ -122,46 +128,57 @@ Stage {
     title: "Wattrical FX"
     width: env.screenWidth
     height: env.screenHeight
-    scene: scene = Scene {
-            content: [
-                graph =  Graph {
-                    env:trackingEnv
-                    feed: fakeFeed
+    scene:
+    scene = Scene {
+        content: [
+            graph =  Graph {
+                env:trackingEnv
+                feed: fakeFeed
                     /*effect: Reflection {
                     fraction: 0.9
                      topOpacity: 0.5
                      topOffset: 0.3
                      }*/
-                },
+            },
             titleText,
             powerGroup,
-                statusText = Text {
-                    font: Font {
-                        size: 14
-                    }
-                    fill: Color.LIGHTGRAY
-                    x: 10,
-                    y: bind trackingEnv.screenHeight-5
-                    textOrigin:TextOrigin.BOTTOM
-                    content: "Status"},
+            
+            statusText = Text {
+                font: Font {
+                    size: 14
+                }
+                fill: Color.LIGHTGRAY
+                x: 10,
+                y: bind trackingEnv.screenHeight - 5
+                textOrigin:TextOrigin.BOTTOM
+                content: "Status"},
+
+            playPause = PlayPause {
+                play:true
+                transforms: bind [
+                    Transform.translate(trackingEnv.screenWidth - 35,trackingEnv.screenHeight - 35),
+                    Transform.scale(0.7,0.7),
+                ]
+            }
+        ]
+        fill:
+        if (false) Color.BLACK else
+        LinearGradient {
+            startX: 0.0,
+            startY: 0.0,
+            endX: 0.0,
+            endY: 1.0,
+            proportional: true
+            stops: [
+                Stop {
+                    offset: 0.0
+                    color: Color.BLACK},
+                Stop {
+                    offset: 1.0
+                    color: Color.GREEN}
             ]
-            fill: if (false) Color.BLACK else
-                LinearGradient {
-                    startX: 0.0,
-                    startY: 0.0,
-                    endX: 0.0,
-                    endY: 1.0,
-                    proportional: true
-                    stops: [
-                        Stop {
-                            offset: 0.0
-                            color: Color.BLACK},
-                        Stop {
-                            offset: 1.0
-                            color: Color.GREEN}
-                    ]
-                };
-        }
+        };
+    }
 }
 
 
@@ -199,11 +216,15 @@ class Watcher {
                     kWhStr = "{parser.parsedFeeds[2].value*24.0/1000}";
                     kWhMoStr = "{parser.parsedFeeds[4].value*24.0/1000}";
                     //var whichFeed = ((now.getSeconds() / 10) mod 3);
-                    whichFeed = ( whichFeed + 1 ) mod (sizeof parser.parsedFeeds);
-                    graph.feed = parser.parsedFeeds[whichFeed];
-                    println(" selected feed:{whichFeed}");
+                    if (playPause.play) {
+                        whichFeed = ( whichFeed + 1 ) mod (sizeof parser.parsedFeeds);
+                        graph.feed = parser.parsedFeeds[whichFeed];
+                        println(" selected feed:{whichFeed}");
+                    }
                 }
                 //println("Watcher timeline: {now}");
+
+
             }
         },
     };
