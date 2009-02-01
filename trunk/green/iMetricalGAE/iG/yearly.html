@@ -1,0 +1,290 @@
+<html>
+    <head>
+        <style type="text/css">
+            body, div, h1 { font-family: 'trebuchet ms', verdana, arial; margin: 0; padding: 0 }
+            div.b { width:3.5em; float:left; text-align:center; vertical-align:middle;}
+            div.b {
+                background: #090;
+                padding: 10px;
+                margin: 2px;
+                /*border: 1px solid black;*/
+            }
+            #status { clear:both;}
+            #status, #error { padding-left:1em; font-size:smaller;}
+            /* colors */
+            body { /*background:#3b5998; color:white;*/ font-weight: bold; }
+            /* facebook blues: #7f93bc, and #3b5998 */
+            div.b {background: #3b5998; color:white}
+            div.hoverbutton {
+                background: #7f93bc;
+                color:black;
+            }
+
+            #status { color:#333; }
+            #error { color:#f00; }
+            /*div.units, div.wattVal, div.kWhVal {display:inline;}*/
+
+        </style>
+        <!-- not sure what this is: related to Facebook COnnect ? -->
+        <script src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" type="text/javascript"> </script>
+        <!-- new google viz stuff --->
+        <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="jquery.corner.js"></script>
+        <script type="text/javascript" src="jquery.timer.js"></script>
+        <script type="text/javascript" src="jquery.ui.effects.js"></script>
+        <script type="text/javascript" src="imetrical.js"></script>
+        <script type="text/javascript">
+            // new google viz stuff
+            google.load("visualization", "1", {packages:["columnchart","areachart"]});
+            vizLoaded = false;
+            google.setOnLoadCallback(function(){vizLoaded=true});
+
+            // sql to generate from hydro.watt_billing
+            //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_billing group by left(stamp,7)" hydro
+            var hydroData = [
+                { stampStr: '2006-06-01T05:00:00Z'	, value: 	2272.0000	},
+                { stampStr: '2006-07-01T05:00:00Z'	, value: 	2272.0000	},
+                { stampStr: '2006-08-01T05:00:00Z'	, value: 	1863.5161	},
+                { stampStr: '2006-09-01T05:00:00Z'	, value: 	1819.9333	},
+                { stampStr: '2006-10-01T05:00:00Z'	, value: 	2057.0000	},
+                { stampStr: '2006-11-01T05:00:00Z'	, value: 	2057.0000	},
+                { stampStr: '2006-12-01T05:00:00Z'	, value: 	2335.0000	},
+                { stampStr: '2007-01-01T05:00:00Z'	, value: 	2335.0000	},
+                { stampStr: '2007-02-01T05:00:00Z'	, value: 	2146.0000	},
+                { stampStr: '2007-03-01T05:00:00Z'	, value: 	2139.0000	},
+                { stampStr: '2007-04-01T05:00:00Z'	, value: 	2068.0667	},
+                { stampStr: '2007-05-01T05:00:00Z'	, value: 	2063.0000	},
+                { stampStr: '2007-06-01T05:00:00Z'	, value: 	2166.4333	},
+                { stampStr: '2007-07-01T05:00:00Z'	, value: 	2170.0000	},
+                { stampStr: '2007-08-01T05:00:00Z'	, value: 	2061.6129	},
+                { stampStr: '2007-09-01T05:00:00Z'	, value: 	2030.0000	},
+                { stampStr: '2007-10-01T05:00:00Z'	, value: 	2170.3226	},
+                { stampStr: '2007-11-01T05:00:00Z'	, value: 	2180.2333	},
+                { stampStr: '2007-12-01T05:00:00Z'	, value: 	2332.0000	},
+                { stampStr: '2008-01-01T05:00:00Z'	, value: 	2332.0000	},
+                { stampStr: '2008-02-01T05:00:00Z'	, value: 	2332.8621	},
+                { stampStr: '2008-03-01T05:00:00Z'	, value: 	2333.0000	},
+                { stampStr: '2008-04-01T05:00:00Z'	, value: 	1996.3000	},
+                { stampStr: '2008-05-01T05:00:00Z'	, value: 	1852.0000	},
+                { stampStr: '2008-06-01T05:00:00Z'	, value: 	2113.3333	},
+                { stampStr: '2008-07-01T05:00:00Z'	, value: 	2132.0000	},
+                { stampStr: '2008-08-01T05:00:00Z'	, value: 	1591.0323	},
+                { stampStr: '2008-09-01T05:00:00Z'	, value: 	1573.0000	},
+                { stampStr: '2008-10-01T05:00:00Z'	, value: 	1666.5484	},
+                { stampStr: '2008-11-01T05:00:00Z'	, value: 	1673.0000	},
+                { stampStr: '2008-12-01T05:00:00Z'	, value: 	1673.0000	},
+                // theese are from ted
+                { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
+                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1698.0000	},
+            ];
+            hydroData.reverse();
+            // sql to gen from ted.watt_day
+            //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_day group by left(stamp,7)" ted
+            var tedData = [
+                { stampStr: '2008-07-01T05:00:00Z'	, value: 	1359.3333	},
+                { stampStr: '2008-08-01T05:00:00Z'	, value: 	1452.8065	},
+                { stampStr: '2008-09-01T05:00:00Z'	, value: 	1621.6000	},
+                { stampStr: '2008-10-01T05:00:00Z'	, value: 	1767.3667	},
+                { stampStr: '2008-11-01T05:00:00Z'	, value: 	1644.6667	},
+                { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
+                { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
+                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1698.0000	},
+            ];
+            tedData.reverse();
+
+            function makeDates(data) {
+                for (var i = 0; i < data.length ; i++) {
+                    var ostamp = new Date();
+                    ostamp.setISO8601(data[i].stampStr);
+                    data[i].stamp = ostamp;
+                    /*var observation = {
+                        stamp: ostamp,
+                        value: obsList.item(j).getAttribute("value")
+                    }*/
+                }
+            }
+            makeDates(hydroData);
+            makeDates(tedData);
+
+            var staticYearFeed = {
+                name: "Year",
+                stamp: hydroData[0].stamp,
+                value: hydroData[0].value,
+                observations:  hydroData
+            }
+
+            function drawChart(feed) {
+                var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                var isBarChart=true; // switch areachart(line) or columnchart(bar)
+                var units = "Watts";
+                var multiplier=1.0;
+                switch (feed.name){
+                    case "Live":
+                        timeFormat = function(stamp){ return ""+stamp.getHMS()};
+                        isBarChart=false;
+                        break;
+                    case "Hour":
+                        timeFormat = function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())};
+                        isBarChart=false;
+                        break;
+                    case "Day":
+                        timeFormat = function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())};
+                        units = "kWh";
+                        multiplier=1.0/1000.0;
+                        break;
+                    case "Week":
+                        timeFormat = function(stamp){return weekDayNames[stamp.getDay()];};
+                        units = "kWh";
+                        multiplier=24.0/1000.0;
+                        break;
+                    case "Month":
+                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getDate();};
+                        var units = "kWh";
+                        multiplier=24.0/1000.0;
+                        break;
+                    case "Year":
+                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getFullYear();};
+                        var units = "kWh";
+                        multiplier=24.0/1000.0;
+                        break;
+                    default : // nothing
+                }
+
+                var all = feed.observations;
+                feed.observations = [];
+                var prev = [];
+                //for (var i = 0; i < all.length-12; i++) {
+                for (var i = 0; i < 18; i++) { // just last 12 months
+                    feed.observations.push(all[i]);
+                    prev.push(all[i+12]);
+                }
+                var measured = [];
+                for (var i = 0; i < tedData.length; i++) {
+                    measured.push(tedData[i]);
+                }
+                while (measured.length<prev.length) {
+                    measured.push({value:0});
+                }
+
+
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Stamp');
+                data.addColumn('number', "Previous Year");
+                data.addColumn('number', "Current");
+                //data.addColumn('number', "Ted");
+                data.addRows(feed.observations.length);
+                // reverso order ..
+                for (var i = 0; i < feed.observations.length; i++) {
+                    var o = feed.observations[i];
+                    var timeLabel = ""+timeFormat(o.stamp);
+                    data.setValue(feed.observations.length-i-1, 0, timeLabel);
+                    data.setValue(feed.observations.length-i-1, 1, prev[i].value*multiplier); // div by 1 to get Number ?
+                    data.setValue(feed.observations.length-i-1, 2, o.value*multiplier); // div by 1 to get Number ?
+                    if (measured[i].value>0) {
+                      //data.setValue(feed.observations.length-i-1, 3, measured[i].value*multiplier); // div by 1 to get Number ?
+                    }
+                }
+
+
+                $('#chart').html("");
+                var chart;
+                if (isBarChart){
+                    chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+                } else {
+                    chart = new google.visualization.AreaChart(document.getElementById('chart'));
+                }
+                // color 3b5998
+                options =  {
+                    colors:["#7f93bc","#3b5998"],
+                    width: 600,
+                    height: 480,
+                    is3D: false,
+                    title: 'Power Consumption ('+units+') - '+feed.name+' Comparative',
+                    legend:'top'
+                };
+                chart.draw(data, options);
+            }
+
+            // getting ready to inject from settings..
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 10;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                if (refreshInterval<2) refreshInterval=2;
+                return refreshInterval*1000; // every n seconds
+            };
+
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=1;
+            function indexForScopeName(scopeName) {
+                if ("Hour"  == scopeName) return 1;
+                if ("Day"   == scopeName) return 2;
+                if ("Week"  == scopeName) return 3;
+                if ("Month" == scopeName) return 4;
+                return 0;
+            }
+
+            function drawAChart(whichOne) {
+                feed = feedsRef[whichOne%feedsRef.length];
+                drawChart(feed);
+            }
+
+
+            function myInjector(feeds) {
+                feedsRef = feeds;
+                standardInjector(feeds);
+                if (vizLoaded) {
+                    drawAChart(currentFeed);
+                    currentFeed= (currentFeed+1)%5;
+                }
+            }
+            $(document).ready(function(){
+                //$("div.b").corner(/*"6px"*/);
+                $("div.b").hover(function() {
+                    $(this).addClass('hoverbutton');
+                    //globalSelectedFeed=indexForScopeName(this.id);
+                    //updateFeeds();
+                }, function() {
+                    $(this).removeClass('hoverbutton');
+                    //globalSelectedFeed=0;
+                    //updateFeeds();
+                });
+                $("div.b").click(function () {
+                    var scopeName = this.id;
+                    selectedFeed=indexForScopeName(scopeName);
+                    drawAChart(selectedFeed);
+                });
+                drawChart(staticYearFeed);
+                /*
+                fetchAndMapFeeds(null,myInjector);
+                //fetchAndMapFeeds();
+                $.timer(getRefreshIntervalMS(), function (timer) {
+                    //timer.reset(getRefreshIntervalMS()); // secs to milis
+                    fetchAndMapFeeds(null,myInjector);
+                });
+                 */
+            });
+        </script>
+    </head>
+    <body>
+        <!-- this dom uses default mapping id=feedName/class={wattVal,kWhVal} -->
+        <!--
+        <div id="Live"  class="b"><div class="feed">Live</div><div class="wattVal">00.00</div></div>
+        <div id="Hour"  class="b"><div class="feed">Hour</div><div class="kWhVal">00.00</div></div>
+        <div id="Day"   class="b"><div class="feed">Day</div><div class="kWhVal">00.00</div></div>
+        <div id="Week"  class="b"><div class="feed">Week</div><div class="kWhVal">00.00</div></div>
+        <div id="Month" class="b"><div class="feed">Month</div><div class="kWhVal">00.00</div></div>
+        -->
+        <div style="clear:both"></div>
+        <div id="chart"></div>
+        <div id="status"></div>
+        <div id="error"></div>
+
+
+    </body>
+</html>
