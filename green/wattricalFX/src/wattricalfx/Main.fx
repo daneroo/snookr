@@ -89,18 +89,31 @@ var powerGroup = Group {
         RoundPanel { 
             value: bind wattStr
             units:"W"
-            scope:"Live"}
+            scope:"Live"
+            onClickAction: function() {
+                playPause.play=false;
+                flipper.selectFeed(0);
+            }
+        }
         RoundPanel {
             value: bind kWhStr
             units: "kWh/d"
             scope: "Day"
             translateY: 60
+            onClickAction: function() {
+                playPause.play=false;
+                flipper.selectFeed(2);
+            }
         }
         RoundPanel {
             value: bind kWhMoStr
             units: "kWh/d"
             scope:"Month"
             translateY: 120
+            onClickAction: function() {
+                playPause.play=false;
+                flipper.selectFeed(4);
+            }
         }
     ]
     translateX:60
@@ -181,50 +194,142 @@ Stage {
     }
 }
 
+var flipper:Flipper = Flipper {
+    graph:graph
+}
+flipper.timer.play();
 
 var watcher:Watcher = Watcher{
-    graph:graph};
+    flipper:flipper
+};
 watcher.timer.play();
 
-class Watcher {
-    var secs:Long;
+/* This class controls the displayed feed graph
+ * selection
+ * animation
+ */
+class Flipper {
     var graph:Graph;
-
-    def parser:ObsFeedParser = ObsFeedParser {
-        feedLocation: env.feedLocation
+    var whichFeed=0;
+    var feeds:Feed[] on replace {
+        updateFeeds();
+    };
+    init {
+        whichFeed=0;
+        feeds=[];  // array of feeds
     }
 
-    var whichFeed = 0;
+    function updateDynamicRefresh(name) {
+        var desired=2.0;
+        if ("Live".equals(name)) {
+            desired=2.0;
+        } else
+        if ("Hour".equals(name)) {
+            desired=10.0;
+        } else { // Day/Week/Month,...
+            desired=60.0;
+        }
+        if (watcher.dynamicExpirySeconds != desired) {
+            println("  Flipper update: {name} refresh {watcher.dynamicExpirySeconds}->{desired}");
+            watcher.dynamicExpirySeconds = desired;
+        } else {
+            println("  Flipper update: {name} refresh {watcher.dynamicExpirySeconds}");
+        }
+    }
+    function updateFeeds() {
+        if ((sizeof feeds) == 0) {
+            return;
+        }
+        if (whichFeed < 0)
+        whichFeed=0;
+        whichFeed = ( whichFeed ) mod (sizeof feeds);
+        var newFeed = feeds[whichFeed];
+        updateDynamicRefresh(newFeed.name);
+        graph.feed = newFeed;
+    }
+    function selectFeed(selected:Integer) {
+        whichFeed = selected;
+        updateFeeds();
+    }
+    function nextFeed() {
+        println("Flipper nextFeed: {new Date()}");
+        selectFeed(whichFeed + 1);
+    }
+    
     public var timer : Timeline = Timeline {
         repeatCount: Timeline.INDEFINITE
         keyFrames: KeyFrame {
             time: 5s
             canSkip:true
             action: function() {
-                var now:Date = new Date();
-                secs=now.getTime();
-                parser.parseURL();
-                if (parser.parsedFeeds != null) {
-                    //println("  LOCAL : {parser.parsedFeeds[0].isoStamp}");
-                    //println("  GMT   : {parser.parsedFeeds[0].isoGMT()}");
-                    var stamp = parser.parsedFeeds[0].isoStamp; //isoGMT()
-                    var latency = (
-                    new Date().getTime() - parser.parsedFeeds[0].stamp.getTime()) / 1000.0;
-                    //statusText.content = "{stamp} ({-latency}s.)  {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
-                    statusText.content = "{stamp} ({-latency}s.)";
-                    wattStr = "{parser.parsedFeeds[0].value}";
-                    kWhStr = "{parser.parsedFeeds[2].value*24.0/1000}";
-                    kWhMoStr = "{parser.parsedFeeds[4].value*24.0/1000}";
-                    //var whichFeed = ((now.getSeconds() / 10) mod 3);
-                    if (playPause.play) {
-                        whichFeed = ( whichFeed + 1 ) mod (sizeof parser.parsedFeeds);
-                        graph.feed = parser.parsedFeeds[whichFeed];
-                        println(" selected feed:{whichFeed}");
-                    }
+                if (playPause.play) {
+                    nextFeed();
                 }
-                //println("Watcher timeline: {now}");
+            }
+        },
+    };
 
+}
 
+/* This class polls the feeds
+ * it is run on a tight loop (1s) but only refreshes the feed
+ * if the expiry for that feed has elapsed...
+ *  it set the power strings,status,..
+ */
+
+class Watcher {
+    var flipper:Flipper; // where to push the feeds
+    def minRefreshSeconds:Number = 2.0;
+    // flipper tells us the refresh rate for it feed
+    var dynamicExpirySeconds:Number=2.0;
+    def parser:ObsFeedParser = ObsFeedParser {
+        feedLocation: env.feedLocation
+    }
+    var lastRefreshed:Date;
+
+    function isExpired():Boolean {
+        if (lastRefreshed == null) {
+            println("  Watcher:No current feed.");
+            return true;
+        }
+        var now = new Date();
+        var secondsOld = (now.getTime() - lastRefreshed.getTime()) / 1000.0;
+        if (secondsOld < minRefreshSeconds or secondsOld < dynamicExpirySeconds) {
+            //println("  Watcher:Current feeds still valid: {secondsOld} seconds old");
+            return false;
+        }
+        return true;
+    }
+    function parseAndPush() {
+        if (not isExpired()) {
+            return;
+        }
+        parser.parseURL();
+        if (parser.parsedFeeds != null) {
+            lastRefreshed=new Date();
+            println("  Feed updated: {lastRefreshed}");
+
+            //println("  LOCAL : {parser.parsedFeeds[0].isoStamp}");
+            //println("  GMT   : {parser.parsedFeeds[0].isoGMT()}");
+            var stamp = parser.parsedFeeds[0].isoStamp; //isoGMT()
+            var now = new Date();
+            var latency = (now.getTime() - parser.parsedFeeds[0].stamp.getTime()) / 1000.0;
+            //statusText.content = "{stamp} ({-latency}s.)  {parser.parsedFeeds[0].value} W  {parser.parsedFeeds[2].value*24.0/1000} kWh/d";
+            statusText.content = "{stamp} ({latency}s.)";
+            wattStr = "{parser.parsedFeeds[0].value}";
+            kWhStr = "{parser.parsedFeeds[2].value*24.0/1000}";
+            kWhMoStr = "{parser.parsedFeeds[4].value*24.0/1000}";
+            flipper.feeds = parser.parsedFeeds;
+        }
+    }
+    public var timer : Timeline = Timeline {
+        repeatCount: Timeline.INDEFINITE
+        keyFrames: KeyFrame {
+            time: 1s
+            canSkip:true
+            action: function() {
+                //println("Watcher timeline: {new Date()}");
+                parseAndPush();
             }
         },
     };
