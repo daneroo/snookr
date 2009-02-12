@@ -41,7 +41,7 @@ def feedURL = "http://imetrical.appspot.com/feeds?owner=daniel";
 //def feedURL = "http://imetrical.morphexchange.com/feeds.xml";
 
 def env = Env{
-    screenWidth: 480,
+    screenWidth: 480
     screenHeight: 320
     feedLocation: feedURL
 };
