@@ -22,7 +22,7 @@ static int lightningEnabled = 0;
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
 	NSLog(@"was: %d",lightningEnabled);
-	lightningEnabled = 30; !lightningEnabled;
+	lightningEnabled = 60; !lightningEnabled;
 	NSLog(@"setting: %d",lightningEnabled);
 }
 
@@ -56,8 +56,8 @@ static int lightningEnabled = 0;
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	CGContextSaveGState(context);
 	CGContextTranslateCTM(context, self.center.x, self.center.y);
-    CGContextRotateCTM(context, angle);
-	CGContextScaleCTM(context,scale,scale);
+    //CGContextRotateCTM(context, angle);
+	//CGContextScaleCTM(context,scale,scale);
 	CGPoint imgPoint = CGPointMake(-img.size.width/2.0,-img.size.height/2.0);
 	[img drawAtPoint:imgPoint blendMode:kCGBlendModeNormal alpha:alpha];
 	CGContextRestoreGState(context);
@@ -150,7 +150,7 @@ static int lightningEnabled = 0;
 
 - (void)drawRect:(CGRect)rect {
     //NSLog(@"drawRect");
-
+    NSDate *start = [NSDate date];
 	[self drawLightning];
 
 	[self drawDial];
@@ -158,7 +158,11 @@ static int lightningEnabled = 0;
 	
     // Text part
 	[[UIColor lightTextColor] set];
-	NSString *text=[NSString stringWithFormat:@"%@",[NSDate date]];
+	//NSString *text=[NSString stringWithFormat:@"%@",[NSDate date]];
+	
+	CGFloat fps = -1/[start timeIntervalSinceNow];
+	NSString *text = [NSString stringWithFormat:@"%.0f",fps];
+
 	CGFloat fontSize = 20;//[UIFont systemFontSize];
 	UIFont *font = [UIFont systemFontOfSize:fontSize];
 	CGSize tsz = [text sizeWithFont:font];
