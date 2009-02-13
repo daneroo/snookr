@@ -1,5 +1,5 @@
 application: imetrical-web
-version: 2.01
+version: 2
 runtime: python
 api_version: 1
 
