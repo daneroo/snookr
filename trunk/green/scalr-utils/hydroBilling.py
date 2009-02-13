@@ -118,7 +118,7 @@ def printBillingSQL():
       #print "%    -- %s" % aDayStr
       kWhPerDay = bill['kWhPerDay']
       watt = int(round(kWhPerDay/24.0*1000));
-      print "REPLACE INTO watt_billing(stamp,watt) VALUES ('%s','%d')" % (aDayStr,watt)
+      print "REPLACE INTO watt_billing(stamp,watt) VALUES ('%s','%d');" % (aDayStr,watt)
     
 def logError(msg):
         sys.stderr.write(msg)
