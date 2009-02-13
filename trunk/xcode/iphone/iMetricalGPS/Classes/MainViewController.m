@@ -89,8 +89,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		firstUpdate = NO;
 	} else {
 		//updateTextView.text = [NSString stringWithFormat:@"%@-----\n\n%@", updateTextView.text, text];
-		updateTextView.text = [NSString stringWithFormat:@"%@\n%@", updateTextView.text, text];
-		[updateTextView scrollRangeToVisible:NSMakeRange([updateTextView.text length], 0)]; // scroll to the bottom on updates
+		updateTextView.text = [NSString stringWithFormat:@"%@", text];
+		//updateTextView.text = [NSString stringWithFormat:@"%@\n%@", updateTextView.text, text];
+		//[updateTextView scrollRangeToVisible:NSMakeRange([updateTextView.text length], 0)]; // scroll to the bottom on updates
 	}
 }
 
