@@ -151,7 +151,10 @@ static MyCLController *sharedCLDelegate = nil;
     NSLog(@"/gps.php%@",params);
     // ping it http://acerama.lan/~daniel/gps.php?lat=43.19&long=122.34555&acc=47.344
     // perform http get:
-    NSString *baseURLString = @"http://192.168.3.143/~daniel/";
+    //NSString *baseURLString = @"http://192.168.3.143/~daniel/";
+    //NSString *baseURLString = @"http://Newton.lan/~daniel/";
+    // internal network...
+    NSString *baseURLString = @"http://169.254.234.176/~daniel/";
     NSString *resource = @"gps.php";
     NSString *urlString = [[NSString alloc] initWithFormat:@"%@%@%@", baseURLString, resource, params];
     NSURL *url = [[NSURL alloc] initWithString:urlString];
