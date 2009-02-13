@@ -3,6 +3,8 @@
  python -u ReadAztechNative.py --device /dev/tty.usbserial-A50022xp|tee Aztech-01.txt
  python -u ReadAztechNative.py --device /dev/tty.usbserial-A50022xp|./tee.pl Aztech-01.txt
 
+ python -u ReadAztechGPS.py --device /dev/tty.usbserial-A7005epa | tee Aztech.GPS.tty.usbserial-A7005epa.20090124.0200.txt
+
  Extracting unique device id's from DEBUGON
  grep "\[R\]" Aztech-01.txt | awk 'BEGIN {FS=","} {print $3}'|sort|uniq -c|sort -n
 
