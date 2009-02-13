@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>jQuery UI Example Page</title>
+        <link type="text/css" href="jq/theme/ui.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript" src="jquery.timer.js"></script>
+        <script type="text/javascript">
+            function togglerot() {
+                var animOut='slide'; // slide,drop,null
+                var animIn='slide'; // slide,drop,null
+                //$('#Live').toggle('drop');
+                var ll = $('div.toggler > div.bb:visible').length;
+                if (ll<=3) {
+                    $('div.toggler > div.bb:hidden').show(animIn);
+                } else {
+                    var index=2;
+                    if (ll==6) index=1;
+                    $('div.toggler > div.bb:visible').eq(index).toggle(animOut);
+                }
+
+            }
+            $(function(){
+                // To add Button like behaviour/style to element:
+                // setup class: ui-default-state
+                // on hover: add/remove ui-hover-state
+                $('.bb').addClass('ui-state-default ui-corner-all');
+                //$('.bb').addClass('ui-state-default');
+                $('.bb').hover(
+                function() { $(this).addClass('ui-state-hover'); },
+                function() { $(this).removeClass('ui-state-hover'); }
+            );
+
+                $.timer(10000, function (timer) {
+                    //$('#Live').effect('highlight');
+                    togglerot();
+                });
+
+
+            });
+        </script>
+        <style type="text/css">
+            /* override theme */
+            .ui-state-default, .ui-widget-content .ui-state-default {
+                border: 1px solid #d3d3d3;
+                /*facebook dark - gloss-wave*/
+                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
+                /*facebook dark - glass*/
+                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
+
+                font-weight: normal;
+                color: #ffffff;
+                outline: none;
+            }
+
+            .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus {
+                border: 1px solid #999999;
+                /*facebook light - gloss-wave*/
+                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
+                /*facebook light - glass*/
+                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
+                font-weight: normal;
+                color: #212121;
+                outline: none; }
+
+            body { font-family: 'trebuchet ms', verdana, arial; }
+            /* button badges */
+            div { margin: 0; padding: 0 }
+
+            div.bb {
+                float:left; text-align:center;
+                width:3.5em;
+                height:3em;
+                /*vertical-align:middle;*/
+            }
+            div.bb {
+                /*background: #090;*/
+                padding: 0.3em;
+                margin: 0.05em; /* inter box spacing */
+                /*border: 1px solid black;*/
+            }
+            div.feed,div.wattVal,div.kWhVal {
+                bbackground:yellow;
+            }
+            div.wattVal,div.kWhVal {
+                padding-top:0.3em;
+                bbackground:#0ff;
+                ccolor:#050;
+            }
+            div.feed span.feedName {
+                float:left;
+                font-size:70%; /*smaller*/
+            }
+            div.feed span.feedUnits {
+                float:right;
+                height:1em;
+                font-size:50%;
+                padding-top:0.5em;
+            }
+            div.wattVal,div.kWhVal { clear:both }
+        </style>
+    </head>
+    <body>
+
+        <h2 class="demoHeaders">Relative Container</h2>
+        <div id="relativeLayerWithHeight001"
+             style="position: relative; widthX: 30em; height: 3.8em; overflow:hidden;"
+             class="fakewindowcontain">
+            <div id="positioningLayerWithWidth001"
+                 style="position: absolute; width: 15em;"
+                 classZ="ui-widget ui-widget-content ui-corner-all">
+                <div class="toggler ui-dialog-content ui-widget-content" style="background: none; border:0;">
+                    <div id="Live"  class="bb"><div class="feed"><span class="feedName">Live</span><span class="feedUnits">kW</span></div><div class="wattVal">0.00</div></div>
+                    <div id="Hour"  class="bb"><div class="feed"><span class="feedName">Hour</span><span class="feedUnits">kWh</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Day"  class="bb"><div class="feed"><span class="feedName">Day</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Week"  class="bb"><div class="feed"><span class="feedName">Week</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Month"  class="bb"><div class="feed"><span class="feedName">Month</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Year"  class="bb"><div class="feed"><span class="feedName">Year</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                </div>
+            </div>
+
+        </div>
+
+        <h2>Badges Flow</h2>
+        <div>
+                    <div id="Live"  class="bb"><div class="feed"><span class="feedName">Live</span><span class="feedUnits">kW</span></div><div class="wattVal">0.00</div></div>
+                    <div id="Hour"  class="bb"><div class="feed"><span class="feedName">Hour</span><span class="feedUnits">kWh</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Day"  class="bb"><div class="feed"><span class="feedName">Day</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Week"  class="bb"><div class="feed"><span class="feedName">Week</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Month"  class="bb"><div class="feed"><span class="feedName">Month</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                    <div id="Year"  class="bb"><div class="feed"><span class="feedName">Year</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+        </div>
+        <div style="clear:both"></div>
+
+        <h2>Badges 3x2</h2>
+        <div style="width:17em;">
+            <div id="Live"  class="bb"><div class="feed">Live</div><div class="wattVal">00.00</div></div>
+            <div id="Hour"  class="bb"><div class="feed">Hour</div><div class="kWhVal">00.00</div></div>
+            <div id="Day"   class="bb"><div class="feed">Day</div><div class="kWhVal">00.00</div></div>
+            <div id="Week"  class="bb"><div class="feed">Week</div><div class="kWhVal">00.00</div></div>
+            <div id="Month" class="bb"><div class="feed">Month</div><div class="kWhVal">00.00</div></div>
+            <div id="Year"  class="bb"><div class="feed">Year</div><div class="kWhVal">00.00</div></div>
+        </div>
+        <div style="clear:both"></div>
+
+        <h2>Badges 2x3</h2>
+        <div style="width:11em; background:green;">
+            <div id="Live"  class="bb"><div class="feed">Live</div><div class="wattVal">00.00</div></div>
+            <div id="Hour"  class="bb"><div class="feed">Hour</div><div class="kWhVal">00.00</div></div>
+            <div id="Day"   class="bb"><div class="feed">Day</div><div class="kWhVal">00.00</div></div>
+            <div id="Week"  class="bb"><div class="feed">Week</div><div class="kWhVal">00.00</div></div>
+            <div id="Month" class="bb"><div class="feed">Month</div><div class="kWhVal">00.00</div></div>
+            <div id="Year"  class="bb"><div class="feed">Year</div><div class="kWhVal">00.00</div></div>
+        </div>
+        <div style="clear:both"></div>
+
+
+        <!--
+        <center>
+            <iframe src ="http://imetrical.appspot.com/" width="80%" height="350px" frameborder="0" scrolling="no">
+                <p>Your browser does not support iframes.</p>
+            </iframe>
+        </center>
+        -->
+    </body>
+</html>
+
+
