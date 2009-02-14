@@ -10,62 +10,70 @@
         <script type="text/javascript">
             function flash() {
                 //animate( params, [duration], [easing], [callback] )
-                var el = $('div.toggler > div.bb:visible').eq(0).find("span.feedName");
+                var el = $('div.toggler > div.im-badge:visible').eq(0).find("span.im-feed-name");
                 var oldColor = el.css("color");
                 el.css({'color' : 'red',"opacity": .5});
                 el.animate({"opacity": 1}, 500,null, function(){el.css({'color':oldColor})});
-                //$('div.toggler > div.bb:visible').eq(0).find(".wattVal").animate({"opacity": .5}, 100).animate({"opacity": 1}, 100);
             }
             function togglerot() {
                 var animOut='slide'; // slide,drop,null
                 var animIn='slide'; // slide,drop,null
                 //$('#Live').toggle('drop');
-                var ll = $('div.toggler > div.bb:visible').length;
+                var ll = $('div.toggler > div.im-badge:visible').length;
                 if (ll<=3) {
-                    $('div.toggler > div.bb:hidden').show(animIn);
+                    $('div.toggler > div.im-badge:hidden').show(animIn);
                 } else {
                     var index=2;
                     if (ll==6) index=1;
-                    $('div.toggler > div.bb:visible').eq(index).toggle(animOut);
+                    $('div.toggler > div.im-badge:visible').eq(index).toggle(animOut);
                 }
 
             }
+            // map unit name and value-class-suffix
+            var iMUnits = {
+                w:   {name:"W",    suffix:"w",    format:"0000"},
+                kw:  {name:"kW",   suffix:"kw",   format:"0.00"},
+                kwhd:{name:"kWh/d",suffix:"kwhd", format:"00.0"}
+            };
             function add6Badges(parentID){
-                addBadge(parentID,'Live', 'kW',   'wattVal');
-                addBadge(parentID,'Hour', 'kW',   'kWhVal');
-                addBadge(parentID,'Day',  'kWh/d','kWhVal');
-                addBadge(parentID,'Week', 'kWh/d','kWhVal');
-                addBadge(parentID,'Month','kWh/d','kWhVal');
-                addBadge(parentID,'Year', 'kWh/d','kWhVal');
+                //addBadge(parentID,'Live', iMUnits.w);
+                addBadge(parentID,'Live', iMUnits.kw);
+                addBadge(parentID,'Hour', iMUnits.kw);
+                addBadge(parentID,'Day',  iMUnits.kwhd);
+                addBadge(parentID,'Week', iMUnits.kwhd);
+                addBadge(parentID,'Month',iMUnits.kwhd);
+                addBadge(parentID,'Year', iMUnits.kwhd);
+                // hide all 6 'right parts of the badges''
+                $(parentID).find('.im-badge-right').hide();
+                $(parentID).find('.im-badge').addClass('ui-state-default ui-corner-all');
+                $(parentID).find('.im-badge').hover(
+                function() { $(this).addClass('ui-state-hover'); },
+                function() { $(this).removeClass('ui-state-hover'); }  );
             }
-            function addBadge(parentID,feedName,feedUnits,feedClass){
-                var html = '<div id="'+feedName+'"  class="bb">'+
-                    '  <div class="feed">'+
-                    '    <span class="feedName">'+feedName+'</span>'+
-                    '    <span class="feedUnits">'+feedUnits+'</span></div>'+
-                    '  <div class="'+feedClass+'">0.00</div>'+
+            function addBadge(parentID,feedName,feedUnits){
+                var html = '<div class="im-badge im-feed-'+feedName+'">'+
+                    '   <div class="im-badge-left">'+
+                    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+feedUnits.name+'</span></div>'+
+                    '       <div class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</div>'+
+                    '   </div>'+
+                    '   <div class="im-badge-right">'+
+                    '       <div class="im-v-percent">+0%</div>'+
+                    '       <div class="im-v-overunder">over target</div>'+
+                    '   </div>'+
                     '</div>';
-
                 $(parentID).append(html);
+                // hiding and decorationg is performed in add6Badges.
             }
             $(function(){
-                add6Badges('#zozo');
                 add6Badges('#sixBrelative');
+                add6Badges('#sixB2W');
                 add6Badges('#sixBflow');
                 add6Badges('#sixB3x2');
                 add6Badges('#sixB2x3');
-                // To add Button like behaviour/style to element:
-                // setup class: ui-default-state
-                // on hover: add/remove ui-hover-state
-                $('.bb').addClass('ui-state-default ui-corner-all');
-                //$('.bb').addClass('ui-state-default');
-                $('.bb').hover(
-                function() { $(this).addClass('ui-state-hover'); },
-                function() { $(this).removeClass('ui-state-hover'); }
-            );
-                $('#dayOuter').click(function() {
-                    //alert("outer width: "+$(this).width());
-                    $('#dayRight').toggle();
+
+                // make all badges expand-right on click
+                $('.im-badge').click(function() {
+                    $(this).find('.im-badge-right').toggle('slide');
                 } );
 
                 //  timers
@@ -80,137 +88,135 @@
             });
         </script>
         <style type="text/css">
-            /* override theme */
-            .ui-state-default, .ui-widget-content .ui-state-default {
-                border: 1px solid #d3d3d3;
-                /*facebook dark - gloss-wave*/
-                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
-                /*facebook dark - glass*/
-                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
-
-                font-weight: normal;
-                color: #ffffff;
-                outline: none;
-            }
-
-            .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus {
-                border: 1px solid #999999;
-                /*facebook light - gloss-wave*/
-                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
-                /*facebook light - glass*/
-                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
-                font-weight: normal;
-                color: #000000;
-                outline: none;
-            }
-
             body { font-family: 'trebuchet ms', verdana, arial; }
             /* button badges */
             div { margin: 0; padding: 0 }
 
-            div.bb {
-                float:left; text-align:center;
-                width:3.5em;
-                height:3em;
-                /*vertical-align:middle;*/
-            }
-            div.bb {
-                /*background: #090;*/
+            div.im-badge {
+                float:left;
+                width:auto;  height:3em;
+                text-align:center;
+
                 padding: 0.3em;
                 margin: 0.05em; /* inter box spacing */
-                /*border: 1px solid black;*/
             }
-            div.feed,div.wattVal,div.kWhVal {
-                bbackground:yellow;
+            div.im-badge-left {
+                float:left;
+                width:3.5em;
             }
-            div.wattVal,div.kWhVal,div.percentChange {
+            div.im-v-w, div.im-v-kw, div.im-v-kwhd {
+                clear:both;
+                /* vertical offset between floating feed name/units and Value*/
                 padding-top:0.3em;
-                bbackground:#0ff;
-                ccolor:#050;
             }
-            div.feed span.feedName {
+            span.im-feed-name {
                 float:left;
                 font-size:60%; /*smaller*/
             }
-            div.feed span.feedUnits {
+            span.im-feed-units {
                 float:right;
                 height:1em;
                 font-size:50%;
                 padding-top:0.2em;
             }
-            span.overUnder {
+            div.im-badge-right {
                 float:right;
-                height:1em;
+                width:4.2em;
+            }
+            div.im-v-percent {
+                /* vertical offset for percent Value*/
+                padding-top:0.6em;
+            }
+            div.im-v-overunder {
                 font-size:50%;
             }
-            div.wattVal,div.kWhVal { clear:both }
+
+            /*facebook flat -dark-default*/
+            .im-lf-blue-flat .ui-state-default, .im-lf-blue-flat .ui-widget-content .ui-state-default {
+                background: #3b5598;
+                color: #ffffff;
+            }
+            /*facebook flat -light-hover*/
+            .im-lf-blue-flat .ui-state-hover, .im-lf-blue-flat .ui-widget-content .ui-state-hover, .im-lf-blue-flat .ui-state-focus, .im-lf-blue-flat .ui-widget-content .ui-state-focus {
+                background: #7f93bc;
+                color: #000000;
+            }
+            /*facebook glass -dark-default*/
+            .im-lf-blue-glass .ui-state-default, .im-lf-blue-flat .ui-widget-content .ui-state-default {
+                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
+                color: #ffffff;
+            }
+            /*facebook glass -light-hover*/
+            .im-lf-blue-glass .ui-state-hover, .im-lf-blue-flat .ui-widget-content .ui-state-hover, .im-lf-blue-flat .ui-state-focus, .im-lf-blue-flat .ui-widget-content .ui-state-focus {
+                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
+                color: #000000;
+            }
+
+            /*facebook gloss-wave -dark-default*/
+            .im-lf-blue-gloss .ui-state-default, .im-lf-blue-gloss .ui-widget-content .ui-state-default {
+                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
+                color: #ffffff;
+            }
+            /*facebook gloss-wave -light-hover*/
+            .im-lf-blue-gloss .ui-state-hover, .im-lf-blue-gloss .ui-widget-content .ui-state-hover, .im-lf-blue-gloss .ui-state-focus, .im-lf-blue-gloss .ui-widget-content .ui-state-focus {
+                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
+                color: #000000;
+            }
+            /* highlight soft:
+            ui-bg_highlight-soft_75_cccccc_1x100.png
+            http://jqueryui.com/themeroller/images/?new=cccccc&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75
+            */
+            /*facebook highlight-soft -dark-default*/
+            .im-lf-blue-hsoft .ui-state-default, .im-lf-blue-hsoft .ui-widget-content .ui-state-default {
+                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75) 50% 50% repeat-x;
+                color: #ffffff;
+            }
+            /*facebook highlight-soft -light-hover*/
+            .im-lf-blue-hsoft .ui-state-hover, .im-lf-blue-hsoft .ui-widget-content .ui-state-hover, .im-lf-blue-hsoft .ui-state-focus, .im-lf-blue-hsoft .ui-widget-content .ui-state-focus {
+                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75) 50% 50% repeat-x;
+                color: #000000;
+            }
+
         </style>
     </head>
     <body>
 
-        <h2 class="demoHeaders">Relative Container</h2>
+        <h2 class="demoHeaders">Relative Container Flat</h2>
         <div id="scaleTheFont" style="font-size:200%">
             <div id="relativeLayerWithHeight001"
-                 style="position: relative; width: 12.65em; height: 3.8em; overflow:hidden;"
-                 class="fakewindowcontain">
+                 style="position: relative; width: 12.8em; height: 3.8em; overflow:hidden;">
                 <div id="positioningLayerWithWidth001"
                      style="position: absolute; width: 100em;"
-                     classZ="ui-widget ui-widget-content ui-corner-all">
-                    <div id="sixBrelative" class="toggler ui-dialog-content ui-widget-content" style="background: none; border:0;">
-                        <!--
-                        <div id="Live"  class="bb"><div class="feed"><span class="feedName">Live</span><span class="feedUnits">kW</span></div><div class="wattVal">0.00</div></div>
-                        <div id="Hour"  class="bb"><div class="feed"><span class="feedName">Hour</span><span class="feedUnits">kWh</span></div><div class="kWhVal">00.0</div></div>
-                        <div id="Day"  class="bb"><div class="feed"><span class="feedName">Day</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
-                        <div id="Week"  class="bb"><div class="feed"><span class="feedName">Week</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
-                        <div id="Month"  class="bb"><div class="feed"><span class="feedName">Month</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
-                        <div id="Year"  class="bb"><div class="feed"><span class="feedName">Year</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
-                        -->
+                     <div id="sixBrelative" class="toggler im-lf-blue-flat" style="background: none; border:0;">
                     </div>
                 </div>
             </div>
         </div>
 
-        <h2 class="demoHeaders">Double Width</h2>
+        <h2 class="demoHeaders">Double Width Glass</h2>
         <div style="font-size:150%">
             <div id="relativeLayerWithHeight002"
-                 style="position: relative; width: 17em; height: 3.8em; overflow:hidden;"
-                 class="fakewindowcontain">
+                 style="position: relative; wwidth: 17em; width: 32em; height: 3.8em; overflow:hidden;">
                 <div id="positioningLayerWithWidth002"
-                     style="position: absolute; width: 100em;"
-                     classZ="ui-widget ui-widget-content ui-corner-all">
-                    <div class="ui-dialog-content ui-widget-content" style="background: none; border:0;">
-                        <div id="Live"  class="bb"><div class="feed"><span class="feedName">Live</span><span class="feedUnits">kW</span></div><div class="wattVal">0.00</div></div>
-                        <div id="dayOuter"  class="bb" style="width:auto;">
-                            <div style="width:3.5em; float:left;">
-                                <div class="feed"><span class="feedName">Day</span><span class="feedUnits">kWh/d</span></div>
-                                <div class="kWhVal">00.0</div>
-                            </div>
-                            <div id="dayRight" style="width:4.2em; float:right;">
-                                <div class="feed"><span class="feedName"></span><span class="feedUnits"></span></div>
-                                <div class="kWhVal">+5%</div>
-                                <div><span class="overUnder">over target</span></div>
-                            </div>
-                        </div>
-                        <div id="Week"  class="bb"><div class="feed"><span class="feedName">Week</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
-                        <div id="Month"  class="bb"><div class="feed"><span class="feedName">Month</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
-                        <div id="Year"  class="bb"><div class="feed"><span class="feedName">Year</span><span class="feedUnits">kWh/d</span></div><div class="kWhVal">00.0</div></div>
+                     style="position: absolute; width: 100em;">
+                    <div id="sixB2W" class="im-lf-blue-glass" style="background: none; border:0;">
                     </div>
                 </div>
             </div>
         </div>
 
-        <h2>Badges Flow</h2>
-        <div id="sixBflow" style="font-size:150%">
+        <h2>Badges Flow Gloss</h2>
+        <div id="sixBflow" class="im-lf-blue-gloss" style="font-size:150%">
         </div>
         <div style="clear:both"></div>
 
-        <h2>Badges 3x2</h2>
-        <div id="sixB3x2"style="width:17em;">
+        <h2>Badges 3x2 Glass</h2>
+        <div id="sixB3x2" class="im-lf-blue-glass" style="width:17em;">
         </div>
         <div style="clear:both"></div>
 
-        <h2>Badges 2x3</h2>
-        <div id="sixB2x3" style="width:11em; background:green;">
+        <h2>Badges 2x3 HSoft</h2>
+        <div id="sixB2x3" class="im-lf-blue-hsoft" style="width:11em; background:green;">
         </div>
         <div style="clear:both"></div>
 
