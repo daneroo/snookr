@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-        <title>jQuery UI Example Page</title>
+        <title>jQ-ui theme gen</title>
         <link type="text/css" href="../s/jq/theme/ui.all.css" rel="Stylesheet" />
         <script type="text/javascript" src="../s/jq/jquery-1.3.1.js"></script>
         <script type="text/javascript" src="../s/jq/jquery-ui-personalized-1.6rc6.js"></script>
@@ -37,14 +37,32 @@
                 kw:  {name:"kW",   suffix:"kw",   format:"0.00"},
                 kwhd:{name:"kWh/d",suffix:"kwhd", format:"00.0"}
             };
+            var iMi18n = {
+                'Live':  {'fr':'Cour'},
+                'Hour':  {'fr':'Heure'},
+                'Day':   {'fr':'Jour'},
+                'Week':  {'fr':'Semn'},
+                'Month': {'fr':'Mois'},
+                'Year':  {'fr':'Annee'},
+                "kWh/d": {'fr':'kWh/j'}
+            };
+            iM18nLang='en';//'fr';
+            function getI18n(lookup) {
+                var foundEntry = iMi18n[lookup];
+                if (foundEntry) {
+                    var foundForLang = foundEntry[iM18nLang];
+                    if (foundForLang) return foundForLang;
+                }
+                return lookup;
+            }
             function add6Badges(parentID){
                 //addBadge(parentID,'Live', iMUnits.w);
-                addBadge(parentID,'Live', iMUnits.kw);
-                addBadge(parentID,'Hour', iMUnits.kw);
-                addBadge(parentID,'Day',  iMUnits.kwhd);
-                addBadge(parentID,'Week', iMUnits.kwhd);
-                addBadge(parentID,'Month',iMUnits.kwhd);
-                addBadge(parentID,'Year', iMUnits.kwhd);
+                addBadge(parentID,getI18n('Live'), iMUnits.kw);
+                addBadge(parentID,getI18n('Hour'), iMUnits.kw);
+                addBadge(parentID,getI18n('Day'),  iMUnits.kwhd);
+                addBadge(parentID,getI18n('Week'), iMUnits.kwhd);
+                addBadge(parentID,getI18n('Month'),iMUnits.kwhd);
+                addBadge(parentID,getI18n('Year'), iMUnits.kwhd);
                 // hide all 6 'right parts of the badges''
                 $(parentID).find('.im-badge-right').hide();
                 $(parentID).find('.im-badge').addClass('ui-state-default ui-corner-all');
@@ -55,7 +73,7 @@
             function addBadge(parentID,feedName,feedUnits){
                 var html = '<div class="im-badge im-feed-'+feedName+'">'+
                     '   <div class="im-badge-left">'+
-                    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+feedUnits.name+'</span></div>'+
+                    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+getI18n(feedUnits.name)+'</span></div>'+
                     '       <div class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</div>'+
                     '   </div>'+
                     '   <div class="im-badge-right">'+
@@ -68,9 +86,9 @@
             }
 
             function addBadgeView(parentID,feedName,feedUnits,bg,fg){
-                var html = '<div class="im-badge im-feed-'+feedName+'" style="background:'+bg+'; color: '+fg+'">'+
+                var html = '<div class="im-badge im-feed-'+feedName+'" style="background:'+bg+'; color: #'+fg+'">'+
                     '   <div class="im-badge-left">'+
-                    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+feedUnits.name+'</span></div>'+
+                    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+getI18n(feedUnits.name)+'</span></div>'+
                     '       <div class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</div>'+
                     '   </div>'+
                     '   <div class="im-badge-right">'+
@@ -115,32 +133,34 @@
             }
             $(function(){
 
-                var colorpairs = [['006600','009900'],['3b5598','7f93bc'],['000000','ffffff']];
-                $.each( colorpairs, function() {
-                    var p=this;
-                    //alert("p: "+p)
-                    $('#colors').append('<div style="">'+
-                        '  <div class="button" style="border: 1px solid red; background: #'+p[0]+'">'+p[0]+'</div>'+
-                        '  <div class="button" style="border: 1px solid red; background: #'+p[1]+'">'+p[1]+'</div>'+
-                        '</div>');
-                    $.each([flat,glass,gloss,hsoft],function(){
-                        var ffunc = this;
-                        addBadgeView('#sixBrelative','Day',  iMUnits.kwhd,ffunc(p[0]), 'white');
-                        addBadgeView('#sixBrelative','Day',  iMUnits.kwhd,ffunc(p[1]), 'black');
-                    });
-                    $('#sixBrelative').append('<div style="clear:both"/>');
-                });
                 var themes = [
-                    {name:'green', defltbg:'006600',hoverbg:'009900'},
-                    {name:'blue',  defltbg:'3b5598',hoverbg:'7f93bc'},
-                    {name:'black', defltbg:'000000',hoverbg:'ffffff'}
+                    {name:'green',  dbg:'006600', dfg:'ffffff', hbg:'009900', hfg:'ffffff'},
+                    {name:'greend', dbg:'006600', dfg:'ffffff', hbg:'009900', hfg:'000000'},
+                    {name:'blue',   dbg:'3b5598', dfg:'ffffff', hbg:'7f93bc', hfg:'ffffff'},
+                    {name:'blued',  dbg:'3b5598', dfg:'ffffff', hbg:'7f93bc', hfg:'000000'},
+                    {name:'black',  dbg:'000000', dfg:'ffffff', hbg:'444444', hfg:'b8ec79'}
                 ];
-                var variants = [
+                 var variants = [
                     {name:'flat',  ffunc: flat  },
                     {name:'glass', ffunc: glass },
                     {name:'gloss', ffunc: gloss },
                     {name:'hsoft', ffunc: hsoft }
                 ];
+               $.each( themes, function() {
+                    var theme=this;
+                    //alert("p: "+p)
+                    $('#colors').append('<div style="">'+
+                        '  <div class="button" style="border: 1px solid red; background: #'+theme.dbg+'">'+theme.dbg+'</div>'+
+                        '  <div class="button" style="border: 1px solid red; background: #'+theme.dbg+'">'+theme.fbg+'</div>'+
+                        '</div>');
+                    $.each([flat,glass,gloss,hsoft],function(){
+                        var ffunc = this;
+                        addBadgeView('#sixBrelative','Day',  iMUnits.kwhd,ffunc(theme.dbg), theme.dfg);
+                        addBadgeView('#sixBrelative','Day',  iMUnits.kwhd,ffunc(theme.hbg), theme.hfg);
+                    });
+                    $('#sixBrelative').append('<div style="clear:both"/>');
+                });
+                // 2- Wite and Use the themes
                 $.each( themes, function() {
                     var theme=this;
                     $.each(variants,function(){
@@ -164,12 +184,12 @@
                         });
                         var cssRule = '\n\n/* css class rules for: '+cssClass+' */\n'+
                             qualifieddefltsels.join(', ')+' {\n'+
-                            '  background: '+variant.ffunc(theme.defltbg)+';\n'+
-                            '  color: white; \n'+
+                            '  background: '+variant.ffunc(theme.dbg)+';\n'+
+                            '  color: #'+theme.dfg+'; \n'+
                             '}\n'+
                             qualifiedhoversels.join(', ')+' {\n'+
-                            '  background: '+variant.ffunc(theme.hoverbg)+';\n'+
-                            '  color: black; \n'+
+                            '  background: '+variant.ffunc(theme.hbg)+';\n'+
+                            '  color: #'+theme.hfg+'; \n'+
                             '}\n';
 
                         $('#css-text').append(cssRule);
@@ -212,6 +232,10 @@
         </script>
         <style type="text/css">
             body { font-family: 'trebuchet ms', verdana, arial; }
+            /*body {
+                bbackground: url("http://www.imetrical.com/iMetrical/Home_files/shapeimage_1.png") /*50% 50% no-repeat*/;
+            }*/
+
             /* button badges */
             div { margin: 0; padding: 0 }
 
