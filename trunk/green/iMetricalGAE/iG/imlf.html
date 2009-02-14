@@ -87,19 +87,30 @@
                 function() { $(this).removeClass('ui-state-hover'); }  );
 
             }
+            accumulatebgurls={};
+            function accumulateUrlForTheme(theme,color,url){
+                var name="im-"+theme+"-"+color+".png"
+                accumulatebgurls[name]=url;
+            }
             function flat(color) {
                 return "#"+color;
             }
             function glass(color) {
-                var bg = '#'+color+' url(http://jqueryui.com/themeroller/images/?new='+color+'&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x';
+                var url='http://jqueryui.com/themeroller/images/?new='+color+'&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50';
+                var bg = '#'+color+' url('+url+') 50% 50% repeat-x';
+                accumulateUrlForTheme("glass",color,url);
                 return bg;
             }
             function gloss(color) {
-                var bg = '#'+color+' url(http://jqueryui.com/themeroller/images/?new='+color+'&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x';
+                var url = 'http://jqueryui.com/themeroller/images/?new='+color+'&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85';
+                var bg = '#'+color+' url('+url+') 50% 50% repeat-x';
+                accumulateUrlForTheme("gloss",color,url);
                 return bg;
             }
             function hsoft(color) {
-                var bg = '#'+color+' url(http://jqueryui.com/themeroller/images/?new='+color+'&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75) 50% 50% repeat-x';
+                var url = 'http://jqueryui.com/themeroller/images/?new='+color+'&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75';
+                var bg = '#'+color+' url('+url+') 50% 50% repeat-x';
+                accumulateUrlForTheme("hsoft",color,url);
                 return bg;
             }
             $(function(){
@@ -174,6 +185,13 @@
 
 
                     });
+                });
+
+                $.each(accumulatebgurls,function(name,url){
+                    url = url.replace('[','\\[');
+                    url = url.replace(']','\\]');
+                    $('#wget-text').append('curl -o not/'+name+' "'+url+'";\n');
+
                 });
                 // make all badges expand-right on click
                 $('.im-badge').click(function() {
@@ -255,6 +273,7 @@
         </div>
         <div id="allSixes" ></div>
         <pre id="css-text"></pre>
+        <pre id="wget-text"></pre>
 
     </body>
 </html>
