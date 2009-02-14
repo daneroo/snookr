@@ -7,7 +7,8 @@ from google.appengine.ext import webapp
 class MainHandler(webapp.RequestHandler):
 
   def get(self):
-    self.response.out.write('Hello iMetrical Web!')
+    self.redirect("/s/iMetrical/Home.html");
+    #self.response.out.write('Hello iMetrical Web!')
 
 
 def main():
