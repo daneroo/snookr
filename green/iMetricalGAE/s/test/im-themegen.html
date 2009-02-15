@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>im-badge theme gen</title>
+        <link type="text/css" href="../jq/theme/ui.all.css" rel="Stylesheet" />
+        <!-- This style sheet is actulay generated from this page, and pasted-->
+        <link type="text/css" href="../css/imetrical.theme.css" rel="Stylesheet" />
+        <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="../jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript">
+            function addStyleSheet(rule){
+                var el = $('<style type="text/css"></style>').appendTo('head').attr({
+                    //media: media,
+                    //id:    id,
+                    type:  'text/css'
+                })[0];
+                if(el.styleSheet !== undefined && el.styleSheet.cssText !==
+                    undefined) { // IE
+                    el.styleSheet.cssText = rule;
+                } else {
+                    el.appendChild(document.createTextNode(rule)); // Others
+                    //el.innerHTML = css;
+                };
+
+            };
+
+            /* generates either
+             * <div class="im-badge" style(bgprop) />
+             *   or
+             * <div class="{badgeClass}"><div class="im-badge" /></div>
+             *
+             */
+            function addSwatch(parentID,variantName,themeName,bg,fg,bgprop,badgeClass){
+                var styleProp;
+                if ( bgprop == '' ) {
+                    styleProp="";
+                } else {
+                    styleProp = 'style="background:'+bgprop+'; color: #'+fg+'; "';
+                }
+                var html = '<div class="im-badge" '+styleProp+'>'+
+                    '   <div class="im-badge-left" style="font-size:smaller;">'+
+                    '  '+variantName+'<br>'+
+                    '  '+themeName+'<br>'+
+                    '   </div>'+
+                    '</div>';
+                if (badgeClass){
+                    html='<div class="'+badgeClass+'">'+html+'</div>';
+                }
+                $(parentID).append(html);
+                $(parentID).find('.im-badge').addClass('ui-state-default ui-corner-all');
+                $(parentID).find('.im-badge').hover(
+                function() { $(this).addClass('ui-state-hover'); },
+                function() { $(this).removeClass('ui-state-hover'); }  );
+            }
+            accumulatebgurls={};
+            function accumulateUrlForTheme(theme,color,url){
+                var name="im-"+theme+"-"+color+".png"
+                accumulatebgurls[name]=url;
+            }
+            function flat(color) {
+                return "#"+color;
+            }
+            function glass(color) {
+                var url='http://jqueryui.com/themeroller/images/?new='+color+'&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50';
+                var bg = '#'+color+' url('+url+') 50% 50% repeat-x';
+                accumulateUrlForTheme("glass",color,url);
+                return bg;
+            }
+            function gloss(color) {
+                var url = 'http://jqueryui.com/themeroller/images/?new='+color+'&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85';
+                var bg = '#'+color+' url('+url+') 50% 50% repeat-x';
+                accumulateUrlForTheme("gloss",color,url);
+                return bg;
+            }
+            function hsoft(color) {
+                var url = 'http://jqueryui.com/themeroller/images/?new='+color+'&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75';
+                var bg = '#'+color+' url('+url+') 50% 50% repeat-x';
+                accumulateUrlForTheme("hsoft",color,url);
+                return bg;
+            }
+            $(function(){
+
+                var themes = [
+                    {name:'green',  dbg:'006600', dfg:'ffffff', hbg:'009900', hfg:'ffffff'},
+                    {name:'greend', dbg:'006600', dfg:'ffffff', hbg:'009900', hfg:'000000'},
+                    {name:'blue',   dbg:'3b5598', dfg:'ffffff', hbg:'7f93bc', hfg:'ffffff'},
+                    {name:'blued',  dbg:'3b5598', dfg:'ffffff', hbg:'7f93bc', hfg:'000000'},
+                    {name:'black',  dbg:'000000', dfg:'ffffff', hbg:'444444', hfg:'b8ec79'}
+                ];
+                var variants = [
+                    {name:'flat',  ffunc: flat  },
+                    {name:'glass', ffunc: glass },
+                    {name:'gloss', ffunc: gloss },
+                    {name:'hsoft', ffunc: hsoft }
+                ];
+
+                // 1-Describe themes and variants
+                $('#colors').append('<div>Theme Variants</div>');
+                $.each(variants,function(){
+                    var variant = this;
+                    $('#colors').append('<div>'+variant.name+'</div>');
+                });
+                $('#colors').append('<div>Color Themes</div>');
+                $.each( themes, function() {
+                    var theme=this;
+                    var buttonStyle="float: left; width: 10em; height: 2em; border: 1px solid red; margin:.2em;";
+                    $('#colors').append('<div style="">'+
+                        '  <div  style="'+buttonStyle+' background: #'+theme.dbg+'; color: #'+theme.dfg+'">'+theme.dbg+','+theme.dfg+'</div>'+
+                        '  <div  style="'+buttonStyle+' background: #'+theme.hbg+'; color: #'+theme.hfg+'">'+theme.hbg+','+theme.hfg+'</div>'+
+                        '  <div  style="float: left;">'+theme.name+'</div><div style="clear:both;"></div>'+
+                        '</div>');
+                });
+
+                // 2-swathces
+                $.each( themes, function() {
+                    var theme=this;
+                    $.each(variants,function(){
+                        var variant = this;
+                        addSwatch('#swatches',variant.name,theme.name, theme.dbg, theme.dfg, variant.ffunc(theme.dbg),'');
+                        addSwatch('#swatches',variant.name,'h:'+theme.name, theme.hbg, theme.hfg, variant.ffunc(theme.hbg),'');
+                    });
+                    $('#swatches').append('<div style="clear:both"/>');
+                });
+                // 3- Write and Use the CSS rules
+                //  one pointing to themer roller, one to local images
+                $.each( themes, function() {
+                    var theme=this;
+                    $.each(variants,function(){
+                        var variant = this;
+                        var defltsels=['.ui-state-default','.ui-widget-content .ui-state-default'];
+                        var hoversels=[
+                            '.ui-state-hover',
+                            '.ui-widget-content .ui-state-hover',
+                            '.ui-state-focus',
+                            '.ui-widget-content .ui-state-focus'
+                        ];
+
+                        // write a selector to qualify badge .className part1, .className part2
+                        /// return two selectors: one for default state, one for hover state
+                        function selectorsForClass(className) {
+                            var qualifieddefltsels=[];
+                            $.each(defltsels,function(){
+                                qualifieddefltsels.push('.'+className+' '+this);
+                            });
+                            var qualifiedhoversels=[];
+                            $.each(hoversels,function(){
+                                qualifiedhoversels.push('.'+className+' '+this);
+                            });
+                            return {
+                                deflt: qualifieddefltsels.join(', '),
+                                hover: qualifiedhoversels.join(', ')
+                            };
+
+                        }
+                        // param bgPropGenFunc maps a bgcolor to full background property
+                        function ruleForClass(className,atheme,bgPropGenFunc){
+                            var selectors = selectorsForClass(className);
+                            var cssRule = '/* css class rules for: '+className+' */\n'+
+                                selectors.deflt+' {\n'+
+                                '  background: '+bgPropGenFunc(atheme.dbg)+';\n'+
+                                '  color: #'+atheme.dfg+'; \n'+
+                                '}\n'+
+                                selectors.hover+' {\n'+
+                                '  background: '+bgPropGenFunc(atheme.hbg)+';\n'+
+                                '  color: #'+atheme.hfg+'; \n'+
+                                '}\n';
+                            return cssRule;
+                        }
+
+                        /*
+                         * So we generate three forms of this rule:
+                         *   1-based on a themeroller-url :
+                         *        url(http://jquery..)
+                         *   2-based on local url relative to this file.
+                         *        url(../css/img/ZZZ.png)
+                         *   3-based on local url relative to intended css include file:
+                         *        url(img/ZZZ.png)
+                         *      .../css/imetrical.theme.css
+                         *      .../css/img/im-{variant}-{color}.png
+                         *    These are the only rules we write to css-text section to be pasted in
+                         *      ../css/imetrical.theme.css
+                         */
+
+                        function localBgPropForDir(baseDir,avariant) {
+                            var dynaFunc = function(color) {
+                                if (avariant.name=='flat') return '#'+color;
+                                var url = baseDir+'im-'+avariant.name+'-'+color+'.png';
+                                var bgProp = '#'+color+' url('+url+') 50% 50% repeat-x';
+                                return bgProp;
+
+                            };
+                            return dynaFunc;
+                        }
+
+                        // the final rule for imetrical.theme.css
+                        var cssClass='im-lf-'+theme.name+'-'+variant.name;
+                        var cssRule = ruleForClass(cssClass,theme,localBgPropForDir("img/",variant));
+                        $('#css-text').append(cssRule);
+                        addSwatch('#imetricalcssrule',variant.name, theme.name, theme.dbg, theme.dfg, '',cssClass);
+
+                        var cssClassDynamicFromHere = 'dyn-'+cssClass;
+                        var cssRule = ruleForClass(cssClassDynamicFromHere,theme,localBgPropForDir("../css/img/",variant));
+                        addStyleSheet(cssRule);
+                        addSwatch('#localimagerule',variant.name, theme.name, theme.dbg, theme.dfg, '',cssClassDynamicFromHere);
+
+                        var cssClassThemeroller='ext-'+cssClass;
+                        var cssRule = ruleForClass(cssClassThemeroller,theme,variant.ffunc);
+                        addStyleSheet(cssRule);
+                        addSwatch('#themerollerrule',variant.name, theme.name, theme.dbg, theme.dfg, '',cssClassThemeroller);
+
+
+                    });
+                    $('#themerollerrule').append('<div style="clear:both"/>');
+                    $('#localimagerule').append('<div style="clear:both"/>');
+                    $('#imetricalcssrule').append('<div style="clear:both"/>');
+                });
+
+                $.each(accumulatebgurls,function(name,url){
+                    url = url.replace('[','\\[');
+                    url = url.replace(']','\\]');
+                    $('#curl-text').append('curl -o not/'+name+' "'+url+'";\n');
+
+                });
+
+
+            });
+        </script>
+        <style type="text/css">
+            body { font-family: 'trebuchet ms', verdana, arial; }
+            /*body {
+            bbackground: url("http://www.imetrical.com/iMetrical/Home_files/shapeimage_1.png") /*50% 50% no-repeat*/;
+        }*/
+
+        /* button badges */
+        div { margin: 0; padding: 0 }
+
+        div.im-badge {
+            float:left;
+            width:auto;  height:3em;
+            text-align:center;
+
+            padding: 0.3em;
+            margin: 0.05em; /* inter box spacing */
+        }
+        div.im-badge-left {
+            float:left;
+            width:3.5em;
+        }
+        div.im-v-w, div.im-v-kw, div.im-v-kwhd {
+            clear:both;
+            /* vertical offset between floating feed name/units and Value*/
+            padding-top:0.3em;
+        }
+        span.im-feed-name {
+            float:left;
+            font-size:60%; /*smaller*/
+        }
+        span.im-feed-units {
+            float:right;
+            height:1em;
+            font-size:50%;
+            padding-top:0.2em;
+        }
+        div.im-badge-right {
+            float:right;
+            width:4.2em;
+        }
+        div.im-v-percent {
+            /* vertical offset for percent Value*/
+            padding-top:0.6em;
+        }
+        div.im-v-overunder {
+            font-size:50%;
+        }
+        </style>
+    </head>
+    <body>
+
+        <div id="colors"></div>
+        <div style="clear:both"/>
+
+        <h2 class="demoHeaders">Swatches</h2>
+        <div>Themeroller-url based bg: Swatches have no hover because style is set on the div</div>
+        <div id="scaleTheFont" style="font-size:100%;">
+            <div id="swatches"></div>
+        </div>
+        <br>
+
+        <h2 class="demoHeaders">Themeroller</h2>
+        <div>Themeroller-url based class: external-im-lf-{theme}-{variant}</div>
+        <div id="themerollerrule" ></div>
+        <br>
+
+        <h2 class="demoHeaders">Local Images (css relative to this file))</h2>
+        <div>Local image-url based class: internal-im-lf-{theme}-{variant} used dynamically here</div>
+        <div id="localimagerule" ></div>
+        <br>
+
+        <h2 class="demoHeaders">Local Images (css relative ../css/imetrical.theme.css))</h2>
+        <div>Local image-url based class: im-lf-{theme}-{variant} same as is generated for imetrical.theme.css</div>
+        <div id="imetricalcssrule" ></div>
+        <br>
+
+        <h2 class="demoHeaders">CSS</h2>
+        <div>css-text</div>
+        <pre id="css-text"></pre>
+        <br>
+        <h2 class="demoHeaders">curl Commands</h2>
+        <div>curl commands to fetch images</div>
+        <pre id="curl-text"></pre>
+
+    </body>
+</html>
+
+
