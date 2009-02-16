@@ -62,7 +62,7 @@
                         multiplier=24.0/1000.0;
                         break;
                     case "Year":
-                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getDate();};
+                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getFullYear();};
                         var units = "kWh/d";
                         multiplier=24.0/1000.0;
                         break;
@@ -76,8 +76,12 @@
                 if (hasPredictor) currentColumn=2;
 
                 data.addColumn('string', 'Time');
-                if (hasPredictor) data.addColumn('number', "comp "+units);
-                data.addColumn('number', units);
+                if (hasPredictor) {
+                    data.addColumn('number', "Previous Year");
+                    data.addColumn('number', "Current Year");
+                } else {
+                    data.addColumn('number', units);
+                }
 
                 data.addRows(feed.observations.length);
                 // reverso order ..
@@ -100,14 +104,16 @@
                 } else {
                     chart = new google.visualization.AreaChart(document.getElementById('chart'));
                 }
-                // color 3b5998
+
+                var legend = 'none';
+                if (hasPredictor) legend='bottom';
                 options =  {
                     colors:["#7f93bc","#3b5998"],
                     width: 450,
                     height: 300,
                     is3D: false,
-                    title: 'Power Consumption ('+units+') - '+feed.name,
-                    legend:'none'
+                    title: feed.name+' - Power Consumption ('+units+')',
+                    legend:legend
                 };
                 chart.draw(data, options);
             }
