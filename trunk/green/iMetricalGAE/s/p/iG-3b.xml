@@ -48,6 +48,7 @@
             <div id="threeb" class="toggler im-lf-black-gloss" style="background: none; border:0;">
             </div>
         </div>
+        <div style="clear:both;"></div>
         <div id="status" style="font-size:smaller; color:gray;"></div>
         <div id="error" style="font-size:smaller; color:red;"></div>
    </div>
