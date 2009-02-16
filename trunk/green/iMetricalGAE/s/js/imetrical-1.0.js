@@ -14,8 +14,118 @@
  *    then call AjaxDetect, like on a button callback ?
  */
 
+/*
+ * Constants, Settings
+ */
 var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
+var iM18nLang= 'en'; //'fr';
 
+// map unit name and value-class-suffix
+var iMUnits = {
+    w:   {
+        name:"W",
+        suffix:"w",
+        format:"0000"
+    },
+    kw:  {
+        name:"kW",
+        suffix:"kw",
+        format:"0.00"
+    },
+    kwhd:{
+        name:"kWh/d",
+        suffix:"kwhd",
+        format:"00.0"
+    }
+};
+
+/*
+ * i18N
+ */
+var iMi18n = {
+    'Live':  {
+        'fr':'Cour'
+    },
+    'Hour':  {
+        'fr':'Heure'
+    },
+    'Day':   {
+        'fr':'Jour'
+    },
+    'Week':  {
+        'fr':'Semn'
+    },
+    'Month': {
+        'fr':'Mois'
+    },
+    'Year':  {
+        'fr':'Annee'
+    },
+    "kWh/d": {
+        'fr':'kWh/j'
+    }
+};
+
+function getI18n(lookup) {
+    var foundEntry = iMi18n[lookup];
+    if (foundEntry) {
+        var foundForLang = foundEntry[iM18nLang];
+        if (foundForLang) return foundForLang;
+    }
+    return lookup;
+}
+
+/*
+ * Layout generation
+ */
+function add6Badges(parentID){
+    //addBadge(parentID,'Live', iMUnits.w);
+    addBadge(parentID,getI18n('Live'),  iMUnits.kw );
+    addBadge(parentID,getI18n('Hour'),  iMUnits.kw );
+    addBadge(parentID,getI18n('Day'),   iMUnits.kwhd );
+    addBadge(parentID,getI18n('Week'),  iMUnits.kwhd );
+    addBadge(parentID,getI18n('Month'), iMUnits.kwhd );
+    addBadge(parentID,getI18n('Year'),  iMUnits.kwhd );
+    // hide all 6 'right parts of the badges''
+    $(parentID).find('.im-badge-right').hide();
+    $(parentID).find('.im-badge').addClass('ui-state-default ui-corner-all');
+    $(parentID).find('.im-badge').hover(
+        function() {
+            $(this).addClass('ui-state-hover');
+        },
+        function() {
+            $(this).removeClass('ui-state-hover');
+        }  );
+}
+function addBadge(parentID,feedName,feedUnits){
+    var html = '<div class="im-badge im-feed-'+feedName+'">'+
+    '   <div class="im-badge-left">'+
+    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+getI18n(feedUnits.name)+'</span></div>'+
+    '       <div class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</div>'+
+    '   </div>'+
+    '   <div class="im-badge-right">'+
+    '       <div class="im-v-percent">+0%</div>'+
+    '       <div class="im-v-overunder">over target</div>'+
+    '   </div>'+
+    '</div>';
+    $(parentID).append(html);
+// hiding and decorationg is performed in add6Badges.
+}
+
+/*
+ * Injector model based on
+  <div class="im-badge im-feed-FFFF">
+    <div class="im-badge-left">
+      <div><span class="im-feed-name">FFFF</span><span class="im-feed-units">TWh/c</span></div>
+      <div class="im-v-UNIT">00.00</div>
+    </div>
+    <div class="im-badge-right">
+      <div class="im-v-percent">+0%</div>
+      <div class="im-v-overunder">over target</div>
+    </div>
+  </div>
+
+ */
 /*
  * Default mapping from feeds array to DOM-elements
  *    #FEEDNAME div.wattVal <--  f.value

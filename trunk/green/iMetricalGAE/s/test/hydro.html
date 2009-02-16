@@ -3,17 +3,18 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
         <title>Hydro</title>
-        <link type="text/css" href="../jq/theme/ui.all.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.all.css" rel="Stylesheet" />
         <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
         <script type="text/javascript" src="../jq/jquery-ui-personalized-1.6rc6.js"></script>
         <script type="text/javascript" src="../js/jquery.timer.js"></script>
+        <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
         <script type="text/javascript">
+            iM18nLang='fr';
+
             function flash() {
-                //animate( params, [duration], [easing], [callback] )
                 var el = $('div.toggler > div.im-badge:visible').eq(0).find("span.im-feed-name");
-                var oldColor = el.css("color");
                 el.css({'color' : 'red',"opacity": .5});
-                el.animate({"opacity": 1}, 500,null, function(){el.css({'color':oldColor})});
+                el.animate({"opacity": 1}, 500,null, function(){el.css({'color':'inherit'})});
             }
             function togglerot() {
                 var animOut='slide'; // slide,drop,null
@@ -28,59 +29,6 @@
                     $('div.toggler > div.im-badge:visible').eq(index).toggle(animOut);
                 }
 
-            }
-            // map unit name and value-class-suffix
-            var iMUnits = {
-                w:   {name:"W",    suffix:"w",    format:"0000"},
-                kw:  {name:"kW",   suffix:"kw",   format:"0.00"},
-                kwhd:{name:"kWh/d",suffix:"kwhd", format:"00.0"}
-            };
-            var iMi18n = {
-                'Live':  {'fr':'Cour'},
-                'Hour':  {'fr':'Heure'},
-                'Day':   {'fr':'Jour'},
-                'Week':  {'fr':'Semn'},
-                'Month': {'fr':'Mois'},
-                'Year':  {'fr':'Annee'},
-                "kWh/d": {'fr':'kWh/j'}
-            };
-            iM18nLang='fr';
-            function getI18n(lookup) {
-                var foundEntry = iMi18n[lookup];
-                if (foundEntry) {
-                    var foundForLang = foundEntry[iM18nLang];
-                    if (foundForLang) return foundForLang;
-                }
-                return lookup;
-            }
-            function add6Badges(parentID){
-                //addBadge(parentID,'Live', iMUnits.w);
-                addBadge(parentID,getI18n('Live'),  iMUnits.kw );
-                addBadge(parentID,getI18n('Hour'),  iMUnits.kw );
-                addBadge(parentID,getI18n('Day'),   iMUnits.kwhd );
-                addBadge(parentID,getI18n('Week'),  iMUnits.kwhd );
-                addBadge(parentID,getI18n('Month'), iMUnits.kwhd );
-                addBadge(parentID,getI18n('Year'),  iMUnits.kwhd );
-                // hide all 6 'right parts of the badges''
-                $(parentID).find('.im-badge-right').hide();
-                $(parentID).find('.im-badge').addClass('ui-state-default ui-corner-all');
-                $(parentID).find('.im-badge').hover(
-                function() { $(this).addClass('ui-state-hover'); },
-                function() { $(this).removeClass('ui-state-hover'); }  );
-            }
-            function addBadge(parentID,feedName,feedUnits){
-                var html = '<div class="im-badge im-feed-'+feedName+'">'+
-                    '   <div class="im-badge-left">'+
-                    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+getI18n(feedUnits.name)+'</span></div>'+
-                    '       <div class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</div>'+
-                    '   </div>'+
-                    '   <div class="im-badge-right">'+
-                    '       <div class="im-v-percent">+0%</div>'+
-                    '       <div class="im-v-overunder">over target</div>'+
-                    '   </div>'+
-                    '</div>';
-                $(parentID).append(html);
-                // hiding and decorationg is performed in add6Badges.
             }
             $(function(){
                 add6Badges('#sixBrelative');
