@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <Module>
-<!-- removed height="240" width="320" -->
+<!-- removed height="140" width="240" -->
     <ModulePrefs title="iMetrical-3b"
      scrolling="true"
      description="Description"
