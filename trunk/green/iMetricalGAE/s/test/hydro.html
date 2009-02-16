@@ -16,7 +16,7 @@
                 el.css({'color' : 'red',"opacity": .5});
                 el.animate({"opacity": 1}, 500,null, function(){el.css({'color':'inherit'})});
             }
-            function togglerot() {
+            function togglerot( ) {
                 var animOut='slide'; // slide,drop,null
                 var animIn='slide'; // slide,drop,null
                 //$('#Live').toggle('drop');
@@ -30,6 +30,76 @@
                 }
 
             }
+            var currentframe=-1;
+            function toggleseq( ) {
+                var animOut='slide'; // slide,drop,null
+                var animIn='slide'; // slide,drop,null
+                if (currentframe==-1) { // also force reset? when
+                    $('.toggler > div.im-badge:gt(2)').hide();
+                    $('.toggler > div.im-badge:lt(3)').show();
+                    currentframe=0;
+                    return;
+                }
+                //moves
+                var m = { L:1, H:2, D:3, W:4, M:5, Y:6, Lx:101, Hx:102, Dx:103, Wx:104, Mx:105, Yx:106};
+                var storyboard = [ // 1-based index
+                    //[-H,W],
+                    [-m.H,m.Dx],
+                    [-m.Dx,m.W],
+                    [-m.W,m.M],
+                    [-m.M,m.Y],
+                    [-m.Y,m.H]
+                ];
+                //toggle each badge against storyboard
+                $('#console').html('--');
+                $('#console').append('frame '+currentframe+'\n');
+
+                /*
+                 * Codes use 1..6 for indexing (as in css, and avoid signed '0' problem
+                 * +n show n, -n: hide n
+                 * +100+n expand n, -100+n
+                 */
+                var eat=storyboard[currentframe];
+                function boundEater() {
+                    if (eat.length==0) return;
+                    var head = eat.shift(); // from the front
+                    if (head<0) {
+                        head=-head;
+                        if (head>100) {
+                            head-=100;
+                            $('#console').append('  collapse '+head+'\n');
+                            $('.toggler > div.im-badge:nth-child('+(head)+')').find('.im-badge-right').hide(animOut,null,1000,boundEater);
+                        } else {
+                            $('#console').append('  hide '+head+'\n');
+                            $('.toggler > div.im-badge:nth-child('+(head)+')').hide(animOut,null,1000,boundEater);
+                        }
+                    } else {
+                        if (head>100) {
+                            head-=100;
+                            $('#console').append('  expand '+head+'\n');
+                            $('.toggler > div.im-badge:nth-child('+(head)+')').find('.im-badge-right').show(animIn,null,1000,boundEater);
+                        } else {
+                            $('#console').append('  show '+head+'\n');
+                            $('.toggler > div.im-badge:nth-child('+(head)+')').show(animIn,null,1000,boundEater);
+                        }
+                    }
+                }
+                boundEater();
+                currentframe = (currentframe+1) % storyboard.length;
+                if (currentframe==0) rolltheme();
+
+            }
+            var themes=['im-lf-green-glass','im-lf-blue-hsoft','im-lf-black-gloss'];
+            function rolltheme() {
+                var newtheme = themes.shift();
+                $('.toggler').addClass(newtheme);
+                $.each(themes,function(){
+                    $('.toggler').removeClass(this);
+                });
+                themes.push(newtheme);
+            }
+
+
             $(function(){
                 add6Badges('#sixBrelative');
                 add6Badges('#sixB2W');
@@ -43,10 +113,10 @@
                 } );
 
                 //  timers
-                $.timer(5000, function (timer) {
-                    togglerot();
+                $.timer(3000, function (timer) {
+                    toggleseq();
                 });
-                $.timer(6000, function (timer) {
+                $.timer(2000, function (timer) {
                     flash();
                 });
 
@@ -54,112 +124,9 @@
             });
         </script>
         <style type="text/css">
-            body { font-family: 'trebuchet ms', verdana, arial; }
             body {
                 background: url("http://www.imetrical.com/iMetrical/Home_files/shapeimage_1.png") /*50% 50% no-repeat*/;
             }
-            /* button badges */
-            div { margin: 0; padding: 0 }
-
-            div.im-badge {
-                float:left;
-                width:auto;  height:3em;
-                text-align:center;
-
-                padding: 0.3em;
-                margin: 0.05em; /* inter box spacing */
-            }
-            div.im-badge-left {
-                float:left;
-                width:3.5em;
-            }
-            div.im-v-w, div.im-v-kw, div.im-v-kwhd {
-                clear:both;
-                /* vertical offset between floating feed name/units and Value*/
-                padding-top:0.3em;
-            }
-            span.im-feed-name {
-                float:left;
-                font-size:60%; /*smaller*/
-            }
-            span.im-feed-units {
-                float:right;
-                height:1em;
-                font-size:50%;
-                padding-top:0.2em;
-            }
-            div.im-badge-right {
-                float:right;
-                width:4.2em;
-            }
-            div.im-v-percent {
-                /* vertical offset for percent Value*/
-                padding-top:0.6em;
-            }
-            div.im-v-overunder {
-                font-size:50%;
-            }
-
-            /*facebook flat -dark-default*/
-            .im-lf-blue-flat .ui-state-default, .im-lf-blue-flat .ui-widget-content .ui-state-default {
-                background: #3b5598;
-                color: #ffffff;
-            }
-            /*facebook flat -light-hover*/
-            .im-lf-blue-flat .ui-state-hover, .im-lf-blue-flat .ui-widget-content .ui-state-hover, .im-lf-blue-flat .ui-state-focus, .im-lf-blue-flat .ui-widget-content .ui-state-focus {
-                background: #7f93bc;
-                color: #000000;
-            }
-            /*facebook glass -dark-default*/
-            .im-lf-blue-glass .ui-state-default, .im-lf-blue-flat .ui-widget-content .ui-state-default {
-                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
-                color: #ffffff;
-            }
-            /*facebook glass -light-hover*/
-            .im-lf-blue-glass .ui-state-hover, .im-lf-blue-flat .ui-widget-content .ui-state-hover, .im-lf-blue-flat .ui-state-focus, .im-lf-blue-flat .ui-widget-content .ui-state-focus {
-                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=1&h=400&f=png&q=100&fltr[]=over|textures/02_glass.png|0|0|50) 50% 50% repeat-x;
-                color: #000000;
-            }
-
-            /*facebook gloss-wave -dark-default*/
-            .im-lf-blue-gloss .ui-state-default, .im-lf-blue-gloss .ui-widget-content .ui-state-default {
-                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
-                color: #ffffff;
-            }
-            /*facebook gloss-wave -light-hover*/
-            .im-lf-blue-gloss .ui-state-hover, .im-lf-blue-gloss .ui-widget-content .ui-state-hover, .im-lf-blue-gloss .ui-state-focus, .im-lf-blue-gloss .ui-widget-content .ui-state-focus {
-                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;
-                color: #000000;
-            }
-            /* highlight soft:
-            ui-bg_highlight-soft_75_cccccc_1x100.png
-            http://jqueryui.com/themeroller/images/?new=cccccc&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75
-            */
-            /*facebook highlight-soft -dark-default*/
-            .im-lf-blue-hsoft .ui-state-default, .im-lf-blue-hsoft .ui-widget-content .ui-state-default {
-                background: #3b5598 url(http://jqueryui.com/themeroller/images/?new=3b5598&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75) 50% 50% repeat-x;
-                color: #ffffff;
-            }
-            /*facebook highlight-soft -light-hover*/
-            .im-lf-blue-hsoft .ui-state-hover, .im-lf-blue-hsoft .ui-widget-content .ui-state-hover, .im-lf-blue-hsoft .ui-state-focus, .im-lf-blue-hsoft .ui-widget-content .ui-state-focus {
-                background: #7f93bc url(http://jqueryui.com/themeroller/images/?new=7f93bc&w=1&h=100&f=png&q=100&fltr[]=over|textures/03_highlight_soft.png|0|0|75) 50% 50% repeat-x;
-                color: #000000;
-            }
-
-            /* css class rules for: im-lf-black-gloss */
-            .im-lf-black-gloss .ui-state-default, .im-lf-black-gloss .ui-widget-content .ui-state-default {
-                /*background: #000000 url(http://jqueryui.com/themeroller/images/?new=000000&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;*/
-                /*background: #000000 url(../s/css/img/im-gloss-000000.png) 50% 50% repeat-x;*/
-                background: #000000 url(../css/img/im-gloss-000000.png) 50% 50% repeat-x;
-                color: #ffffff;
-
-            }
-            .im-lf-black-gloss .ui-state-hover, .im-lf-black-gloss .ui-widget-content .ui-state-hover, .im-lf-black-gloss .ui-state-focus, .im-lf-black-gloss .ui-widget-content .ui-state-focus {
-                /*background: #444444 url(http://jqueryui.com/themeroller/images/?new=444444&w=500&h=100&f=png&q=100&fltr[]=over|textures/12_gloss_wave.png|0|0|85) 50% 50% repeat-x;*/
-                background: #444444 url(../css/img/im-gloss-444444.png) 50% 50% repeat-x;
-                color: #b8ec79;
-            }
-
         </style>
     </head>
     <body>
@@ -176,6 +143,7 @@
             </div>
         </div>
 
+        <div style="padding-top:200px"/>
         <h2 class="demoHeaders">Double Width Glass</h2>
         <div style="font-size:150%">
             <div id="relativeLayerWithHeight002"
