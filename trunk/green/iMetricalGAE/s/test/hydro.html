@@ -9,119 +9,32 @@
         <script type="text/javascript" src="../js/jquery.timer.js"></script>
         <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
         <script type="text/javascript">
-            iM18nLang='fr';
-
-            function flash() {
-                var el = $('div.toggler > div.im-badge:visible').eq(0).find("span.im-feed-name");
-                el.css({'color' : 'red',"opacity": .5});
-                el.animate({"opacity": 1}, 500,null, function(){el.css({'color':'inherit'})});
-            }
-            function togglerot( ) {
-                var animOut='slide'; // slide,drop,null
-                var animIn='slide'; // slide,drop,null
-                //$('#Live').toggle('drop');
-                var ll = $('div.toggler > div.im-badge:visible').length;
-                if (ll<=3) {
-                    $('div.toggler > div.im-badge:hidden').show(animIn);
-                } else {
-                    var index=2;
-                    if (ll==6) index=1;
-                    $('div.toggler > div.im-badge:visible').eq(index).toggle(animOut);
-                }
-
-            }
-            var currentframe=-1;
-            function toggleseq( ) {
-                var animOut='slide'; // slide,drop,null
-                var animIn='slide'; // slide,drop,null
-                if (currentframe==-1) { // also force reset? when
-                    $('.toggler > div.im-badge:gt(2)').hide();
-                    $('.toggler > div.im-badge:lt(3)').show();
-                    currentframe=0;
-                    return;
-                }
-                //moves
-                var m = { L:1, H:2, D:3, W:4, M:5, Y:6, Lx:101, Hx:102, Dx:103, Wx:104, Mx:105, Yx:106};
-                var storyboard = [ // 1-based index
-                    //[-H,W],
-                    [-m.H,m.Dx],
-                    [-m.Dx,m.W],
-                    [-m.W,m.M],
-                    [-m.M,m.Y],
-                    [-m.Y,m.H]
-                ];
-                //toggle each badge against storyboard
-                $('#console').html('--');
-                $('#console').append('frame '+currentframe+'\n');
-
-                /*
-                 * Codes use 1..6 for indexing (as in css, and avoid signed '0' problem
-                 * +n show n, -n: hide n
-                 * +100+n expand n, -100+n
-                 */
-                var eat=storyboard[currentframe];
-                function boundEater() {
-                    if (eat.length==0) return;
-                    var head = eat.shift(); // from the front
-                    if (head<0) {
-                        head=-head;
-                        if (head>100) {
-                            head-=100;
-                            $('#console').append('  collapse '+head+'\n');
-                            $('.toggler > div.im-badge:nth-child('+(head)+')').find('.im-badge-right').hide(animOut,null,1000,boundEater);
-                        } else {
-                            $('#console').append('  hide '+head+'\n');
-                            $('.toggler > div.im-badge:nth-child('+(head)+')').hide(animOut,null,1000,boundEater);
-                        }
-                    } else {
-                        if (head>100) {
-                            head-=100;
-                            $('#console').append('  expand '+head+'\n');
-                            $('.toggler > div.im-badge:nth-child('+(head)+')').find('.im-badge-right').show(animIn,null,1000,boundEater);
-                        } else {
-                            $('#console').append('  show '+head+'\n');
-                            $('.toggler > div.im-badge:nth-child('+(head)+')').show(animIn,null,1000,boundEater);
-                        }
-                    }
-                }
-                boundEater();
-                currentframe = (currentframe+1) % storyboard.length;
-                if (currentframe==0) rolltheme();
-
-            }
-            var themes=['im-lf-green-glass','im-lf-blue-hsoft','im-lf-black-gloss'];
-            function rolltheme() {
-                var newtheme = themes.shift();
-                $('.toggler').addClass(newtheme);
-                $.each(themes,function(){
-                    $('.toggler').removeClass(this);
-                });
-                themes.push(newtheme);
-            }
-
 
             $(function(){
+                iM18nLang='fr';
+
                 add6Badges('#sixBrelative');
-                add6Badges('#sixB2W');
-                add6Badges('#sixBflow');
-                add6Badges('#sixB3x2');
-                add6Badges('#sixB2x3');
 
                 // make all badges expand-right on click
                 $('.im-badge').click(function() {
                     $(this).find('.im-badge-right').toggle('slide');
                 } );
 
+
                 //  timers
-                $.timer(3000, function (timer) {
-                    toggleseq();
+                startAnimNow(4000, function (timer) {
+                    //storyboardNextAndRollTheme();
+                    storyboardNext();
                 });
-                $.timer(2000, function (timer) {
-                    flash();
+                // fetching timer
+                startAnimNow(5000, function (timer) {
+                    flashInjector();
+                    fetchAndMapFeeds(null,null); // url,myInjector
                 });
 
 
             });
+
         </script>
         <style type="text/css">
             body {
@@ -134,43 +47,18 @@
         <h2 class="demoHeaders">Relative Container Flat</h2>
         <div id="scaleTheFont" style="font-size:150%">
             <div id="relativeLayerWithHeight001"
-                 style="position: relative; width: 12.8em; height: 3.8em; overflow:hidden;">
+                 style="position: relative; width: 912.8em; height: 3.8em; overflow:hidden;">
                 <div id="positioningLayerWithWidth001"
-                     style="position: absolute; width: 100em;"
-                     <div id="sixBrelative" class="toggler im-lf-black-gloss" style="background: none; border:0;">
+                     style="position: absolute; width: 100em;" >
+                    <div id="sixBrelative" class="toggler im-lf-black-gloss" style="background: none; border:0;">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div style="padding-top:200px"/>
-        <h2 class="demoHeaders">Double Width Glass</h2>
-        <div style="font-size:150%">
-            <div id="relativeLayerWithHeight002"
-                 style="position: relative; wwidth: 17em; width: 32em; height: 3.8em; overflow:hidden;">
-                <div id="positioningLayerWithWidth002"
-                     style="position: absolute; width: 100em;">
-                    <div id="sixB2W" class="im-lf-blue-hsoft" style="background: none; border:0;">
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <h2>Badges Flow Gloss</h2>
-        <div id="sixBflow" class="im-lf-blue-gloss" style="font-size:150%">
-        </div>
-        <div style="clear:both"></div>
-
-        <h2>Badges 3x2 Glass</h2>
-        <div id="sixB3x2" class="im-lf-blue-glass" style="width:17em;">
-        </div>
-        <div style="clear:both"></div>
-
-        <h2>Badges 2x3 HSoft</h2>
-        <div id="sixB2x3" class="im-lf-blue-glass" style="width:11em; background:green;">
-        </div>
-        <div style="clear:both"></div>
-
+        <div id="error" ></div>
+        <pre id="console" style="color:gray"></pre>
 
         <!--
         <center>
