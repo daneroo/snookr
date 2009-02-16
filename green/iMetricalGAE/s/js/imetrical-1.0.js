@@ -40,11 +40,97 @@ var iMUnits = {
 };
 
 /*
- * i18N
+ * Animation callbacks
+ */
+function startAnimNow(interval,callback) {
+    //calls the first iteration immediately
+    callback();
+    $.timer(interval,callback);
+
+}
+function storyboardNextAndRollTheme( ) {
+    storyboardNext();
+    if (currentframe==0) rolltheme();
+}
+var currentframe=-1;
+function storyboardNext( ) {
+    var animOut='slide'; // slide,drop,null
+    var animIn='slide'; // slide,drop,null
+    if (currentframe==-1) { // also force reset? when
+        $('.toggler > div.im-badge:nth-child(n+4)').hide();
+        $('.toggler > div.im-badge:nth-child(-n+3)').show();
+        currentframe=0;
+        return;
+    }
+    //moves
+    var m = {
+        L:1,
+        H:2,
+        D:3,
+        W:4,
+        M:5,
+        Y:6,
+        Lx:101,
+        Hx:102,
+        Dx:103,
+        Wx:104,
+        Mx:105,
+        Yx:106
+    };
+    var storyboard = [ // 1-based index
+    //[-H,W],
+    [-m.H,m.Dx],
+    [-m.Dx,m.W],
+    [-m.W,m.M],
+    [-m.M,m.Y],
+    [-m.Y,m.H]
+    ];
+
+    /*
+     * Codes use 1..6 for indexing (as in css, and avoid signed '0' problem
+     * +n show n, -n: hide n
+     * +100+n expand n, -100+n
+     */
+    var eat=storyboard[currentframe];
+    function boundEater() {
+        if (eat.length==0) return;
+        var head = eat.shift(); // from the front
+        if (head<0) {
+            head=-head;
+            if (head>100) {
+                head-=100;
+                $('.toggler > div.im-badge:nth-child('+(head)+')').find('.im-badge-right').hide(animOut,null,1000,boundEater);
+            } else {
+                $('.toggler > div.im-badge:nth-child('+(head)+')').hide(animOut,null,1000,boundEater);
+            }
+        } else {
+            if (head>100) {
+                head-=100;
+                $('.toggler > div.im-badge:nth-child('+(head)+')').find('.im-badge-right').show(animIn,null,1000,boundEater);
+            } else {
+                $('.toggler > div.im-badge:nth-child('+(head)+')').show(animIn,null,1000,boundEater);
+            }
+        }
+    }
+    boundEater();
+    currentframe = (currentframe+1) % storyboard.length;
+}
+var rollingThemes=['im-lf-black-gloss','im-lf-blue-hsoft','im-lf-green-glass'];
+function rolltheme() {
+    var newtheme = rollingThemes.shift();
+    $('.toggler').addClass(newtheme);
+    $.each(rollingThemes,function(){
+        $('.toggler').removeClass(this);
+    });
+    rollingThemes.push(newtheme);
+}
+
+/*
+ * i18N : Internationalisation
  */
 var iMi18n = {
     'Live':  {
-        'fr':'Cour'
+        'fr':'Courant'
     },
     'Hour':  {
         'fr':'Heure'
@@ -53,17 +139,24 @@ var iMi18n = {
         'fr':'Jour'
     },
     'Week':  {
-        'fr':'Semn'
+        'fr':'Sem'
     },
     'Month': {
         'fr':'Mois'
     },
     'Year':  {
-        'fr':'Annee'
+        'fr':'Ann&eacute;e'
     },
     "kWh/d": {
         'fr':'kWh/j'
+    },
+    "under target": {
+        'fr':'sous objectif'
+    },
+    "over target": {
+        'fr':'sur objectif'
     }
+
 };
 
 function getI18n(lookup) {
@@ -80,12 +173,12 @@ function getI18n(lookup) {
  */
 function add6Badges(parentID){
     //addBadge(parentID,'Live', iMUnits.w);
-    addBadge(parentID,getI18n('Live'),  iMUnits.kw );
-    addBadge(parentID,getI18n('Hour'),  iMUnits.kw );
-    addBadge(parentID,getI18n('Day'),   iMUnits.kwhd );
-    addBadge(parentID,getI18n('Week'),  iMUnits.kwhd );
-    addBadge(parentID,getI18n('Month'), iMUnits.kwhd );
-    addBadge(parentID,getI18n('Year'),  iMUnits.kwhd );
+    addBadge(parentID,'Live',  iMUnits.w );
+    addBadge(parentID,'Hour',  iMUnits.kw );
+    addBadge(parentID,'Day',   iMUnits.kwhd );
+    addBadge(parentID,'Week',  iMUnits.kwhd );
+    addBadge(parentID,'Month', iMUnits.kwhd );
+    addBadge(parentID,'Year',  iMUnits.kwhd );
     // hide all 6 'right parts of the badges''
     $(parentID).find('.im-badge-right').hide();
     $(parentID).find('.im-badge').addClass('ui-state-default ui-corner-all');
@@ -100,16 +193,34 @@ function add6Badges(parentID){
 function addBadge(parentID,feedName,feedUnits){
     var html = '<div class="im-badge im-feed-'+feedName+'">'+
     '   <div class="im-badge-left">'+
-    '       <div><span class="im-feed-name">'+feedName+'</span><span class="im-feed-units">'+getI18n(feedUnits.name)+'</span></div>'+
+    '       <div><span class="im-feed-name">'+getI18n(feedName)+'</span><span class="im-feed-units">'+getI18n(feedUnits.name)+'</span></div>'+
     '       <div class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</div>'+
     '   </div>'+
     '   <div class="im-badge-right">'+
     '       <div class="im-v-percent">+0%</div>'+
-    '       <div class="im-v-overunder">over target</div>'+
+    '       <div class="im-v-overunder">under target</div>'+
     '   </div>'+
     '</div>';
     $(parentID).append(html);
 // hiding and decorationg is performed in add6Badges.
+}
+
+
+// inject red color flash into "Live" feed Name
+function flashInjector() { // visual simulation of fetch
+    //var el = $('div.toggler > div.im-badge:visible').eq(0).find("span.im-feed-name");
+    var el = $('.toggler > div.im-badge:nth-child(1)').find("span.im-feed-name:visible");
+    el.css({
+        'color':'red',
+        "opacity": .5
+    });
+    el.animate({
+        "opacity": 1
+    }, 500,null, function(){
+        el.css({
+            'color':'inherit'
+        })
+    });
 }
 
 /*
@@ -128,22 +239,41 @@ function addBadge(parentID,feedName,feedUnits){
  */
 /*
  * Default mapping from feeds array to DOM-elements
- *    #FEEDNAME div.wattVal <--  f.value
- *    #FEEDNAME div.kWhVal  <--  f.value*24/1000
+ *    .im-feed-FFFF im-v-w    <--  f.value
+ *    .im-feed-FFFF im-v-kw   <--  f.value/1000
+ *    .im-feed-FFFF im-v-kwhd <--  f.value*24/1000
  *    also
  *    #status <- update time and latency
  *    #error  <- any error messages
  *     *    e.g.
- *    #Live div.wattVal <--  feeds[0].value
- *    #Hour div.kWhVal  <--  f.value*24/1000
+ *    .im-feed-Live .im-v-w <--  feeds[0].value
+ *    .im-feed-Hour .im-v-kwhd  <--  f.value*24/1000
  */
 function standardInjector(feeds) {
     for (var i = 0; i < feeds.length; i++) {
         var f = feeds[i];
-        $('#'+f.name+' div.wattVal').html(""+f.value);
-        // round kWh/d to .1
-        var kWh = Math.round((f.value*24.0/1000)*10)/10.0;
-        $('#'+f.name+' div.kWhVal').html(""+kWh);
+        var W = Math.round(f.value);
+        var kW = Math.round((f.value/1000)*100)/100.0;
+        var kWhPerDay = Math.round((f.value*24.0/1000)*10)/10.0;
+
+        $('.im-feed-'+f.name+' .im-v-w').html(""+W);
+        $('.im-feed-'+f.name+' .im-v-kw').html(""+kW);
+        $('.im-feed-'+f.name+' .im-v-kwhd').html(""+kWhPerDay);
+        var targetW = 1666.0; //40/24*1000Ê
+        // percent to .1
+        var percent = Math.round(((f.value / targetW) - 1) * 1000)/10.0;
+        $('.im-feed-'+f.name+' .im-v-percent').html(""+percent+"%");
+        if (percent<0) {
+            $('.im-feed-'+f.name+' .im-v-overunder').html(getI18n("under target"));
+            $('.im-feed-'+f.name+' .im-v-overunder').css({
+                'color' : 'green'
+            });
+        } else {
+            $('.im-feed-'+f.name+' .im-v-overunder').html(getI18n("over target"));
+            $('.im-feed-'+f.name+' .im-v-overunder').css({
+                'color' : 'red'
+            });
+        }
     }
     var latency = 0;
     try {
@@ -276,6 +406,9 @@ function feedArrayFromXmlDoc(xmlDoc){
         }
     
     }
+    if (feeds.length>0) {
+        feeds.push(staticYearFeed);
+    }
     return feeds;
 }
 
@@ -368,3 +501,86 @@ Date.prototype.getYMDHMS = function () {
     return this.getYMD()+" "+this.getHMS();
 };
 
+// Yearly Data - till included
+            // sql to generate from hydro.watt_billing
+            //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_billing group by left(stamp,7)" hydro
+            var hydroData = [
+                { stampStr:'2006-06-01T05:00:00Z',value:2272.0000},
+                { stampStr:'2006-07-01T05:00:00Z',value:2272.0000},
+                { stampStr: '2006-08-01T05:00:00Z',value:1863.5161},
+                { stampStr: '2006-09-01T05:00:00Z',value:1819.9333},
+                { stampStr: '2006-10-01T05:00:00Z',value:2057.0000},
+                { stampStr: '2006-11-01T05:00:00Z',value:2057.0000},
+                { stampStr: '2006-12-01T05:00:00Z',value:2335.0000},
+                { stampStr: '2007-01-01T05:00:00Z',value:2335.0000},
+                { stampStr: '2007-02-01T05:00:00Z',value:2146.0000},
+                { stampStr: '2007-03-01T05:00:00Z',value:2139.0000},
+                { stampStr: '2007-04-01T05:00:00Z',value:2068.0667},
+                { stampStr: '2007-05-01T05:00:00Z',value:2063.0000},
+                { stampStr: '2007-06-01T05:00:00Z',value:2166.4333},
+                { stampStr: '2007-07-01T05:00:00Z',value:2170.0000},
+                { stampStr: '2007-08-01T05:00:00Z',value:2061.6129},
+                { stampStr: '2007-09-01T05:00:00Z',value:2030.0000},
+                { stampStr: '2007-10-01T05:00:00Z',value:2170.3226},
+                { stampStr: '2007-11-01T05:00:00Z',value:2180.2333},
+                { stampStr: '2007-12-01T05:00:00Z',value:2332.0000},
+                { stampStr: '2008-01-01T05:00:00Z',value:2332.0000},
+                { stampStr: '2008-02-01T05:00:00Z',value:2332.8621},
+                { stampStr: '2008-03-01T05:00:00Z',value:2333.0000},
+                { stampStr: '2008-04-01T05:00:00Z',value:1996.3000},
+                { stampStr: '2008-05-01T05:00:00Z',value:1852.0000},
+                { stampStr: '2008-06-01T05:00:00Z',value:2113.3333},
+                { stampStr: '2008-07-01T05:00:00Z',value:2132.0000},
+                { stampStr: '2008-08-01T05:00:00Z',value:1591.0323},
+                { stampStr: '2008-09-01T05:00:00Z',value:1573.0000},
+                { stampStr: '2008-10-01T05:00:00Z',value:1666.5484},
+                { stampStr: '2008-11-01T05:00:00Z',value:1673.0000},
+                // override by ted
+                //{ stampStr: '2008-12-01T05:00:00Z'	, value: 	1673.0000	},
+                // theese are from ted
+                { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
+                { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
+                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	},
+            ];
+            hydroData.reverse();
+            // sql to gen from ted.watt_day
+            //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_day group by left(stamp,7)" ted
+            var tedData = [
+                { stampStr: '2008-07-01T05:00:00Z'	, value: 	1359.3333	},
+                { stampStr: '2008-08-01T05:00:00Z'	, value: 	1452.8065	},
+                { stampStr: '2008-09-01T05:00:00Z'	, value: 	1621.6000	},
+                { stampStr: '2008-10-01T05:00:00Z'	, value: 	1767.3667	},
+                { stampStr: '2008-11-01T05:00:00Z'	, value: 	1644.6667	},
+                { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
+                { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
+                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	},
+            ];
+            tedData.reverse();
+
+            function makeDatesFromStrForFeed(data) {
+                for (var i = 0; i < data.length ; i++) {
+                    var ostamp = new Date();
+                    ostamp.setISO8601(data[i].stampStr);
+                    data[i].stamp = ostamp;
+                    /*var observation = {
+                        stamp: ostamp,
+                        value: obsList.item(j).getAttribute("value")
+                    }*/
+                }
+            }
+            makeDatesFromStrForFeed(hydroData);
+            makeDatesFromStrForFeed(tedData);
+
+            var staticYearFeed = {
+                name: "Year",
+                stamp: hydroData[0].stamp,
+                value: hydroData[0].value,
+                observations:  hydroData.slice(0,18) ,
+                compareobs: hydroData.slice(12,18+12)
+            }
+            var sum12Month=0;
+            $.each(hydroData.slice(0,12),function(){sum12Month+=this.value});
+            staticYearFeed.value = sum12Month/12.0;
+            //alert("lastMo:"+hydroData[0].value+" -12 mo avg:"+staticYearFeed.value);
+            //alert(staticYearFeed.compareobs.length);
+            //alert("hydroData: "+hydroData.length);
