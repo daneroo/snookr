@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <Module>
 <!-- removed height="240" width="320" -->
-    <ModulePrefs title="iMetrical-boot-html"
+    <ModulePrefs title="iMetrical-3b"
      scrolling="true"
      description="Description"
      author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
@@ -12,10 +12,10 @@
                           http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/s
         -->
         <link type="text/css" href="../css/imetrical.all.css" rel="Stylesheet" />
-        <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
-        <script type="text/javascript" src="../jq/jquery-ui-personalized-1.6rc6.js"></script>
-        <script type="text/javascript" src="../js/jquery.timer.js"></script>
-        <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
         <script type="text/javascript">
             // getting ready to inject from settings..
             var prefs = null;
