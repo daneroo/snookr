@@ -1,3 +1,21 @@
+Directory Structire on iMetricalGAE
+iMetricalGAE
+`-- s
+    |-- css :: my css: imetrical-all.css imetrical.theme.css
+    |   `-- img :: my theme images im-variant-color.png
+    |-- jq  :: jQuery+ui distro (1.3.1 (ui 1.6rc6))
+    |   |-- i18n
+    |   `-- theme
+    |       `-- images
+    |-- js  :: my javascript: imetrical-1.0.js, jquery.timer.js
+    `-- test :: my botstrap and testing stuff
+
+--------------------
+Minifier: yui does js and css
+  java -jar /Users/daniel/jqsrc/trunk/jquery/build/yuicompressor-2.4.2.jar
+
+java -jar /Users/daniel/jqsrc/trunk/jquery/build/yuicompressor-2.4.2.jar imetrical-1.0.js > imetrical-1.0.min.js
+
 Inventory:
 
 README.txt

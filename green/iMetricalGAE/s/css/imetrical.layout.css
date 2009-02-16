@@ -1,0 +1,60 @@
+body { 
+    font-family: 'trebuchet ms', verdana, arial;
+}
+
+
+/* iMetrical Badges */
+/*
+Here be the typical badge structure:
+  <div class="im-badge im-feed-FFFF">
+    <div class="im-badge-left">
+      <div><span class="im-feed-name">FFFF</span><span class="im-feed-units">TWh/c</span></div>
+      <div class="im-v-UNIT">00.00</div>
+    </div>
+    <div class="im-badge-right">
+      <div class="im-v-percent">+0%</div>
+      <div class="im-v-overunder">over target</div>
+    </div>
+  </div>
+
+Here is the box model
+Here is the math..
+*/
+div.im-badge {
+    float:left;
+    width:auto;  height:3em;
+    text-align:center;
+
+    padding: 0.3em;
+    margin: 0.05em; /* inter box spacing */
+}
+div.im-badge-left {
+    float:left;
+    width:3.5em;
+}
+div.im-v-w, div.im-v-kw, div.im-v-kwhd {
+    clear:both;
+    /* vertical offset between floating feed name/units and Value*/
+    padding-top:0.3em;
+}
+span.im-feed-name {
+    float:left;
+    font-size:60%; /*smaller*/
+}
+span.im-feed-units {
+    float:right;
+    height:1em;
+    font-size:50%;
+    padding-top:0.2em;
+}
+div.im-badge-right {
+    float:right;
+    width:4.2em;
+}
+div.im-v-percent {
+    /* vertical offset for percent Value*/
+    padding-top:0.6em;
+}
+div.im-v-overunder {
+    font-size:50%;
+}
