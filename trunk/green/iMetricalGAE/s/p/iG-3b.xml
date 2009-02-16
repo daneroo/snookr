@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+<!-- removed height="240" width="320" -->
+    <ModulePrefs title="iMetrical-boot-html"
+     scrolling="true"
+     description="Description"
+     author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
+    <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
+    <Content type="html">
+<![CDATA[ 
+        <!-- other bases: http://imetrical.appspot.com/s
+                          http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/s
+        -->
+        <link type="text/css" href="../css/imetrical.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="../jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript" src="../js/jquery.timer.js"></script>
+        <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
+        <script type="text/javascript">
+            // getting ready to inject from settings..
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 5;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                return refreshInterval*1000; // every n seconds
+            };
+
+            $(function(){
+                iM18nLang='fr';
+                add6Badges('#threeb');
+                //  animation
+                startAnimNow(4000, function (timer) {
+                    storyboardNextAndRollTheme();
+                    //storyboardNext();
+                });
+                // fetching timer
+                startAnimNow(getRefreshIntervalMS(), function (timer) {
+                    flashInjector();
+                    fetchAndMapFeeds(null,null); // url,myInjector
+                });
+
+            });
+        </script>
+
+   <div>
+        <div id="scaleTheFont" style="font-size:100%">
+            <div id="threeb" class="toggler im-lf-black-gloss" style="background: none; border:0;">
+            </div>
+        </div>
+        <div id="status"></div>
+        <div id="error"></div>
+   </div>
+]]> 
+    </Content>
+</Module>
