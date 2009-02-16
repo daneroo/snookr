@@ -209,7 +209,7 @@ function addBadge(parentID,feedName,feedUnits){
 // inject red color flash into "Live" feed Name
 function flashInjector() { // visual simulation of fetch
     //var el = $('div.toggler > div.im-badge:visible').eq(0).find("span.im-feed-name");
-    var el = $('.toggler > div.im-badge:nth-child(1)').find("span.im-feed-name:visible");
+    var el = $('div.im-badge:nth-child(1)').find("span.im-feed-name:visible");
     el.css({
         'color':'red',
         "opacity": .5
