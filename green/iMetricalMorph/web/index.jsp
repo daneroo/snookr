@@ -15,6 +15,6 @@
     </head>
     <body>
         <h1>iMetrical-Morph</h1>
-        <h3>v-2 2009-01-08</h3>
+        <h3>v-3 2009-02-17</h3>
     </body>
 </html>
