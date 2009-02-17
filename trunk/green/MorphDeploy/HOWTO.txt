@@ -1,0 +1,12 @@
+
+ danero @ morpho
+ java -jar morph-deploy.jar --config morph_deploy.properties your_war_file.war
+
+user on morph: daneroo
+java -jar morph-deploy.jar --config morph_deploy.properties ../iMetricalMorph/dist/iMetricalMorph.war
+
+then test with post...
+ notice no owner param, value=@tmp.xml not content=...
+
+while true; do curl -m 30 -s -o tmp.xml http://192.168.5.2/iMetrical/feeds.php; curl -m 30  -F "value=@tmp.xml;type=text/xml"  http://imetrical.morphexchange.com/post.jsp; sleep 1; done
+
