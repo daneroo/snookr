@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>im-ietest Layout</title>
+        <!-- relative paths for css and js
+            should use ../css/, ../jq/ and ../js/
+            absolute path would be
+             /s/css, /s/jq, and /s/jq
+
+             Consolidate all css (include ? jq-ui) yes: required
+        <link type="text/css" href="../jq/theme/ui.all.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.layout.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.theme.css" rel="Stylesheet" />
+
+        -->
+        <link type="text/css" href="../css/imetrical.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="../jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript" src="../js/jquery.timer.js"></script>
+        <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
+        <script type="text/javascript">
+
+            $(function(){
+                iM18nLang='en';
+
+                add6Badges('#threeBAnim');
+
+                //  timers
+                if (1) startAnimNow(2500, function (timer) {
+                    storyboardNextAndRollTheme();
+                    //storyboardNext();
+                });
+
+                $("#flashBtn").click(function () {
+                    flashInjector();
+                });
+
+                // fetching timer
+                //startAnimNow(getRefreshIntervalMS(), function (timer) {
+                //    fetchAndMapFeeds(null,myInjector);
+                //});
+            });
+        </script>
+        <style type="text/css">
+            /* Here be dragons: customize the css */
+            #bouter {
+                background:#EEEEEE;
+            }
+            #b1 {
+                background:#FFDDDD;
+            }
+            #b2 {
+                background:#DDFFDD;
+            }
+            .bo, .b, .bl, .br {
+                border: 1px solid;
+                padding:5px;
+            }
+            .bo {
+                float: left;
+            }
+            .b {
+                float: left;
+            }
+            .bl {
+                width: 3em;
+                float: left;
+            }
+            .br {
+                width: 3em;
+                float: left;
+            }
+        </style>
+    </head>
+    <body>
+
+        <!--
+            Floating width
+        -->
+        <h2 class="demoHeaders">2 BOX IE test</h2>
+        <div id="bouter" class="bo">
+            <div id="b1" class="b">1
+                <div id="b1l" class="bl">
+                    <div>
+                        <span class="im-feed-name">F1</span>
+                        <span class="im-feed-units">U1</span>
+                    </div>
+                    <div class="im-v-w">1L</div>
+                </div>
+                <div id="b1r" class="br">
+                    <div class="im-v-percent">+R1%</div>
+                    <div class="im-v-overunder">R1 target</div>
+                </div>
+            </div>
+            <div id="b2" class="b">2
+                <div id="b2l" class="bl">
+                    <div>
+                        <span class="im-feed-name">F2</span>
+                        <span class="im-feed-units">U2</span>
+                    </div>
+                    <div class="im-v-w">2L</div>
+                </div>
+                <div id="b2r" class="br">
+                    <div class="im-v-percent">+R2%</div>
+                    <div class="im-v-overunder">R2 target</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="clear:both"></div>
+
+        <h2 class="demoHeaders">2 badge IE test</h2>
+        <div id="ie2bouter" style="font-size:150%">
+            <div id="ie2b-live" class="im-lf-black-gloss" style="background: none; border:0;">
+                <div class="im-badge im-feed-Live ui-state-default ui-corner-all">
+                    <div class="im-badge-left">
+                        <div>
+                            <span class="im-feed-name">Live</span>
+                            <span class="im-feed-units">W</span>
+                        </div>
+                        <div class="im-v-w">0000</div>
+                    </div>
+                    <div class="im-badge-right">
+                        <div class="im-v-percent">+0%</div>
+                        <div class="im-v-overunder">under target</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ie2b-hour" class="im-lf-black-gloss" style="background: none; border:0;">
+                <div class="im-badge im-feed-Hour ui-state-default ui-corner-all">
+                    <div class="im-badge-left">
+                        <div>
+                            <span class="im-feed-name">Hour</span>
+                            <span class="im-feed-units">Z</span>
+                        </div>
+                        <div class="im-v-w">00.0</div>
+                    </div>
+                    <div class="im-badge-right">
+                        <div class="im-v-percent">+0%</div>
+                        <div class="im-v-overunder">under target</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="clear:both"></div>
+
+        <h2 class="demoHeaders">Standard 3 Badge Animation Test</h2>
+        <div id="scaleTheFont" style="font-size:150%">
+            <div id="threeBAnim" class="toggler im-lf-black-gloss" style="background: none; border:0;">
+            </div>
+        </div>
+        <div style="clear:both"></div>
+        <p id="flashBtn" style="background:gray; width:5em; text-align:center">Flash Now</p>
+           <!--
+        <h2 class="demoHeaders">Double Width Glass</h2>
+        <div style="font-size:100%">
+            <div id="relativeLayerWithHeight002"
+                 style="position: relative; wwidth: 17em; width: 32em; height: 3.8em; overflow:hidden;">
+                <div id="positioningLayerWithWidth002"
+                     style="position: absolute; width: 100em;">
+                    <div id="sixB2W" class="toggler im-lf-blue-glass" style="background: none; border:0;">
+                    </div>
+                </div>
+            </div>
+        </div>
+-->
+
+
+        <!--
+        <center>
+            <iframe src ="http://imetrical.appspot.com/" width="80%" height="350px" frameborder="0" scrolling="no">
+                <p>Your browser does not support iframes.</p>
+            </iframe>
+        </center>
+        -->
+       </body>
+</html>
+
+
