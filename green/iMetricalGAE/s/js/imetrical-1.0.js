@@ -208,19 +208,11 @@ function addBadge(parentID,feedName,feedUnits){
 
 // inject red color flash into "Live" feed Name
 function flashInjector() { // visual simulation of fetch
-    //var el = $('div.toggler > div.im-badge:visible').eq(0).find("span.im-feed-name");
-    var el = $('div.im-badge:nth-child(1)').find("span.im-feed-name:visible");
-    el.css({
-        'color':'red',
-        "opacity": .5
-    });
-    el.animate({
-        "opacity": 1
-    }, 500,null, function(){
-        el.css({
-            'color':'inherit'
-        })
-    });
+    var el = $('.im-feed-Live').find(".im-feed-name");
+    el.addClass("im-flash");
+    setTimeout ( function(){
+        el.removeClass("im-flash");
+    }, 500 );
 }
 
 /*
@@ -502,9 +494,9 @@ Date.prototype.getYMDHMS = function () {
 };
 
 // Yearly Data - till included
-            // sql to generate from hydro.watt_billing
-            //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_billing group by left(stamp,7)" hydro
-            var hydroData = [
+// sql to generate from hydro.watt_billing
+//mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_billing group by left(stamp,7)" hydro
+var hydroData = [
                 { stampStr:'2006-06-01T05:00:00Z',value:2272.0000},
                 { stampStr:'2006-07-01T05:00:00Z',value:2272.0000},
                 { stampStr: '2006-08-01T05:00:00Z',value:1863.5161},
@@ -535,17 +527,17 @@ Date.prototype.getYMDHMS = function () {
                 { stampStr: '2008-09-01T05:00:00Z',value:1573.0000},
                 { stampStr: '2008-10-01T05:00:00Z',value:1666.5484},
                 { stampStr: '2008-11-01T05:00:00Z',value:1673.0000},
-                // override by ted
-                //{ stampStr: '2008-12-01T05:00:00Z'	, value: 	1673.0000	},
-                // theese are from ted
+// override by ted
+//{ stampStr: '2008-12-01T05:00:00Z'	, value: 	1673.0000	},
+// theese are from ted
                 { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
                 { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
-                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	},
-            ];
-            hydroData.reverse();
-            // sql to gen from ted.watt_day
-            //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_day group by left(stamp,7)" ted
-            var tedData = [
+                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	}
+];
+hydroData.reverse();
+// sql to gen from ted.watt_day
+//mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_day group by left(stamp,7)" ted
+var tedData = [
                 { stampStr: '2008-07-01T05:00:00Z'	, value: 	1359.3333	},
                 { stampStr: '2008-08-01T05:00:00Z'	, value: 	1452.8065	},
                 { stampStr: '2008-09-01T05:00:00Z'	, value: 	1621.6000	},
@@ -553,34 +545,36 @@ Date.prototype.getYMDHMS = function () {
                 { stampStr: '2008-11-01T05:00:00Z'	, value: 	1644.6667	},
                 { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
                 { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
-                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	},
-            ];
-            tedData.reverse();
+                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	}
+];
+tedData.reverse();
 
-            function makeDatesFromStrForFeed(data) {
-                for (var i = 0; i < data.length ; i++) {
-                    var ostamp = new Date();
-                    ostamp.setISO8601(data[i].stampStr);
-                    data[i].stamp = ostamp;
-                    /*var observation = {
+function makeDatesFromStrForFeed(data) {
+    for (var i = 0; i < data.length ; i++) {
+        var ostamp = new Date();
+        ostamp.setISO8601(data[i].stampStr);
+        data[i].stamp = ostamp;
+    /*var observation = {
                         stamp: ostamp,
                         value: obsList.item(j).getAttribute("value")
                     }*/
-                }
-            }
-            makeDatesFromStrForFeed(hydroData);
-            makeDatesFromStrForFeed(tedData);
+    }
+}
+makeDatesFromStrForFeed(hydroData);
+makeDatesFromStrForFeed(tedData);
 
-            var staticYearFeed = {
-                name: "Year",
-                stamp: hydroData[0].stamp,
-                value: hydroData[0].value,
-                observations:  hydroData.slice(0,18) ,
-                compareobs: hydroData.slice(12,18+12)
-            }
-            var sum12Month=0;
-            $.each(hydroData.slice(0,12),function(){sum12Month+=this.value});
-            staticYearFeed.value = sum12Month/12.0;
+var staticYearFeed = {
+    name: "Year",
+    stamp: hydroData[0].stamp,
+    value: hydroData[0].value,
+    observations:  hydroData.slice(0,18) ,
+    compareobs: hydroData.slice(12,18+12)
+}
+var sum12Month=0;
+$.each(hydroData.slice(0,12),function(){
+    sum12Month+=this.value
+    });
+staticYearFeed.value = sum12Month/12.0;
             //alert("lastMo:"+hydroData[0].value+" -12 mo avg:"+staticYearFeed.value);
             //alert(staticYearFeed.compareobs.length);
             //alert("hydroData: "+hydroData.length);
