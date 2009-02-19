@@ -18,14 +18,41 @@
 import memcache_zipserve
 import wsgiref.handlers
 from google.appengine.ext import webapp
+from google.appengine.api import memcache
 
+class CachePage(webapp.RequestHandler):
+  def get(self):
+    self.response.out.write("<html><body>")
+    stats = memcache.get_stats()
+    if stats:
+      self.response.out.write("<b>Memcache stats</b><br>")
+      self.response.out.write("<b>Cache Hits:  %s</b><br>" % stats['hits'])
+      self.response.out.write("<b>Cache Misses:%s</b><br>" % stats['misses'])
+      self.response.out.write("<b>Items:       %s</b><br>" % stats['items'])
+      self.response.out.write("<b>Oldest(s):   %s</b><br>" % stats['oldest_item_age'])
+    else:
+      self.response.out.write("<b>No Memcache stats</b><br>")
+
+    isFlush = self.request.get('flush')
+    if isFlush:
+      self.response.out.write("<b>Flush::%s</b><br><br>" % isFlush)
+      memcache.flush_all()
+
+    self.response.out.write('<a href="?">Don''t Flush, Refresh</a><br><br>')
+    self.response.out.write('<a href="?flush=1">BE CAREFULL: Flush</a><br>') 
+    self.response.out.write("""
+        </body>
+      </html>""")
 
 def main():
   application = webapp.WSGIApplication(
-      [('/(.*)',
+      [('/cache', CachePage),
+       ('/(.*)',
         memcache_zipserve.create_handler([['0.zip', 'index.html'],
                                           ['1.zip',
                                            'content_dir/sub_dir1.html'],
+                                          ['sulbalcon.zip',
+                                           'Sulbalcon/index.html'],
                                           ])),
        ],
       debug=False)
