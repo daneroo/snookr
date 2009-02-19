@@ -2,20 +2,25 @@ body {
     font-family: 'trebuchet ms', verdana, arial;
 }
 
+/* for the flash injector */
+.im-flash {
+    color:red;
+}
+
 
 /* iMetrical Badges */
 /*
 Here be the typical badge structure:
-  <div class="im-badge im-feed-FFFF">
-    <div class="im-badge-left">
-      <div><span class="im-feed-name">FFFF</span><span class="im-feed-units">TWh/c</span></div>
-      <div class="im-v-UNIT">00.00</div>
-    </div>
-    <div class="im-badge-right">
-      <div class="im-v-percent">+0%</div>
-      <div class="im-v-overunder">over target</div>
-    </div>
-  </div>
+<div class="im-badge im-feed-FFFF">
+<div class="im-badge-left">
+<div><span class="im-feed-name">FFFF</span><span class="im-feed-units">TWh/c</span></div>
+<div class="im-v-UNIT">00.00</div>
+</div>
+<div class="im-badge-right">
+<div class="im-v-percent">+0%</div>
+<div class="im-v-overunder">over target</div>
+</div>
+</div>
 
 Here is the box model
 Here is the math..
