@@ -156,7 +156,8 @@ var iMUnits = {
  */
 function startAnimNow(interval,callback) {
     //calls the first iteration immediately
-    setTimeout(1000,callback);
+    //setTimeout(1000,callback);
+    callback();
     $.timer(interval,callback);
 
 }
