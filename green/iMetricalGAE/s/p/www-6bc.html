@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>hq-6bc-fr</title>
+        <!-- relative paths for css and js
+            should use ../css/, ../jq/ and ../js/
+            absolute path would be
+             /s/css, /s/jq, and /s/jq
+
+             Consolidate all css (include ? jq-ui) yes: required
+        <link type="text/css" href="../jq/theme/ui.all.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.layout.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.theme.css" rel="Stylesheet" />
+
+        -->
+        <link type="text/css" href="../css/imetrical.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="../jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript" src="../js/jquery.timer.js"></script>
+        <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
+        <script type="text/javascript">
+
+            // new google viz stuff
+            google.load("visualization", "1", {packages:["columnchart","areachart"]});
+            vizLoaded = false;
+            google.setOnLoadCallback(function(){vizLoaded=true});
+
+            function drawChart(feed) {
+                var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                var isBarChart=true; // switch areachart(line) or columnchart(bar)
+                var units = "?";
+                var multiplier=1.0;
+                switch (feed.name){
+                    case "Live":
+                        timeFormat = function(stamp){ return ""+stamp.getHMS()};
+                        isBarChart=false;
+                        units = "Watts";
+                        multiplier=1.0;
+                        break;
+                    case "Hour":
+                        timeFormat = function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())};
+                        isBarChart=false;
+                        units = "kW";
+                        multiplier=1.0/1000.0;
+                        break;
+                    case "Day":
+                        timeFormat = function(stamp){ return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())};
+                        units = "kWh";
+                        multiplier=1.0/1000.0;
+                        break;
+                    case "Week":
+                        timeFormat = function(stamp){return weekDayNames[stamp.getDay()];};
+                        units = "kWh/d";
+                        multiplier=24.0/1000.0;
+                        break;
+                    case "Month":
+                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getDate();};
+                        var units = "kWh/d";
+                        multiplier=24.0/1000.0;
+                        break;
+                    case "Year":
+                        timeFormat = function(stamp){ return monthNames[stamp.getMonth()]+" "+stamp.getFullYear();};
+                        var units = "kWh/d";
+                        multiplier=24.0/1000.0;
+                        break;
+                    default : // nothing
+                }
+
+                var data = new google.visualization.DataTable();
+
+                var hasPredictor = (feed.compareobs!=null);
+                var currentColumn=1;
+                if (hasPredictor) currentColumn=2;
+
+                data.addColumn('string', 'Time');
+                if (hasPredictor) {
+                    data.addColumn('number', "Previous Year");
+                    data.addColumn('number', "Current Year");
+                } else {
+                    data.addColumn('number', units);
+                }
+
+                data.addRows(feed.observations.length);
+                // reverso order ..
+                for (var i = 0; i < feed.observations.length ; i++) {
+                    var o = feed.observations[i];
+                    var c = null;
+                    if (hasPredictor) c=feed.compareobs[i];
+                    var timeLabel = ""+timeFormat(o.stamp);
+                    data.setValue(feed.observations.length-i-1, 0, timeLabel);
+                    if (hasPredictor) {
+                        data.setValue(feed.observations.length-i-1, 1, c.value*multiplier); // div by 1 to get Number ?
+                    }
+                    data.setValue(feed.observations.length-i-1, currentColumn, o.value*multiplier); // div by 1 to get Number ?
+                }
+
+                $('#chart').html("");
+                var chart;
+                if (isBarChart){
+                    chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+                } else {
+                    chart = new google.visualization.AreaChart(document.getElementById('chart'));
+                }
+
+                var legend = 'none';
+                if (hasPredictor) legend='bottom';
+                options =  {
+                    colors:["#7f93bc","#3b5998"],
+                    width: 550,
+                    height: 360,
+                    is3D: false,
+                    title: feed.name+' - Power Consumption ('+units+')',
+                    legend:legend
+                };
+                chart.draw(data, options);
+            }
+
+            function drawAChart(whichOne) {
+                feed = feedsRef[whichOne%feedsRef.length];
+                drawChart(feed);
+            }
+
+            // getting ready to inject from settings..
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 10;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                if (refreshInterval<2) refreshInterval=2;
+                return refreshInterval*1000; // every n seconds
+            };
+
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=1;
+            function myInjector(feeds) {
+                flashInjector();
+                feedsRef = feeds;
+                standardInjector(feeds);
+                if (vizLoaded) {
+                    drawAChart(currentFeed);
+                    if (animCanRun) {
+                        currentFeed= (currentFeed+1)%5;
+                    }
+                }
+            }
+
+
+            $(function(){
+                iM18nLang='en';
+                add6Badges('#sixBChart');
+
+                // make all badges expand-right on click
+                $('#sixBChart .im-badge').click(function() {
+                    var feedClass; // first class attribute which matcher im-feed-...
+                    $.each($(this).attr("class").split(' '),function(){if (this.match(/^im-feed/)) feedClass=this;});
+                    var feedName=feedClass.substring(8);
+
+                    //are we closing or opening
+                    var willshow= ( $(this).find('.im-badge-right:visible').length==0)
+                    if (willshow) {
+                        animCanRun=false;
+                        // close siblings ?
+                        $(this).parent().find('.im-badge-right').hide();
+                        $(this).find('.im-badge-right').show('slide');
+                        // stop animation
+                    } else {
+                        animCanRun=true;
+                        // don't close'
+                        //$(this).find('.im-badge-right').hide('slide');
+                        // start animation
+                    }
+                    var lkup = {"Live":0,"Hour":1,"Day":2,"Week":3,"Month":4,"Year":5};
+                    selectedFeed=lkup[feedName];
+                    currentFeed=selectedFeed;
+                    drawAChart(selectedFeed);
+                } );
+
+                $(".im-feed-Day").find('.im-badge-right').show();
+
+                //  timers
+                animCanRun=true;
+                startAnimNow(2500, function (timer) {
+                    storyboardNextAndRollTheme();
+                    //storyboardNext();
+                });
+
+                // fetching timer
+                startAnimNow(getRefreshIntervalMS(), function (timer) {
+                    fetchAndMapFeeds(null,myInjector);
+                });
+
+
+            });
+        </script>
+        <style type="text/css">
+            /* Here be dragons: customize the css */
+        </style>
+    </head>
+    <body>
+
+        <div id="sixBChart" class="im-lf-blue-hsoft" style="font-size:120%">
+        </div>
+        <div style="clear:both"></div>
+        <div id="chart"></div>
+
+        <div id="status" style="color:gray" ></div>
+        <div id="error" style="display:none" ></div>
+
+
+        <!--
+        <center>
+            <iframe src ="http://imetrical.appspot.com/" width="80%" height="350px" frameborder="0" scrolling="no">
+                <p>Your browser does not support iframes.</p>
+            </iframe>
+        </center>
+        -->
+    </body>
+</html>
+
+

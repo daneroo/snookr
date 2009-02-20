@@ -27,7 +27,7 @@
             };
 
             $(function(){
-                iM18nLang='fr';
+                iM18nLang='en';
                 add6Badges('#threeb');
                 //  animation
                 startAnimNow(4000, function (timer) {
