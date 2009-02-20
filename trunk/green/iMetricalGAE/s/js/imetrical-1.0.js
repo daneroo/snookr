@@ -18,7 +18,119 @@
  * Constants, Settings
  */
 var defaultiMetricalURL = "http://imetrical.appspot.com/feeds?owner=daniel";
+
+/*
+ * i18N : Internationalisation
+ */
 var iM18nLang= 'en'; //'fr';
+var iMi18n = {
+    'Live':  {
+        'fr':'Courant'
+    },
+    'Hour':  {
+        'fr':'Heure'
+    },
+    'Day':   {
+        'fr':'Jour'
+    },
+    'Week':  {
+        'fr':'Sem'
+    },
+    'Month': {
+        'fr':'Mois'
+    },
+    'Year':  {
+        'fr':'Annee'
+    },
+    'kWh/d': {
+        'fr':'kWh/j'
+    },
+    'under target': {
+        'fr':'sous objectif'
+    },
+    'over target': {
+        'fr':'sur objectif'
+    },
+    'Sun': {
+        'fr':'Dim'
+    },
+    'Mon': {
+        'fr':'Lun'
+    },
+    'Tue': {
+        'fr':'Mar'
+    },
+    'Wed': {
+        'fr':'Mer'
+    },
+    'Thu': {
+        'fr':'Jeu'
+    },
+    'Fri': {
+        'fr':'Ven'
+    },
+    'Sat': {
+        'fr':'Sam'
+    },
+    'Jan': {
+        'fr':'Jan'
+    },
+    'Feb': {
+        'fr':'Fev'
+    },
+    'Mar': {
+        'fr':'Mar'
+    },
+    'Apr': {
+        'fr':'Avr'
+    },
+    'May': {
+        'fr':'Mai'
+    },
+    'Jun': {
+        'fr':'Juin'
+    },
+    'Jul': {
+        'fr':'Juil'
+    },
+    'Aug': {
+        'fr':'Aout'
+    },
+    'Sep': {
+        'fr':'Sep'
+    },
+    'Oct': {
+        'fr':'Oct'
+    },
+    'Nov': {
+        'fr':'Nov'
+    },
+    'Dec': {
+        'fr':'Dec'
+    },
+    'Time': {
+        'fr':'Temps'
+    },
+    'Previous Year': {
+        'fr':'Annee preced.'
+    },
+    'Current Year': {
+        'fr':'Annee courante'
+    },
+    'Power Consumption': {
+        'fr':'Consommation en Puissance'
+    }
+//'e': {'fr':'f'},  /* no trailing comma on last*/
+};
+
+function getI18n(lookup) {
+    var foundEntry = iMi18n[lookup];
+    if (foundEntry) {
+        var foundForLang = foundEntry[iM18nLang];
+        if (foundForLang) return foundForLang;
+    }
+    return lookup;
+}
 
 // map unit name and value-class-suffix
 var iMUnits = {
@@ -125,47 +237,109 @@ function rolltheme() {
     rollingThemes.push(newtheme);
 }
 
-/*
- * i18N : Internationalisation
- */
-var iMi18n = {
-    'Live':  {
-        'fr':'Courant'
-    },
-    'Hour':  {
-        'fr':'Heure'
-    },
-    'Day':   {
-        'fr':'Jour'
-    },
-    'Week':  {
-        'fr':'Sem'
-    },
-    'Month': {
-        'fr':'Mois'
-    },
-    'Year':  {
-        'fr':'Ann&eacute;e'
-    },
-    "kWh/d": {
-        'fr':'kWh/j'
-    },
-    "under target": {
-        'fr':'sous objectif'
-    },
-    "over target": {
-        'fr':'sur objectif'
+
+function drawChart(feed) {
+    var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var isBarChart=true; // switch areachart(line) or columnchart(bar)
+    var units = "?";
+    var multiplier=1.0;
+    switch (feed.name){
+        case "Live":
+            timeFormat = function(stamp){
+                return ""+stamp.getHMS()
+            };
+            isBarChart=false;
+            units = "Watts";
+            multiplier=1.0;
+            break;
+        case "Hour":
+            timeFormat = function(stamp){
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+            };
+            isBarChart=false;
+            units = "kW";
+            multiplier=1.0/1000.0;
+            break;
+        case "Day":
+            timeFormat = function(stamp){
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+            };
+            units = "kWh";
+            multiplier=1.0/1000.0;
+            break;
+        case "Week":
+            timeFormat = function(stamp){
+                return getI18n(weekDayNames[stamp.getDay()]);
+            };
+            units = "kWh/d";
+            multiplier=24.0/1000.0;
+            break;
+        case "Month":
+            timeFormat = function(stamp){
+                return getI18n(monthNames[stamp.getMonth()])+" "+stamp.getDate();
+            };
+            units = "kWh/d";
+            multiplier=24.0/1000.0;
+            break;
+        case "Year":
+            timeFormat = function(stamp){
+                return getI18n(monthNames[stamp.getMonth()])+" "+stamp.getFullYear();
+            };
+            units = "kWh/d";
+            multiplier=24.0/1000.0;
+            break;
+        default : // nothing
     }
 
-};
+    var data = new google.visualization.DataTable();
 
-function getI18n(lookup) {
-    var foundEntry = iMi18n[lookup];
-    if (foundEntry) {
-        var foundForLang = foundEntry[iM18nLang];
-        if (foundForLang) return foundForLang;
+    var hasPredictor = (feed.compareobs!=null);
+    var currentColumn=1;
+    if (hasPredictor) currentColumn=2;
+
+
+    data.addColumn('string', getI18n('Time'));
+    if (hasPredictor) {
+        data.addColumn('number', getI18n('Previous Year'));
+        data.addColumn('number', getI18n('Current Year'));
+    } else {
+        data.addColumn('number', getI18n(units));
     }
-    return lookup;
+
+    data.addRows(feed.observations.length);
+    // reverso order ..
+    for (var i = 0; i < feed.observations.length ; i++) {
+        var o = feed.observations[i];
+        var c = null;
+        if (hasPredictor) c=feed.compareobs[i];
+        var timeLabel = ""+timeFormat(o.stamp);
+        data.setValue(feed.observations.length-i-1, 0, timeLabel);
+        if (hasPredictor) {
+            data.setValue(feed.observations.length-i-1, 1, c.value*multiplier); // div by 1 to get Number ?
+        }
+        data.setValue(feed.observations.length-i-1, currentColumn, o.value*multiplier); // div by 1 to get Number ?
+    }
+
+    $('#chart').html("");
+    var chart;
+    if (isBarChart){
+        chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+    } else {
+        chart = new google.visualization.AreaChart(document.getElementById('chart'));
+    }
+
+    var legend = 'none';
+    if (hasPredictor) legend='bottom';
+    options =  {
+        colors:["#7f93bc","#3b5998"],
+        width: 550,
+        height: 360,
+        is3D: false,
+        title: getI18n(feed.name)+' - '+getI18n('Power Consumption')+' ('+getI18n(units)+')',
+        legend:legend
+    };
+    chart.draw(data, options);
 }
 
 /*
@@ -497,55 +671,178 @@ Date.prototype.getYMDHMS = function () {
 // sql to generate from hydro.watt_billing
 //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_billing group by left(stamp,7)" hydro
 var hydroData = [
-                { stampStr:'2006-06-01T05:00:00Z',value:2272.0000},
-                { stampStr:'2006-07-01T05:00:00Z',value:2272.0000},
-                { stampStr: '2006-08-01T05:00:00Z',value:1863.5161},
-                { stampStr: '2006-09-01T05:00:00Z',value:1819.9333},
-                { stampStr: '2006-10-01T05:00:00Z',value:2057.0000},
-                { stampStr: '2006-11-01T05:00:00Z',value:2057.0000},
-                { stampStr: '2006-12-01T05:00:00Z',value:2335.0000},
-                { stampStr: '2007-01-01T05:00:00Z',value:2335.0000},
-                { stampStr: '2007-02-01T05:00:00Z',value:2146.0000},
-                { stampStr: '2007-03-01T05:00:00Z',value:2139.0000},
-                { stampStr: '2007-04-01T05:00:00Z',value:2068.0667},
-                { stampStr: '2007-05-01T05:00:00Z',value:2063.0000},
-                { stampStr: '2007-06-01T05:00:00Z',value:2166.4333},
-                { stampStr: '2007-07-01T05:00:00Z',value:2170.0000},
-                { stampStr: '2007-08-01T05:00:00Z',value:2061.6129},
-                { stampStr: '2007-09-01T05:00:00Z',value:2030.0000},
-                { stampStr: '2007-10-01T05:00:00Z',value:2170.3226},
-                { stampStr: '2007-11-01T05:00:00Z',value:2180.2333},
-                { stampStr: '2007-12-01T05:00:00Z',value:2332.0000},
-                { stampStr: '2008-01-01T05:00:00Z',value:2332.0000},
-                { stampStr: '2008-02-01T05:00:00Z',value:2332.8621},
-                { stampStr: '2008-03-01T05:00:00Z',value:2333.0000},
-                { stampStr: '2008-04-01T05:00:00Z',value:1996.3000},
-                { stampStr: '2008-05-01T05:00:00Z',value:1852.0000},
-                { stampStr: '2008-06-01T05:00:00Z',value:2113.3333},
-                { stampStr: '2008-07-01T05:00:00Z',value:2132.0000},
-                { stampStr: '2008-08-01T05:00:00Z',value:1591.0323},
-                { stampStr: '2008-09-01T05:00:00Z',value:1573.0000},
-                { stampStr: '2008-10-01T05:00:00Z',value:1666.5484},
-                { stampStr: '2008-11-01T05:00:00Z',value:1673.0000},
+{
+    stampStr:'2006-06-01T05:00:00Z',
+    value:2272.0000
+},
+{
+    stampStr:'2006-07-01T05:00:00Z',
+    value:2272.0000
+},
+{
+    stampStr: '2006-08-01T05:00:00Z',
+    value:1863.5161
+},
+{
+    stampStr: '2006-09-01T05:00:00Z',
+    value:1819.9333
+},
+{
+    stampStr: '2006-10-01T05:00:00Z',
+    value:2057.0000
+},
+{
+    stampStr: '2006-11-01T05:00:00Z',
+    value:2057.0000
+},
+{
+    stampStr: '2006-12-01T05:00:00Z',
+    value:2335.0000
+},
+{
+    stampStr: '2007-01-01T05:00:00Z',
+    value:2335.0000
+},
+{
+    stampStr: '2007-02-01T05:00:00Z',
+    value:2146.0000
+},
+{
+    stampStr: '2007-03-01T05:00:00Z',
+    value:2139.0000
+},
+{
+    stampStr: '2007-04-01T05:00:00Z',
+    value:2068.0667
+},
+{
+    stampStr: '2007-05-01T05:00:00Z',
+    value:2063.0000
+},
+{
+    stampStr: '2007-06-01T05:00:00Z',
+    value:2166.4333
+},
+{
+    stampStr: '2007-07-01T05:00:00Z',
+    value:2170.0000
+},
+{
+    stampStr: '2007-08-01T05:00:00Z',
+    value:2061.6129
+},
+{
+    stampStr: '2007-09-01T05:00:00Z',
+    value:2030.0000
+},
+{
+    stampStr: '2007-10-01T05:00:00Z',
+    value:2170.3226
+},
+{
+    stampStr: '2007-11-01T05:00:00Z',
+    value:2180.2333
+},
+{
+    stampStr: '2007-12-01T05:00:00Z',
+    value:2332.0000
+},
+{
+    stampStr: '2008-01-01T05:00:00Z',
+    value:2332.0000
+},
+{
+    stampStr: '2008-02-01T05:00:00Z',
+    value:2332.8621
+},
+{
+    stampStr: '2008-03-01T05:00:00Z',
+    value:2333.0000
+},
+{
+    stampStr: '2008-04-01T05:00:00Z',
+    value:1996.3000
+},
+{
+    stampStr: '2008-05-01T05:00:00Z',
+    value:1852.0000
+},
+{
+    stampStr: '2008-06-01T05:00:00Z',
+    value:2113.3333
+},
+{
+    stampStr: '2008-07-01T05:00:00Z',
+    value:2132.0000
+},
+{
+    stampStr: '2008-08-01T05:00:00Z',
+    value:1591.0323
+},
+{
+    stampStr: '2008-09-01T05:00:00Z',
+    value:1573.0000
+},
+{
+    stampStr: '2008-10-01T05:00:00Z',
+    value:1666.5484
+},
+{
+    stampStr: '2008-11-01T05:00:00Z',
+    value:1673.0000
+},
 // override by ted
 //{ stampStr: '2008-12-01T05:00:00Z'	, value: 	1673.0000	},
 // theese are from ted
-                { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
-                { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
-                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	}
+{
+    stampStr: '2008-12-01T05:00:00Z'	,
+    value: 	1572.6774
+},
+{
+    stampStr: '2009-01-01T05:00:00Z'	,
+    value: 	1681.0968
+},
+{
+    stampStr: '2009-02-01T05:00:00Z'	,
+    value: 	1734.3750
+}
 ];
 hydroData.reverse();
 // sql to gen from ted.watt_day
 //mysql -N -B -e "select concat(' { stampStr: ''',left(stamp,7),'-01T05:00:00Z'''),', value: ',avg(watt),'},' from watt_day group by left(stamp,7)" ted
 var tedData = [
-                { stampStr: '2008-07-01T05:00:00Z'	, value: 	1359.3333	},
-                { stampStr: '2008-08-01T05:00:00Z'	, value: 	1452.8065	},
-                { stampStr: '2008-09-01T05:00:00Z'	, value: 	1621.6000	},
-                { stampStr: '2008-10-01T05:00:00Z'	, value: 	1767.3667	},
-                { stampStr: '2008-11-01T05:00:00Z'	, value: 	1644.6667	},
-                { stampStr: '2008-12-01T05:00:00Z'	, value: 	1572.6774	},
-                { stampStr: '2009-01-01T05:00:00Z'	, value: 	1681.0968	},
-                { stampStr: '2009-02-01T05:00:00Z'	, value: 	1734.3750	}
+{
+    stampStr: '2008-07-01T05:00:00Z'	,
+    value: 	1359.3333
+},
+{
+    stampStr: '2008-08-01T05:00:00Z'	,
+    value: 	1452.8065
+},
+{
+    stampStr: '2008-09-01T05:00:00Z'	,
+    value: 	1621.6000
+},
+{
+    stampStr: '2008-10-01T05:00:00Z'	,
+    value: 	1767.3667
+},
+{
+    stampStr: '2008-11-01T05:00:00Z'	,
+    value: 	1644.6667
+},
+{
+    stampStr: '2008-12-01T05:00:00Z'	,
+    value: 	1572.6774
+},
+{
+    stampStr: '2009-01-01T05:00:00Z'	,
+    value: 	1681.0968
+},
+{
+    stampStr: '2009-02-01T05:00:00Z'	,
+    value: 	1734.3750
+}
 ];
 tedData.reverse();
 
@@ -573,7 +870,7 @@ var staticYearFeed = {
 var sum12Month=0;
 $.each(hydroData.slice(0,12),function(){
     sum12Month+=this.value
-    });
+});
 staticYearFeed.value = sum12Month/12.0;
             //alert("lastMo:"+hydroData[0].value+" -12 mo avg:"+staticYearFeed.value);
             //alert(staticYearFeed.compareobs.length);
