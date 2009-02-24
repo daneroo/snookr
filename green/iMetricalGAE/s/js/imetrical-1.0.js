@@ -336,8 +336,10 @@ function drawChart(feed) {
         colors:["#7f93bc","#3b5998"],
         width: 550,
         height: 360,
+        min: 0,
         is3D: false,
         title: getI18n(feed.name)+' - '+getI18n('Power Consumption')+' ('+getI18n(units)+')',
+        titleY: getI18n(units),
         legend:legend
     };
     chart.draw(data, options);
