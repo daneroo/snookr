@@ -51,7 +51,7 @@ def main():
         memcache_zipserve.create_handler([['0.zip', 'index.html'],
                                           ['1.zip',
                                            'content_dir/sub_dir1.html'],
-                                          ['sulbalcon.zip',
+                                          ['Sulbalcon.zip',
                                            'Sulbalcon/index.html'],
                                           ])),
        ],
