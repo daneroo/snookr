@@ -161,7 +161,7 @@ class MemcachedZipHandler(webapp.RequestHandler):
 #      return name
     uqname = urllib.unquote(name)
     if not name==uqname:
-        logging.error('%s >unqot> %s',name,uqname)
+        #logging.error('%s >unqot> %s',name,uqname)
         name = uqname
 
 
@@ -169,13 +169,9 @@ class MemcachedZipHandler(webapp.RequestHandler):
       name =  "%s%s" % (name, 'index.html')
 
     psxname = posixpath.normpath(name)
-    logging.error('%s >posix> %s',name,psxname)
     if not name==psxname:
-        logging.error('%s >posix> %s',name,psxname)
+        #logging.error('%s >posix> %s',name,psxname)
         name = psxname
-
-    if name.endswith('.html'):
-        logging.error('html %s',name)
 
     return name
 
