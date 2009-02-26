@@ -20,6 +20,7 @@ import wsgiref.handlers
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
+# not used anymore
 class MainRedirector(webapp.RequestHandler):
   def get(self):
     self.redirect("/s/iMetrical/Home.html");
@@ -52,9 +53,7 @@ def main():
   application = webapp.WSGIApplication(
       [('/cache', CachePage),
        ('/(.*)',
-        memcache_zipserve.create_handler([['0.zip', 'index.html'],
-                                          ['1.zip',
-                                           'content_dir/sub_dir1.html'],
+        memcache_zipserve.create_handler([['root.zip', 'index.html'],
                                           ['iMetrical.zip',
                                            'iMetrical/index.html'],
                                           ['iMetricalFR.zip',

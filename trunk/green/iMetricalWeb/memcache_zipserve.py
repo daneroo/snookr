@@ -33,6 +33,8 @@ import logging
 import mimetypes
 import time
 import zipfile
+import urllib
+import posixpath
 
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
@@ -81,6 +83,7 @@ def create_handler(zip_files, max_age=None, public=None):
       if public is not None:
         PUBLIC = public
 
+  #logging.info('Wrapping Handler (every time !)')
   return HandlerWrapper
 
 
@@ -152,10 +155,29 @@ class MemcachedZipHandler(webapp.RequestHandler):
     Returns:
       The processed URL
     """
-    if name[len(name) - 1:] == '/':
-      return "%s%s" % (name, 'index.html')
-    else:
-      return name
+#    if name[len(name) - 1:] == '/':
+#      return "%s%s" % (name, 'index.html')
+#    else:
+#      return name
+    uqname = urllib.unquote(name)
+    if not name==uqname:
+        logging.error('%s >unqot> %s',name,uqname)
+        name = uqname
+
+
+    if len(name)==0 or name[len(name) - 1:] == '/':
+      name =  "%s%s" % (name, 'index.html')
+
+    psxname = posixpath.normpath(name)
+    logging.error('%s >posix> %s',name,psxname)
+    if not name==psxname:
+        logging.error('%s >posix> %s',name,psxname)
+        name = psxname
+
+    if name.endswith('.html'):
+        logging.error('html %s',name)
+
+    return name
 
   def GetFromStore(self, file_path):
     """Retrieve file from zip files.
