@@ -33,6 +33,8 @@ import logging
 import mimetypes
 import time
 import zipfile
+import urllib
+import posixpath
 
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
@@ -57,7 +59,7 @@ def create_handler(zip_files, max_age=None, public=None):
   """
   # verify argument integrity. If the argument is passed in list format,
   # convert it to list of lists format
-  
+
   if zip_files and type(zip_files).__name__ == 'list':
     num_items = len(zip_files)
     while num_items > 0:
@@ -72,8 +74,9 @@ def create_handler(zip_files, max_age=None, public=None):
 
     I'm still not sure why this is needed
     """
-    
+
     def get(self, name):
+      #logging.info('Wrapped get age:%d',max_age)
       self.zipfilenames = zip_files
       self.TrueGet(name)
       if max_age is not None:
@@ -81,6 +84,7 @@ def create_handler(zip_files, max_age=None, public=None):
       if public is not None:
         PUBLIC = public
 
+  #logging.info('Wrapping Handler (every time !)')
   return HandlerWrapper
 
 
@@ -109,7 +113,11 @@ class MemcachedZipHandler(webapp.RequestHandler):
     Returns:
       None
     """
+    #logging.info('TrueGet url %s', self.request.url)
+    ##logging.info('TrueGet MaxAge %d', self.MAX_AGE)
+    #logging.info('TrueGet name before %s', name)
     name = self.PreprocessUrl(name)
+    #logging.info('TrueGet name after %s', name)
 
     # see if we have the page in the memcache
     resp_data = self.GetFromCache(name)
@@ -152,10 +160,26 @@ class MemcachedZipHandler(webapp.RequestHandler):
     Returns:
       The processed URL
     """
-    if name[len(name) - 1:] == '/':
-      return "%s%s" % (name, 'index.html')
-    else:
-      return name
+    uqname = urllib.unquote(name)
+    if not name==uqname:
+        logging.error('%s >unqot> %s',name,uqname)
+        name = uqname
+
+
+    if len(name)==0 or name[len(name) - 1:] == '/':
+      name =  "%s%s" % (name, 'index.html')
+
+    psxname = posixpath.normpath(name)
+    logging.error('%s >posix> %s',name,psxname)
+    if not name==psxname:
+        logging.error('%s >posix> %s',name,psxname)
+        name = psxname
+
+    if name.endswith('.html'):
+        logging.error('html %s',name)
+
+
+    return name
 
   def GetFromStore(self, file_path):
     """Retrieve file from zip files.
@@ -179,7 +203,7 @@ class MemcachedZipHandler(webapp.RequestHandler):
     archive_name = self.MapFileToArchive(file_path)
     if not archive_name:
       archive_name = file_itr.next()[0]
-    
+
     while resp_data is None and archive_name:
       zip_archive = self.LoadZipFile(archive_name)
       if zip_archive:
@@ -193,7 +217,7 @@ class MemcachedZipHandler(webapp.RequestHandler):
           x = False
         if resp_data is not None:
           logging.info('%s read from %s', file_path, archive_name)
-          
+
       try:
         archive_name = file_itr.next()[0]
       except (StopIteration), err:
@@ -260,7 +284,7 @@ class MemcachedZipHandler(webapp.RequestHandler):
     with parent directories' files stored before childs'
 
     We say that file1 is lexigraphically before file2 if the last non-matching
-    path segment of file1 is alphabetically before file2. 
+    path segment of file1 is alphabetically before file2.
 
     Args:
       file1: the first file path
