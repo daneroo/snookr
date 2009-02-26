@@ -17,6 +17,7 @@
 
 import memcache_zipserve
 import wsgiref.handlers
+import logging
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
@@ -26,34 +27,38 @@ class CachePage(webapp.RequestHandler):
     stats = memcache.get_stats()
     if stats:
       self.response.out.write("<b>Memcache stats</b><br>")
-      self.response.out.write("<b>Cache Hits:  %s</b><br>" % stats['hits'])
-      self.response.out.write("<b>Cache Misses:%s</b><br>" % stats['misses'])
-      self.response.out.write("<b>Items:       %s</b><br>" % stats['items'])
-      self.response.out.write("<b>Oldest(s):   %s</b><br>" % stats['oldest_item_age'])
+      self.response.out.write("<b>Cache Hits:  %s</b><br>\n" % stats['hits'])
+      self.response.out.write("<b>Cache Misses:%s</b><br>\n" % stats['misses'])
+      self.response.out.write("<b>Items:       %s</b><br>\n" % stats['items'])
+      self.response.out.write("<b>Oldest(s):   %s</b><br>\n" % stats['oldest_item_age'])
     else:
-      self.response.out.write("<b>No Memcache stats</b><br>")
+      self.response.out.write("<b>No Memcache stats</b><br>\n")
 
     isFlush = self.request.get('flush')
     if isFlush:
-      self.response.out.write("<b>Flush::%s</b><br><br>" % isFlush)
+      self.response.out.write("<b>Flush::%s</b><br><br>\n" % isFlush)
       memcache.flush_all()
 
-    self.response.out.write('<a href="?">Don''t Flush, Refresh</a><br><br>')
-    self.response.out.write('<a href="?flush=1">BE CAREFULL: Flush</a><br>') 
+    self.response.out.write('<a href="?">Don''t Flush, Refresh</a><br><br>\n')
+    self.response.out.write('<a href="?flush=1">BE CAREFULL: Flush</a><br>\n')
     self.response.out.write("""
         </body>
       </html>""")
 
 def main():
+  logging.getLogger().setLevel(logging.WARNING)
   application = webapp.WSGIApplication(
       [('/cache', CachePage),
-       ('/(.*)',
-        memcache_zipserve.create_handler([['0.zip', 'index.html'],
-                                          ['1.zip',
-                                           'content_dir/sub_dir1.html'],
-                                          ['Sulbalcon.zip',
-                                           'Sulbalcon/index.html'],
-                                          ])),
+#       ('/(.*)',
+#        memcache_zipserve.create_handler([['0.zip', 'index.html'],
+#                                          ['1.zip',
+#                                           'content_dir/sub_dir1.html'],
+#                                          ['Sulbalcon.zip',
+#                                           'Sulbalcon/index.html'],
+#                                          ])),
+       ('/(.*)',memcache_zipserve.create_handler(
+            [['Sulbalcon.zip','Sulbalcon/index.html']],1
+        )),
        ],
       debug=False)
   wsgiref.handlers.CGIHandler().run(application)
