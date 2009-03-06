@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xalan="http://xml.apache.org/xslt" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxws="http://www.netbeans.org/ns/jax-ws/1">
+    <!--
+                ===================
+                JAX-WS WSIMPORT SECTION
+                ===================
+            -->
+    <target name="wsimport-init" depends="init">
+        <mkdir dir="${build.generated.dir}/wsimport/client"/>
+        <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+            <classpath path="${libs.jaxws21.classpath}"/>
+        </taskdef>
+    </target>
+    <target name="wsimport-client-BTVLicenseManager" depends="wsimport-init">
+        <property name="wsdl-BTVLicenseManager" location="xml-resources/web-service-references/BTVLicenseManager/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVLicenseManager.asmx.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/wsimport/client" destdir="${build.generated.dir}/wsimport/client" wsdl="${wsdl-BTVLicenseManager}" catalog="catalog.xml" extension="true" verbose="true" wsdlLocation="http://lascala.dl.sologlobe.com:8129/wsdl/BTVLicenseManager.asmx?WSDL" xnocompile="true">
+            <produces dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice" includes="BTVLicenseManager.java" casesensitive="no"/>
+        </wsimport>
+    </target>
+    <target name="wsimport-client-clean-BTVLicenseManager" depends="-init-project">
+        <delete dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice"/>
+    </target>
+    <target name="wsimport-client-BTVScheduler" depends="wsimport-init">
+        <property name="wsdl-BTVScheduler" location="xml-resources/web-service-references/BTVScheduler/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVScheduler.asmx.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/wsimport/client" destdir="${build.generated.dir}/wsimport/client" wsdl="${wsdl-BTVScheduler}" catalog="catalog.xml" extension="true" verbose="true" wsdlLocation="http://lascala.dl.sologlobe.com:8129/wsdl/BTVScheduler.asmx?WSDL" xnocompile="true">
+            <produces dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice" includes="BTVScheduler.java" casesensitive="no"/>
+        </wsimport>
+    </target>
+    <target name="wsimport-client-clean-BTVScheduler" depends="-init-project">
+        <delete dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice"/>
+    </target>
+    <target name="wsimport-client-BTVDispatcher" depends="wsimport-init">
+        <property name="wsdl-BTVDispatcher" location="xml-resources/web-service-references/BTVDispatcher/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVDispatcher.asmx.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/wsimport/client" destdir="${build.generated.dir}/wsimport/client" wsdl="${wsdl-BTVDispatcher}" catalog="catalog.xml" extension="true" verbose="true" wsdlLocation="http://lascala.dl.sologlobe.com:8129/wsdl/BTVDispatcher.asmx?WSDL" xnocompile="true">
+            <produces dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice" includes="BTVDispatcher.java" casesensitive="no"/>
+        </wsimport>
+    </target>
+    <target name="wsimport-client-clean-BTVDispatcher" depends="-init-project">
+        <delete dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice"/>
+    </target>
+    <target name="wsimport-client-BTVLibrary" depends="wsimport-init">
+        <property name="wsdl-BTVLibrary" location="xml-resources/web-service-references/BTVLibrary/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVLibrary.asmx.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/wsimport/client" destdir="${build.generated.dir}/wsimport/client" wsdl="${wsdl-BTVLibrary}" catalog="catalog.xml" extension="true" verbose="true" wsdlLocation="http://lascala.dl.sologlobe.com:8129/wsdl/BTVLibrary.asmx?WSDL" xnocompile="true">
+            <produces dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice" includes="BTVLibrary.java" casesensitive="no"/>
+        </wsimport>
+    </target>
+    <target name="wsimport-client-clean-BTVLibrary" depends="-init-project">
+        <delete dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice"/>
+    </target>
+    <target name="wsimport-client-BTVGuideUpdater" depends="wsimport-init">
+        <property name="wsdl-BTVGuideUpdater" location="xml-resources/web-service-references/BTVGuideUpdater/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVGuideUpdater.asmx.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/wsimport/client" destdir="${build.generated.dir}/wsimport/client" wsdl="${wsdl-BTVGuideUpdater}" catalog="catalog.xml" extension="true" verbose="true" wsdlLocation="http://lascala.dl.sologlobe.com:8129/wsdl/BTVGuideUpdater.asmx?WSDL" xnocompile="true">
+            <produces dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice" includes="BTVGuideUpdater.java" casesensitive="no"/>
+        </wsimport>
+    </target>
+    <target name="wsimport-client-clean-BTVGuideUpdater" depends="-init-project">
+        <delete dir="${build.generated.dir}/wsimport/client/com/snapstream/webservice"/>
+    </target>
+    <target name="wsimport-client-generate" depends="wsimport-client-BTVLicenseManager, wsimport-client-BTVScheduler, wsimport-client-BTVDispatcher, wsimport-client-BTVLibrary, wsimport-client-BTVGuideUpdater"/>
+    <target name="wsimport-client-compile-depend" if="do.depend.true">
+        <j2seproject3:depend srcdir="${build.generated.dir}/wsimport/client" classpath="${libs.jaxws21.classpath}:${javac.classpath}" destdir="${build.classes.dir}"/>
+    </target>
+    <target name="wsimport-client-compile" depends="-pre-pre-compile, wsimport-client-compile-depend">
+        <j2seproject3:javac srcdir="${build.generated.dir}/wsimport/client" classpath="${libs.jaxws21.classpath}:${javac.classpath}" destdir="${build.classes.dir}"/>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${build.generated.dir}/wsimport/client" includes="**/*.xml"/>
+        </copy>
+    </target>
+</project>
