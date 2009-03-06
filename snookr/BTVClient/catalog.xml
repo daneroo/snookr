@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://lascala.dl.sologlobe.com:8129/wsdl/BTVLicenseManager.asmx?WSDL" uri="xml-resources/web-service-references/BTVLicenseManager/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVLicenseManager.asmx.wsdl"/>
+    <system systemId="http://lascala.dl.sologlobe.com:8129/wsdl/BTVScheduler.asmx?WSDL" uri="xml-resources/web-service-references/BTVScheduler/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVScheduler.asmx.wsdl"/>
+    <system systemId="http://lascala.dl.sologlobe.com:8129/wsdl/BTVDispatcher.asmx?WSDL" uri="xml-resources/web-service-references/BTVDispatcher/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVDispatcher.asmx.wsdl"/>
+    <system systemId="http://lascala.dl.sologlobe.com:8129/wsdl/BTVLibrary.asmx?WSDL" uri="xml-resources/web-service-references/BTVLibrary/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVLibrary.asmx.wsdl"/>
+    <system systemId="http://lascala.dl.sologlobe.com:8129/wsdl/BTVGuideUpdater.asmx?WSDL" uri="xml-resources/web-service-references/BTVGuideUpdater/wsdl/lascala.dl.sologlobe.com_8129/wsdl/BTVGuideUpdater.asmx.wsdl"/>
+</catalog>
