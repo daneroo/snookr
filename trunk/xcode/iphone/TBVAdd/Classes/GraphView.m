@@ -535,7 +535,7 @@ double myLogRandom(double min,double max){
     }    
         
     NSTimeInterval duration = -[drawStart timeIntervalSinceNow];
-    NSLog(@"Drawing time: %f",duration);
+    NSLog(@"Drawing time: %f s",duration);
     
 }
 
