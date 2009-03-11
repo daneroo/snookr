@@ -233,4 +233,6 @@ testLibraryClient()
 #testGuideUpdaterClient()
 #testGuideDataClient()
 
-
+def testSettings()
+    settingsClient = Client(urlForService('BTVSettings'))
+    print settingsClient.service.GetBaseLineups(authTicket)
