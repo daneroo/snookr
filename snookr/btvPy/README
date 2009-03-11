@@ -6,3 +6,87 @@ open the egg: till ifigure out how to put it in the path!
 
 run the test:
   python btvsuds.py
+
+  **Recording Show Follows
+Recorded Show Attributes: (sorted by key)
+     Actors: Kiefer Sutherland, Mary Lynn Rajskub, James Morrison, Janeane Garofalo, Cherry Jones, Carlos Bernard, Annie Wersching, Colm Feore, Bob Gunton, Rhys Coiro, Jeffrey Nordling, Kurtwood Smith, Tony Todd, Eyal Podell, Glenn Morshower, Cameron Daddo, Sprague Grayden, Ryan Cutrona, Frank John Hughes, Jennifer Carta
+     ActualStart: 128811202809341688
+     Added: 128811282286688756
+     AddedBias: 240
+     Channel: 12
+     Description:
+     DisplayText: 24 - Day 7: 8:00PM - 9:00PM
+     DisplayTitle: 24
+     Duration: 38377377143
+     EPGID: EP4466040175
+     Editable: TRUE
+     EpisodeDescription: President Taylor is faced with a compounding foreign-policy dilemma; Jack takes charge as a threat develops stateside.
+     EpisodeTitle: Day 7: 8:00PM - 9:00PM
+     FileFormat: DivXAVI
+     Folder: shows
+     FullName: C:\Documents and Settings\All Users\Documents\SnapStream\Beyond TV\shows\24-(Day 7_ 8_00PM - 9_00PM)-2009-03-09-0.avi
+     Genre: Crime drama
+     LastExistsTime: 128811283029051510
+     LastPosition: 34195561356
+     LastWriteTime: 128811282279180000
+     Length: 688697099
+     Managed: False
+     MovieYear:
+     Name: 24-(Day 7_ 8_00PM - 9_00PM)-2009-03-09-0.avi
+     OriginalAirDate: 20090309
+     OriginalFileSize: 2173798400
+     ParentGUID: 8dd192c2-4aaa-4dbc-bb25-da2182f9bdf9
+     Rating:
+     ReadOnly: False
+     Recommendation: False
+     ShowSqueeze: True
+     SortableName: 24
+     SortableTime: 128811058809341688
+     StationCallsign: CIIIOT
+     TZBias: 240
+     TargetStart: 128811204000000000
+     Title: 24
+     UniqueChannelID: 000000000000012000000016160
+     UserID:
+     Watched: True
+
+Recording Show Attributes: (sorted by key)
+     Actors:
+     ActualStart: 128812678821133750
+     Added: 128812678822227500
+     AddedBias: 240
+     Channel: 51
+     DVDReady: True
+     Description: 
+     DisplayText: Just for Laughs
+     DisplayTitle: Just for Laughs
+     EPGID: SH1957490000
+     Editable: FALSE
+     EpisodeDescription: Comedians perform on stage.
+     EpisodeTitle:
+     FileFormat: MPEG-2
+     Folder: shows
+     FullName: C:\Documents and Settings\All Users\Documents\SnapStream\Beyond TV\shows\Just for Laughs-2009-03-11-1.mpg
+     Genre: Comedy
+     InProgress: True
+     LastExistsTime: 128812678822227500
+     LastPosition:
+     LastWriteTime: 128812678810821250
+     Length: 0
+     Managed: True
+     MovieYear:
+     Name: Just for Laughs-2009-03-11-1.mpg
+     OriginalAirDate: 19960930
+     ParentGUID: 57ead5f1-96c2-4b36-9887-8405370b6114
+     Rating:
+     ReadOnly: False
+     Recommendation: False
+     SortableName: Just for Laughs
+     SortableTime: 128812534821130000
+     StationCallsign: COMEDC
+     TSIndexFilename: C:\Documents and Settings\All Users\Documents\SnapStream\Beyond TV\shows\ts0.index.dat
+     TargetDuration: 36000000000
+     TargetStart: 128812680000000000
+     Title: Just for Laughs
+     UniqueChannelID: 000000000000051000000017595
+     Watched:
