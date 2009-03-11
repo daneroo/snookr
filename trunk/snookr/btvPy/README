@@ -1,0 +1,8 @@
+Using suds library:
+https://fedorahosted.org/suds/wiki/Documentation
+
+open the egg: till ifigure out how to put it in the path!
+  unzip suds-0.3.4-py2.5.egg
+
+run the test:
+  python btvsuds.py
