@@ -10,18 +10,34 @@ from suds.client import Client
 #   "http://lascala.dl.sologlobe.com:8129/wsdl/BTVLibrary.asmx?WSDL");
 #   "http://lascala.dl.sologlobe.com:8129/wsdl/BTVLicenseManager.asmx?WSDL");
 #   "http://lascala.dl.sologlobe.com:8129/wsdl/BTVScheduler.asmx?WSDL");
+#
+#    daniel@LASCALA /cygdrive/c/Program Files/SnapStream Media/Beyond TV/wwwroot/wsdl
+#    $ ls
+#    BTVBatchProcessor.asmx	BTVLibrary.asmx		BTVScheduler.asmx
+#    BTVDispatcher.asmx	BTVLicenseManager.asmx	BTVSettings.asmx
+#    BTVExpiration.asmx	BTVLiveTVManager.asmx	BTVWebServiceManager.asmx
+#    BTVGuideData.asmx	BTVLog.asmx		InternalBTVScheduler.asmx
+#    BTVGuideUpdater.asmx	BTVNotifier.asmx
 
 def urlForService(svcName):
     return "http://lascala.dl.sologlobe.com:8129/wsdl/%s.asmx?WSDL" % svcName
 
-# Show services:
-btvServiceNames = ['BTVLicenseManager','BTVLibrary','BTVGuideUpdater']
-for svcName in btvServiceNames:
-    print " %s -> : %s" % (svcName,urlForService(svcName))
+def printAllAPI():
+    apiNames = ['BTVBatchProcessor','BTVLibrary','BTVScheduler','BTVDispatcher',
+        'BTVLicenseManager','BTVSettings','BTVExpiration',
+        'BTVLiveTVManager','BTVWebServiceManager','BTVGuideData','BTVLog',
+        'InternalBTVScheduler','BTVGuideUpdater','BTVNotifier']
+    for apiName in apiNames:
+        print "";
+        print "-=-=-=-=-=   API for %s" % apiName;
+        print Client(urlForService(apiName))
+        print "";
 
 # Clients
 licenseManagerClient = Client(urlForService('BTVLicenseManager'))
-libraryClient = Client(urlForService('BTVLibrary'))
+libraryClient        = Client(urlForService('BTVLibrary'))
+guideUpdaterClient   = Client(urlForService('BTVGuideUpdater'))
+guideDataClient   = Client(urlForService('BTVGuideData'))
 
 def getBTVVersion():
     return licenseManagerClient.service.GetVersionNumber()
@@ -129,62 +145,92 @@ def formatShow(show,format='short'):
         for k in srt:
             print " %s: %s"% (k, show[k])
 
+
+def testLibraryClient():
+    print "-=-=- B- Get Library Client API =-=-=-"
+    print "B-1 -=-=- FlatViewByDate =-=-=-"
+    fvbd = libraryClient.service.FlatViewByDate(authTicket)
+    # just get two:
+    #fvbd = libraryClient.service.FlatViewByDate2(authTicket,6,1)
+
+    debugFlatView=False
+    if (debugFlatView):
+        print "-=-=- Get Result =-=-=-"
+        #meta('fvbd',fvbd)
+        #meta('fvbd[0]',fvbd[0])
+        #meta('fvbd[0][0]',fvbd[0][0])
+        #print fvbd
+
+        className('fvbd',fvbd)
+        # -=-= fvbd.PVSPropertyBag == fvbd[0]
+        className('fvbd.PVSPropertyBag',fvbd.PVSPropertyBag)
+        className('fvbd[0]',fvbd[0])
+        # length of list == number of shows
+        print('len(fvbd.PVSPropertyBag) = %d' % len(fvbd.PVSPropertyBag))
+        # first element:
+        className('fvbd.PVSPropertyBag[0]',fvbd.PVSPropertyBag[0])
+        # Equivalent
+        className('fvbd.PVSPropertyBag[0].Properties',fvbd.PVSPropertyBag[0].Properties)
+        className('fvbd.PVSPropertyBag[0][0]',fvbd.PVSPropertyBag[0][0])
+        # Equivalent
+        className('fvbd.PVSPropertyBag[0].Properties.PVSProperty',fvbd.PVSPropertyBag[0].Properties.PVSProperty)
+        className('fvbd.PVSPropertyBag[0].Properties[0]',fvbd.PVSPropertyBag[0].Properties[0])
+        # length of list = number of attributes
+        print('len(fvbd.PVSPropertyBag[0].Properties.PVSProperty) = %d' % len(fvbd.PVSPropertyBag[0].Properties.PVSProperty))
+        # first Property:
+        className('fvbd.PVSPropertyBag[0].Properties.PVSProperty[0]',fvbd.PVSPropertyBag[0].Properties.PVSProperty[0])
+        # Name, Attr
+        print('fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Name: %s' % fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Name)
+        print('fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Value %s' % fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Value)
+         # so what we want is a simple list of shows:
+         # each show will have Named Attributes: show['attribute'] ::= value
+        print "Convert one show:"
+        firstShow = propListToDict(fvbd.PVSPropertyBag[0].Properties.PVSProperty)
+        print ""
+        print "Show as dict: %s" % firstShow
+
+    allShows = getShows(fvbd)
+
+    #formatShow(allShows[8],'all')
+
+    print "Found %d shows" % len(allShows)
+    for show in allShows:
+        formatShow(show,'short')
+
+    #formatShow(allShows[8],'long')
+    #formatShow(allShows[0],'all')
+########### End of testLibraryClient
+
+def testGuideUpdaterClient():
+    print "-=-=- C- Guide Updater Client API =-=-=-"
+    #print guideUpdaterClient
+    print "C-1 -=-=- Updater status =-=-=-"
+    lau = guideUpdaterClient.service.GetLastAttemptedUpdate(authTicket)
+    lsu = guideUpdaterClient.service.GetLastSuccessfulUpdate(authTicket)
+    nau = guideUpdaterClient.service.GetNextAttemptedUpdate(authTicket)
+    print "Last Attempted  Update: %s" % formatBTVDate(lau)
+    print "Last Successful Update: %s" % formatBTVDate(lsu)
+    print "Next Attempted  Update: %s" % formatBTVDate(nau)
+########### End of testGuideUpdaterClient
+
+def testGuideDataClient():
+    print "-=-=- C- Guide Data Client API =-=-=-"
+    print guideDataClient
+    print "C-1 -=-=- Guide Data =-=-=-"
+    lastUpdate =  guideDataClient.service.GetLastUpdateTime(authTicket)
+    print "Last Guide Update: %s" % formatBTVDate(lastUpdate)
+    # need chanel id, or seried ids.
+    # GetEpisodesByRange2(xs:string authTicket, xs:string uniqueChannelIDStart, xs:string uniqueChannelIDEnd, xs:unsignedLong timeStart, xs:unsignedLong timeEnd, )
+########### End of testGuideUpdaterClient
+
 # Execution Start
 btvVersion = getBTVVersion()
 authTicket = getLogonAuthTicket()
 print "BTV Version:%s  authTicket: %s" % (btvVersion,authTicket)
 
-print "-=-=- B- Get Library Client API =-=-=-"
-#print libraryClient
+#printAllAPI()
+testLibraryClient()
+#testGuideUpdaterClient()
+#testGuideDataClient()
 
-print "B-1 -=-=- FlatViewByDate =-=-=-"
-fvbd = libraryClient.service.FlatViewByDate(authTicket)
-# just get two:
-#fvbd = libraryClient.service.FlatViewByDate2(authTicket,6,1)
 
-debugFlatView=False
-if (debugFlatView):
-    print "-=-=- Get Result =-=-=-"
-    #meta('fvbd',fvbd)
-    #meta('fvbd[0]',fvbd[0])
-    #meta('fvbd[0][0]',fvbd[0][0])
-    #print fvbd
-
-    className('fvbd',fvbd)
-    # -=-= fvbd.PVSPropertyBag == fvbd[0]
-    className('fvbd.PVSPropertyBag',fvbd.PVSPropertyBag)
-    className('fvbd[0]',fvbd[0])
-    # length of list == number of shows
-    print('len(fvbd.PVSPropertyBag) = %d' % len(fvbd.PVSPropertyBag))
-    # first element:
-    className('fvbd.PVSPropertyBag[0]',fvbd.PVSPropertyBag[0])
-    # Equivalent
-    className('fvbd.PVSPropertyBag[0].Properties',fvbd.PVSPropertyBag[0].Properties)
-    className('fvbd.PVSPropertyBag[0][0]',fvbd.PVSPropertyBag[0][0])
-    # Equivalent
-    className('fvbd.PVSPropertyBag[0].Properties.PVSProperty',fvbd.PVSPropertyBag[0].Properties.PVSProperty)
-    className('fvbd.PVSPropertyBag[0].Properties[0]',fvbd.PVSPropertyBag[0].Properties[0])
-    # length of list = number of attributes
-    print('len(fvbd.PVSPropertyBag[0].Properties.PVSProperty) = %d' % len(fvbd.PVSPropertyBag[0].Properties.PVSProperty))
-    # first Property:
-    className('fvbd.PVSPropertyBag[0].Properties.PVSProperty[0]',fvbd.PVSPropertyBag[0].Properties.PVSProperty[0])
-    # Name, Attr
-    print('fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Name: %s' % fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Name)
-    print('fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Value %s' % fvbd.PVSPropertyBag[0].Properties.PVSProperty[0].Value)
-     # so what we want is a simple list of shows:
-     # each show will have Named Attributes: show['attribute'] ::= value
-    print "Convert one show:"
-    firstShow = propListToDict(fvbd.PVSPropertyBag[0].Properties.PVSProperty)
-    print ""
-    print "Show as dict: %s" % firstShow
-
-allShows = getShows(fvbd)
-
-#formatShow(allShows[8],'all')
-
-print "Found %d shows" % len(allShows)
-for show in allShows:
-    formatShow(show,'short')
-
-#formatShow(allShows[8],'long')
-#formatShow(allShows[0],'all')
