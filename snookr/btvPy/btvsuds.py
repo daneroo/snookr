@@ -2,6 +2,7 @@ import sys
 import time
 import math
 from suds.client import Client
+from xml.dom import minidom
 
 # /Users/daniel/Documents/NetBeansProjects/snookr/BTVClient
 # grep -r lascala ./build/generated/wsimport/client/com/snapstream/webservice/*.java|grep base:
@@ -215,13 +216,52 @@ def testGuideUpdaterClient():
 
 def testGuideDataClient():
     print "-=-=- C- Guide Data Client API =-=-=-"
-    print guideDataClient
+    #print guideDataClient
     print "C-1 -=-=- Guide Data =-=-=-"
     lastUpdate =  guideDataClient.service.GetLastUpdateTime(authTicket)
     print "Last Guide Update: %s" % formatBTVDate(lastUpdate)
     # need chanel id, or seried ids.
     # GetEpisodesByRange2(xs:string authTicket, xs:string uniqueChannelIDStart, xs:string uniqueChannelIDEnd, xs:unsignedLong timeStart, xs:unsignedLong timeEnd, )
+    firstChannel='000000000000002000000010097'
+    lastChannel ='000000000000071000000010104'
+
+    epochBTVMS = -11644473600.000
+    nowSecs = time.time()
+    timeStart = long(nowSecs - epochBTVMS) * 10000000
+    timeEnd = timeStart #long((nowSecs+ZZZ) - epochBTVMS) * 10000000
+    # this return a string[][]...
+    print guideDataClient.service.GetEpisodesByRange2(authTicket,firstChannel,lastChannel,timeStart,timeEnd)
 ########### End of testGuideUpdaterClient
+
+def testSettings():
+    settingsClient = Client(urlForService('BTVSettings'))
+    # this returns xml in whih we find  chanels: BaseUniqueChannelID
+    lineupXML = settingsClient.service.GetBaseLineups(authTicket)
+    # 2 probs unescaped &, and bad unicode char
+    #print lineupXML[300:380] # bad unicode char
+    #print lineupXML[28310:28320] # bad &: arts & enternn
+    #return
+    lineupXML = lineupXML.replace('&','&amp;')
+    lineupDOM = minidom.parseString(lineupXML.encode( "utf-8" ))
+    #kWattStr = xmldoc.getElementsByTagName('KWNow')[0].childNodes[0].nodeValue
+    channels = lineupDOM.getElementsByTagName('Channel')
+    for c in channels:
+        cname=''
+        cid=''
+        props =  c.getElementsByTagName('Property')
+        #print "has %d props" % len(props)
+        for p in props:
+            pname = p.getElementsByTagName('Name')[0].firstChild.nodeValue
+            pvalue = p.getElementsByTagName('Value')[0].firstChild.nodeValue
+            #print "Name= %s" % pname
+            #print "Value= %s" % pvalue
+            if (pname=='StationName'):
+                cname = pvalue
+            if (pname=='UniqueChannelID'):
+                cid = pvalue
+        print "Channel: %s : UID %s" % (cname,cid)
+########### End of testSettings
+
 
 # Execution Start
 btvVersion = getBTVVersion()
@@ -229,10 +269,7 @@ authTicket = getLogonAuthTicket()
 print "BTV Version:%s  authTicket: %s" % (btvVersion,authTicket)
 
 #printAllAPI()
-testLibraryClient()
+#testLibraryClient()
 #testGuideUpdaterClient()
+testSettings()
 #testGuideDataClient()
-
-def testSettings()
-    settingsClient = Client(urlForService('BTVSettings'))
-    print settingsClient.service.GetBaseLineups(authTicket)
