@@ -59,6 +59,7 @@
                 }
                 $(window).bind('resize',showWinSize);
                 showWinSize();
+                gadgets.window.adjustHeight();
             });
         </script>
         <style type="text/css">
