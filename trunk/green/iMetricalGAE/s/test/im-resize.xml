@@ -6,7 +6,7 @@
      description="iMetrical Resize Test"
      author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
     <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
-    <Content type="html">
+    <Content type="html" view="canvas,home,profile">
 <![CDATA[ 
         <!-- other bases: http://imetrical.appspot.com/s
                           http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/s
