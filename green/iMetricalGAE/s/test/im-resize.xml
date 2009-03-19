@@ -73,6 +73,7 @@
                     } else {
                         $("#maxButton").html("+");
                     }
+                    adjHeight();
 
                     var info=""+rsz.width()+"X"+rsz.height();
                     par.find(".info").html(info);
