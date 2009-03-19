@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+<!-- removed height="140" width="240" -->
+    <ModulePrefs title="iM-size-test"
+     scrolling="false"
+     description="iMetrical Resize Test"
+     author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
+    <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
+    <Content type="html">
+<![CDATA[ 
+        <!-- other bases: http://imetrical.appspot.com/s
+                          http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/s
+        -->
+        <link type="text/css" href="http://imetrical.appspot.com/s/css/imetrical.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-ui-personalized-1.6rc6.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
+        <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
+            $(function(){
+                //alert("coco");
+                btnarr='';
+                btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
+                btnarr+='<span class="sbtn horz shrink" href="#">H-</span>';
+                btnarr+='<span class="sbtn vert grow" href="#">V+</span>';
+                btnarr+='<span class="sbtn vert shrink" href="#">V-</span>';
+                btnarr+='<span class="info">Info</span>';
+                btnarr+='<div class="rsz">.</div>';
+                $(".sizeControl").html(btnarr);
+                $(".sbtn").click(function () {
+                    var par = $(this).parent();
+                    var rsz = par.find(".rsz");
+                    var incr=0;
+                    if ($(this).hasClass("grow")) {
+                        incr=30
+                    }
+                    if ($(this).hasClass("shrink")) {
+                        incr=-30
+                    }
+                    if ($(this).hasClass("vert")) {
+                        var h = rsz.height();
+                        rsz.height(h+incr);
+                    }
+                    if ($(this).hasClass("horz")) {
+                        var w = rsz.width();
+                        rsz.width(w+incr);
+                    }
+
+                    var info=""+rsz.width()+"X"+rsz.height();
+                    par.find(".info").html(info);
+                });
+
+            });
+        </script>
+        <style type="text/css">
+            /* Here be dragons: customize the css */
+            .sbtn { width:30px; text-align:center; background:green; padding:5px}
+            .rsz {width:60px; height:60px; background:blue}
+        </style>
+
+        <div style="margin:0px; background:#ccffcc;">
+            BOX full width
+        </div>
+        <div class="sizeControl" style="margin:0px; background:#ccffcc;">
+        </div>
+]]> 
+    </Content>
+</Module>
