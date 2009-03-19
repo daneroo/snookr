@@ -6,9 +6,10 @@
      description="iMetrical Resize Test"
      author="Daneroo" author_email="daniel.nojunk@gmail.com">
          <Require feature="dynamic-height"/>
+         <Require feature="views">
     </ModulePrefs>
     <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
-    <Content type="html" view="canvas,home,profile">
+    <Content type="html" view="canvas,home">
 <![CDATA[ 
         <!-- other bases: http://imetrical.appspot.com/s
                           http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/s
@@ -19,6 +20,11 @@
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
         <script type="text/javascript">
+            function navigateTo(dest) {
+                var supported_views = gadgets.views.getSupportedViews();
+                gadgets.views.requestNavigateTo(supported_views[dest]);
+            };
+
             $(function(){
                 btnarr='';
                 btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
@@ -29,7 +35,10 @@
                 btnarr+='<div class="rsz">.</div>';
                 $(".sizeControl").html(btnarr);
                 $("#maxButton").click(function () {
-                    alert("maximize");
+                    navigateTo("canvas");
+                });
+                $("#minButton").click(function () {
+                    navigateTo("home");
                 });
                 $(".sbtn").click(function () {
                     var par = $(this).parent();
