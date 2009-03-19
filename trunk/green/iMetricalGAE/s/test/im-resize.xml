@@ -49,6 +49,7 @@
 
                     var info=""+rsz.width()+"X"+rsz.height();
                     par.find(".info").html(info);
+                    gadgets.window.adjustHeight();
                 });
 
                 function showWinSize(){
