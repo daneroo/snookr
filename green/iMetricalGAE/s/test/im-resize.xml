@@ -6,7 +6,7 @@
      description="iMetrical Resize Test"
      author="Daneroo" author_email="daniel.nojunk@gmail.com">
          <Require feature="dynamic-height"/>
-         <Require feature="views">
+         <Require feature="views"/>
     </ModulePrefs>
     <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
     <Content type="html" view="canvas,home">
