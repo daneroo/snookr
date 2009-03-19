@@ -20,6 +20,9 @@
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
         <script type="text/javascript">
+            function adjHeight() {
+                try { _IG_AdjustIFrameHeight(); } catch(err) {}
+            }
             function navigateTo(dest) {
                 var supported_views = gadgets.views.getSupportedViews();
                 gadgets.views.requestNavigateTo(supported_views[dest]);
@@ -78,7 +81,7 @@
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
                     $("#topfull").html("Full Box win: "+info);
-                    gadgets.window.adjustHeight();
+                    adjHeight();
                 }
                 $(window).bind('resize',showWinSize);
                 showWinSize();
