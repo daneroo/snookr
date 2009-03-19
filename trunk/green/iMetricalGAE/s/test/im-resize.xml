@@ -20,6 +20,14 @@
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
         <script type="text/javascript">
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 5;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                return refreshInterval*1000; // every n seconds
+            };
+
             function adjHeight() {
                 try { _IG_AdjustIFrameHeight(); } catch(err) {}
             }
@@ -77,6 +85,20 @@
 
                     var info=""+rsz.width()+"X"+rsz.height();
                     par.find(".info").html(info);
+
+                    iM18nLang='en';
+                    add6Badges('#badges');
+                    //  animation
+                    startAnimNow(4000, function (timer) {
+                        storyboardNextAndRollTheme();
+                        //storyboardNext();
+                    });
+                    // fetching timer
+                    startAnimNow(getRefreshIntervalMS(), function (timer) {
+                        flashInjector();
+                        fetchAndMapFeeds(null,null); // url,myInjector
+                    });
+
                 });
 
                 function showWinSize(){
@@ -101,6 +123,16 @@
         </div>
         <div class="sizeControl" style="margin:0px; background:#ccffcc;">
         </div>
+   <div>
+        <div id="scaleTheFont" style="font-size:100%">
+            <div id="badges" class="toggler im-lf-black-gloss" style="background: none; border:0;">
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <div id="status" style="font-size:smaller; color:gray;"></div>
+        <div id="error" style="font-size:smaller; color:red;"></div>
+   </div>
+
 ]]> 
     </Content>
 
