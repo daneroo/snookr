@@ -29,7 +29,7 @@
                 btnarr+='<div class="rsz">.</div>';
                 $(".sizeControl").html(btnarr);
                 $("#maxButton").click(function () {
-                    alert("maximize")
+                    alert("maximize");
                 }
                 $(".sbtn").click(function () {
                     var par = $(this).parent();
