@@ -4,7 +4,9 @@
     <ModulePrefs title="iM-size-test"
      scrolling="false"
      description="iMetrical Resize Test"
-     author="Daneroo" author_email="daniel.nojunk@gmail.com"/>
+     author="Daneroo" author_email="daniel.nojunk@gmail.com">
+         <Require feature="dynamic-height"/>
+    </ModulePrefs>
     <UserPref name="refreshInterval" display_name="Refresh Interval" default_value="10"/>
     <Content type="html" view="canvas,home,profile">
 <![CDATA[ 
@@ -52,6 +54,7 @@
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
                     $("#topfull").html("Full Box win: "+info);
+                    gadgets.window.adjustHeight();
                 }
                 $(window).bind('resize',showWinSize);
                 showWinSize();
