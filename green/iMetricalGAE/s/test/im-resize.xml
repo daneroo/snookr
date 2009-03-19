@@ -15,11 +15,23 @@
                           http://snookr.googlecode.com/svn/trunk/green/iMetricalGAE/s
         -->
         <link type="text/css" href="http://imetrical.appspot.com/s/css/imetrical.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-1.3.1.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-ui-personalized-1.6rc6.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
         <script type="text/javascript">
+
+            // new google viz stuff
+            google.load("visualization", "1", {packages:["columnchart","areachart"]});
+            vizLoaded = false;
+            google.setOnLoadCallback(function(){vizLoaded=true});
+
+            function drawAChart(whichOne) {
+                feed = feedsRef[whichOne%feedsRef.length];
+                drawChart(feed);
+            }
+
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
             var getRefreshIntervalMS = function() {
@@ -45,19 +57,67 @@
                     navigateTo("canvas");
                 }
             }
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=1;
+            function myInjector(feeds) {
+                flashInjector();
+                feedsRef = feeds;
+                standardInjector(feeds);
+                if (vizLoaded) {
+                    drawAChart(currentFeed);
+                    if (animCanRun) {
+                        currentFeed= (currentFeed+1)%5;
+                    }
+                }
+            }
+
             $(function(){
-                    iM18nLang='en';
+                    iM18nLang='en'; // 'fr'
                     add6Badges('#badges');
-                    //  animation
-                    startAnimNow(4000, function (timer) {
+
+                    // make all badges expand-right on click
+                    $('#badges .im-badge').click(function() {
+                        var feedClass; // first class attribute which matcher im-feed-...
+                        $.each($(this).attr("class").split(' '),function(){if (this.match(/^im-feed/)) feedClass=this;});
+                        var feedName=feedClass.substring(8);
+
+                        //are we closing or opening
+                        var willshow= ( $(this).find('.im-badge-right:visible').length==0)
+                        if (willshow) {
+                            animCanRun=false;
+                            // close siblings ?
+                            $(this).parent().find('.im-badge-right').hide();
+                            $(this).find('.im-badge-right').show('slide');
+                            // stop animation
+                        } else {
+                            animCanRun=true;
+                            // don't close'
+                            //$(this).find('.im-badge-right').hide('slide');
+                            // start animation
+                        }
+                        var lkup = {"Live":0,"Hour":1,"Day":2,"Week":3,"Month":4,"Year":5};
+                        selectedFeed=lkup[feedName];
+                        currentFeed=selectedFeed;
+                        drawAChart(selectedFeed);
+                    } );
+
+                    $(".im-feed-Day").find('.im-badge-right').show();
+
+                    //  timers
+                    animCanRun=true;
+                    startAnimNow(5000, function (timer) {
                         storyboardNextAndRollTheme();
                         //storyboardNext();
                     });
+
                     // fetching timer
                     startAnimNow(getRefreshIntervalMS(), function (timer) {
                         flashInjector();
-                        fetchAndMapFeeds(null,null); // url,myInjector
+                        fetchAndMapFeeds(null,myInjector);
                     });
+
+
 
                 $("#maxButton").click(toggleProfileView);
 
