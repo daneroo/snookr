@@ -16,8 +16,8 @@
         <script type="text/javascript" src="http://imetrical.appspot.com/s/jq/jquery-ui-personalized-1.6rc6.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/jquery.timer.js"></script>
         <script type="text/javascript" src="http://imetrical.appspot.com/s/js/imetrical-1.0.js"></script>
+        <script type="text/javascript">
             $(function(){
-                //alert("coco");
                 btnarr='';
                 btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
                 btnarr+='<span class="sbtn horz shrink" href="#">H-</span>';
