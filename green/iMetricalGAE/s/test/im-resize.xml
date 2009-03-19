@@ -27,6 +27,13 @@
             function getViewName() {
                 return gadgets.views.getCurrentView().getName();
             }
+            function toggleProfileView() {
+                if (getViewName() == "canvas") {
+                    navigateTo("home");
+                } else {
+                    navigateTo("canvas");
+                }
+            }
             $(function(){
                 btnarr='';
                 btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
@@ -37,13 +44,8 @@
                 btnarr+='<div class="rsz">.</div>';
                 $(".sizeControl").html(btnarr);
 
-                $("#maxButton").click(function () {
-                    if (getViewName() == "canvas") {
-                        navigateTo("home");
-                    } else {
-                        navigateTo("canvas");
-                    }
-                });
+                $("#maxButton").click(toggleProfileView);
+
                 $(".sbtn").click(function () {
                     var par = $(this).parent();
                     var rsz = par.find(".rsz");
@@ -89,7 +91,7 @@
             body { padding:0; margin:0; }
         </style>
 
-        <div id="maxButton" style="float: right; background:#666666;">*</div>
+        <div id="maxButton" style="float: right; background:#cccccc; width:2em; height:2em;">*</div>
         <div id="topfull" style="margin:0px; background:#ccffcc;">
             BOX full width
         </div>
