@@ -46,6 +46,19 @@
                 }
             }
             $(function(){
+                    iM18nLang='en';
+                    add6Badges('#badges');
+                    //  animation
+                    startAnimNow(4000, function (timer) {
+                        storyboardNextAndRollTheme();
+                        //storyboardNext();
+                    });
+                    // fetching timer
+                    startAnimNow(getRefreshIntervalMS(), function (timer) {
+                        flashInjector();
+                        fetchAndMapFeeds(null,null); // url,myInjector
+                    });
+
                 btnarr='';
                 btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
                 btnarr+='<span class="sbtn horz shrink" href="#">H-</span>';
@@ -85,19 +98,6 @@
 
                     var info=""+rsz.width()+"X"+rsz.height();
                     par.find(".info").html(info);
-
-                    iM18nLang='en';
-                    add6Badges('#badges');
-                    //  animation
-                    startAnimNow(4000, function (timer) {
-                        storyboardNextAndRollTheme();
-                        //storyboardNext();
-                    });
-                    // fetching timer
-                    startAnimNow(getRefreshIntervalMS(), function (timer) {
-                        flashInjector();
-                        fetchAndMapFeeds(null,null); // url,myInjector
-                    });
 
                 });
 
