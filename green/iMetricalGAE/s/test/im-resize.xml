@@ -59,51 +59,11 @@
                         fetchAndMapFeeds(null,null); // url,myInjector
                     });
 
-                btnarr='';
-                btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
-                btnarr+='<span class="sbtn horz shrink" href="#">H-</span>';
-                btnarr+='<span class="sbtn vert grow" href="#">V+</span>';
-                btnarr+='<span class="sbtn vert shrink" href="#">V-</span>';
-                btnarr+='<span class="info">Info</span>';
-                btnarr+='<div class="rsz">.</div>';
-                $(".sizeControl").html(btnarr);
-
                 $("#maxButton").click(toggleProfileView);
-
-                $(".sbtn").click(function () {
-                    var par = $(this).parent();
-                    var rsz = par.find(".rsz");
-                    var incr=0;
-                    if ($(this).hasClass("grow")) {
-                        incr=30
-                    }
-                    if ($(this).hasClass("shrink")) {
-                        incr=-30
-                    }
-                    if ($(this).hasClass("vert")) {
-                        var h = rsz.height();
-                        rsz.height(h+incr);
-                    }
-                    if ($(this).hasClass("horz")) {
-                        var w = rsz.width();
-                        rsz.width(w+incr);
-                    }
-
-                    if (getViewName() == "canvas") {
-                        $("#maxButton").html("-");
-                    } else {
-                        $("#maxButton").html("+");
-                    }
-                    adjHeight();
-
-                    var info=""+rsz.width()+"X"+rsz.height();
-                    par.find(".info").html(info);
-
-                });
 
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
-                    $("#topfull").html("Full Box win: "+info);
+                    $("#error").html("win: "+info);
                     adjHeight();
                 }
                 $(window).bind('resize',showWinSize);
@@ -112,17 +72,9 @@
         </script>
         <style type="text/css">
             /* Here be dragons: customize the css */
-            .sbtn { width:30px; text-align:center; background:green; padding:5px}
-            .rsz {width:60px; height:60px; background:blue}
-            body { padding:0; margin:0; }
         </style>
 
-        <div id="maxButton" style="float: right; background:#cccccc; width:2em; height:2em;">*</div>
-        <div id="topfull" style="margin:0px; background:#ccffcc;">
-            BOX full width
-        </div>
-        <div class="sizeControl" style="margin:0px; background:#ccffcc;">
-        </div>
+        <div id="maxButton" style="float: right; width:1em; height:1em;">*</div>
    <div>
         <div id="scaleTheFont" style="font-size:100%">
             <div id="badges" class="toggler im-lf-black-gloss" style="background: none; border:0;">
@@ -130,8 +82,8 @@
         </div>
         <div style="clear:both;"></div>
         <div id="chart"></div>
-        <div id="status" style="font-size:smaller; color:gray;">G</div>
-        <div id="error" style="font-size:smaller; color:red;">R</div>
+        <div id="status" style="font-size:smaller; color:gray;"></div>
+        <div id="error" style="font-size:smaller; color:red;"></div>
    </div>
 
 ]]> 
