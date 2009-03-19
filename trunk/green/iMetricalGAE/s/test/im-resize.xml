@@ -129,6 +129,7 @@
             </div>
         </div>
         <div style="clear:both;"></div>
+        <div id="chart"></div>
         <div id="status" style="font-size:smaller; color:gray;">G</div>
         <div id="error" style="font-size:smaller; color:red;">R</div>
    </div>
