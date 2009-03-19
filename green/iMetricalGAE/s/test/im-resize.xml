@@ -49,6 +49,11 @@
                     par.find(".info").html(info);
                 });
 
+                $(window).bind('resize',function(){
+                    var info=""+$("#topfull").width()+"X"+$("#topfull").height();
+                    $("#topfull").html("BOX Full width: "+info);
+                });
+
             });
         </script>
         <style type="text/css">
@@ -57,7 +62,7 @@
             .rsz {width:60px; height:60px; background:blue}
         </style>
 
-        <div style="margin:0px; background:#ccffcc;">
+        <div id="topfull" style="margin:0px; background:#ccffcc;">
             BOX full width
         </div>
         <div class="sizeControl" style="margin:0px; background:#ccffcc;">

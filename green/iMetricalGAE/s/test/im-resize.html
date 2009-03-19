@@ -37,9 +37,14 @@
                         var w = rsz.width();
                         rsz.width(w+incr);
                     }
-                    
+
                     var info=""+rsz.width()+"X"+rsz.height();
                     par.find(".info").html(info);
+                });
+
+                $(window).bind('resize',function(){
+                    var info=""+$("#topfull").width()+"X"+$("#topfull").height();
+                    $("#topfull").html("BOX Full width: "+info);
                 });
 
             });
@@ -52,10 +57,10 @@
     </head>
     <body>
 
-        <div style="margin:0px; background:#ccffcc;">
+        <div id="topfull" style="margin:0px; background:#ccffcc;">
             BOX full width
         </div>
-        <div class="sizeControl" style="margin:0px; background:#ccffcc;">
+        <div class="sizeControl" style="margin:0px; background:#ccccff;">
         </div>
     </body>
 </html>
