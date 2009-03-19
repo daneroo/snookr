@@ -49,17 +49,19 @@
                     par.find(".info").html(info);
                 });
 
-                $(window).bind('resize',function(){
-                    var info=""+$("#topfull").width()+"X"+$("#topfull").height();
-                    $("#topfull").html("BOX Full width: "+info);
-                });
-
+                function showWinSize(){
+                    var info=""+$(window).width()+"X"+$(window).height();
+                    $("#topfull").html("Full Box win: "+info);
+                }
+                $(window).bind('resize',showWinSize);
+                showWinSize();
             });
         </script>
         <style type="text/css">
             /* Here be dragons: customize the css */
             .sbtn { width:30px; text-align:center; background:green; padding:5px}
             .rsz {width:60px; height:60px; background:blue}
+            body { padding:0; margin:0; }
         </style>
 
         <div id="topfull" style="margin:0px; background:#ccffcc;">
