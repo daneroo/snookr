@@ -28,6 +28,9 @@
                 btnarr+='<span class="info">Info</span>';
                 btnarr+='<div class="rsz">.</div>';
                 $(".sizeControl").html(btnarr);
+                $("#maxButton").click(function () {
+                    alert("maximize")
+                }
                 $(".sbtn").click(function () {
                     var par = $(this).parent();
                     var rsz = par.find(".rsz");
@@ -49,7 +52,6 @@
 
                     var info=""+rsz.width()+"X"+rsz.height();
                     par.find(".info").html(info);
-                    gadgets.window.adjustHeight();
                 });
 
                 function showWinSize(){
@@ -59,7 +61,6 @@
                 }
                 $(window).bind('resize',showWinSize);
                 showWinSize();
-                gadgets.window.adjustHeight();
             });
         </script>
         <style type="text/css">
@@ -69,6 +70,7 @@
             body { padding:0; margin:0; }
         </style>
 
+        <div id="maxButton" style="float: right; background:#666666;">+</div>
         <div id="topfull" style="margin:0px; background:#ccffcc;">
             BOX full width
         </div>
