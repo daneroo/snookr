@@ -23,8 +23,10 @@
             function navigateTo(dest) {
                 var supported_views = gadgets.views.getSupportedViews();
                 gadgets.views.requestNavigateTo(supported_views[dest]);
-            };
-
+            }
+            function getViewName() {
+                return gadgets.views.getCurrentView().getName();
+            }
             $(function(){
                 btnarr='';
                 btnarr+='<span class="sbtn horz grow" href="#">H+</span>';
@@ -34,11 +36,13 @@
                 btnarr+='<span class="info">Info</span>';
                 btnarr+='<div class="rsz">.</div>';
                 $(".sizeControl").html(btnarr);
+
                 $("#maxButton").click(function () {
-                    navigateTo("canvas");
-                });
-                $("#minButton").click(function () {
-                    navigateTo("home");
+                    if (getViewName() == "canvas") {
+                        navigateTo("home");
+                    } else {
+                        navigateTo("canvas");
+                    }
                 });
                 $(".sbtn").click(function () {
                     var par = $(this).parent();
@@ -57,6 +61,12 @@
                     if ($(this).hasClass("horz")) {
                         var w = rsz.width();
                         rsz.width(w+incr);
+                    }
+
+                    if (getViewName() == "canvas") {
+                        $("#maxButton").html("-");
+                    } else {
+                        $("#maxButton").html("+");
                     }
 
                     var info=""+rsz.width()+"X"+rsz.height();
@@ -79,23 +89,13 @@
             body { padding:0; margin:0; }
         </style>
 
-        <div id="maxButton" style="float: right; background:#666666;">+</div>
+        <div id="maxButton" style="float: right; background:#666666;">*</div>
         <div id="topfull" style="margin:0px; background:#ccffcc;">
             BOX full width
         </div>
         <div class="sizeControl" style="margin:0px; background:#ccffcc;">
         </div>
 ]]> 
-    </Content>
-    <Content type="html" view="hone">
-<![CDATA[
-    <div>Second part for Home</div>
-]]>
-    </Content>
-    <Content type="html" view="canvas">
-<![CDATA[
-    <div>Second part for Canvas</div>
-]]>
     </Content>
 
 </Module>
