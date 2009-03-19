@@ -30,7 +30,7 @@
                 $(".sizeControl").html(btnarr);
                 $("#maxButton").click(function () {
                     alert("maximize");
-                }
+                });
                 $(".sbtn").click(function () {
                     var par = $(this).parent();
                     var rsz = par.find(".rsz");
