@@ -143,7 +143,6 @@
                     $("#maxButton").find(".ui-icon").addClass('ui-icon-circle-plus');
                     $("#maxButton").hide();
                 }
-                $("#maxButton").find(".ui-icon");
 
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
