@@ -134,6 +134,13 @@
 
 
                 $("#maxButton").click(toggleProfileView);
+                // add the icon
+                if (isCanvasView()) {
+                    $("#maxButton").find(".ui-icon").addClass('ui-icon-circle-minus');
+                } else { // home view
+                    $("#maxButton").find(".ui-icon").addClass('ui-icon-circle-plus');
+                }
+                $("#maxButton").find(".ui-icon");
 
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
@@ -148,7 +155,7 @@
             /* Here be dragons: customize the css */
         </style>
 
-        <div id="maxButton" style="float: right; width:1em; height:1em;">*</div>
+        <div id="maxButton" style="float: right; width:1em; height:1em;"><span class="ui-icon"></div>
    <div>
         <div id="scaleTheFont" style="font-size:100%">
             <!-- toggler/im-lf class added in $() -->
