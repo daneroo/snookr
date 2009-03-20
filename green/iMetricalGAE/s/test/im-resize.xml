@@ -151,7 +151,8 @@
         <div id="maxButton" style="float: right; width:1em; height:1em;">*</div>
    <div>
         <div id="scaleTheFont" style="font-size:100%">
-            <div id="badges" class="im-lf-black-gloss" style="background: none; border:0;">
+            <!-- toggler/im-lf class added in $() -->
+            <div id="badges" class="" style="background: none; border:0;">
             </div>
         </div>
         <div style="clear:both;"></div>
