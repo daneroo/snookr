@@ -146,7 +146,7 @@
 
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
-                    $("#error").html("win: "+info);
+                    $("#status").html("win: "+info);
                     adjHeight();
                 }
                 $(window).bind('resize',showWinSize);
