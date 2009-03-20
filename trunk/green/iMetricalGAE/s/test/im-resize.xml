@@ -136,11 +136,12 @@
 
 
                 $("#maxButton").click(toggleProfileView);
-                // add the icon
+                // add the icon: actually hide it on home view, now that click does the same
                 if (isCanvasView()) {
                     $("#maxButton").find(".ui-icon").addClass('ui-icon-circle-minus');
                 } else { // home view
                     $("#maxButton").find(".ui-icon").addClass('ui-icon-circle-plus');
+                    $("#maxButton").hide();
                 }
                 $("#maxButton").find(".ui-icon");
 
