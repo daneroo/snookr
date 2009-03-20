@@ -67,6 +67,8 @@
                 flashInjector();
                 feedsRef = feeds;
                 standardInjector(feeds);
+                
+                if (! isCanvasView()) return;
                 if (vizLoaded) {
                     drawAChart(currentFeed);
                     if (animCanRun) {
