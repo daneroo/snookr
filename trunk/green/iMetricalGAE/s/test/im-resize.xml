@@ -113,6 +113,8 @@
                             drawAChart(selectedFeed);
                         } );
                         $(".im-feed-Day").find('.im-badge-right').show();
+                    } else { // home view : click goes to canvas
+                        $('#badges .im-badge').click(toggleProfileView);
                     }
 
                     //  timers
