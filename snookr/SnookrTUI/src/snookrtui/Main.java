@@ -27,6 +27,11 @@ public class Main {
         SymmetricDiffs sd = new SymmetricDiffs();
         sd.setBaseDir(baseDir);
         sd.run();
+
+        System.out.println("");
+        System.out.println("Now Fix Dates");
+        FixFlickrPostedDates ffpd = new FixFlickrPostedDates();
+        ffpd.run();
     }
 
 }
