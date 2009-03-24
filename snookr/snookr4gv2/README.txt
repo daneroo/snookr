@@ -11,6 +11,15 @@ Tasks-Core
    Flickr -> FlickrImage[]
    Flickr2DB: include deletes
 
+   SnookrGAE (scalr|sulbalcon)
+   Snookr2DB
+
+   Synch
+	Push
+
+   Report
+
+Refactor: Fillin Exif/MD5 (always/partial/never)->Modified FSIma[]
 New
    Flatten Dirs
    Gorm/Hibernate/JPA replacement for Database
