@@ -1,6 +1,7 @@
 package net.snookr.flickr;
 
 import groovy.util.slurpersupport .*;   // for parsing utils at end
+import groovy.lang.Closure;
 import java.text.SimpleDateFormat;
 
 import net.snookr.util.MD5;
