@@ -1,6 +1,7 @@
 package net.snookr.util;
 
 import net.snookr.util.Progress;
+import groovy.lang.Closure;
 
 class Spawner {
     List workers = [];
