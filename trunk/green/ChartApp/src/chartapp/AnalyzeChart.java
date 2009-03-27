@@ -39,7 +39,8 @@ public class AnalyzeChart extends JPanel {
      */
     public AnalyzeChart() {
         super(new BorderLayout());
-        TimeSeriesCollection dataset = new EnergyEventExtractor().extractEnergyEvents();
+        //TimeSeriesCollection dataset = new EnergyEventExtractor().extractEnergyEvents();
+        TimeSeriesCollection dataset = new EnergyEventCorrelator().correlateEvents();
         
         DateAxis domain = new DateAxis("Time");
         NumberAxis range = new NumberAxis("Watts");
