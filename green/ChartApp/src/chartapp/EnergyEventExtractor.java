@@ -29,12 +29,15 @@ public class EnergyEventExtractor {
     public static final String GRAIN_TENSEC = "watttensec";
     public static final String GRAIN_SECOND = "watt";
     private static final String DBDRIVER = "com.mysql.jdbc.Driver";
-    private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
+    //private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
+    //private static final String DBURL = "jdbc:mysql://192.168.5.2/ted";
+    private static final String DBURL = "jdbc:mysql://192.168.3.200/ted";
     private static final String DBUSER = "aviso";
     private static final String DBPASSWORD = null;
+    private static final SimpleDateFormat dayFmt = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat isoFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public Date startOfDay(Date ref, int offsetInDays) {
-        SimpleDateFormat dayFmt = new SimpleDateFormat("yyyy-MM-dd");
         Date offset = new Date(ref.getTime() + offsetInDays * 24 * 60 * 60 * 1000l);
         Date startOfDay = offset;
         try {
@@ -133,7 +136,7 @@ public class EnergyEventExtractor {
         long endOfDataMS = remaining.getDataItem(n - 1).getPeriod().getFirstMillisecond() + intervalLengthSecs * 1000;
         //System.err.println("End of Data: " + sdf.format(new Date(endOfDataMS)));
 
-        while (extractionIteration < 1000) {
+        while (extractionIteration < 100) {
             /*
              * Each extraction round finds maximal energy step function
              * characterized by start,stop,maxW
