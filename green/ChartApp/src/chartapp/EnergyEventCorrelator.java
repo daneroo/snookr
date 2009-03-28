@@ -5,6 +5,7 @@
 package chartapp;
 
 import green.model.Broker;
+import green.util.TimeConvert;
 import green.util.Timer;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -143,14 +144,15 @@ public class EnergyEventCorrelator {
         //int daysAgo = 0;
         //SignalRange referenceSR = new SignalRange(daysAgo);
 
+        // All in GMT now
         // this one has holes
-        //SignalRange referenceSR = new SignalRange("2009-03-26 05:00:00","2009-03-26 06:00:00");
-        //SignalRange referenceSR = new SignalRange("2009-03-26 10:00:00", "2009-03-26 11:00:00");
-        //SignalRange referenceSR = new SignalRange("2009-03-26 09:00:00", "2009-03-26 12:00:00");
-        SignalRange referenceSR = new SignalRange("2009-03-26 00:00:00", "2009-03-27 00:00:00");
+        //SignalRange referenceSR = new SignalRange("2009-03-26 09:00:00","2009-03-26 10:00:00");
+        //SignalRange referenceSR = new SignalRange("2009-03-26 14:00:00", "2009-03-26 15:00:00");
+        SignalRange referenceSR = new SignalRange("2009-03-26 13:00:00", "2009-03-26 16:00:00");
+        //SignalRange referenceSR = new SignalRange("2009-03-26 00:00:00", "2009-03-27 00:00:00");
 
         //SignalRange eventSR = new SignalRange("2009-03-26 10:07:44", "2009-03-26 10:13:33");
-        SignalRange eventSR = new SignalRange("2009-03-26 10:04:00", "2009-03-26 10:18:00");
+        SignalRange eventSR = new SignalRange("2009-03-26 14:04:00", "2009-03-26 14:18:00");
 
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -208,11 +210,11 @@ public class EnergyEventCorrelator {
         */
         System.out.println(String.format("%20s %8.2f %8.2f %8.2f %8.2f",isoFmt.format(new Date(referenceES.offsetMS)), referenceES.kWh(),eventES.kWh(),accumulatedES.kWh(),remainingES.kWh()));
 
-        dataset.addSeries(timeSeriesFromExpandedSignal("Reference Watts", referenceES));
-        dataset.addSeries(timeSeriesFromExpandedSignal("Event", eventES));
+        dataset.addSeries(timeSeriesFromGMTExpandedSignal("Reference Watts", referenceES));
+        dataset.addSeries(timeSeriesFromGMTExpandedSignal("Event", eventES));
         dataset.addSeries(normalizeCorrelation(correlationES, -2000));
-        dataset.addSeries(timeSeriesFromExpandedSignal("Accumulated Events", accumulatedES));
-        dataset.addSeries(timeSeriesFromExpandedSignal("Remaining Noise", remainingES));
+        dataset.addSeries(timeSeriesFromGMTExpandedSignal("Accumulated Events", accumulatedES));
+        dataset.addSeries(timeSeriesFromGMTExpandedSignal("Remaining Noise", remainingES));
     }
 
     // find local correlation minima : no overlap
@@ -259,7 +261,7 @@ public class EnergyEventCorrelator {
             copyES.values[i] = correlationES.values[i] / normCorr * maxValue;
         }
         String correlationLegend = String.format("Correlation: %.1f", normCorr);
-        return timeSeriesFromExpandedSignal(correlationLegend, copyES);
+        return timeSeriesFromGMTExpandedSignal(correlationLegend, copyES);
     }
 
     private ExpandedSignal getDBExpandedSignal(SignalRange sr) {
@@ -273,7 +275,9 @@ public class EnergyEventCorrelator {
         XYDataset dbdataset = null;
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String sql = "select stamp,watt from " + sr.grain + " where stamp>='" + sdf.format(sr.start) + "' and stamp<'" + sdf.format(sr.stop) + "'";
+            Date gmtstart = TimeConvert.localToGMT(sr.start);
+            Date gmtstop = TimeConvert.localToGMT(sr.stop);
+            String sql = "select stamp,watt from " + sr.grain + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
             //System.err.println("sql: " + sql);
             dbdataset = new JDBCXYDataset(DBURL, DBDRIVER, DBUSER, DBPASSWORD);
             ((JDBCXYDataset) dbdataset).executeQuery(sql);
@@ -306,12 +310,15 @@ public class EnergyEventCorrelator {
     }
 
     // omit zero values!
-    private TimeSeries timeSeriesFromExpandedSignal(String name, ExpandedSignal es) {
+    // convert time from gmt to local!
+    private TimeSeries timeSeriesFromGMTExpandedSignal(String name, ExpandedSignal es) {
 
         TimeSeries fromdb = new TimeSeries(name, Millisecond.class);
         for (int i = 0; i < es.values.length; i++) {
             long iAsLong = es.offsetMS + i * 1000l;
-            Millisecond mi = new Millisecond(new Date(iAsLong));
+            //Date gmtDate = new Date(iAsLong);
+            Date localDate = TimeConvert.gmtToLocal(new Date(iAsLong));
+            Millisecond mi = new Millisecond(localDate);
             double yi = es.values[i];
             if (yi == 0) {
                 //continue;
