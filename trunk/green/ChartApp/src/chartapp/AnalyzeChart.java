@@ -55,6 +55,7 @@ public class AnalyzeChart extends JPanel {
         renderer.setSeriesPaint(1, Color.red);
         renderer.setSeriesPaint(2, Color.blue);
         renderer.setSeriesPaint(3, Color.magenta);
+        renderer.setSeriesPaint(4, Color.yellow);
         // first arg is line thickness
         renderer.setStroke(new BasicStroke(1f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_BEVEL));
