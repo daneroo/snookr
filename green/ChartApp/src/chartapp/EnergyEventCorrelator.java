@@ -5,6 +5,8 @@
 package chartapp;
 
 import green.util.TimeConvert;
+import imetrical.model.ExpandedSignal;
+import imetrical.model.SignalRange;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,108 +42,6 @@ public class EnergyEventCorrelator {
     private static final SimpleDateFormat dayFmt = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat isoFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    class ExpandedSignal {
-
-        int intervalLengthSecs = 1;    // 10
-        long offsetMS;
-        double values[];
-
-        public ExpandedSignal(int size) {
-            values = new double[size];
-        }
-
-        // same size: do NOT copy data.
-        public ExpandedSignal(ExpandedSignal other) {
-            intervalLengthSecs = other.intervalLengthSecs;
-            offsetMS = other.offsetMS;
-            values = new double[other.values.length];
-        }
-
-        public ExpandedSignal copy() {
-            ExpandedSignal newES = new ExpandedSignal(this);
-            for (int i = 0; i < values.length; i++) {
-                newES.values[i] = values[i];
-            }
-            return newES;
-        }
-
-        public double min() {
-            return values[minIndex()];
-        }
-
-        public int minIndex() {
-            int minIndex = 0;
-            double minV = values[0];
-            for (int i = 1; i < values.length; i++) {
-                if (values[i] < minV) {
-                    minV = values[i];
-                    minIndex = i;
-                }
-            }
-            return minIndex;
-        }
-
-        public double max() {
-            return values[maxIndex()];
-        }
-
-        public int maxIndex() {
-            int maxIndex = 0;
-            double maxV = values[0];
-            for (int i = 1; i < values.length; i++) {
-                if (values[i] > maxV) {
-                    maxV = values[i];
-                    maxIndex = i;
-                }
-            }
-            return maxIndex;
-        }
-
-        public void zeroBase() {
-            double minV = min();
-            for (int i = 0; i < values.length; i++) {
-                values[i] -= minV;
-            }
-        }
-
-        public double avg() { // onZeroes ?
-            double sum = 0;
-            for (int i = 0; i < values.length; i++) {
-                sum += values[i];
-            }
-            return sum / values.length;
-        }
-        // return average power*time
-
-        public double kWh() {
-            double avgPower = avg();
-            int nSecs = values.length * intervalLengthSecs;
-            return avgPower * nSecs / 3600000;
-        }
-    }
-
-    class SignalRange {
-
-        Date start, stop;
-        String grain = GRAIN_SECOND; //GRAIN_TENSEC
-        int intervalLengthSecs = 1;    // 10
-
-        SignalRange(String startStr, String stopStr) {
-            try {
-                start = isoFmt.parse(startStr);
-                stop = isoFmt.parse(stopStr);
-            } catch (ParseException ex) {
-                Logger.getLogger(EnergyEventCorrelator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        SignalRange(int daysAgo) {
-            start = startOfDay(new Date(), -daysAgo);
-            stop = startOfDay(new Date(), -daysAgo + 1);
-
-        }
-    }
-
     public TimeSeriesCollection correlateEvents() {
         //int daysAgo = 0;
         //SignalRange referenceSR = new SignalRange(daysAgo);
@@ -163,7 +63,8 @@ public class EnergyEventCorrelator {
 
         ExpandedSignal referenceES = getDBExpandedSignal(referenceSR);
         ExpandedSignal eventES = getDBExpandedSignal(eventSR);
-        eventES.zeroBase();
+        // zerobase
+        eventES.add(-eventES.min());
 
         correlateEnergy(dataset, referenceES, eventES);
 
@@ -195,7 +96,7 @@ public class EnergyEventCorrelator {
              */
             for (int i = 0; i < en; i++) {
                 if (Math.abs(evDeltaES.values[i]) > 20) {
-                    double mult = Math.abs(evDeltaES.values[i]) * Math.abs(evDeltaES.values[i]-refDeltaES.values[o + i]);
+                    double mult = Math.abs(evDeltaES.values[i]) * Math.abs(evDeltaES.values[i] - refDeltaES.values[o + i]);
                     sumsq += mult;
                 }
             }
@@ -250,6 +151,14 @@ public class EnergyEventCorrelator {
             remainingES.values[i] = referenceES.values[i] - accumulatedES.values[i];
         }
 
+        /*
+        System.out.println(String.format("Reference kWh:%.2f", referenceES.kWh()));
+        System.out.println(String.format("Event     kWh:%.2f", eventES.kWh()));
+        System.out.println(String.format("Extracted kWh:%.2f", accumulatedES.kWh()));
+        System.out.println(String.format("Remaining kWh:%.2f", remainingES.kWh()));
+         */
+        System.out.println(String.format("%20s %8.2f %8.2f %8.2f %8.2f", isoFmt.format(new Date(referenceES.offsetMS)), referenceES.kWh(), eventES.kWh(), accumulatedES.kWh(), remainingES.kWh()));
+
         eventES.offsetMS = referenceES.offsetMS;
         ExpandedSignal evDeltaES = delta(eventES);
         evDeltaES.offsetMS = referenceES.offsetMS;
@@ -265,13 +174,6 @@ public class EnergyEventCorrelator {
         }
 
 
-        /*
-        System.out.println(String.format("Reference kWh:%.2f", referenceES.kWh()));
-        System.out.println(String.format("Event     kWh:%.2f", eventES.kWh()));
-        System.out.println(String.format("Extracted kWh:%.2f", accumulatedES.kWh()));
-        System.out.println(String.format("Remaining kWh:%.2f", remainingES.kWh()));
-         */
-        System.out.println(String.format("%20s %8.2f %8.2f %8.2f %8.2f", isoFmt.format(new Date(referenceES.offsetMS)), referenceES.kWh(), eventES.kWh(), accumulatedES.kWh(), remainingES.kWh()));
 
         dataset.addSeries(timeSeriesFromExpandedSignal("Reference Watts", referenceES));
         dataset.addSeries(timeSeriesFromExpandedSignal("Event", eventES));
@@ -315,17 +217,10 @@ public class EnergyEventCorrelator {
     }
 
     private TimeSeries normalizeCorrelation(ExpandedSignal correlationES, double maxValue) {
-        int rn = correlationES.values.length;
-        double normCorr = 0;
-        for (int i = 0; i < rn; i++) {
-            normCorr = Math.max(normCorr, Math.abs(correlationES.values[i]));
-        //System.out.println(String.format("i:%d normCorr:%f",i,normCorr));
-        }
-        ExpandedSignal copyES = new ExpandedSignal(correlationES);
-        for (int i = 0; i < rn; i++) {
-            copyES.values[i] = correlationES.values[i] / normCorr * maxValue;
-        }
-        String correlationLegend = String.format("Correlation: %.1f", normCorr);
+        double corrMax = correlationES.max();
+        ExpandedSignal copyES = correlationES.copy();
+        copyES.normalize(maxValue);
+        String correlationLegend = String.format("Correlation: %.1f", corrMax);
         return timeSeriesFromExpandedSignal(correlationLegend, copyES);
     }
 
@@ -565,7 +460,8 @@ public class EnergyEventCorrelator {
 
         ExpandedSignal referenceES = getDBExpandedSignal(referenceSR);
         ExpandedSignal eventES = getDBExpandedSignal(eventSR);
-        eventES.zeroBase();
+        // zerobase
+        eventES.add(-eventES.min());
 
         correlateEnergy(dataset, referenceES, eventES);
     //entropy(referenceES);
