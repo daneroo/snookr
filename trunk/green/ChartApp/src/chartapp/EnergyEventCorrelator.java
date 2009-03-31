@@ -5,11 +5,11 @@
 package chartapp;
 
 import imetrical.model.DataFetcher;
+import imetrical.model.DataShower;
 import imetrical.model.ExpandedSignal;
 import imetrical.model.SignalRange;
 import imetrical.time.TimeManip;
 import java.util.Date;
-import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
@@ -151,13 +151,13 @@ public class EnergyEventCorrelator {
 
 
 
-        dataset.addSeries(timeSeriesFromExpandedSignal("Reference Watts", referenceES));
-        dataset.addSeries(timeSeriesFromExpandedSignal("Event", eventES));
-        //dataset.addSeries(timeSeriesFromExpandedSignal("Event D", evDeltaES));
+        dataset.addSeries(DataShower.timeSeries("Reference Watts", referenceES));
+        dataset.addSeries(DataShower.timeSeries("Event", eventES));
+        //dataset.addSeries(DataShower.timeSeries("Event D", evDeltaES));
         dataset.addSeries(normalizeCorrelation(correlationES, -1000));
         //dataset.addSeries(normalizeCorrelation(corrDeltaES, -2000));
-        dataset.addSeries(timeSeriesFromExpandedSignal("Accumulated Events", accumulatedES));
-        dataset.addSeries(timeSeriesFromExpandedSignal("Remaining Noise", remainingES));
+        dataset.addSeries(DataShower.timeSeries("Accumulated Events", accumulatedES));
+        dataset.addSeries(DataShower.timeSeries("Remaining Noise", remainingES));
     }
 
     // find local correlation minima : no overlap
@@ -197,27 +197,7 @@ public class EnergyEventCorrelator {
         ExpandedSignal copyES = correlationES.copy();
         copyES.normalize(maxValue);
         String correlationLegend = String.format("Correlation: %.1f", corrMax);
-        return timeSeriesFromExpandedSignal(correlationLegend, copyES);
-    }
-
-    // omit zero values!
-    // convert time from gmt to local!
-    private TimeSeries timeSeriesFromExpandedSignal(String name, ExpandedSignal es) {
-        TimeSeries fromdb = new TimeSeries(name, Millisecond.class);
-        for (int i = 0; i < es.values.length; i++) {
-            long iAsLong = es.offsetMS + i * 1000l;
-            //Date gmtDate = new Date(iAsLong);
-            // moved conversion into expandXYDataset()
-            //Date localDate = TimeConvert.gmtToLocal(new Date(iAsLong));
-            Date localDate = new Date(iAsLong);
-            Millisecond mi = new Millisecond(localDate);
-            double yi = es.values[i];
-            if (yi == 0) {
-                continue;
-            }
-            fromdb.add(mi, yi);
-        }
-        return fromdb;
+        return DataShower.timeSeries(correlationLegend, copyES);
     }
 
 
