@@ -37,11 +37,11 @@ public class TimeConvert {
 
     // input date is local
     public static Date localToGMT(Date localDate) {
-        String localString = localFormat.format(localDate);
+        String localString = gmtFormat.format(localDate);
         Date gmtDate = null;
         try {
             //gmtDate = rfc822Format.parse(localString + "+0000");
-            gmtDate = gmtFormat.parse(localString);
+            gmtDate = localFormat.parse(localString);
         } catch (ParseException ex) {
             Logger.getLogger(TimeConvert.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -49,14 +49,32 @@ public class TimeConvert {
     }
 
     public static Date gmtToLocal(Date gmtDate) {
-        String gmtString = gmtFormat.format(gmtDate);
+        String gmtString = localFormat.format(gmtDate);
         Date localDate = null;
         try {
-            localDate = localFormat.parse(gmtString);
+            localDate = gmtFormat.parse(gmtString);
         } catch (ParseException ex) {
             Logger.getLogger(TimeConvert.class.getName()).log(Level.SEVERE, null, ex);
         }
         return localDate;
+    }
+
+    public static void testLengthOfDay() {
+        System.out.println("Length of day--");
+        try {
+            Date start, stop;
+            start = gmtFormat.parse("2009-03-08 00:00:00");
+            stop = gmtFormat.parse("2009-03-09 00:00:00");
+            System.out.println(String.format("GMT %s - %s : %d", rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
+
+            start = localFormat.parse("2009-03-08 00:00:00");
+            stop = localFormat.parse("2009-03-09 00:00:00");
+            System.out.println(String.format("LOC %s - %s : %d", rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
+
+        } catch (ParseException ex) {
+            Logger.getLogger(TimeConvert.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     public static void main(String[] args) {
@@ -80,6 +98,8 @@ public class TimeConvert {
         System.out.println("--2mo ago:    " + twoMago + " " + rfc822Format.format(twoMago));
         roundTripLocal(new Date());
         roundTripGMT(new Date());
+
+        testLengthOfDay();
     }
 
     public static void roundTripLocal(Date d) {
