@@ -143,14 +143,13 @@ public class EnergyEventCorrelator {
         ExpandedSignal correlationES = convolution(referenceES, eventES);
         double threshold = 15;
         ExpandedSignal accumulatedES = accumulateEvents(eventES, correlationES, threshold);
+
         //ExpandedSignal corrDeltaES = convolutionDelta(referenceES, eventES);
         //double thresholdDelta = 1.6;
         //ExpandedSignal accumulatedES = accumulateEvents(eventES, corrDeltaES, thresholdDelta);
-        ExpandedSignal remainingES = new ExpandedSignal(referenceES);
-        for (int i = 0; i < rn; i++) {
-            remainingES.values[i] = referenceES.values[i] - accumulatedES.values[i];
-        }
 
+        ExpandedSignal remainingES = referenceES.copy();
+        remainingES.minus(accumulatedES);
         /*
         System.out.println(String.format("Reference kWh:%.2f", referenceES.kWh()));
         System.out.println(String.format("Event     kWh:%.2f", eventES.kWh()));
