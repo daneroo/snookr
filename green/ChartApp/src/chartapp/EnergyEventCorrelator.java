@@ -27,13 +27,13 @@ public class EnergyEventCorrelator {
         // this one has holes
         //SignalRange referenceSR = new SignalRange("2009-03-26 09:00:00","2009-03-26 10:00:00");
         //SignalRange referenceSR = new SignalRange("2009-03-26 14:00:00", "2009-03-26 15:00:00");
-        SignalRange referenceSR = new SignalRange("2009-03-26 13:00:00", "2009-03-26 18:00:00");
+        SignalRange referenceSR = new SignalRange("2009-03-26 05:00:00", "2009-03-26 10:00:00",SignalRange.Grain.TENSEC);
         //SignalRange referenceSR = new SignalRange("2009-03-26 00:00:00", "2009-03-27 00:00:00");
 
-        //SignalRange eventSR = new SignalRange("2009-03-26 14:07:44", "2009-03-26 14:13:33");
-        //SignalRange eventSR = new SignalRange("2009-03-26 14:07:00", "2009-03-26 14:14:00");
-        //SignalRange eventSR = new SignalRange("2009-03-26 14:04:00", "2009-03-26 14:18:00");
-        SignalRange eventSR = new SignalRange("2009-03-26 14:05:00", "2009-03-26 14:17:00");
+        //SignalRange eventSR = new SignalRange("2009-03-26 06:07:44", "2009-03-26 06:13:33");
+        //SignalRange eventSR = new SignalRange("2009-03-26 06:07:00", "2009-03-26 06:14:00");
+        //SignalRange eventSR = new SignalRange("2009-03-26 06:04:00", "2009-03-26 06:18:00");
+        SignalRange eventSR = new SignalRange("2009-03-26 06:05:00", "2009-03-26 06:17:00",SignalRange.Grain.TENSEC);
 
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -212,7 +212,7 @@ public class EnergyEventCorrelator {
 
     public void doADay(int daysAgo) {
         //SignalRange eventSR = new SignalRange("2009-03-26 14:04:00", "2009-03-26 14:18:00");
-        SignalRange eventSR = new SignalRange("2009-03-26 14:05:00", "2009-03-26 14:17:00");
+        SignalRange eventSR = new SignalRange("2009-03-26 06:05:00", "2009-03-26 06:17:00");
         SignalRange referenceSR = new SignalRange(daysAgo);
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -228,7 +228,7 @@ public class EnergyEventCorrelator {
     public static void main(String[] args) {
         System.out.println(String.format("%20s %8s %8s %8s %8s", "Date", "Total", "Event", "Accumuated", "Remaining"));
 
-        for (int i = 1; i < 31; i++) {
+        for (int i = 3; i < 31; i++) {
             new EnergyEventCorrelator().doADay(i);
         }
     }
