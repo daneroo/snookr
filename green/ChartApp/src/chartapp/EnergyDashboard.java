@@ -31,9 +31,11 @@ public class EnergyDashboard extends javax.swing.JFrame {
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
-        jPanel1 = new javax.swing.JPanel();
+        chartHolder = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jSplitPane1.setDividerLocation(150);
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Ted-Live", "Power-Browser", "Analyze" };
@@ -52,8 +54,8 @@ public class EnergyDashboard extends javax.swing.JFrame {
 
         jSplitPane1.setLeftComponent(jScrollPane1);
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
-        jSplitPane1.setRightComponent(jPanel1);
+        chartHolder.setLayout(new java.awt.BorderLayout());
+        jSplitPane1.setRightComponent(chartHolder);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -63,7 +65,7 @@ public class EnergyDashboard extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
         );
 
         pack();
@@ -82,13 +84,14 @@ private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN
         panel = new DBChartApp();
     } else if ("Analyze".equals(newSel)) {
         panel = new AnalyzeChart();
+        ((AnalyzeChart)panel).startTicker();
     } else {
         panel = new JPanel();
     }
     //JButton panel = new JButton("Allo "+new Date());
-    jPanel1.removeAll();
-    jPanel1.add(panel, BorderLayout.CENTER);
-    jPanel1.validate();
+    chartHolder.removeAll();
+    chartHolder.add(panel, BorderLayout.CENTER);
+    chartHolder.validate();
 }//GEN-LAST:event_jList1ValueChanged
 
     /**
@@ -104,8 +107,8 @@ private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel chartHolder;
     private javax.swing.JList jList1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables

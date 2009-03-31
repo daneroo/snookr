@@ -6,8 +6,8 @@ package chartapp;
 
 import green.model.Broker;
 import green.util.Timer;
+import imetrical.time.TimeManip;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -37,27 +37,10 @@ public class EnergyEventExtractor {
     private static final SimpleDateFormat dayFmt = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat isoFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public Date startOfDay(Date ref, int offsetInDays) {
-        Date offset = new Date(ref.getTime() + offsetInDays * 24 * 60 * 60 * 1000l);
-        Date startOfDay = offset;
-        try {
-            startOfDay = dayFmt.parse(dayFmt.format(offset));
-        } catch (ParseException ex) {
-            Logger.getLogger(EnergyEventExtractor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        /*
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println("Ref Date:   " + sdf.format(ref) + " - " + offsetInDays + " days");
-        System.out.println("Offset:     " + sdf.format(offset));
-        System.out.println("StartOfDay: " + sdf.format(startOfDay));
-         */
-        return startOfDay;
-    }
-
     public TimeSeriesCollection extractEnergyEvents() {
         int daysAgo = 3;
-        Date start = startOfDay(new Date(), -daysAgo);
-        Date stop = startOfDay(new Date(), -daysAgo + 1);
+        Date start = TimeManip.startOfDay(new Date(), -daysAgo);
+        Date stop = TimeManip.startOfDay(new Date(), -daysAgo + 1);
 
         //return extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
         return extractEnergyEvents(GRAIN_SECOND, 1, start, stop);
@@ -256,8 +239,8 @@ public class EnergyEventExtractor {
     }
 
     private void doADay(int daysAgo) {
-        Date start = startOfDay(new Date(), -daysAgo);
-        Date stop = startOfDay(new Date(), -daysAgo + 1);
+        Date start = TimeManip.startOfDay(new Date(), -daysAgo);
+        Date stop = TimeManip.startOfDay(new Date(), -daysAgo + 1);
         extractEnergyEvents(GRAIN_TENSEC, 10, start, stop);
     // extractEnergyEvents(GRAIN_SECOND, 1, start, stop);
 
