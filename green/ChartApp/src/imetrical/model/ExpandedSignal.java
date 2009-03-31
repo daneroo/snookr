@@ -75,7 +75,7 @@ public class ExpandedSignal {
         double mx=max();
         double factor=0;
         if ((mx-mn)!=0) factor=newMax/(mx-mn);
-        System.out.println(String.format("norm %8.2f %8.2f %8.2f",mn,mx,factor));
+        //System.out.println(String.format("norm %8.2f %8.2f %8.2f",mn,mx,factor));
         multiply(factor);
     }
     public void multiply(double c) {
@@ -87,6 +87,13 @@ public class ExpandedSignal {
     public void add(double c) {
         for (int i = 0; i < values.length; i++) {
             values[i] += c;
+        }
+    }
+
+    // check ranges.
+    public void minus(ExpandedSignal es) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] -= es.values[i];
         }
     }
 
