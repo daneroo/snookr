@@ -65,11 +65,19 @@ public class TimeConvert {
             Date start, stop;
             start = gmtFormat.parse("2009-03-08 00:00:00");
             stop = gmtFormat.parse("2009-03-09 00:00:00");
-            System.out.println(String.format("GMT %s - %s : %d", rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
+            System.out.println(String.format("GMT expect: %d %s - %s : %d", 86400000, rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
 
             start = localFormat.parse("2009-03-08 00:00:00");
             stop = localFormat.parse("2009-03-09 00:00:00");
-            System.out.println(String.format("LOC %s - %s : %d", rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
+            System.out.println(String.format("LOC expect: %d %s - %s : %d", 82800000, rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
+
+            start = gmtFormat.parse("2008-11-02 00:00:00");
+            stop = gmtFormat.parse("2008-11-03 00:00:00");
+            System.out.println(String.format("GMT expect: %d %s - %s : %d", 86400000, rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
+
+            start = localFormat.parse("2008-11-02 00:00:00");
+            stop = localFormat.parse("2008-11-03 00:00:00");
+            System.out.println(String.format("LOC expect: %d %s - %s : %d", 90000000, rfc822Format.format(start), rfc822Format.format(stop), stop.getTime() - start.getTime()));
 
         } catch (ParseException ex) {
             Logger.getLogger(TimeConvert.class.getName()).log(Level.SEVERE, null, ex);
@@ -79,7 +87,7 @@ public class TimeConvert {
 
     public static void main(String[] args) {
 
-        String[] dateString = {"2008-03-20 00:00:00", "2008-06-21 00:00:00", "2008-09-22 00:00:00", "2008-12-22 00:00:00",};
+        String[] dateString = {"2008-03-20 00:00:00", "2008-06-21 00:00:00", "2008-09-22 00:00:00", "2008-12-22 00:00:00","2008-11-02 00:59:00","2008-11-02 01:30:00","2008-11-02 02:01:00"};
         for (int i = 0; i < dateString.length; i++) {
             Date date = null;
             Date dateGMT = null;
