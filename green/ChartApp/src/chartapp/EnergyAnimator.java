@@ -50,8 +50,45 @@ public class EnergyAnimator {
         if (steps == 0) {
             advance(0);
         } else {
-            System.out.println("Perform a step");
+            System.out.println("Perform a step, update");
+            performStep();
+            updateAfterStep();
         }
+    }
+
+    private void performStep() {
+        double threshold = 10000000;
+        int minCorrIndex = correlationES.minIndex();
+        double minCorr = correlationES.values[minCorrIndex];
+        System.out.println(String.format("Found minCorr=%f at index: %d",minCorr,minCorrIndex));
+        if (minCorr <= threshold) {
+            // accumuate event
+            for (int i = 0; i < eventES.values.length; i++) {
+                accumulatedES.values[i + minCorrIndex] += eventES.values[i];
+                remainingES.values[i + minCorrIndex] -= eventES.values[i];
+            }
+        }
+
+        //accumulatedES.add(10);
+        //remainingES.add(-10);
+        correlationES = convolution(remainingES, eventES);
+    }
+    private TimeSeries remainingTS,  accumulatedTS,  correlationTS;
+
+    private void updateAfterStep() {
+        // replace remaining, accumulated, correlation
+        if (remainingTS != null) {
+            timeSeriesCollection.removeSeries(remainingTS);
+        }
+        timeSeriesCollection.addSeries(remainingTS = DataShower.timeSeries("Remaining", remainingES));
+        if (accumulatedTS != null) {
+            timeSeriesCollection.removeSeries(accumulatedTS);
+        }
+        timeSeriesCollection.addSeries(accumulatedTS = DataShower.timeSeries("Accumulated", accumulatedES));
+        if (correlationTS != null) {
+            timeSeriesCollection.removeSeries(correlationTS);
+        }
+        timeSeriesCollection.addSeries(correlationTS = adjustCorrelationForDisplay(correlationES, -2000));
     }
 
     private void updateAfterAdvance() {
@@ -69,21 +106,14 @@ public class EnergyAnimator {
 
         SignalRange eventSR = new SignalRange("2009-03-26 06:05:00", "2009-03-26 06:17:00", highresGrain);
         eventES = DataFetcher.getDBExpandedSignal(eventSR);
+        // zero base event
+        eventES.add(-eventES.min());
 
-        remainingES = referenceES.copy();
-        accumulatedES = new ExpandedSignal(referenceES);
-
-        correlationES = convolution(referenceES, eventES);
-
-        timeSeriesCollection.removeAllSeries(); // or seriex or index
+        timeSeriesCollection.removeAllSeries();
+        remainingTS = accumulatedTS = correlationTS = null; // for removal..
         String title = String.format("Reference Watts @ %s", TimeManip.dayFmt.format(graphStart));
         timeSeriesCollection.addSeries(DataShower.timeSeries(title, referenceES));
-        timeSeriesCollection.addSeries(DataShower.timeSeries("Remaining", remainingES));
-        timeSeriesCollection.addSeries(DataShower.timeSeries("Accumulated", accumulatedES));
-
-        // display adjusted event and correlation:
         timeSeriesCollection.addSeries(adjustEventForDisplay(eventES, padStart));
-        timeSeriesCollection.addSeries(adjustCorrelationForDisplay(correlationES, -2000));
 
         // Context padding at Lowres
         SignalRange padLeftSR = new SignalRange(padStart, graphStart, lowresGrain);
@@ -92,24 +122,32 @@ public class EnergyAnimator {
         ExpandedSignal padRightES = DataFetcher.getDBExpandedSignal(padRightSR);
         timeSeriesCollection.addSeries(DataShower.timeSeries("Context", padLeftES));
         timeSeriesCollection.addSeries(DataShower.timeSeries("Context", padRightES));
-    }
 
+        // intialize data for updateAfterStep, performStep.
+        remainingES = referenceES.copy();
+        accumulatedES = new ExpandedSignal(referenceES);
+        correlationES = convolution(remainingES, eventES);
+        updateAfterStep();
+    }
 
     private TimeSeries adjustEventForDisplay(ExpandedSignal evES, Date showStart) {
         ExpandedSignal copyES = evES.copy();
         copyES.offsetMS = showStart.getTime();
-        copyES.add(-1500 - eventES.min());
+        copyES.add(-1500);
         return DataShower.timeSeries("Event", copyES);
     }
     // Just to add caption..
+
     private TimeSeries adjustCorrelationForDisplay(ExpandedSignal correlationES, double maxValue) {
         //double corrMax = correlationES.max();
         //String correlationLegend = String.format("Correlation: %.1f", corrMax);
         ExpandedSignal copyES = correlationES.copy();
-        double clip=20;
-        String correlationLegend = String.format("Correlation x %.1f", -maxValue/clip);
-        for (int i=0;i<copyES.values.length;i++){
-            if (copyES.values[i]>clip) copyES.values[i]=clip;
+        double clip = 20;
+        String correlationLegend = String.format("Correlation x %.1f", -maxValue / clip);
+        for (int i = 0; i < copyES.values.length; i++) {
+            if (copyES.values[i] > clip) {
+                copyES.values[i] = clip;
+            }
         }
         copyES.normalize(maxValue);
         return DataShower.timeSeries(correlationLegend, copyES);
@@ -139,6 +177,9 @@ public class EnergyAnimator {
             //corr = Math.min(400, corr);
             newCorrelationES.values[o] = corr;
         //System.out.println(String.format("%d: DC: %f - %f = %f  R:%f",(referenceES.offsetMS-eventES.offsetMS)/1000+o,avgEvt,avgRef,avgEvt-avgRef,corr));
+        }
+        for (int o = rn-en; o < rn; o++) {
+            newCorrelationES.values[o] = 1000;
         }
         return newCorrelationES;
     }
