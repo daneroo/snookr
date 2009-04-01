@@ -45,10 +45,13 @@ public class AnalyzeChart extends JPanel {
     XYItemRenderer renderer;
     TimeSeriesCollection dataset;
     JFreeChart chart;
+    EnergyAnimator energyAnimator;
     public AnalyzeChart() {
         super(new BorderLayout());
         //TimeSeriesCollection dataset = new EnergyEventExtractor().extractEnergyEvents();
-        dataset = new EnergyEventCorrelator().correlateEvents();
+        //dataset = new EnergyEventCorrelator().correlateEvents();
+        energyAnimator = new EnergyAnimator();
+        dataset = energyAnimator.setup();
 
         DateAxis domain = new DateAxis("Time");
         NumberAxis range = new NumberAxis("Watts");
@@ -117,6 +120,7 @@ public class AnalyzeChart extends JPanel {
         public void actionPerformed(ActionEvent event) {
             // call back into Extractor...
             System.out.println("Tick: " + new Date());
+            energyAnimator.advance();
             if (true) return;
             
             chart.setTitle("Power@"+new Date());
