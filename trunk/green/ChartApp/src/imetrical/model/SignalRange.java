@@ -35,8 +35,9 @@ public class SignalRange {
         public int intervalLengthSecs() {
             return intervalLengthSecs;
         }
+
         public int intervalLengthMS() {
-            return intervalLengthSecs*1000;
+            return intervalLengthSecs * 1000;
         }
     }
     public Date start,  stop;
@@ -48,14 +49,27 @@ public class SignalRange {
     }
 
     public SignalRange(String startStr, String stopStr, Grain grain) {
-        this.grain=grain;
+        this.grain = grain;
         start = TimeManip.parseISO(startStr);
         stop = TimeManip.parseISO(stopStr);
+        intervalLengthSecs = grain.intervalLengthSecs;
+    }
+
+    public SignalRange(Date start, Date stop) {
+        this(start, stop, Grain.SECOND);
+    }
+
+    public SignalRange(Date start, Date stop, Grain grain) {
+        this.grain = grain;
+        this.start = start;
+        this.stop = stop;
+        intervalLengthSecs = grain.intervalLengthSecs;
     }
 
     public SignalRange(int daysAgo) {
         start = TimeManip.startOfDay(new Date(), -daysAgo);
         stop = TimeManip.startOfDay(new Date(), -daysAgo + 1);
-
+        // grain == default SECOND
+        //intervalLengthSecs == default 1s
     }
 }
