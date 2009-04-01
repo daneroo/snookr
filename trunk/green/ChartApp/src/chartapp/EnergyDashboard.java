@@ -32,6 +32,11 @@ public class EnergyDashboard extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         chartHolder = new javax.swing.JPanel();
+        algoControlPanel = new javax.swing.JPanel();
+        advanceBtn = new javax.swing.JButton();
+        retreatBtn = new javax.swing.JButton();
+        stepBtn = new javax.swing.JButton();
+        resetBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -55,6 +60,65 @@ public class EnergyDashboard extends javax.swing.JFrame {
         jSplitPane1.setLeftComponent(jScrollPane1);
 
         chartHolder.setLayout(new java.awt.BorderLayout());
+
+        algoControlPanel.setMinimumSize(new java.awt.Dimension(100, 50));
+        algoControlPanel.setPreferredSize(new java.awt.Dimension(544, 50));
+
+        advanceBtn.setText(">");
+        advanceBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advanceBtnActionPerformed(evt);
+            }
+        });
+
+        retreatBtn.setText("<");
+        retreatBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                retreatBtnActionPerformed(evt);
+            }
+        });
+
+        stepBtn.setText("Step");
+        stepBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stepBtnActionPerformed(evt);
+            }
+        });
+
+        resetBtn.setText("Reset");
+        resetBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetBtnActionPerformed(evt);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout algoControlPanelLayout = new org.jdesktop.layout.GroupLayout(algoControlPanel);
+        algoControlPanel.setLayout(algoControlPanelLayout);
+        algoControlPanelLayout.setHorizontalGroup(
+            algoControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(algoControlPanelLayout.createSequentialGroup()
+                .add(retreatBtn)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(advanceBtn)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(stepBtn)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(resetBtn)
+                .addContainerGap(223, Short.MAX_VALUE))
+        );
+        algoControlPanelLayout.setVerticalGroup(
+            algoControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(algoControlPanelLayout.createSequentialGroup()
+                .add(algoControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(retreatBtn)
+                    .add(advanceBtn)
+                    .add(stepBtn)
+                    .add(resetBtn))
+                .addContainerGap(21, Short.MAX_VALUE))
+        );
+
+        chartHolder.add(algoControlPanel, java.awt.BorderLayout.PAGE_END);
+
         jSplitPane1.setRightComponent(chartHolder);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -71,6 +135,7 @@ public class EnergyDashboard extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    AnalyzeChart analyzeChart = null;
 private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
     if (evt.getValueIsAdjusting()) {
         return;
@@ -83,16 +148,34 @@ private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN
     } else if ("Power-Browser".equals(newSel)) {
         panel = new DBChartApp();
     } else if ("Analyze".equals(newSel)) {
-        panel = new AnalyzeChart();
-        ((AnalyzeChart)panel).startTicker();
+        analyzeChart = new AnalyzeChart();
+        panel = analyzeChart;
+        //analyzeChart.startTicker();
     } else {
         panel = new JPanel();
     }
     //JButton panel = new JButton("Allo "+new Date());
     chartHolder.removeAll();
     chartHolder.add(panel, BorderLayout.CENTER);
+    chartHolder.add(algoControlPanel, BorderLayout.SOUTH);
     chartHolder.validate();
 }//GEN-LAST:event_jList1ValueChanged
+
+private void retreatBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_retreatBtnActionPerformed
+    analyzeChart.advance(-1);
+}//GEN-LAST:event_retreatBtnActionPerformed
+
+private void advanceBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advanceBtnActionPerformed
+    analyzeChart.advance(1);
+}//GEN-LAST:event_advanceBtnActionPerformed
+
+private void stepBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stepBtnActionPerformed
+    analyzeChart.step(1);
+}//GEN-LAST:event_stepBtnActionPerformed
+
+private void resetBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetBtnActionPerformed
+    analyzeChart.step(0);
+}//GEN-LAST:event_resetBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -107,9 +190,14 @@ private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton advanceBtn;
+    private javax.swing.JPanel algoControlPanel;
     private javax.swing.JPanel chartHolder;
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JButton resetBtn;
+    private javax.swing.JButton retreatBtn;
+    private javax.swing.JButton stepBtn;
     // End of variables declaration//GEN-END:variables
 }

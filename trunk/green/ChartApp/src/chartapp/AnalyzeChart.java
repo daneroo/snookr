@@ -91,6 +91,13 @@ public class AnalyzeChart extends JPanel {
         add(chartPanel);
     }
 
+    public void advance(int steps) {
+        energyAnimator.advance(steps);
+    }
+    public void step(int steps) {
+        energyAnimator.step(steps);
+    }
+
     public void startTicker() {
         int REFRESH_INTERVAL_MS = 5000;
         new Ticker(REFRESH_INTERVAL_MS).start();
@@ -120,7 +127,7 @@ public class AnalyzeChart extends JPanel {
         public void actionPerformed(ActionEvent event) {
             // call back into Extractor...
             System.out.println("Tick: " + new Date());
-            energyAnimator.advance();
+            energyAnimator.advance(1);
             if (true) return;
             
             chart.setTitle("Power@"+new Date());
