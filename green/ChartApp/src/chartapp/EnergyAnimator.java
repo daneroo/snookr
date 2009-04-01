@@ -33,6 +33,7 @@ public class EnergyAnimator {
         timeSeriesCollection = new TimeSeriesCollection();
         graphStart = TimeManip.parseISO("2009-01-26 05:00:00");
         graphStart = TimeManip.parseISO("2009-03-26 05:00:00");
+        graphStart = TimeManip.parseISO("2009-04-01 15:00:00");
         graphHighresHours = 3;
         graphPadLowresHours = 1;
 

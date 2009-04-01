@@ -22,8 +22,8 @@ public class DataFetcher {
 
     private static final String DBDRIVER = "com.mysql.jdbc.Driver";
     //private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
-    //private static final String DBURL = "jdbc:mysql://192.168.5.2/ted";
-    private static final String DBURL = "jdbc:mysql://192.168.3.200/ted";
+    private static final String DBURL = "jdbc:mysql://192.168.5.2/ted";
+    //private static final String DBURL = "jdbc:mysql://192.168.3.200/ted";
     private static final String DBUSER = "aviso";
     private static final String DBPASSWORD = null;
 
@@ -45,8 +45,8 @@ public class DataFetcher {
 
         //System.out.println(String.format("l:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
         //System.out.println(String.format("l:start: %d  stop: %d samples: %d itemCount: %d", sr.start.getTime(), sr.stop.getTime(), samples, n));
-        long minX = dbdataset.getX(series, 0).longValue();
-        long maxX = dbdataset.getX(series, n - 1).longValue();
+        //long minX = dbdataset.getX(series, 0).longValue();
+        //long maxX = dbdataset.getX(series, n - 1).longValue();
         //System.out.println(String.format("  minX: %d -> %s", minX, TimeManip.isoFmt.format(new Date(minX))));
         //System.out.println(String.format("  maxX: %d -> %s", maxX, TimeManip.isoFmt.format(new Date(maxX))));
 
@@ -55,7 +55,7 @@ public class DataFetcher {
         es.offsetMS = sr.start.getTime();
         long localstart = sr.start.getTime();
         int intervalLengthMS = sr.grain.intervalLengthMS();
-        if (samples > 0) {
+        if (n > 1) {
             // bad range, e.g. null result set return one sample (epoch,0) which we skip
             for (int i = 0; i < n; i++) {
                 Number xi = dbdataset.getX(series, i);
