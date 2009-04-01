@@ -23,17 +23,25 @@ public class EnergyEventCorrelator {
         //int daysAgo = 0;
         //SignalRange referenceSR = new SignalRange(daysAgo);
 
+        SignalRange.Grain grain = SignalRange.Grain.SECOND;
         // All in GMT now
         // this one has holes
         //SignalRange referenceSR = new SignalRange("2009-03-26 09:00:00","2009-03-26 10:00:00");
         //SignalRange referenceSR = new SignalRange("2009-03-26 14:00:00", "2009-03-26 15:00:00");
-        SignalRange referenceSR = new SignalRange("2009-03-26 05:00:00", "2009-03-26 10:00:00",SignalRange.Grain.TENSEC);
+        SignalRange referenceSR = new SignalRange("2009-03-26 05:00:00", "2009-03-26 10:00:00", grain);
         //SignalRange referenceSR = new SignalRange("2009-03-26 00:00:00", "2009-03-27 00:00:00");
+
+        // days of interest for DST: 2008-11-02 2009-03-08
+        // DO NOT USE JFREECHART FOR DST - IS THE CONCLUSION
+        /*
+        SignalRange referenceSR = new SignalRange("2009-03-08 00:00:00", "2009-03-08 05:00:00");
+        SignalRange referenceSR = new SignalRange("2008-11-02 00:00:00", "2008-11-02 05:00:00");
+         */
 
         //SignalRange eventSR = new SignalRange("2009-03-26 06:07:44", "2009-03-26 06:13:33");
         //SignalRange eventSR = new SignalRange("2009-03-26 06:07:00", "2009-03-26 06:14:00");
         //SignalRange eventSR = new SignalRange("2009-03-26 06:04:00", "2009-03-26 06:18:00");
-        SignalRange eventSR = new SignalRange("2009-03-26 06:05:00", "2009-03-26 06:17:00",SignalRange.Grain.TENSEC);
+        SignalRange eventSR = new SignalRange("2009-03-26 06:05:00", "2009-03-26 06:17:00", grain);
 
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -199,7 +207,6 @@ public class EnergyEventCorrelator {
         String correlationLegend = String.format("Correlation: %.1f", corrMax);
         return DataShower.timeSeries(correlationLegend, copyES);
     }
-
 
     ExpandedSignal delta(ExpandedSignal es) {
         ExpandedSignal delta = new ExpandedSignal(es);

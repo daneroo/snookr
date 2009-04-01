@@ -28,7 +28,9 @@ public class DataShower {
             if (yi == 0) {
                 continue;
             }
-            fromdb.add(mi, yi);
+            //fromdb.add(mi, yi);
+            // BECAUSE OF DST CRAP
+            fromdb.addOrUpdate(mi, yi);
         }
         return fromdb;
     }
