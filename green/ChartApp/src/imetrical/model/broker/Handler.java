@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package green.model;
+package imetrical.model.broker;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

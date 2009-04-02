@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package green.model;
+package imetrical.model.broker;
 
-import green.model.Handler;
+import imetrical.model.broker.Handler;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

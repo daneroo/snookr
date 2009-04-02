@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package green.model;
+package imetrical.model.broker;
 
-import green.model.Broker;
-import green.model.StampAndDoublesHandler;
+import imetrical.model.broker.Broker;
+import imetrical.model.broker.StampAndDoublesHandler;
 import green.util.Timer;
 import java.util.Date;
 import java.util.Vector;
