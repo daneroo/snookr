@@ -6,7 +6,7 @@
  * Timer tt = new Timer();
  * String msg = ""+count+" processed at rate "+tt.rate(count)+" xx/s or "+tt.diff()/count+"s/xx)";
  */
-package green.util;
+package imetrical.util;
 
 public class Timer { //measures things in seconds.
     private long startTime;
