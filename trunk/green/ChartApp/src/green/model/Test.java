@@ -61,7 +61,7 @@ public class Test {
     public void testGetObjects() {
         Broker b = Broker.instance();
 
-        String sql = "select stamp,watt from watttensec where stamp>='2008-09-15 00:00:00' and stamp<'2008-09-16 00:00:00'";
+        String sql = "select stamp,watt from watt_tensec where stamp>='2008-09-15 00:00:00' and stamp<'2008-09-16 00:00:00'";
         Vector<Object[]> v = b.getObjects(sql, 0);
         showHeadAndTail(v, 3, false);
         log("count vec: " + v.size());
@@ -93,12 +93,16 @@ public class Test {
 
     private void testStampAndDoublesHandler() {
         Broker b = Broker.instance();
-        String sql = "select left(stamp,10) as day,avg(watt) from watt where stamp>'2008-09-01' group by day limit 4";
+        String sql = "select left(stamp,10) as day,avg(watt) from watt where stamp>='2008-09-01' and stamp<'2008-09-07' group by day limit 4";
         Vector<Object[]> v = b.getObjects(sql, 0, new StampAndDoublesHandler());
         showHeadAndTail(v, 2, true);
     }
 
     private void testCreateAndInsert() {
+        if (true) {
+            throw new RuntimeException("DONT DO THIS");
+        }
+
         Broker b = Broker.instance();
 
         String unddl = "DROP TABLE IF EXISTS testwatt";
@@ -149,7 +153,7 @@ public class Test {
         t.testScalarInts();
         t.testScalarStrings();
         // long time : 
-        // t.testStampAndDoublesHandler();
-        t.testCreateAndInsert();
+        t.testStampAndDoublesHandler();
+    //t.testCreateAndInsert();
     }
 }

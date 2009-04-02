@@ -13,7 +13,9 @@ public class Broker {
     Logger log = Logger.getLogger(Broker.class.getName());
     static Broker instance;
     private static final String DBDRIVER = "com.mysql.jdbc.Driver";
-    private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
+    //private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
+    //private static final String DBURL = "jdbc:mysql://192.168.5.2/ted";
+    private static final String DBURL = "jdbc:mysql://192.168.3.200/ted";
     private static final String DBUSER = "aviso";
     private static final String DBPASSWORD = null;
 
@@ -32,7 +34,6 @@ public class Broker {
      * http://svn.apache.org/viewvc/commons/proper/dbcp/trunk/doc/ManualPoolingDriverExample.java?view=markup
      * 
      */
-    
     private Connection getConnection() {
         try {
             Class.forName(DBDRIVER);
