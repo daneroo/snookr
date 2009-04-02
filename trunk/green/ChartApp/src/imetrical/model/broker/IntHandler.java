@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package green.model;
+package imetrical.model.broker;
 
-import chartapp.*;
+import imetrical.model.broker.Handler;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -12,16 +12,12 @@ import java.sql.SQLException;
  *
  * @author daniel
  */
-public class StampAndDoublesHandler implements Handler {
+public class IntHandler implements Handler {
 
     public Object[] get(ResultSet rs, int cols) throws SQLException {
         Object array[] = new Object[cols];
         for (int i = 0; i < cols; i++) {
-            if (i == 0) {
-                array[i] = rs.getTimestamp(i + 1);
-            } else {
-                array[i] = rs.getDouble(i + 1);
-            }
+            array[i] = rs.getInt(i + 1);
         }
         return array;
     }

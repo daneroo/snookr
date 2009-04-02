@@ -4,7 +4,7 @@
  */
 package chartapp;
 
-import green.model.Broker;
+import imetrical.model.broker.Broker;
 import green.util.Timer;
 import imetrical.time.TimeManip;
 import java.sql.SQLException;

@@ -1,8 +1,8 @@
-package green.model;
+package imetrical.model.broker;
 
-import green.model.IntHandler;
-import green.model.Handler;
-import green.model.ObjectHandler;
+import imetrical.model.broker.IntHandler;
+import imetrical.model.broker.Handler;
+import imetrical.model.broker.ObjectHandler;
 import java.sql.*;
 import java.util.Vector;
 import java.util.logging.Level;
