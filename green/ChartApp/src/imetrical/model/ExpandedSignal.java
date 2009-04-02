@@ -4,6 +4,9 @@
  */
 package imetrical.model;
 
+import imetrical.time.TimeManip;
+import java.util.Date;
+
 /**
  *
  * @author daniel
@@ -32,6 +35,36 @@ public class ExpandedSignal {
             newES.values[i] = values[i];
         }
         return newES;
+    }
+
+    public void fillin() {
+        int nullcount = 0;
+        int firstnull = -1;
+        int firstnonnull = -1;
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] == 0) {
+                nullcount++;
+                if (firstnull == -1) {
+                    firstnull = i;
+                }
+                if (i > 0) {
+                    values[i] = values[i - 1];
+                }
+            } else {
+                if (firstnonnull == -1) {
+                    firstnonnull = i;
+                    for (int j = 0; j < i; j++) {
+                        values[j] = values[i];
+                    }
+                }
+            }
+        }
+        if (nullcount > 0) {
+            System.out.println(
+                    String.format("fillin %s  nulls: %d first-non-null: %d first-null: %d",
+                    TimeManip.isoFmt.format(new Date(offsetMS)),
+                    nullcount, firstnonnull, firstnull));
+        }
     }
 
     public double min() {
@@ -70,20 +103,24 @@ public class ExpandedSignal {
     public void normalize() {
         normalize(1.0);
     }
+
     public void normalize(double newMax) {
-        double mn=min();
-        double mx=max();
-        double factor=0;
-        if ((mx-mn)!=0) factor=newMax/(mx-mn);
+        double mn = min();
+        double mx = max();
+        double factor = 0;
+        if ((mx - mn) != 0) {
+            factor = newMax / (mx - mn);
+        }
         //System.out.println(String.format("norm %8.2f %8.2f %8.2f",mn,mx,factor));
         multiply(factor);
     }
+
     public void multiply(double c) {
         for (int i = 0; i < values.length; i++) {
             values[i] *= c;
         }
     }
-    
+
     public void add(double c) {
         for (int i = 0; i < values.length; i++) {
             values[i] += c;
