@@ -168,7 +168,7 @@ public class Entropy {
 
     public void doADay(int daysAgo) {
         SignalRange referenceSR = new SignalRange(daysAgo);
-        ExpandedSignal referenceES = DataFetcher.getDBExpandedSignal(referenceSR);
+        ExpandedSignal referenceES = DataFetcher.fetchForRange(referenceSR);
         entropy(referenceES);
     }
 

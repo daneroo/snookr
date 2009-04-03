@@ -4,11 +4,16 @@
  */
 package imetrical.model;
 
+import imetrical.model.broker.Broker;
+import imetrical.model.broker.StampGMTAndDoublesHandler;
+import imetrical.model.broker.StampTZAndDoublesHandler;
 import imetrical.time.TimeConvert;
 import imetrical.time.TimeManip;
+import imetrical.util.Timer;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jfree.data.jdbc.JDBCXYDataset;
@@ -27,14 +32,69 @@ public class DataFetcher {
     private static final String DBUSER = "aviso";
     private static final String DBPASSWORD = null;
 
-    public static ExpandedSignal getDBExpandedSignal(SignalRange sr) {
-        return new DataFetcher().fetchForRange(sr);
+    public static ExpandedSignal fetchForRange(SignalRange sr) {
+        return new DataFetcher().fetchForRangeInternal(sr);
     }
 
-    private ExpandedSignal fetchForRange(SignalRange sr) {
+    private ExpandedSignal fetchForRangeInternal(SignalRange sr) {
+        Timer tt = new Timer();
+        ExpandedSignal bes = brokerFetchForRange(sr);
+        float bdiff = tt.diff(); tt.restart();
         ExpandedSignal es = expandGMTXYDataset(sr);
+        float cdiff = tt.diff(); tt.restart();
+        System.out.println(String.format(" b: %fs  c:%fs",bdiff,cdiff));
+
         //es.fillin();
         return es;
+    }
+
+    private Vector<Object[]> getWithTZ(String tableName, Date gmtstart, Date gmtstop) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sql = "select concat(stamp,'+0000'),watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
+        //System.err.println("broker sql: " + sql);
+        Broker b = Broker.instance();
+        Vector<Object[]> v = b.getObjects(sql, 0, new StampTZAndDoublesHandler());
+        return v;
+    }
+
+    private Vector<Object[]> getAsGMT(String tableName, Date gmtstart, Date gmtstop) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // could also use select cast(stamp as char), or concat(stamp) instead of XXX.o triming in StampGMTAndDoublesHandler.getString
+        String sql = "select stamp,watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
+        //System.err.println("broker sql: " + sql);
+        Broker b = Broker.instance();
+        Vector<Object[]> v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
+        return v;
+    }
+
+    private ExpandedSignal brokerFetchForRange(SignalRange sr) {
+        Date gmtstart = TimeConvert.localToGMT(sr.start);
+        Date gmtstop = TimeConvert.localToGMT(sr.stop);
+        String tableName = sr.grain.tableName();
+
+        Vector<Object[]> v = getAsGMT(tableName, gmtstart, gmtstop);
+        //Vector<Object[]> v = getWithTZ(tableName, gmtstart, gmtstop);
+
+        int n = v.size();
+        int samples = (int) (sr.stop.getTime() - sr.start.getTime()) / sr.grain.intervalLengthMS();
+
+        //System.out.println(String.format("b:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
+
+        ExpandedSignal es = new ExpandedSignal(samples);
+        es.intervalLengthSecs = sr.intervalLengthSecs;
+        es.offsetMS = sr.start.getTime();
+        long localstart = sr.start.getTime();
+        int intervalLengthMS = sr.grain.intervalLengthMS();
+        for (Object[] oa : v) {
+            Date stamp = (Date) oa[0];
+            double yi = (Double) oa[1];
+            long xi = stamp.getTime();
+            int xoffset = (int) ((xi - localstart) / intervalLengthMS);
+            //System.out.println(String.format("xoffset: %d xi: %d y: %f --> %s", xoffset, xi.longValue(), yi, TimeManip.isoFmt.format(new Date(xilocal))));
+            es.values[xoffset] = yi;
+        }
+        return es;
+
     }
 
     private ExpandedSignal expandGMTXYDataset(SignalRange sr) {
@@ -48,7 +108,7 @@ public class DataFetcher {
         int n = dbdataset.getItemCount(series);
         int samples = (int) (sr.stop.getTime() - sr.start.getTime()) / sr.grain.intervalLengthMS();
 
-        System.out.println(String.format("l:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
+        //System.out.println(String.format("l:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
         //System.out.println(String.format("l:start: %d  stop: %d samples: %d itemCount: %d", sr.start.getTime(), sr.stop.getTime(), samples, n));
         //long minX = dbdataset.getX(series, 0).longValue();
         //long maxX = dbdataset.getX(series, n - 1).longValue();
@@ -84,7 +144,7 @@ public class DataFetcher {
             String sql = "select stamp,watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
             //sql = "select stamp,mod(stamp,1500) from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
 
-            System.err.println("sql: " + sql);
+            //System.err.println("dataset sql: " + sql);
             dbdataset = new JDBCXYDataset(DBURL, DBDRIVER, DBUSER, DBPASSWORD);
             ((JDBCXYDataset) dbdataset).executeQuery(sql);
         } catch (SQLException ex) {
@@ -103,23 +163,25 @@ public class DataFetcher {
         // Local Day of 2009-03-08 00:00:00 grain: HOUR size: 23
         // sql: select stamp,watt from watt_hour where stamp>='2009-03-08 05:00:00' and stamp<'2009-03-09 04:00:00'
         for (SignalRange.Grain grain : new SignalRange.Grain[]{SignalRange.Grain.SECOND, SignalRange.Grain.TENSEC, SignalRange.Grain.MINUTE, SignalRange.Grain.HOUR}) {
+            //for (SignalRange.Grain grain : new SignalRange.Grain[]{ SignalRange.Grain.HOUR}) {
             System.out.println("-- Testing Grain: " + grain);
             for (DayOfInterest doi : new DayOfInterest[]{DayOfInterest.NOV_2_2008, DayOfInterest.MAR_8_2009}) {
+                //for (DayOfInterest doi : new DayOfInterest[]{DayOfInterest.NOV_2_2008}) {
                 for (int i = -1; i <= 1; i++) {
                     String start = String.format(doi.fmt, doi.day + i);
                     String stop = String.format(doi.fmt, doi.day + i + 1);
                     SignalRange sr = new SignalRange(start, stop, grain);
-                    ExpandedSignal es = DataFetcher.getDBExpandedSignal(sr);
+                    ExpandedSignal es = DataFetcher.fetchForRange(sr);
                     System.out.println(String.format("  Day of %s grain: %s size: %d", start, sr.grain, es.values.length));
                 }
             }
         }
 
-        Date start = TimeManip.startOfDay(new Date(), -3);
-        for (int i = 0; i < 100; i++) {
+        Date start = TimeManip.startOfDay(new Date(), -7);
+        for (int i = 0; i < 0; i++) {
             Date startHour = new Date(start.getTime() - i * 60 * 60 * 1000l);
             Date stopHour = new Date(startHour.getTime() + 60 * 60 * 1000l);
-            ExpandedSignal es = DataFetcher.getDBExpandedSignal(new SignalRange(startHour,stopHour));
+            ExpandedSignal es = DataFetcher.fetchForRange(new SignalRange(startHour, stopHour));
         }
     }
 }

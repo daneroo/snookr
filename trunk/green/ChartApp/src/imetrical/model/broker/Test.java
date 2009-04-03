@@ -98,7 +98,7 @@ public class Test {
 
     private void testCreateAndInsert() {
         if (true) {
-            throw new RuntimeException("DONT DO THIS");
+            throw new RuntimeException("DONT DO THIS, was for testing");
         }
 
         Broker b = Broker.instance();
@@ -145,13 +145,43 @@ public class Test {
         log("returned: " + b.execute(unddl));
     }
 
+    private void testStampTZAndDoublesHandler() {
+        log("Test sql for fetching iso+0000 Dates");
+        Broker b = Broker.instance();
+        String queries[] = new String[]{
+            "select concat(left(stamp,10),' 00:00:00+0000') as day,avg(watt) from watt where stamp>='2008-09-01' and stamp<'2008-09-07' group by day limit 4",
+            "select concat(stamp,'+0000'),watt from watt where stamp>='2009-01-26' and stamp<'2009-01-26 00:01:00'",};
+        for (String sql : queries) {
+            log("Executing: "+sql);
+            Vector<Object[]> v = b.getObjects(sql, 0, new StampTZAndDoublesHandler());
+            showHeadAndTail(v, 2, true);
+        }
+    }
+    private void testStampGMTAndDoublesHandler() {
+        log("Test sql for fetcing Dates as GMT");
+        Broker b = Broker.instance();
+        String queries[] = new String[]{
+            "select concat(left(stamp,10),' 00:00:00') as day,avg(watt) from watt where stamp>='2008-09-01' and stamp<'2008-09-07' group by day limit 4",
+            "select concat(stamp),watt from watt where stamp>='2009-01-26' and stamp<'2009-01-26 00:01:00'",};
+        for (String sql : queries) {
+            log("Executing: "+sql);
+            Vector<Object[]> v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
+            showHeadAndTail(v, 2, true);
+        }
+    }
+
     public static void main(String[] args) {
         Test t = new Test();
+        t.testStampTZAndDoublesHandler();
+        t.testStampGMTAndDoublesHandler();
+        System.exit(0);
+
         t.testGetObjects();
         t.testScalarInts();
         t.testScalarStrings();
-        // long time : 
         t.testStampAndDoublesHandler();
-    //t.testCreateAndInsert();
+        //t.testCreateAndInsert();
+        t.testStampTZAndDoublesHandler();
+        t.testStampGMTAndDoublesHandler();
     }
 }

@@ -46,8 +46,8 @@ public class EnergyEventCorrelator {
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-        ExpandedSignal referenceES = DataFetcher.getDBExpandedSignal(referenceSR);
-        ExpandedSignal eventES = DataFetcher.getDBExpandedSignal(eventSR);
+        ExpandedSignal referenceES = DataFetcher.fetchForRange(referenceSR);
+        ExpandedSignal eventES = DataFetcher.fetchForRange(eventSR);
         // zerobase
         eventES.add(-eventES.min());
 
@@ -224,8 +224,8 @@ public class EnergyEventCorrelator {
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-        ExpandedSignal referenceES = DataFetcher.getDBExpandedSignal(referenceSR);
-        ExpandedSignal eventES = DataFetcher.getDBExpandedSignal(eventSR);
+        ExpandedSignal referenceES = DataFetcher.fetchForRange(referenceSR);
+        ExpandedSignal eventES = DataFetcher.fetchForRange(eventSR);
         // zerobase
         eventES.add(-eventES.min());
 
