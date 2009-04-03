@@ -7,9 +7,12 @@ package imetrical.model.broker;
 import imetrical.model.DataFetcher;
 import imetrical.model.ExpandedSignal;
 import imetrical.model.SignalRange;
+import imetrical.time.TimeConvert;
+import imetrical.time.TimeManip;
 import imetrical.util.Timer;
 import java.util.Date;
 import java.util.Vector;
+import org.joda.time.DateMidnight;
 
 /**
  *
@@ -198,9 +201,71 @@ public class Test {
         v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
         showHeadAndTail(v, 2, true);
 
-        //log(" GMT-tz: ");
-        //v = b.getObjects(sqltz, 0, new StampTZAndDoublesHandler());
-        //showHeadAndTail(v, 2, true);
+    //log(" GMT-tz: ");
+    //v = b.getObjects(sqltz, 0, new StampTZAndDoublesHandler());
+    //showHeadAndTail(v, 2, true);
+    }
+
+    private void testTimeZoneForDSTBoundary() {
+        /*
+         * Pull the days from database and look
+         *
+         * Non-existant local hour
+         *   stamp: 2009-03-08 02:00:00  reformat: 2009-03-08 03:00:00-0400
+         *   stamp: 2009-03-08 02:30:00  reformat: 2009-03-08 03:30:00-0400
+         *
+         *   gmtstamp: 2008-11-02 05:00:00+0000  local: 2008-11-02 01:00:00-0400
+         *   gmtstamp: 2008-11-02 05:30:00+0000  local: 2008-11-02 01:30:00-0400
+         *   gmtstamp: 2008-11-02 06:00:00+0000  local: 2008-11-02 01:00:00-0500
+         *   gmtstamp: 2008-11-02 06:30:00+0000  local: 2008-11-02 01:30:00-0500
+         *
+         *   gmtstamp: 2009-03-08 06:00:00+0000  local: 2009-03-08 01:00:00-0500
+         *   gmtstamp: 2009-03-08 06:30:00+0000  local: 2009-03-08 01:30:00-0500
+         *   gmtstamp: 2009-03-08 07:00:00+0000  local: 2009-03-08 03:00:00-0400
+         *   gmtstamp: 2009-03-08 07:30:00+0000  local: 2009-03-08 03:30:00-0400
+         */
+        log("Test timezone handling at DST Boundary");
+        String[] daysOfInterest = {"2008-11-02", "2009-03-08"};
+        for (String day : daysOfInterest) {
+            log(String.format("day: %s", day));
+            for (int h = 0; h < 4; h++) {
+                for (String min : new String[]{"00", "30"}) {
+                    String stamp = String.format("%s %02d:%s:00", day, h, min);
+                    Date localDate = TimeManip.parseISO(stamp);
+                    String reformat = TimeManip.isoTZFmt.format(localDate);
+                    log(String.format("  stamp: %s  reformat: %s", stamp, reformat));
+                }
+            }
+        }
+        for (String day : daysOfInterest) {
+            log(String.format("day: %s", day));
+            for (int h = 4; h < 8; h++) {
+                for (String min : new String[]{"00", "30"}) {
+                    String gmtstamp = String.format("%s %02d:%s:00+0000", day, h, min);
+                    Date localDate = TimeManip.parseISOTZ(gmtstamp);
+                    String localstamp = TimeManip.isoTZFmt.format(localDate);
+                    // log(String.format("  gmtstamp: %s  local: %s", gmtstamp, localstamp));
+
+                    String sql = "select cast('" + gmtstamp + "' as datetime),1234";
+                    Broker b = Broker.instance();
+                    Vector<Object[]> v;
+                    //log("Sql: " + sql);
+
+                    //log(" Interpreted as LocalTime: ");
+                    //v = b.getObjects(sql, 0, new StampAndDoublesHandler());
+                    //showHeadAndTail(v, 2, true);
+
+                    //log(" interpreted as GMT: ");
+                    v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
+                    //showHeadAndTail(v, 2, true);
+                    Date localbackfromdb = (Date)(v.get(0)[0]);
+                    String localbackfromdbstamp = TimeManip.isoTZFmt.format(localbackfromdb);
+
+                    log(String.format("  gmtstamp: %s  local: %s  fromdb: %s", gmtstamp, localstamp,localbackfromdbstamp));
+
+                }
+            }
+        }
     }
 
     private void compareSpeed() {
@@ -239,8 +304,9 @@ public class Test {
 
     public static void main(String[] args) {
         Test t = new Test();
-        t.testTimeZone();
-        //System.exit(0);
+        //t.testTimeZone();
+        t.testTimeZoneForDSTBoundary();
+        System.exit(0);
         for (int i = 0; i < 4; i++) {
             t.compareSpeed();
         }
