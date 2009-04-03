@@ -36,6 +36,7 @@ public class DataFetcher {
         return new DataFetcher().fetchForRangeInternal(sr);
     }
 
+    // *** MAKE    expandGMTXYDataset   PRIVATE AGAIN ***
     private ExpandedSignal fetchForRangeInternal(SignalRange sr) {
         Timer tt = new Timer();
         ExpandedSignal bes = brokerFetchForRange(sr);
@@ -97,7 +98,7 @@ public class DataFetcher {
 
     }
 
-    private ExpandedSignal expandGMTXYDataset(SignalRange sr) {
+    public ExpandedSignal expandGMTXYDataset(SignalRange sr) {
         Date gmtstart = TimeConvert.localToGMT(sr.start);
         Date gmtstop = TimeConvert.localToGMT(sr.stop);
         String tableName = sr.grain.tableName();
@@ -109,11 +110,6 @@ public class DataFetcher {
         int samples = (int) (sr.stop.getTime() - sr.start.getTime()) / sr.grain.intervalLengthMS();
 
         //System.out.println(String.format("l:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
-        //System.out.println(String.format("l:start: %d  stop: %d samples: %d itemCount: %d", sr.start.getTime(), sr.stop.getTime(), samples, n));
-        //long minX = dbdataset.getX(series, 0).longValue();
-        //long maxX = dbdataset.getX(series, n - 1).longValue();
-        //System.out.println(String.format("  minX: %d -> %s", minX, TimeManip.isoFmt.format(new Date(minX))));
-        //System.out.println(String.format("  maxX: %d -> %s", maxX, TimeManip.isoFmt.format(new Date(maxX))));
 
         ExpandedSignal es = new ExpandedSignal(samples);
         es.intervalLengthSecs = sr.intervalLengthSecs;
@@ -144,7 +140,7 @@ public class DataFetcher {
             String sql = "select stamp,watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
             //sql = "select stamp,mod(stamp,1500) from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
 
-            //System.err.println("dataset sql: " + sql);
+            System.err.println("dataset sql: " + sql);
             dbdataset = new JDBCXYDataset(DBURL, DBDRIVER, DBUSER, DBPASSWORD);
             ((JDBCXYDataset) dbdataset).executeQuery(sql);
         } catch (SQLException ex) {
