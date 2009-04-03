@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 public class TimeManip {
 
     public static final SimpleDateFormat isoFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final SimpleDateFormat isoTZFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
     public static final SimpleDateFormat dayFmt = new SimpleDateFormat("yyyy-MM-dd");
 
     public static Date startOfDay(Date ref, int offsetInDays) {
@@ -26,17 +27,31 @@ public class TimeManip {
         return startOfDay;
     }
 
-    public static Date parseISO(String dateStr) {
-        try {
-            return isoFmt.parse(dateStr);
-        } catch (ParseException ex) {
-            Logger.getLogger(EnergyEventCorrelator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+    public static Date parseISOTZ(String dateStrWithTZ) {
+        //System.err.println("-dateStrWithTZ=|"+dateStrWithTZ+"|");
+        return parseWithFormat(dateStrWithTZ, isoTZFmt);
     }
+
+    public static Date parseISOAsGMT(String dateStrWithoutTZ) {
+        // just to handle Timestamp.toString() YYYY-MM-DD HH:MM:SS.0 format
+        //System.err.println("-dateStrWithoutTZ=|"+dateStrWithoutTZ+"|");
+        if (dateStrWithoutTZ.endsWith(".0")) {
+            dateStrWithoutTZ = dateStrWithoutTZ.substring(0, dateStrWithoutTZ.length()-2);
+        }
+        //System.err.println("+dateStrWithoutTZ=|"+dateStrWithoutTZ+"|");
+        return parseWithFormat(dateStrWithoutTZ+"+0000", isoTZFmt);
+    }
+    public static Date parseISO(String dateStr) {
+        return parseWithFormat(dateStr, isoFmt);
+    }
+
     public static Date parseDay(String dateStr) {
+        return parseWithFormat(dateStr, dayFmt);
+    }
+
+    private static Date parseWithFormat(String dateStr,SimpleDateFormat fmt) {
         try {
-            return dayFmt.parse(dateStr);
+            return fmt.parse(dateStr);
         } catch (ParseException ex) {
             Logger.getLogger(EnergyEventCorrelator.class.getName()).log(Level.SEVERE, null, ex);
         }

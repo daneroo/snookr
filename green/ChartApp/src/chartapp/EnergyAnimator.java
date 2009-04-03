@@ -103,11 +103,11 @@ public class EnergyAnimator {
         Date padStop = new Date(graphStop.getTime() + graphPadLowresHours * 60 * 60 * 1000l);
 
         SignalRange referenceSR = new SignalRange(graphStart, graphStop, highresGrain);
-        referenceES = DataFetcher.getDBExpandedSignal(referenceSR);
+        referenceES = DataFetcher.fetchForRange(referenceSR);
         System.out.println(String.format("Fetching for %s - %s : %d samples (x%ds)", TimeManip.isoFmt.format(graphStart), TimeManip.isoFmt.format(graphStop), referenceES.values.length, referenceES.intervalLengthSecs));
 
         SignalRange eventSR = new SignalRange("2009-03-26 06:05:00", "2009-03-26 06:17:00", highresGrain);
-        eventES = DataFetcher.getDBExpandedSignal(eventSR);
+        eventES = DataFetcher.fetchForRange(eventSR);
         // zero base event
         eventES.add(-eventES.min());
 
@@ -119,9 +119,9 @@ public class EnergyAnimator {
 
         // Context padding at Lowres
         SignalRange padLeftSR = new SignalRange(padStart, graphStart, lowresGrain);
-        ExpandedSignal padLeftES = DataFetcher.getDBExpandedSignal(padLeftSR);
+        ExpandedSignal padLeftES = DataFetcher.fetchForRange(padLeftSR);
         SignalRange padRightSR = new SignalRange(graphStop, padStop, lowresGrain);
-        ExpandedSignal padRightES = DataFetcher.getDBExpandedSignal(padRightSR);
+        ExpandedSignal padRightES = DataFetcher.fetchForRange(padRightSR);
         timeSeriesCollection.addSeries(DataShower.timeSeries("Context", padLeftES));
         timeSeriesCollection.addSeries(DataShower.timeSeries("Context", padRightES));
 
