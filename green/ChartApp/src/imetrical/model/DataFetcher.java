@@ -40,12 +40,18 @@ public class DataFetcher {
     private ExpandedSignal fetchForRangeInternal(SignalRange sr) {
         Timer tt = new Timer();
         ExpandedSignal bes = brokerFetchForRange(sr);
-        float bdiff = tt.diff(); tt.restart();
-        ExpandedSignal es = expandGMTXYDataset(sr);
-        float cdiff = tt.diff(); tt.restart();
-        System.out.println(String.format(" b: %fs  c:%fs",bdiff,cdiff));
+        float bdiff = tt.diff();
+        tt.restart();
+        ExpandedSignal ces = expandGMTXYDataset(sr);
+        float cdiff = tt.diff();
+        tt.restart();
+        System.out.println(String.format(" b: %fs  c:%fs", bdiff, cdiff));
 
+        ExpandedSignal es = ces;
         //es.fillin();
+        for (int i = 0; i < es.values.length; i += 2) {
+            es.values[i] += 100;
+        }
         return es;
     }
 
@@ -61,8 +67,8 @@ public class DataFetcher {
     private Vector<Object[]> getAsGMT(String tableName, Date gmtstart, Date gmtstop) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         // could also use select cast(stamp as char), or concat(stamp) instead of XXX.o triming in StampGMTAndDoublesHandler.getString
-        String sql = "select stamp,watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
-        //System.err.println("broker sql: " + sql);
+        String sql = "select cast(stamp as char),watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
+        System.err.println("broker sql: " + sql);
         Broker b = Broker.instance();
         Vector<Object[]> v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
         return v;
@@ -79,7 +85,7 @@ public class DataFetcher {
         int n = v.size();
         int samples = (int) (sr.stop.getTime() - sr.start.getTime()) / sr.grain.intervalLengthMS();
 
-        //System.out.println(String.format("b:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
+        System.out.println(String.format("b:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
 
         ExpandedSignal es = new ExpandedSignal(samples);
         es.intervalLengthSecs = sr.intervalLengthSecs;
@@ -91,7 +97,7 @@ public class DataFetcher {
             double yi = (Double) oa[1];
             long xi = stamp.getTime();
             int xoffset = (int) ((xi - localstart) / intervalLengthMS);
-            //System.out.println(String.format("xoffset: %d xi: %d y: %f --> %s", xoffset, xi.longValue(), yi, TimeManip.isoFmt.format(new Date(xilocal))));
+            //System.out.println(String.format("xoffset: %d xi: %d y: %f --> %s",xoffset, xi, yi,TimeManip.isoFmt.format(stamp)));
             es.values[xoffset] = yi;
         }
         return es;
@@ -140,7 +146,7 @@ public class DataFetcher {
             String sql = "select stamp,watt from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
             //sql = "select stamp,mod(stamp,1500) from " + tableName + " where stamp>='" + sdf.format(gmtstart) + "' and stamp<'" + sdf.format(gmtstop) + "'";
 
-            System.err.println("dataset sql: " + sql);
+            //System.err.println("dataset sql: " + sql);
             dbdataset = new JDBCXYDataset(DBURL, DBDRIVER, DBUSER, DBPASSWORD);
             ((JDBCXYDataset) dbdataset).executeQuery(sql);
         } catch (SQLException ex) {

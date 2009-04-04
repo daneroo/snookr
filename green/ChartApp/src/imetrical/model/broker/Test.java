@@ -4,15 +4,24 @@
  */
 package imetrical.model.broker;
 
+import chartapp.EnergyEventCorrelator;
 import imetrical.model.DataFetcher;
 import imetrical.model.ExpandedSignal;
 import imetrical.model.SignalRange;
-import imetrical.time.TimeConvert;
 import imetrical.time.TimeManip;
 import imetrical.util.Timer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.SimpleTimeZone;
 import java.util.Vector;
-import org.joda.time.DateMidnight;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
@@ -209,6 +218,11 @@ public class Test {
     private void testTimeZoneForDSTBoundary() {
         /*
          * Pull the days from database and look
+         *  The real problem is at
+         *     gmtstamp: 2009-03-08 02:00:00+0000 -db-> 2009-03-08 03:00:00.000 -> 2009-03-07 22:00:00-0500
+         *                should be -> 2009-03-07 21:00:00-0500
+         *     gmtstamp: 2009-03-08 02:30:00+0000 -db-> 2009-03-08 03:30:00.000 -> 2009-03-07 22:30:00-0500
+         *                should be -> 2009-03-07 21:30:00-0500
          *
          * Non-existant local hour
          *   stamp: 2009-03-08 02:00:00  reformat: 2009-03-08 03:00:00-0400
@@ -239,14 +253,14 @@ public class Test {
         }
         for (String day : daysOfInterest) {
             log(String.format("day: %s", day));
-            for (int h = 4; h < 8; h++) {
+            for (int h = 0; h < 8; h++) {
                 for (String min : new String[]{"00", "30"}) {
                     String gmtstamp = String.format("%s %02d:%s:00+0000", day, h, min);
                     Date localDate = TimeManip.parseISOTZ(gmtstamp);
                     String localstamp = TimeManip.isoTZFmt.format(localDate);
                     // log(String.format("  gmtstamp: %s  local: %s", gmtstamp, localstamp));
 
-                    String sql = "select cast('" + gmtstamp + "' as datetime),1234";
+                    String sql = "select cast('" + gmtstamp + "' as char),1234";
                     Broker b = Broker.instance();
                     Vector<Object[]> v;
                     //log("Sql: " + sql);
@@ -258,17 +272,17 @@ public class Test {
                     //log(" interpreted as GMT: ");
                     v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
                     //showHeadAndTail(v, 2, true);
-                    Date localbackfromdb = (Date)(v.get(0)[0]);
+                    Date localbackfromdb = (Date) (v.get(0)[0]);
                     String localbackfromdbstamp = TimeManip.isoTZFmt.format(localbackfromdb);
 
-                    log(String.format("  gmtstamp: %s  local: %s  fromdb: %s", gmtstamp, localstamp,localbackfromdbstamp));
+                    log(String.format("  gmtstamp: %s  local: %s  fromdb: %s", gmtstamp, localstamp, localbackfromdbstamp));
 
                 }
             }
         }
     }
 
-    private void compareSpeed() {
+    private void compareDBSpeed() {
         System.out.println("---Compare speeds");
         Broker b = Broker.instance();
         String sql = "select stamp,watt from watt where stamp>='2008-11-02 04:00:00' and stamp<'2008-11-03 05:00:00'";
@@ -302,13 +316,77 @@ public class Test {
 
     }
 
+    private Date parseWithFormat(String dateStr,SimpleDateFormat fmt) {
+        try {
+            return fmt.parse(dateStr);
+        } catch (ParseException ex) {
+            Logger.getLogger(EnergyEventCorrelator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    private void compareParseSpeed() {
+        /* Compare parsing speeds for 86400 date strings
+         *
+         */
+        final SimpleDateFormat isoFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        final SimpleDateFormat isoTZFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+        final SimpleDateFormat gmtFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        final Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+        gmtFmt.setCalendar(cal);
+        final DateTimeFormatter jodaTZ = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ssZ");
+        final DateTimeFormatter jodaISO = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeZone gmtZone = DateTimeZone.forID("UTC");
+        final DateTimeFormatter jodaGMT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(gmtZone);
+
+        int secsPerDay = 24 * 60 * 60;
+        Date start = TimeManip.parseISOAsGMT("2009-03-08 00:00:00");
+        String[] wholeday=new String[secsPerDay];
+        String[] wholedaytz=new String[secsPerDay];
+        for (int i = 0; i < secsPerDay; i++) {
+            Date d = new Date(start.getTime() + (i * 1000l));
+            wholeday[i] = gmtFmt.format(d);
+            wholedaytz[i] = gmtFmt.format(d)+"+0000";
+            if (false && i % 100 == 0) {
+                log("wholdeay[" + i + "] = " + wholeday[i]);
+            }
+        }
+        Timer tt = new Timer();
+        for (int i = 0; i < secsPerDay; i++) {
+            Date d = parseWithFormat(wholeday[i],isoFmt);
+        }
+        System.out.println(String.format(" Parse ISO      : %fs %f it/s (%d)", tt.diff(), tt.rate(secsPerDay), secsPerDay));
+        tt.restart();
+        for (int i = 0; i < secsPerDay; i++) {
+            Date d = parseWithFormat(wholeday[i],gmtFmt);
+        }
+        System.out.println(String.format(" Parse ISOasGMT : %fs %f it/s (%d)", tt.diff(), tt.rate(secsPerDay), secsPerDay));
+        tt.restart();
+        for (int i = 0; i < secsPerDay; i++) {
+            //Date d = parseWithFormat(wholedaytz[i],isoTZFmt);
+        }
+        System.out.println(String.format(" Parse ISOTZ    : %fs %f it/s (%d)", tt.diff(), tt.rate(secsPerDay), secsPerDay));
+        tt.restart();
+        for (int i = 0; i < secsPerDay; i++) {
+            DateTime d = jodaTZ.parseDateTime(wholedaytz[i]);
+        }
+        System.out.println(String.format(" Parse JodaTZ    : %fs %f it/s (%d)", tt.diff(), tt.rate(secsPerDay), secsPerDay));
+        tt.restart();
+        for (int i = 0; i < secsPerDay; i++) {
+            DateTime d = jodaGMT.parseDateTime(wholeday[i]);
+        }
+        System.out.println(String.format(" Parse JodaGMT   : %fs %f it/s (%d)", tt.diff(), tt.rate(secsPerDay), secsPerDay));
+        tt.restart();
+
+    }
+
     public static void main(String[] args) {
         Test t = new Test();
         //t.testTimeZone();
-        t.testTimeZoneForDSTBoundary();
+        //t.testTimeZoneForDSTBoundary();
+        for (int i = 0; i < 4; i++) t.compareParseSpeed();
         System.exit(0);
         for (int i = 0; i < 4; i++) {
-            t.compareSpeed();
+            t.compareDBSpeed();
         }
         System.exit(0);
 
