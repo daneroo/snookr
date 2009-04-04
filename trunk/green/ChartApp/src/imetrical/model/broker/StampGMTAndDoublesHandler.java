@@ -22,7 +22,7 @@ import org.joda.time.format.DateTimeFormatter;
 public class StampGMTAndDoublesHandler implements Handler {
 
     Calendar gmtcal;
-    DateTimeFormatter fmt;
+    DateTimeFormatter gmtFmt;
     DateTimeZone gmtZone;
 
     public StampGMTAndDoublesHandler() {
@@ -30,17 +30,18 @@ public class StampGMTAndDoublesHandler implements Handler {
         //gmtcal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         gmtcal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 
-        String isoRFC822Str = "yyyy-MM-dd HH:mm:ssZ";
-        fmt = DateTimeFormat.forPattern(isoRFC822Str);
         gmtZone = DateTimeZone.forID("UTC");
+        String isoRFC822Str = "yyyy-MM-dd HH:mm:ss";
+        gmtFmt = DateTimeFormat.forPattern(isoRFC822Str).withZone(gmtZone);
 
     }
 
     private Date jodaParseISOAsGMT(String dateStrWithoutTZ) {
-        if (dateStrWithoutTZ.endsWith(".0")) {
+        /*if (dateStrWithoutTZ.endsWith(".0")) {
             dateStrWithoutTZ = dateStrWithoutTZ.substring(0, dateStrWithoutTZ.length() - 2);
-        }
-        DateTime date = fmt.parseDateTime(dateStrWithoutTZ + "+0000");
+        }*/
+        //DateTime date = gmtFmt.parseDateTime(dateStrWithoutTZ + "+0000");
+        DateTime date = gmtFmt.parseDateTime(dateStrWithoutTZ);
         return date.toDate();
     }
 
@@ -48,10 +49,11 @@ public class StampGMTAndDoublesHandler implements Handler {
         //return badGMT;
         DateTime b = new DateTime(badGMT.getTime());
         //return b.toDate();
+        System.err.println(String.format(" joda-re: %4d-%02d-%02d %02d:%02d:%02d.%03d",b.getYear(), b.getMonthOfYear(), b.getDayOfMonth(),b.getHourOfDay(), b.getMinuteOfHour(), b.getSecondOfMinute(), b.getMillisOfSecond()));
         DateTime good = new DateTime(b.getYear(), b.getMonthOfYear(), b.getDayOfMonth(),
                 b.getHourOfDay(), b.getMinuteOfHour(), b.getSecondOfMinute(), b.getMillisOfSecond(), gmtZone);
         return good.toDate();
-    //DateTime date = fmt.parseDateTime(dateStrWithoutTZ+"+0000");
+    //DateTime date = gmtFmt.parseDateTime(dateStrWithoutTZ+"+0000");
     //return date.toDate();
     }
 
@@ -60,9 +62,10 @@ public class StampGMTAndDoublesHandler implements Handler {
         for (int i = 0; i < cols; i++) {
             if (i == 0) {
                 //array[i] = TimeManip.parseISOAsGMT(rs.getString(i + 1));
-                //array[i] = jodaParseISOAsGMT(rs.getString(i + 1));
+                array[i] = jodaParseISOAsGMT(rs.getString(i + 1));
                 //array[i] = rs.getTimestamp(i + 1, gmtcal);
-                array[i] = reinterpretAsGMT(rs.getTimestamp(i + 1));
+                //array[i] = reinterpretAsGMT(rs.getTimestamp(i + 1));
+                //array[i] = TimeManip.parseISOAsGMT(rs.getString(i + 1));
             } else {
                 array[i] = rs.getDouble(i + 1);
             }

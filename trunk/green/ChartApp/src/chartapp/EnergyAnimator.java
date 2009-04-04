@@ -31,10 +31,13 @@ public class EnergyAnimator {
 
     public TimeSeriesCollection setup() {
         timeSeriesCollection = new TimeSeriesCollection();
-        graphStart = TimeManip.parseISO("2009-01-26 05:00:00");
+        //graphStart = TimeManip.parseISO("2009-01-26 05:00:00");
         //graphStart = TimeManip.parseISO("2009-03-26 05:00:00");
         //graphStart = TimeManip.parseISO("2009-04-01 15:00:00");
-        graphStart = TimeManip.parseISO("2009-03-29 06:00:00");
+        //graphStart = TimeManip.parseISO("2009-03-29 06:00:00");
+        //graphStart = TimeManip.parseISO("2009-03-07 20:00:00"); // for the gmt conversion hole: 2009-03-07 21h-22h
+        graphStart = TimeManip.parseISO("2008-11-02 00:00:00");  // for the local repeating time: 2008-11-02 01h
+
         graphHighresHours = 3;
         graphPadLowresHours = 1;
 
@@ -95,8 +98,10 @@ public class EnergyAnimator {
 
     private void updateAfterAdvance() {
 
+        //SignalRange.Grain lowresGrain = SignalRange.Grain.MINUTE;
+        //SignalRange.Grain highresGrain = SignalRange.Grain.SECOND;
         SignalRange.Grain lowresGrain = SignalRange.Grain.MINUTE;
-        SignalRange.Grain highresGrain = SignalRange.Grain.SECOND;
+        SignalRange.Grain highresGrain = SignalRange.Grain.MINUTE;
         Date graphStop = new Date(graphStart.getTime() + graphHighresHours * 60 * 60 * 1000l);
         // Context padding at Lowres
         Date padStart = new Date(graphStart.getTime() - graphPadLowresHours * 60 * 60 * 1000l);
