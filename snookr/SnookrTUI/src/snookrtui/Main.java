@@ -5,7 +5,6 @@
 package snookrtui;
 
 import java.io.File;
-import java.util.Map;
 import net.snookr.db.Database;
 import net.snookr.synch.Filesystem2Database;
 
@@ -31,8 +30,11 @@ public class Main {
 
         Main m = new Main(args[0]);
         //m.readWriteJSON();
-    m.classify();
-    //m.pushToFlickr();
+        //m.classify();
+        
+        //m.clearFlickrDB();
+        m.pushToFlickr();
+
     }
 
     private Main(String baseDirName) {
@@ -56,6 +58,10 @@ public class Main {
         fs2db.setDatabase(db);
         fs2db.run();
         db.close();
+    }
+
+    public void clearFlickrDB() {
+        new ClearFlickrDB().run();
     }
 
     public void pushToFlickr() {
