@@ -45,6 +45,11 @@ public class FlickrImageDAO {
         FlickrImage predictorFromDB = fetchForPrimaryKey(flima.photoid);
         return createOrUpdateInternal(flima,predictorFromDB);
     }
+
+    public void delete(FlickrImage flima) {
+        FlickrImage predictorFromDB = fetchForPrimaryKey(flima.photoid);
+        db.delete(predictorFromDB);
+    }
     /*
         if predictorFromDB is known use that. This allows for efficient fetching of many predictors
         simulatneously...
