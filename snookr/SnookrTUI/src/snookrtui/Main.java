@@ -5,6 +5,9 @@
 package snookrtui;
 
 import java.io.File;
+import java.util.Map;
+import net.snookr.db.Database;
+import net.snookr.synch.Filesystem2Database;
 
 /**
  *
@@ -12,21 +15,12 @@ import java.io.File;
  */
 public class Main {
 
+    private File baseDir;
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        for (int i = 0; i < 1000; i++) {
-            try {
-                Thread.sleep(100);
-            } catch (Exception e) {
-            }// wait a little
-            progress("Message: " + String.format("%5d", i));
-        }
-        System.exit(0);
-        //Report:
-        new ImageClassification().run();
-        System.exit(0);
 
         if (args.length < 1) {
             System.err.println("Please Specify baseDir, as in:");
@@ -34,7 +28,37 @@ public class Main {
             System.err.println("  java xx.jar /home/daniel/media");
             return;
         }
-        File baseDir = new File(args[0]);
+
+        Main m = new Main(args[0]);
+        //m.readWriteJSON();
+    m.classify();
+    //m.pushToFlickr();
+    }
+
+    private Main(String baseDirName) {
+        baseDir = new File(baseDirName);
+    }
+
+    public void readWriteJSON() {
+        //fs2db();
+        new ReadWriteJSON().run();
+    }
+
+    public void classify() {
+        fs2db();
+        new ImageClassification().run();
+    }
+
+    public void fs2db() {
+        Database db = new Database();
+        Filesystem2Database fs2db = new Filesystem2Database();
+        fs2db.setBaseDir(baseDir);
+        fs2db.setDatabase(db);
+        fs2db.run();
+        db.close();
+    }
+
+    public void pushToFlickr() {
         SymmetricDiffs sd = new SymmetricDiffs();
         sd.setBaseDir(baseDir);
         sd.run();
@@ -43,9 +67,18 @@ public class Main {
         System.out.println("Now Fix Dates");
         FixFlickrPostedDates ffpd = new FixFlickrPostedDates();
         ffpd.run();
+    }
 
-        //Report:
-        new ImageClassification().run();
+    private static void testProgress() {
+        if (false) {
+            for (int i = 0; i < 10; i++) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                } // wait a little
+                progress("Message: " + String.format("%5d", i));
+            }
+        }
     }
     static final byte besc[] = {27};
     static final String esc = new String(besc);
