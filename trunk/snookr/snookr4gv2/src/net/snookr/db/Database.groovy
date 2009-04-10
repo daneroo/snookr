@@ -48,7 +48,7 @@ class Database {
             mapByType[className] = (count==null)?1:(count+1);
         }
         mapByType.each() { k,v ->
-                println "db has ${v} objects of type ${k}"
+            println "db has ${v} objects of type ${k}"
         }
         if (verbose) {
             for ( o in wholeDb) {
@@ -64,7 +64,7 @@ class Database {
         qbe[fieldName] = value;
         ObjectSet result = oc.get(qbe);
 
-        */
+         */
         Query query=this.oc.query();
         query.constrain(claz);
         query.descend(fieldName).constrain(value);
@@ -81,7 +81,7 @@ class Database {
         qbe[fieldName] = value;
         ObjectSet result = oc.get(qbe);
 
-        */
+         */
         // Query-constrain-based resultSet
         Query query=this.oc.query();
         query.constrain(claz);
@@ -96,6 +96,11 @@ class Database {
     int commitCounter=0;
     String save(Object persist) {
         oc.set(persist);
+        commitCounter++;
+        if ((commitCounter%1000)==0) oc.commit();
+    }
+    void delete(Object persist) {
+        oc.delete(persist);
         commitCounter++;
         if ((commitCounter%1000)==0) oc.commit();
     }
