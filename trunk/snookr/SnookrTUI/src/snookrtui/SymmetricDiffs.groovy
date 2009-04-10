@@ -82,7 +82,7 @@ class SymmetricDiffs {
         int totalNotOnFlickr=0;
         fsimaUniqueByMd5.each() { md5,fsima -> //
             if (flickrimaUniqueByMd5[md5]==null) {
-                println "not on flickr: md5:${md5} -> ${fsima.fileName}";
+                if (verbose) println "not on flickr: md5:${md5} -> ${fsima.fileName}";
                 totalNotOnFlickr++;
             }
         }
@@ -102,6 +102,7 @@ class SymmetricDiffs {
         int total=0;
         int totalFound=0;
         int totalMissing=0;
+        def filesToUpload =[];
         dbMapByFileName.each() { fileName,fsima -> //
             //println("fn:${fileName} -> fsima:${fsima}");
             //println "fn:${fileName} looking for md5:${fsima.md5}";
@@ -115,15 +116,18 @@ class SymmetricDiffs {
                     }
                 }
             } else {
-                println "fn:${fileName} could not find md5:${fsima.md5}";
+                if (verbose) println "fn:${fileName} flickr doesn't contain md5:${fsima.md5}";
                 totalMissing++;
 
                 File f = new File(fileName);
                 if (f.exists()) {
+                    filesToUpload.add(f);
+                    /*
                     long start = new Date().getTime();
                     long nuPhotoid = photos.uploadPhoto(f);
                     long elapsedms = new Date().getTime() - start;
                     println "new photoid: ${nuPhotoid} uploaded in ${elapsedms/1000f}s.";
+                     */
                 } else {
                     println "Missing file not found in filesystem. cannot upload";
                 }
@@ -132,6 +136,22 @@ class SymmetricDiffs {
             total++;
         }
         println "examined ${total} FSImages, found:${totalFound} missing:${totalMissing}";
+
+        // Reverse upload after
+        filesToUpload = filesToUpload.reverse();
+        /*
+        println "uploading: ${filesToUpload[0]}";
+        println "uploading: ${filesToUpload[1]}";
+        println "  ...";
+        println "uploading: ${filesToUpload[filesToUpload.size()-2]}";
+        println "uploading: ${filesToUpload[filesToUpload.size()-1]}";
+        filesToUpload.each() { f -> // file objects accumulated above
+            long start = new Date().getTime();
+            long nuPhotoid = photos.uploadPhoto(f);
+            long elapsedms = new Date().getTime() - start;
+            println "new photoid: ${nuPhotoid} uploaded in ${elapsedms/1000f}s.";
+        }
+         */
 
         //println "-=-=-= Database Summary:  =-=-=-"
         //db.printSummary(false);

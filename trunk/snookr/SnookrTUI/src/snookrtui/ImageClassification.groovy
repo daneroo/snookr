@@ -46,11 +46,11 @@ class ImageClassification {
             def makeNModel = getCamera(f);
             if (makeMap[makeNModel]!=null) {
                 if (verbose) {
-                    println("${fsima.md5}: ${makeNModel}");
+                    println("${makeNModel}: ${fsima.md5}");
                 }
                 makeMap[makeNModel] = makeMap[makeNModel]+1;
             } else {
-                println("${fsima.md5}: ${makeNModel}");
+                println("first ${makeNModel}: ${fsima.md5}");
                 makeMap[makeNModel] = 1;
             }
             if (countem++>100000) {
@@ -72,9 +72,11 @@ class ImageClassification {
             Directory exifDirectory = metadata.getDirectory(ExifDirectory.class);
             String cameraMake = exifDirectory.getString(ExifDirectory.TAG_MAKE);
             String cameraModel = exifDirectory.getString(ExifDirectory.TAG_MODEL);
+
             if (cameraMake==null && cameraModel==null) {
-                println("${f} has null make and model");
+                //println("${f} has null make and model");
             }
+            
             return "${cameraMake} | ${cameraModel}";
         } catch (com.drew.metadata.MetadataException me) {
             System.err.println(me.getClass().getName()+" "+me.getMessage()+" f: "+f);
