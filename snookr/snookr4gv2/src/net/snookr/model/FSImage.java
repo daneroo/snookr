@@ -13,11 +13,11 @@ import net.snookr.util.DateFormat;
  * @author daniel
  */
 public class FSImage {
-    String fileName; // canonical path - Natural (unique) key
-    Long size;
-    String md5;
-    Date lastModified;
-    Date taken;  // this is extracted from exif data when available - null if none available
+    public String fileName; // canonical path - Natural (unique) key
+    public Long size;
+    public String md5;
+    public Date lastModified;
+    public Date taken;  // this is extracted from exif data when available - null if none available
 
     /** Creates a new instance of FSImage */
     public FSImage() {
