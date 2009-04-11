@@ -10,7 +10,6 @@ package net.snookr.util;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -21,7 +20,7 @@ import java.util.GregorianCalendar;
 public final class DateFormat {
     
     public static String format(Date d) {
-        return new DateFormat().format(d,EPOCHSTR);
+        return DateFormat.format(d,EPOCHSTR);
     }
     public static String format(Date d,String defaultValue) {
         return new DateFormat().internalFormat(d,defaultValue);
