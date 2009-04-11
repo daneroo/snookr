@@ -30,6 +30,44 @@ public class FSImage {
     String safeDate(Date d) {
         return DateFormat.format(d,"????-??-?? ??:??:??");
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final FSImage other = (FSImage) obj;
+        if ((this.fileName == null) ? (other.fileName != null) : !this.fileName.equals(other.fileName)) {
+            return false;
+        }
+        if (this.size != other.size && (this.size == null || !this.size.equals(other.size))) {
+            return false;
+        }
+        if ((this.md5 == null) ? (other.md5 != null) : !this.md5.equals(other.md5)) {
+            return false;
+        }
+        if (this.lastModified != other.lastModified && (this.lastModified == null || !this.lastModified.equals(other.lastModified))) {
+            return false;
+        }
+        if (this.taken != other.taken && (this.taken == null || !this.taken.equals(other.taken))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + (this.fileName != null ? this.fileName.hashCode() : 0);
+        hash = 89 * hash + (this.size != null ? this.size.hashCode() : 0);
+        hash = 89 * hash + (this.md5 != null ? this.md5.hashCode() : 0);
+        hash = 89 * hash + (this.taken != null ? this.taken.hashCode() : 0);
+        return hash;
+    }
+
     
 }
 
