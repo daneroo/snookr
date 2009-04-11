@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import net.snookr.model.FSImage;
+import net.snookr.util.MD5;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -32,11 +33,12 @@ public class JSONTest {
         fsima.fileName = "/pathToFile/image" + (r + 1000000) + ".jpg";
         fsima.size = new Long(r + 1000000);
         fsima.md5 = "0e7eded2e5283be3f6b716c71e7e1c1c";
+        fsima.md5 = MD5.digest(fsima.fileName);
         fsima.lastModified = new Date(0 + r * 3600 * 1000);
         fsima.taken = fsima.lastModified;
         return fsima;
     }
-    private final String knownFSImageList12JSON = "[{\"fileName\":\"/pathToFile/image1000001.jpg\",\"size\":1000001,\"md5\":\"0e7eded2e5283be3f6b716c71e7e1c1c\",\"lastModified\":\"1969-12-31 20:00:00\",\"taken\":\"1969-12-31 20:00:00\"},{\"fileName\":\"/pathToFile/image1000002.jpg\",\"size\":1000002,\"md5\":\"0e7eded2e5283be3f6b716c71e7e1c1c\",\"lastModified\":\"1969-12-31 21:00:00\",\"taken\":\"1969-12-31 21:00:00\"}]";
+    private final String knownFSImageList12JSON = "[{\"fileName\":\"/pathToFile/image1000001.jpg\",\"size\":1000001,\"md5\":\"74e40e0ff06e0d8c638d1febd10e31e1\",\"lastModified\":\"1969-12-31 20:00:00\",\"taken\":\"1969-12-31 20:00:00\"},{\"fileName\":\"/pathToFile/image1000002.jpg\",\"size\":1000002,\"md5\":\"1a7ef987ac3a101819180b530602cac7\",\"lastModified\":\"1969-12-31 21:00:00\",\"taken\":\"1969-12-31 21:00:00\"}]";
 
     private List makeFSImageList() {
         List list = new ArrayList();

@@ -35,10 +35,10 @@ public class Main {
 
         Main m = new Main(args[0]);
         //m.fs2db();
-        //m.classify();
+        m.classify();
         //m.readWriteJSON();
-        m.pushToFlickr();
-        m.clearFlickrDB();
+        //m.pushToFlickr();
+        //m.clearFlickrDB();
     }
 
     private Main(String baseDirName) {
@@ -71,7 +71,6 @@ public class Main {
     }
 
     public void classify() {
-        fs2db();
         new ImageClassification().run();
     }
 

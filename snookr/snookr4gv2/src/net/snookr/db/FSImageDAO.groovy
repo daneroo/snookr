@@ -64,10 +64,10 @@ public class FSImageDAO {
         boolean isNew = false;
         boolean isModified = false;
 
-        def fileName = fsima.fileName;
+        String fileName = fsima.fileName;
         File f = new File(fsima.fileName);
 
-        def persist = predictorFromDB;
+        FSImage persist = predictorFromDB;
 
         if (persist==null) {
             persist = fsima;
@@ -86,7 +86,7 @@ public class FSImageDAO {
 
         // attributes not assumed to be set in fsima (because of cost...)
         // TODO behaviour thing like md5: always/never/asNeeded
-        if (persist.taken==null) { 
+        if (persist.taken==null) {
             Date taken = fsima.taken;
             if (!taken) {
                 taken = Exif.getExifDate(f);
@@ -94,6 +94,19 @@ public class FSImageDAO {
             }
             if (taken != persist.taken) {
                 persist.taken = taken
+                isModified = true;
+            }
+        }
+        // attributes not assumed to be set in fsima (because of cost...)
+        // TODO behaviour thing like md5: always/never/asNeeded
+        if (persist.camera==null) {
+            String camera = fsima.camera;
+            if (!camera) {
+                camera = Exif.getCamera(f);
+                //println "extraced exif camera ${camera} ${f.getName()}"
+            }
+            if (camera != persist.camera) {
+                persist.camera = camera
                 isModified = true;
             }
         }
