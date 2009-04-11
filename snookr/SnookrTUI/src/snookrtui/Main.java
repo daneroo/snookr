@@ -7,6 +7,11 @@ package snookrtui;
 import java.io.File;
 import net.snookr.db.Database;
 import net.snookr.synch.Filesystem2Database;
+import net.snookr.synch.SymmetricDiffs;
+import net.snookr.synch.FixFlickrPostedDates;
+import net.snookr.synch.ImageClassification;
+import net.snookr.synch.ReadWriteJSON;
+import net.snookr.synch.ClearFlickrDB;
 
 /**
  *
@@ -30,10 +35,10 @@ public class Main {
 
         Main m = new Main(args[0]);
         //m.readWriteJSON();
-        //m.classify();
+        m.classify();
         
-        //m.clearFlickrDB();
-        m.pushToFlickr();
+        m.clearFlickrDB();
+        //m.pushToFlickr();
 
     }
 
