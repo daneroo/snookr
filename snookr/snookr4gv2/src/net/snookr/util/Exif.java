@@ -1,8 +1,6 @@
 package net.snookr.util;
 
 import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.io.File;
 
 
@@ -12,7 +10,10 @@ import com.drew.metadata.Directory;
 import com.drew.imaging.jpeg.JpegMetadataReader;
 //import com.drew.imaging.jpeg.JpegSegmentReader;
 import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifDirectory;
+import com.drew.metadata.exif.CanonMakernoteDirectory;
+import java.util.Iterator;
 
 public class Exif {
 
@@ -63,5 +64,44 @@ public class Exif {
         }
         //System.err.println("exif for: "+f.getPath()+" d:"+EPOCH);
         return UNKNOWN_CAMERA;
+    }
+
+    public static void identifyCamera(File f) {
+        try {
+            Metadata metadata = JpegMetadataReader.readMetadata(f);
+            Directory makerDirectory = metadata.getDirectory(CanonMakernoteDirectory.class);
+
+            String imageNumber = makerDirectory.getString(CanonMakernoteDirectory.TAG_CANON_IMAGE_NUMBER);
+            String serialNumber = makerDirectory.getString(CanonMakernoteDirectory.TAG_CANON_SERIAL_NUMBER);
+            String ownerName = makerDirectory.getString(CanonMakernoteDirectory.TAG_CANON_OWNER_NAME);
+            System.out.println("Camer ID: imgNum:"+imageNumber+" serialNum:"+serialNumber+" ownerName:"+ownerName);
+        } catch (JpegProcessingException jpe) {
+            //System.err.println(jpe.getClass().getName()+" "+jpe.getMessage()+" f: "+f);
+        } catch (Exception e) {
+            //System.err.println(e.getClass().getName()+" "+e.getMessage()+" f: "+f);
+        }
+    }
+
+    public static void showAllTags(File f) {
+        try {
+            Metadata metadata = JpegMetadataReader.readMetadata(f);
+            // iterate through metadata directories
+            Iterator directories = metadata.getDirectoryIterator();
+            while (directories.hasNext()) {
+                Directory directory = (Directory) directories.next();
+                System.out.println("-=-=-= Directory : "+directory.getClass().getName());
+                // iterate through tags and print to System.out
+                Iterator tags = directory.getTagIterator();
+                while (tags.hasNext()) {
+                    Tag tag = (Tag) tags.next();
+                    // use Tag.toString()
+                    System.out.println(tag);
+                }
+            }
+        } catch (JpegProcessingException jpe) {
+            //System.err.println(jpe.getClass().getName()+" "+jpe.getMessage()+" f: "+f);
+        } catch (Exception e) {
+            //System.err.println(e.getClass().getName()+" "+e.getMessage()+" f: "+f);
+        }
     }
 }
