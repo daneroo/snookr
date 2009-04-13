@@ -11,6 +11,7 @@ import net.snookr.flickr.Photos;
 import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.Flickr2Database;
 import net.snookr.util.DateFormat;
+import net.snookr.util.Exif;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Directory;
 import com.drew.imaging.jpeg.JpegMetadataReader;
@@ -73,13 +74,14 @@ class ImageClassification {
             int delta = parsedInt-prevIndex;
             if (prevIndex==-1 || delta<0 || delta>5) {
                 println("  HEAD : ${baseName} : ${String.format("%6d",parsedInt)} : ${DateFormat.format(fsima.taken)} : ${matchedPattern}");
-
+                //Exif.showAllTags(f);
+                Exif.identifyCamera(f);
             }
 
             if (null==matchedPattern){
                 println("OTHER: ${baseName}");
             } else {
-                println("${baseName} : ${String.format("%6d",parsedInt)} : ${DateFormat.format(fsima.taken)} : ${matchedPattern}");
+                //println("${baseName} : ${String.format("%6d",parsedInt)} : ${DateFormat.format(fsima.taken)} : ${matchedPattern}");
             }
             prevIndex=parsedInt;
         }

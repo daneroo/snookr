@@ -12,6 +12,7 @@ import net.snookr.synch.FixFlickrPostedDates;
 import net.snookr.synch.ImageClassification;
 import net.snookr.synch.ReadWriteJSON;
 import net.snookr.synch.ClearFlickrDB;
+import net.snookr.util.Exif;
 
 /**
  *
@@ -36,9 +37,9 @@ public class Main {
         Main m = new Main(args[0]);
         //m.fs2db();
         m.classify();
-        //m.readWriteJSON();
-        //m.pushToFlickr();
-        //m.clearFlickrDB();
+    //m.readWriteJSON();
+    //m.pushToFlickr();
+    //m.clearFlickrDB();
     }
 
     private Main(String baseDirName) {
@@ -71,6 +72,11 @@ public class Main {
     }
 
     public void classify() {
+        //Exif.showAllTags(new File("/Volumes/DarwinScratch/photo/catou/2002_06_30/100-0065_IMG.JPG"));
+        Exif.identifyCamera(new File("/Volumes/DarwinScratch/photo/catou/2002_06_30/100-0065_IMG.JPG"));
+        //Exif.showAllTags(new File("/Volumes/DarwinScratch/photo/dadSulbalcon/200207/100-0063_IMG.JPG"));
+        Exif.identifyCamera(new File("/Volumes/DarwinScratch/photo/dadSulbalcon/200207/100-0063_IMG.JPG"));
+
         new ImageClassification().run();
     }
 
