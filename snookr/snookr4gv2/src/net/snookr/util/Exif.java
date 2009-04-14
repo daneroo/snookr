@@ -18,6 +18,7 @@ import java.util.Iterator;
 public class Exif {
 
     public static final String UNKNOWN_CAMERA = "UNKNOWN";
+    public static final String UNKNOWN_OWNER = "UNKNOWN";
 
     public static Date getExifDate(File f) {
         try {
@@ -66,7 +67,7 @@ public class Exif {
         return UNKNOWN_CAMERA;
     }
 
-    public static void identifyCamera(File f) {
+    public static String getCameraOwner(File f) {
         try {
             Metadata metadata = JpegMetadataReader.readMetadata(f);
             Directory makerDirectory = metadata.getDirectory(CanonMakernoteDirectory.class);
@@ -74,12 +75,17 @@ public class Exif {
             String imageNumber = makerDirectory.getString(CanonMakernoteDirectory.TAG_CANON_IMAGE_NUMBER);
             String serialNumber = makerDirectory.getString(CanonMakernoteDirectory.TAG_CANON_SERIAL_NUMBER);
             String ownerName = makerDirectory.getString(CanonMakernoteDirectory.TAG_CANON_OWNER_NAME);
-            System.out.println("Camer ID: imgNum:"+imageNumber+" serialNum:"+serialNumber+" ownerName:"+ownerName);
+            //System.out.println("Camer ID: imgNum:" + imageNumber + " serialNum:" + serialNumber + " ownerName:" + ownerName);
+            if (ownerName == null || "".equals(ownerName)) {
+                return UNKNOWN_OWNER;
+            }
+            return ownerName;
         } catch (JpegProcessingException jpe) {
             //System.err.println(jpe.getClass().getName()+" "+jpe.getMessage()+" f: "+f);
         } catch (Exception e) {
             //System.err.println(e.getClass().getName()+" "+e.getMessage()+" f: "+f);
         }
+        return UNKNOWN_OWNER;
     }
 
     public static void showAllTags(File f) {
@@ -89,7 +95,7 @@ public class Exif {
             Iterator directories = metadata.getDirectoryIterator();
             while (directories.hasNext()) {
                 Directory directory = (Directory) directories.next();
-                System.out.println("-=-=-= Directory : "+directory.getClass().getName());
+                System.out.println("-=-=-= Directory : " + directory.getClass().getName());
                 // iterate through tags and print to System.out
                 Iterator tags = directory.getTagIterator();
                 while (tags.hasNext()) {
