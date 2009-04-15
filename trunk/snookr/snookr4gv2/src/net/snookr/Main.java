@@ -9,6 +9,7 @@ import net.snookr.db.Database;
 import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.SymmetricDiffs;
 import net.snookr.synch.FixFlickrPostedDates;
+import net.snookr.synch.FlickrFetch;
 import net.snookr.synch.ImageClassification;
 import net.snookr.synch.ReadWriteJSON;
 import net.snookr.synch.ClearFlickrDB;
@@ -36,10 +37,11 @@ public class Main {
 
         Main m = new Main(args[0]);
         //m.fs2db();
-        m.classify();
-    //m.readWriteJSON();
-    //m.pushToFlickr();
-    //m.clearFlickrDB();
+        //m.classify();
+        //m.readWriteJSON();
+        //m.pushToFlickr();
+        //m.clearFlickrDB();
+        m.fetch();
     }
 
     private Main(String baseDirName) {
@@ -69,6 +71,10 @@ public class Main {
     public void readWriteJSON() {
         //fs2db();
         new ReadWriteJSON().run();
+    }
+
+    public void fetch() {
+        new FlickrFetch().run();
     }
 
     public void classify() {

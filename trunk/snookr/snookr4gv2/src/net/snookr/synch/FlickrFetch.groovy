@@ -1,0 +1,128 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package net.snookr.synch
+
+import groovy.xml.*
+import groovy.util.slurpersupport .*
+import java.text.SimpleDateFormat;
+
+import net.snookr.flickr.Flickr;
+import net.snookr.flickr.Photos;
+import net.snookr.db.Database;
+import net.snookr.db.FlickrImageDAO;
+import net.snookr.util.Spawner;
+import net.snookr.util.Progress;
+import net.snookr.util.MD5;
+import net.snookr.model.FlickrImage;
+
+/**
+ *
+ * @author daniel
+ *   What this script does:
+ *   Fetches photos...
+ *   getSizes returns data as:
+ *   source: is the url for the image itself
+ *   url: is a web page for that photo at that size
+ *
+ *   <sizes canblog="1" canprint="1" candownload="1">
+ *   <size label="Square" width="75" height="75" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_s.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=sq" />
+ *   <size label="Thumbnail" width="100" height="75" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_t.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=t" />
+ *   <size label="Small" width="240" height="180" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_m.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=s" />
+ *   <size label="Medium" width="500" height="375" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=m" />
+ *   <size label="Large" width="1024" height="768" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_b.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=l" />
+ *   <size label="Original" width="2592" height="1944" source="http://farm1.static.flickr.com/145/419443247_1195f586b4_o.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=o" />
+ *   </sizes>
+
+ */
+class FlickrFetch {
+    def verbose=false;
+
+    private List getShortTestList(){
+        // Faked out Photo objects! // just need photoid attribute
+        String Krazrid = "2188744290";
+        String SD300id = "419443247";
+        List shortTestList = [["photoid":Krazrid],["photoid":SD300id]];
+        return shortTestList
+    }
+
+    private List getFullFlickrList(){
+        int getPhotoListThreads=10;
+        List flickrList  = new Photos().getPhotoList(getPhotoListThreads);
+        return flickrList;
+    }
+
+    public void run() {
+        println "Hello Flick Fetch";
+
+        //List photoList = getShortTestList();
+        List photoList = getFullFlickrList();
+
+        int getPhotoSizesThreads=10;
+        Closure getPhotoSizesClosure = { photo ->
+            String photoid = photo.photoid;
+            Map mapOfSizeUrls =  new Photos().getSizes(photoid);
+            saveSizesToFiles(photoid,mapOfSizeUrls);
+        }
+        new Spawner(photoList,getPhotoSizesClosure,getPhotoSizesThreads).run();
+
+    }
+    public File getBaseDirectory() {
+        String homeDirPath = System.getProperty("user.home");
+        File homeDir = new File(homeDirPath);
+        if (!homeDir.exists()) {
+            throw new Exception("Cannot Find HomeDir: "+homeDir);
+        }
+        File baseDir = new File(homeDir,"SnookrFetchDir");
+        return baseDir;
+    }
+    public void makeDir(File dir) {
+        if(!dir.exists()){
+            boolean success = dir.mkdir();
+            if (!success) {
+                println("Directory creation failed: "+dir);
+                throw new Exception("Directory creation failed: "+dir);
+                return;
+            }
+        }
+    }
+    public void saveToFile(String photoid,String urlStr,File newFile) {
+        println "  url: ${urlStr} file:${newFile}";
+        URL url = new URL(urlStr);
+        BufferedInputStream inStream = new BufferedInputStream(url.openStream());
+        FileOutputStream fos = new FileOutputStream(newFile);
+        int read;
+        while ((read = inStream.read()) != -1) {
+            fos.write(read);
+        }
+        fos.flush();
+        fos.close();
+        inStream.close();
+    }
+
+    public void saveSizesToFiles(String photoid,Map mapOfSizeUrls) {
+        //List listOfSizes = ["Square","Thumbnail","Small","Medium","Large","Original"];
+        List listOfSizes = ["Thumbnail","Square","Small"];
+        //List listOfSizes = ["Square","Small"];
+        //List listOfSizes = ["Square"];
+        File baseDir = getBaseDirectory();
+        makeDir(baseDir);
+        println("Fetching " + photoid);
+        listOfSizes.each() { whichSize -> //
+            File sizeDir = new File(baseDir,whichSize);
+            makeDir(sizeDir);
+            String filename = photoid+".jpg";
+            File newFile = new File(sizeDir,filename);
+            if (!newFile.exists()) {
+                String url = mapOfSizeUrls[whichSize];
+                if (url){
+                    saveToFile(photoid,mapOfSizeUrls[whichSize],newFile);
+                }
+            }
+        }
+    }
+
+}
+
