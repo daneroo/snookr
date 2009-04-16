@@ -14,6 +14,7 @@ import net.snookr.flickr.Photos;
 import net.snookr.db.Database;
 import net.snookr.db.FlickrImageDAO;
 import net.snookr.util.Spawner;
+import net.snookr.util.DateFormat;
 import net.snookr.util.Progress;
 import net.snookr.util.MD5;
 import net.snookr.model.FlickrImage;
@@ -46,14 +47,6 @@ import net.snookr.model.FlickrImage;
 class FlickrFetch {
     def verbose=false;
 
-    private List getShortTestList(){
-        // Faked out Photo objects! // just need photoid attribute
-        String Krazrid = "2188744290";
-        String SD300id = "419443247";
-        List shortTestList = [["photoid":Krazrid],["photoid":SD300id]];
-        return shortTestList
-    }
-
     private List getFullFlickrList(){
         int getPhotoListThreads=10;
         List flickrList  = new Photos().getPhotoList(getPhotoListThreads);
@@ -61,19 +54,56 @@ class FlickrFetch {
     }
 
     public void run() {
-        println "Hello Flick Fetch";
+        println "Hello Flickr Fetch";
 
-        //List photoList = getShortTestList();
         List photoList = getFullFlickrList();
-
-        int getPhotoSizesThreads=10;
-        Closure getPhotoSizesClosure = { photo ->
-            String photoid = photo.photoid;
-            Map mapOfSizeUrls =  new Photos().getSizes(photoid);
-            saveSizesToFiles(photoid,mapOfSizeUrls);
+        // sort the list
+        photoList.sort(){ flima -> //
+            -flima.taken.getTime();
         }
-        new Spawner(photoList,getPhotoSizesClosure,getPhotoSizesThreads).run();
+        // short the list
+        //photoList = photoList[0..<20];
 
+        int fetchPhotoThreads=10;
+        Closure fetchPhotoClosure = { flima ->
+            //String photoid = flima.photoid;
+            //Map mapOfSizeUrls =  new Photos().getSizes(photoid);
+
+            Map mapOfSizeUrls =  getSizes(flima);
+            //println(flima);
+            //println(mapOfSizeUrls);
+            saveSizesToFiles(flima,mapOfSizeUrls);
+        }
+        new Spawner(photoList,fetchPhotoClosure,fetchPhotoThreads).run();
+
+    }
+
+    // Simulate Photos.getSizes
+    Map getSizes(FlickrImage flima){
+        /*
+         *  We will create tue urls ourselves instead:
+         * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{secret}.jpg
+         *	or
+         * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{secret}_[mstb].jpg
+         *	or
+         * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{o-secret}_o.(jpg|gif|png)
+         * s	small square 75x75
+         * t	thumbnail, 100 on longest side
+         * m	small, 240 on longest side
+         * -	medium, 500 on longest side
+         * b	large, 1024 on longest side (only exists for very large original images)
+         * o	original image, either a jpg, gif or png, depending on source format
+         */
+        // ["Square","Thumbnail","Small","Medium","Large","Original"];
+
+        Map mapOfSizeUrls = [:];
+        mapOfSizeUrls["Square"] =    "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.secret}_s.jpg";
+        mapOfSizeUrls["Thumbnail"] = "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.secret}_t.jpg";
+        mapOfSizeUrls["Small"] =     "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.secret}_m.jpg";
+        mapOfSizeUrls["Medium"] =    "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.secret}.jpg";
+        mapOfSizeUrls["Large"] =     "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.secret}_b.jpg";
+        mapOfSizeUrls["Original"] =  "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.originalsecret}_o.jpg";
+        return mapOfSizeUrls;
     }
     public File getBaseDirectory() {
         String homeDirPath = System.getProperty("user.home");
@@ -86,7 +116,7 @@ class FlickrFetch {
     }
     public void makeDir(File dir) {
         if(!dir.exists()){
-            boolean success = dir.mkdir();
+            boolean success = dir.mkdirs();
             if (!success) {
                 println("Directory creation failed: "+dir);
                 throw new Exception("Directory creation failed: "+dir);
@@ -94,7 +124,7 @@ class FlickrFetch {
             }
         }
     }
-    public void saveToFile(String photoid,String urlStr,File newFile) {
+    public void saveToFile(String urlStr,File newFile) {
         println "  url: ${urlStr} file:${newFile}";
         URL url = new URL(urlStr);
         BufferedInputStream inStream = new BufferedInputStream(url.openStream());
@@ -108,27 +138,47 @@ class FlickrFetch {
         inStream.close();
     }
 
-    public void saveSizesToFiles(String photoid,Map mapOfSizeUrls) {
+    public void saveSizesToFiles(FlickrImage flima,Map mapOfSizeUrls) {
         //List listOfSizes = ["Square","Thumbnail","Small","Medium","Large","Original"];
         List listOfSizes = ["Thumbnail","Square","Small"];
         //List listOfSizes = ["Square","Small"];
         //List listOfSizes = ["Square"];
+
         File baseDir = getBaseDirectory();
         makeDir(baseDir);
-        println("Fetching " + photoid);
+
         listOfSizes.each() { whichSize -> //
             File sizeDir = new File(baseDir,whichSize);
-            makeDir(sizeDir);
-            String filename = photoid+".jpg";
-            File newFile = new File(sizeDir,filename);
-            if (!newFile.exists()) {
+            // include year/year-month directory relative path
+            String standardFileName = relativeStandardDirAndFileName(flima);
+            File standardFile = new File(sizeDir,standardFileName);
+            File pathToCreate = standardFile.getParentFile();
+            makeDir(pathToCreate);
+            if (!standardFile.exists()) {
                 String url = mapOfSizeUrls[whichSize];
                 if (url){
-                    saveToFile(photoid,mapOfSizeUrls[whichSize],newFile);
+                    saveToFile(mapOfSizeUrls[whichSize],standardFile);
                 }
             }
         }
     }
+
+    /*  return a relative path and fileName:
+     *   like  2003/2003-08/20030803142048-aefdee3f3a6250419cb5eb1c429b7fc9.jpg
+     *   or 1970/1970-01/19700101000000-xxxxx.jpg
+     */
+    private String relativeStandardDirAndFileName(FlickrImage flima) {
+        String datePart;
+        try {
+            SimpleDateFormat SDF = new SimpleDateFormat(YMDirYMDHMS);
+            datePart =  SDF.format(flima.taken);
+        } catch (Exception e) {
+            datePart=DEFAULTDATESTR;
+        }
+        return "${datePart}-${flima.md5}.jpg";
+    }
+    private static final String YMDirYMDHMS = "yyyy/yyyy-MM/yyyyMMddHHmmss";
+    private static final DEFAULTDATESTR="1970/1970-01/19700101000000";
 
 }
 
