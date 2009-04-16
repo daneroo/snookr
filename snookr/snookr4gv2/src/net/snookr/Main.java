@@ -38,12 +38,12 @@ public class Main {
 
         Main m = new Main(args[0]);
         //m.fs2db();
-        m.fli2db();
+        //m.fli2db();
         //m.classify();
         //m.readWriteJSON();
         //m.pushToFlickr();
         //m.clearFlickrDB();
-        //m.fetch();
+        m.fetch();
     }
 
     private Main(String baseDirName) {
