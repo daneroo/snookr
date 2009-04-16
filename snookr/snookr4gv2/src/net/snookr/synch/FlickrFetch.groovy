@@ -35,7 +35,13 @@ import net.snookr.model.FlickrImage;
  *   <size label="Large" width="1024" height="768" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_b.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=l" />
  *   <size label="Original" width="2592" height="1944" source="http://farm1.static.flickr.com/145/419443247_1195f586b4_o.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=o" />
  *   </sizes>
-
+ *
+ *  We will create tue urls ourselves instead:
+ * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{secret}.jpg
+ *	or
+ * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{secret}_[mstb].jpg
+ *	or
+ * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{o-secret}_o.(jpg|gif|png)
  */
 class FlickrFetch {
     def verbose=false;

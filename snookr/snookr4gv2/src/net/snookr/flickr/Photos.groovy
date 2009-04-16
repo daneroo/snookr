@@ -82,7 +82,7 @@ class Photos {
     }
 
     /* getPhotoList Could have variable parameters later:
-       perPage, sort, other search criteeria.
+    perPage, sort, other search criteeria.
      */
 
     List getPhotoList(int numThreads) {
@@ -140,11 +140,17 @@ class Photos {
             "per_page":"${perPage}",
             "page":"${page}",
             "sort":sortOrder,
-            // extras: license, date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags
-            "extras":"date_upload,date_taken,tags,last_update",
+            // extras: license, date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags, o_dims, views, media
+            "extras":"date_upload,date_taken,tags,last_update,original_format",
         ]
         def rsp = parse( flickr.getPhotoSearch(searchParams) );
-
+        /* These are twhat the elements look like:
+        <photo id="3419478079" owner="43605851@N00" secret="9011a2880d" server="3346"
+        farm="4" title="IMG_4585.jpg" ispublic="1" isfriend="0" isfamily="0"
+        dateupload="1238964994" datetaken="2009-04-05 16:56:34" datetakengranularity="0"
+        tags="snookrd snookr:md5=0bbc4b0ccfad80a7b8ac7c24ca9abbe8" lastupdate="1239074059"
+        originalsecret="52f4bb048d" originalformat="jpg"/>
+         */
         // assert invariants while iterating
         assert page == Integer.valueOf(rsp.photos.@page.text());
         assert perPage == Integer.valueOf(rsp.photos.@perpage.text());
@@ -176,6 +182,13 @@ class Photos {
             if (md5List.size==1) {
                 flima.md5 = (md5List[0] =~ /snookr:md5=/).replaceFirst("");
             }
+
+            // new fields for url reconstruction: farm server secret originalsecret
+            flima.farm = photo.'@farm';
+            flima.server = photo.'@server';
+            flima.secret = photo.'@secret';
+            flima.originalsecret = photo.'@originalsecret';
+
             //println "${flima}";
             list << flima;
         }
@@ -224,19 +237,19 @@ class Photos {
     }
 
     Map getSizes(String photoid) {
-/*
-source: is the url for the image itself
-url: is a web page for that photo at that size
-May not have all sizes !
-<sizes canblog="1" canprint="1" candownload="1">
+        /*
+        source: is the url for the image itself
+        url: is a web page for that photo at that size
+        May not have all sizes !
+        <sizes canblog="1" canprint="1" candownload="1">
         <size label="Square" width="75" height="75" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_s.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=sq" />
         <size label="Thumbnail" width="100" height="75" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_t.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=t" />
         <size label="Small" width="240" height="180" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_m.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=s" />
         <size label="Medium" width="500" height="375" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=m" />
         <size label="Large" width="1024" height="768" source="http://farm1.static.flickr.com/145/419443247_34755ec3f3_b.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=l" />
         <size label="Original" width="2592" height="1944" source="http://farm1.static.flickr.com/145/419443247_1195f586b4_o.jpg" url="http://www.flickr.com/photo_zoom.gne?id=419443247&amp;size=o" />
-</sizes>
-*/
+        </sizes>
+         */
         def mapOfSizes = [:];
         def rsp = parse( flickr.getSizes(["photo_id":photoid]) );
         // should I assert anything ?

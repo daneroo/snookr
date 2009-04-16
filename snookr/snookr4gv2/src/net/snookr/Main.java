@@ -7,6 +7,7 @@ package net.snookr;
 import java.io.File;
 import net.snookr.db.Database;
 import net.snookr.synch.Filesystem2Database;
+import net.snookr.synch.Flickr2Database;
 import net.snookr.synch.SymmetricDiffs;
 import net.snookr.synch.FixFlickrPostedDates;
 import net.snookr.synch.FlickrFetch;
@@ -37,11 +38,12 @@ public class Main {
 
         Main m = new Main(args[0]);
         //m.fs2db();
+        m.fli2db();
         //m.classify();
         //m.readWriteJSON();
         //m.pushToFlickr();
         //m.clearFlickrDB();
-        m.fetch();
+        //m.fetch();
     }
 
     private Main(String baseDirName) {
@@ -54,6 +56,13 @@ public class Main {
         fs2db.setBaseDir(baseDir);
         fs2db.setDatabase(db);
         fs2db.run();
+        db.close();
+    }
+    public void fli2db() {
+        Database db = new Database();
+        Flickr2Database fli2db = new Flickr2Database();
+        fli2db.setDatabase(db);
+        fli2db.run();
         db.close();
     }
 
