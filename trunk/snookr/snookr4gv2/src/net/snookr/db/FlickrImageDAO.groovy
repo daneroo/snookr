@@ -51,11 +51,11 @@ public class FlickrImageDAO {
         db.delete(predictorFromDB);
     }
     /*
-        if predictorFromDB is known use that. This allows for efficient fetching of many predictors
-        simulatneously...
-        if predictorFromDB is null, that means that it is known NOT to exist in the database
-        return codes: Update,New,Unmodified
-    */  
+    if predictorFromDB is known use that. This allows for efficient fetching of many predictors
+    simulatneously...
+    if predictorFromDB is null, that means that it is known NOT to exist in the database
+    return codes: Update,New,Unmodified
+     */
     private String createOrUpdateInternal(FlickrImage flima,FlickrImage predictorFromDB) {
         // implement parse (attr) and persist photo info from flickr
         boolean isNew = false;
@@ -83,6 +83,23 @@ public class FlickrImageDAO {
             }
             if (persist.lastUpdate != flima.lastUpdate) {
                 persist.lastUpdate = flima.lastUpdate;
+                isModified = true;
+            }
+            // new fields for making fetch urls
+            if (persist.farm != flima.farm) {
+                persist.farm = flima.farm;
+                isModified = true;
+            }
+            if (persist.server != flima.server) {
+                persist.server = flima.server;
+                isModified = true;
+            }
+            if (persist.secret != flima.secret) {
+                persist.secret = flima.secret;
+                isModified = true;
+            }
+            if (persist.originalsecret != flima.originalsecret) {
+                persist.originalsecret = flima.originalsecret;
                 isModified = true;
             }
         }

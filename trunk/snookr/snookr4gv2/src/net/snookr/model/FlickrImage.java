@@ -9,7 +9,12 @@ public class FlickrImage {
     public Date taken;   // data seeded from exif data / dan be modified...
     public Date posted;  // data of original post to flickr/can be modified...
     public Date lastUpdate; // last modification to any metadata/ includes tags,comments,etc...
-    
+    // added these to reconstruct fetch urls
+    public String farm;
+    public String server;
+    public String secret;
+    public String originalsecret; // original format is assumed to be jpg (not gif/png}
+
     /** Creates a new instance of FlickrImage */
     public FlickrImage() {
     }
