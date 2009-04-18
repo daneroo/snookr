@@ -135,23 +135,25 @@ class SymmetricDiffs {
             }
             total++;
         }
-        println "examined ${total} FSImages, found:${totalFound} missing:${totalMissing}";
+        println "examined ${total} FSImages, found:${totalFound} toUpload:${totalMissing}";
 
         // Reverse upload after
         filesToUpload = filesToUpload.reverse();
+        
+        println "uploading ${filesToUpload.size()} photos";
         /*
         println "uploading: ${filesToUpload[0]}";
         println "uploading: ${filesToUpload[1]}";
         println "  ...";
         println "uploading: ${filesToUpload[filesToUpload.size()-2]}";
         println "uploading: ${filesToUpload[filesToUpload.size()-1]}";
+         */
         filesToUpload.each() { f -> // file objects accumulated above
             long start = new Date().getTime();
             long nuPhotoid = photos.uploadPhoto(f);
             long elapsedms = new Date().getTime() - start;
             println "new photoid: ${nuPhotoid} uploaded in ${elapsedms/1000f}s.";
         }
-         */
 
         //println "-=-=-= Database Summary:  =-=-=-"
         //db.printSummary(false);
