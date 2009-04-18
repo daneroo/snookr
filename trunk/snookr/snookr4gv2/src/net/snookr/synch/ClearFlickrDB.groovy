@@ -17,7 +17,7 @@ import net.snookr.synch.Flickr2Database;
  *
  * @author daniel
  */
-class ClearFlickrDB {
+public class ClearFlickrDB {
     public void run() {
         report();
         deleteAll();
