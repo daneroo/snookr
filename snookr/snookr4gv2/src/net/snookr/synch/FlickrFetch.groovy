@@ -64,17 +64,11 @@ public class FlickrFetch {
         PrintStream ps = new PrintStream("seedScript.sh");
         dbMapByFileName.each() { fileName,fsima -> //
             String nuname = relativeStandardDirAndFileName(fsima.taken,fsima.md5);
-            if (fileName.contains("Lesauvage")) {
-                println("SAUV: ${fsima}");
-            }
             String path = new File(nuname).getParent();
             ps.println("mkdir -p ${path}");
             ps.println( "ln \"${fsima.fileName}\" ${nuname}" );
         }
         ps.close();
-        File eg = new File("/archive/media/photo/dad/Lesauvage/Lesauvage-2/PICT0559.JPG");
-        Exif.showAllTags(eg);
-        println("SAU Exif Date: ${Exif.getExifDate(eg)}");
         System.exit(0);
     }
     public void run() {
