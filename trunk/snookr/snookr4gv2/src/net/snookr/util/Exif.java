@@ -10,6 +10,7 @@ import com.drew.metadata.Directory;
 import com.drew.imaging.jpeg.JpegMetadataReader;
 //import com.drew.imaging.jpeg.JpegSegmentReader;
 import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifDirectory;
 import com.drew.metadata.exif.CanonMakernoteDirectory;
@@ -25,15 +26,18 @@ public class Exif {
             // equivalent function for InputStream
             Metadata metadata = JpegMetadataReader.readMetadata(f);
             Directory directory = metadata.getDirectory(ExifDirectory.class);
-            Date d = directory.getDate(ExifDirectory.TAG_DATETIME);
-            if (d == null) {
-                d = DateFormat.EPOCH;
-            //System.err.println("exif for: "+f.getPath()+" d:"+d);
-            }
-            return d;
 
-        } catch (com.drew.metadata.MetadataException me) {
-            //System.err.println(me.getClass().getName()+" "+me.getMessage()+" f: "+f);
+            Date d=null;
+            try {
+                d = directory.getDate(ExifDirectory.TAG_DATETIME);
+                if (d!=null) return d;
+            } catch (MetadataException metadataException) {
+            }
+            try {
+                d = directory.getDate(ExifDirectory.TAG_DATETIME_ORIGINAL);
+                if (d!=null) return d;
+            } catch (MetadataException metadataException) {
+            }
         } catch (JpegProcessingException jpe) {
             //System.err.println(jpe.getClass().getName()+" "+jpe.getMessage()+" f: "+f);
         } catch (Exception e) {
@@ -101,7 +105,8 @@ public class Exif {
                 while (tags.hasNext()) {
                     Tag tag = (Tag) tags.next();
                     // use Tag.toString()
-                    System.out.println(tag);
+                    //System.out.println(tag);
+                    System.out.println(String.format("[%s] %s(%d) - %s", tag.getDirectoryName(), tag.getTagName(), tag.getTagType(), tag.getDescription()));
                 }
             }
         } catch (JpegProcessingException jpe) {
