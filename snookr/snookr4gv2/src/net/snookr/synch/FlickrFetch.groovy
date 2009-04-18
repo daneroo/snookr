@@ -18,6 +18,7 @@ import net.snookr.util.Spawner;
 import net.snookr.util.DateFormat;
 import net.snookr.util.Progress;
 import net.snookr.util.MD5;
+import net.snookr.util.Exif;
 import net.snookr.model.FlickrImage;
 
 /**
@@ -45,7 +46,7 @@ import net.snookr.model.FlickrImage;
  *	or
  * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{o-secret}_o.(jpg|gif|png)
  */
-class FlickrFetch {
+public class FlickrFetch {
     def verbose=false;
 
     private List getFullFlickrList(){
@@ -63,16 +64,22 @@ class FlickrFetch {
         PrintStream ps = new PrintStream("seedScript.sh");
         dbMapByFileName.each() { fileName,fsima -> //
             String nuname = relativeStandardDirAndFileName(fsima.taken,fsima.md5);
+            if (fileName.contains("Lesauvage")) {
+                println("SAUV: ${fsima}");
+            }
             String path = new File(nuname).getParent();
             ps.println("mkdir -p ${path}");
             ps.println( "ln \"${fsima.fileName}\" ${nuname}" );
         }
         ps.close();
+        File eg = new File("/archive/media/photo/dad/Lesauvage/Lesauvage-2/PICT0559.JPG");
+        Exif.showAllTags(eg);
+        println("SAU Exif Date: ${Exif.getExifDate(eg)}");
         System.exit(0);
     }
     public void run() {
         println "Hello Flickr Fetch";
-        //seedScript();
+        seedScript();
 
         List photoList = getFullFlickrList();
         // sort the list
