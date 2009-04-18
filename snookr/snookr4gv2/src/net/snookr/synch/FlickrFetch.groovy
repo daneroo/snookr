@@ -13,6 +13,7 @@ import net.snookr.flickr.Flickr;
 import net.snookr.flickr.Photos;
 import net.snookr.db.Database;
 import net.snookr.db.FlickrImageDAO;
+import net.snookr.db.FSImageDAO;
 import net.snookr.util.Spawner;
 import net.snookr.util.DateFormat;
 import net.snookr.util.Progress;
@@ -53,8 +54,25 @@ class FlickrFetch {
         return flickrList;
     }
 
+    public void seedScript(){
+        Database db = new Database();
+        FSImageDAO.setDatabase(db);
+        FSImageDAO fsImageDAO = new FSImageDAO();
+        Map dbMapByFileName = fsImageDAO.getMapByPrimaryKey();
+        db.close();
+        PrintStream ps = new PrintStream("seedScript.sh");
+        dbMapByFileName.each() { fileName,fsima -> //
+            String nuname = relativeStandardDirAndFileName(fsima.taken,fsima.md5);
+            String path = new File(nuname).getParent();
+            ps.println("mkdir -p ${path}");
+            ps.println( "ln \"${fsima.fileName}\" ${nuname}" );
+        }
+        ps.close();
+        System.exit(0);
+    }
     public void run() {
         println "Hello Flickr Fetch";
+        //seedScript();
 
         List photoList = getFullFlickrList();
         // sort the list
@@ -64,7 +82,7 @@ class FlickrFetch {
         // short the list
         //photoList = photoList[0..<20];
 
-        int fetchPhotoThreads=10;
+        int fetchPhotoThreads=1;
         Closure fetchPhotoClosure = { flima ->
             //String photoid = flima.photoid;
             //Map mapOfSizeUrls =  new Photos().getSizes(photoid);
@@ -140,9 +158,10 @@ class FlickrFetch {
 
     public void saveSizesToFiles(FlickrImage flima,Map mapOfSizeUrls) {
         //List listOfSizes = ["Square","Thumbnail","Small","Medium","Large","Original"];
-        List listOfSizes = ["Thumbnail","Square","Small"];
+        //List listOfSizes = ["Thumbnail","Square","Small"];
         //List listOfSizes = ["Square","Small"];
         //List listOfSizes = ["Square"];
+        List listOfSizes = ["Thumbnail","Square","Small","Original"];
 
         File baseDir = getBaseDirectory();
         makeDir(baseDir);
@@ -168,14 +187,17 @@ class FlickrFetch {
      *   or 1970/1970-01/19700101000000-xxxxx.jpg
      */
     private String relativeStandardDirAndFileName(FlickrImage flima) {
+        return relativeStandardDirAndFileName(flima.taken,flima.md5);
+    }
+    private String relativeStandardDirAndFileName(Date taken,String md5) {
         String datePart;
         try {
             SimpleDateFormat SDF = new SimpleDateFormat(YMDirYMDHMS);
-            datePart =  SDF.format(flima.taken);
+            datePart =  SDF.format(taken);
         } catch (Exception e) {
             datePart=DEFAULTDATESTR;
         }
-        return "${datePart}-${flima.md5}.jpg";
+        return "${datePart}-${md5}.jpg";
     }
     private static final String YMDirYMDHMS = "yyyy/yyyy-MM/yyyyMMddHHmmss";
     private static final DEFAULTDATESTR="1970/1970-01/19700101000000";

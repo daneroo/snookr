@@ -20,7 +20,7 @@ import net.snookr.synch.Flickr2Database;
 class ClearFlickrDB {
     public void run() {
         report();
-        //deleteAll();
+        deleteAll();
         report();
     }
     public void deleteAll() {
