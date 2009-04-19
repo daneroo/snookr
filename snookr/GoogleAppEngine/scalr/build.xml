@@ -1,9 +1,4 @@
 <!-- This is a template Ant file for a very basic Google AppEngine project -->
-<!--
-  to deploy in the cloud
-  ../appengine-java-sdk-1.2.0/bin/appcfg.sh -h
-  ../appengine-java-sdk-1.2.0/bin/appcfg.sh update www
--->
 <project name="scalr" default="war">
 
   <!-- When you copy this template to your working directories, change the
