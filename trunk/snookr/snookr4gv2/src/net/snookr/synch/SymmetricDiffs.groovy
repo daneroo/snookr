@@ -16,7 +16,7 @@ import net.snookr.synch.Flickr2Database;
  *
  * @author daniel
  */
-class SymmetricDiffs {
+class SymmetricDiffs  implements Runnable {
     File baseDir=null;
     void setBaseDir(File aBaseDir){
         baseDir = aBaseDir;

@@ -46,8 +46,12 @@ import net.snookr.model.FlickrImage;
  *	or
  * http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{o-secret}_o.(jpg|gif|png)
  */
-public class FlickrFetch {
+public class FlickrFetch implements Runnable {
     def verbose=false;
+    File baseDir=null;
+    void setBaseDir(File aBaseDir){
+        baseDir = aBaseDir;
+    }
 
     private List getFullFlickrList(){
         int getPhotoListThreads=10;
@@ -73,7 +77,7 @@ public class FlickrFetch {
     }
     public void run() {
         println "Hello Flickr Fetch";
-        seedScript();
+        //seedScript();
 
         List photoList = getFullFlickrList();
         // sort the list
@@ -124,13 +128,17 @@ public class FlickrFetch {
         mapOfSizeUrls["Original"] =  "http://farm${flima.farm}.static.flickr.com/${flima.server}/${flima.photoid}_${flima.originalsecret}_o.jpg";
         return mapOfSizeUrls;
     }
+
     public File getBaseDirectory() {
-        String homeDirPath = System.getProperty("user.home");
-        File homeDir = new File(homeDirPath);
-        if (!homeDir.exists()) {
-            throw new Exception("Cannot Find HomeDir: "+homeDir);
+        if (baseDir==null) {
+            String homeDirPath = System.getProperty("user.home");
+            File homeDir = new File(homeDirPath);
+            if (!homeDir.exists()) {
+                throw new Exception("Cannot Find HomeDir: "+homeDir);
+            }
+            File defaultBaseDir = new File(homeDir,"SnookrFetchDir");
+            return defaultBaseDir;
         }
-        File baseDir = new File(homeDir,"SnookrFetchDir");
         return baseDir;
     }
     public void makeDir(File dir) {

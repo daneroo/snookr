@@ -17,7 +17,7 @@ import net.snookr.synch.Flickr2Database;
  *
  * @author daniel
  */
-class FixFlickrPostedDates {
+class FixFlickrPostedDates implements Runnable {
     public void run() {
         def verbose=false;
         println "Hello fixFlickrPostedDates"
