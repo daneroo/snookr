@@ -38,4 +38,31 @@ class Progress {
         }
         println "Time: ${diff}s ${done} ${rate} ${eta}";
     }
+
+    /* Here is the vt100 code...
+     *
+    private static void testProgress() {
+    if (true) {
+    for (int i = 0; i < 100; i++) {
+    try {
+    Thread.sleep(100);
+    } catch (Exception e) {
+    } // wait a little
+    progress("Message: " + String.format("%5d", i));
+    }
+    }
+    }
+    static final byte besc[] = {27};
+    static final String esc = new String(besc);
+    static final String clearline = esc + "[K";
+
+    public static void progress(String msg) {
+    msg = " " + msg; // room for cursor.
+    int size = msg.length();
+    String rewind = esc + "[" + size + "D";
+    System.err.print(clearline + msg + rewind);
+    System.err.flush();
+    }
+
+     */
 }
