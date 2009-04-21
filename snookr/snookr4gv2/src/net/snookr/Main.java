@@ -4,12 +4,10 @@
  */
 package net.snookr;
 
-// TODO Remove or fix policy for static imports
-import static java.util.Arrays.*;
-
 import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -136,9 +134,9 @@ public class Main {
         OptionParser parser = new OptionParser() {
 
             {
-                acceptsAll(asList("verbose", "v"), "be more verbose");
-                acceptsAll(asList("dry-run", "n"), "dry-run (no side effects)");
-                acceptsAll(asList("help", "h", "?"), "show this help message");
+                acceptsAll(Arrays.asList("verbose", "v"), "be more verbose");
+                acceptsAll(Arrays.asList("dry-run", "n"), "dry-run (no side effects)");
+                acceptsAll(Arrays.asList("help", "h", "?"), "show this help message");
                 accepts("fetch", "synch FROM flickr to default: ~/SnookrFetchDir").withOptionalArg().ofType(File.class).describedAs("destination directory");
                 accepts("push", "synch filesystem TO flickr").withRequiredArg().ofType(File.class).describedAs("source directory");
                 //accepts("push", "synch from filesystem TO flickr").withRequiredArg().describedAs("/path1" + pathSeparatorChar + "/path2:...").ofType(File.class).withValuesSeparatedBy(pathSeparatorChar);
