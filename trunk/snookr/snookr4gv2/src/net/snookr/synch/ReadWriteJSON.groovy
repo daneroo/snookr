@@ -61,7 +61,7 @@ class ReadWriteJSON {
     }
     private static String jsonFilename = "filesystem.json";
     public void writeToJSONFile(List list){
-        trim(list);
+        //trim(list);
         FileWriter fw = new FileWriter(jsonFilename);
         new JSON().encode(list,fw);
         fw.close();

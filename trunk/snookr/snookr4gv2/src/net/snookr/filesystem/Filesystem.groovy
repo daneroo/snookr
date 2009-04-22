@@ -10,6 +10,7 @@ import net.snookr.util.MD5;
 import net.snookr.util.Exif;
 
 public class Filesystem {
+    boolean verbose=false;
     File baseDir=null;
     public void setBaseDir(File aBaseDir){
         baseDir = aBaseDir;
@@ -66,20 +67,21 @@ public class Filesystem {
             }
         }
 
-        println "fs classification"
-        files.each() { k,v ->
-            println "  ${k} : ${v.size()}"
-        }
-
-        Map areUnique = [:];
-        files["image"].each() { f -> // examine each image File
-            def cp = f.getPath();
-            if (areUnique[cp]!=null) {
-                println "not unique ${cp} == ${areUnique[cp].getPath()}"
+        if (verbose){
+            println "fs classification"
+            files.each() { k,v ->
+                println "  ${k} : ${v.size()}"
             }
-            areUnique[cp]=f;
+            Map areUnique = [:];
+            files["image"].each() { f -> // examine each image File
+                def cp = f.getPath();
+                if (areUnique[cp]!=null) {
+                    println "not unique ${cp} == ${areUnique[cp].getPath()}"
+                }
+                areUnique[cp]=f;
+            }
+            println "areUnique has size: ${areUnique.size()}"
         }
-        println "areUnique has size: ${areUnique.size()}"
 
         return files["image"];
     }
