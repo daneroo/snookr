@@ -38,6 +38,7 @@ public class Main {
         //m.classify();
         //m.readWriteJSON();
         //m.clearFlickrDB();
+        //System.exit(0);
 
         List<Runnable> runParts = m.parse(args);
         for (Runnable r : runParts) {
