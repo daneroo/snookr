@@ -8,10 +8,13 @@ import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.snookr.db.Database;
+import net.snookr.scalr.ScalrImpl;
 import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.Flickr2Database;
 import net.snookr.synch.SymmetricDiffs;
@@ -34,15 +37,15 @@ public class Main {
     public static void main(String[] args) {
         Main m = new Main();
 
-
+        m.scalr();
         //m.classify();
         //m.readWriteJSON();
         //m.clearFlickrDB();
-        //System.exit(0);
+        System.exit(0);
 
         List<Runnable> runParts = m.parse(args);
         for (Runnable r : runParts) {
-            System.out.println("Runing: " + r.getClass().getSimpleName());
+            System.out.println("Running: " + r.getClass().getSimpleName());
             r.run();
         }
         System.exit(0);
@@ -51,6 +54,25 @@ public class Main {
     public void readWriteJSON() {
         //FS2DB();
         new ReadWriteJSON().run();
+    }
+
+    /* Exercise the httpclient 3.1 multipart post
+     */
+    //static final String postURL = "http://localhost:8080/upload";
+    static final String postURL = "http://scalr.appspot.com/upload";
+
+    public void scalr() {
+        // LinkedHashMap preserves insertion order in iteration
+        Map params = new LinkedHashMap();
+        params.put("testkeyforstring", "Hello Scalr, from String");
+        params.put("testkeyforbytes1", "Hello Scalr from Bytes-1".getBytes());
+        params.put("testkeyforbytes2", "Hello Scalr from Bytes-2".getBytes());
+        params.put("testkeyforbytes3", "Hello Scalr from Bytes-3".getBytes());
+        params.put("testkeyforfile", new File("/Users/daniel/small.txt"));
+
+        ScalrImpl scalr = new ScalrImpl();
+        String result = scalr.postMultipart(postURL, params);
+        System.out.println("Result: " + result);
     }
 
     public void classify() {
