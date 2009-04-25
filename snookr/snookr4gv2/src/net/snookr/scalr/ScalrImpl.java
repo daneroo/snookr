@@ -33,8 +33,12 @@ public class ScalrImpl {
 
     public String postMultipart(String postURL, Map params) {
         byte[] response = postMultipart(postURL, params, MAXRETURNBODYLENGTH);
-        log("Body length in bytes: "+response.length);
+        //log("returned Body length in bytes: "+response.length);
 
+        if (response == null) {
+            return null;
+        }
+        
         //String asString = new String(response, UTF8);
         String asString = new String(response);
         return asString;
@@ -68,7 +72,7 @@ public class ScalrImpl {
         try {
 
             //filePost.getParams().setBooleanParameter(HttpMethodParams.USE_EXPECT_CONTINUE,false);
-            filePost.setContentChunked(true);
+            //filePost.setContentChunked(true);
 
             Part[] parts = paramsToPartList(params);
             filePost.setRequestEntity(

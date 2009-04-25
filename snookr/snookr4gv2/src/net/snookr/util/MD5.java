@@ -28,7 +28,7 @@ public class MD5 {
         return digest(s.getBytes());
     }
 
-    private static String digest(byte[] b) {
+    public static String digest(byte[] b) {
         MessageDigest md = getImplementation();
         return toHex(md.digest(b));
     }

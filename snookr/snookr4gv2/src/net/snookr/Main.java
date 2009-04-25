@@ -24,6 +24,8 @@ import net.snookr.synch.ImageClassification;
 import net.snookr.synch.ReadWriteJSON;
 import net.snookr.synch.ClearFlickrDB;
 import net.snookr.util.Exif;
+import net.snookr.util.MD5;
+import net.snookr.util.Timer;
 
 /**
  *
@@ -58,21 +60,47 @@ public class Main {
 
     /* Exercise the httpclient 3.1 multipart post
      */
-    //static final String postURL = "http://localhost:8080/upload";
-    static final String postURL = "http://scalr.appspot.com/upload";
+    static final String postURL = "http://localhost:8080/upload";
+    //static final String postURL = "http://scalr.appspot.com/upload";
 
     public void scalr() {
-        // LinkedHashMap preserves insertion order in iteration
-        Map params = new LinkedHashMap();
-        params.put("testkeyforstring", "Hello Scalr, from String");
-        params.put("testkeyforbytes1", "Hello Scalr from Bytes-1".getBytes());
-        params.put("testkeyforbytes2", "Hello Scalr from Bytes-2".getBytes());
-        params.put("testkeyforbytes3", "Hello Scalr from Bytes-3".getBytes());
-        params.put("testkeyforfile", new File("/Users/daniel/small.txt"));
-
         ScalrImpl scalr = new ScalrImpl();
-        String result = scalr.postMultipart(postURL, params);
-        System.out.println("Result: " + result);
+        if (false) {
+            // LinkedHashMap preserves insertion order in iteration
+            Map params = new LinkedHashMap();
+            params.put("testkeyforstring", "Hello Scalr, from String");
+            params.put("testkeyforbytes1", "Hello Scalr from Bytes-1".getBytes());
+            params.put("testkeyforbytes2", "Hello Scalr from Bytes-2".getBytes());
+            params.put("testkeyforbytes3", "Hello Scalr from Bytes-3".getBytes());
+            params.put("testkeyforfile", new File("/Users/daniel/small.txt"));
+            String result = scalr.postMultipart(postURL, params);
+            System.out.println("Result: -=-=-=-=-=-=-=-");
+            System.out.println(result);
+            System.out.println("-=-=-=-=-=-=-=-=-=-=--=");
+        }
+
+
+        int maxSz=1024 * 1024 * 16;
+        //maxSz = 1024*1024;
+        for (int sz = 1024*512; sz <= maxSz; sz *= 2) {
+            Map params = new LinkedHashMap();
+            byte[] content = new byte[sz];
+            for (int i=0;i<content.length;i++){
+                content[i]=(byte)(i%256);
+            }
+            String expectedMD5 = MD5.digest(content);
+            System.out.println(String.format("Testing size: %.1f kB expecting MD5: %s",sz/1024.0,expectedMD5));
+
+            params.put("key", "test:sz:"+sz);
+            params.put("value",content);
+            Timer tt = new Timer();
+            String result = scalr.postMultipart(postURL, params);
+            float rate = tt.rate(sz)/1024.0f;
+            System.out.println(String.format("Transfer rate: %.1f kB/s (%.1fs)",rate,tt.diff()));
+            System.out.println("Result: -=-=-=-=-=-=-=-");
+            System.out.println(result);
+            System.out.println("-=-=-=-=-=-=-=-=-=-=--=");
+        }
     }
 
     public void classify() {
