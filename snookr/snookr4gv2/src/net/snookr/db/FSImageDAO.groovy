@@ -44,7 +44,7 @@ public class FSImageDAO {
     }
     Map getMapByPrimaryKey() {
         Map dbMapByFileName = db.getMapForClassByPrimaryKey(FSImage.class,"fileName");
-        println "getMapForClassByPrimaryKey has ${dbMapByFileName.size()} entries"
+        //println "getMapForClassByPrimaryKey has ${dbMapByFileName.size()} entries"
         return dbMapByFileName;
     }
 

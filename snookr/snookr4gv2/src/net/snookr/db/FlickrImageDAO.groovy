@@ -37,7 +37,7 @@ public class FlickrImageDAO {
     }
     Map getMapByPrimaryKey() {
         Map dbMapByPhotoid = db.getMapForClassByPrimaryKey(FlickrImage.class,"photoid");
-        println "getMapForClassByPrimaryKey has ${dbMapByPhotoid.size()} entries"
+        //println "getMapForClassByPrimaryKey has ${dbMapByPhotoid.size()} entries"
         return dbMapByPhotoid;
     }
 

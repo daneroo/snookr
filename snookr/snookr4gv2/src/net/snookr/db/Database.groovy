@@ -107,7 +107,7 @@ class Database {
 
     Map getMapForClassByPrimaryKey(Class claz,String fieldName) {
         ObjectSet result = oc.get(claz)
-        println "found ${result.size()} ${claz.getName()} objects";
+        //println "found ${result.size()} ${claz.getName()} objects";
         Map mapForClass = [:];
         while(result.hasNext()) { 
             def clazInstance = result.next(); // FSImage, or FlickrImage

@@ -1,7 +1,6 @@
 /*
  * FSImage.java
  */
-
 package net.snookr.model;
 
 import java.util.Date;
@@ -23,13 +22,15 @@ public class FSImage {
     /** Creates a new instance of FSImage */
     public FSImage() {
     }
-    
+
     public String toString() {
-        File f = new File(fileName);
-        return "file:"+f.getPath()+" sz:"+size+" md5:"+md5+" mod:"+safeDate(lastModified)+" taken:"+safeDate(taken)+" camera:"+camera;
+        //File f = new File(fileName);
+        //return "file:" + f.getPath() + " sz:" + size + " md5:" + md5 + " mod:" + safeDate(lastModified) + " taken:" + safeDate(taken) + " camera:" + camera;
+        return "file:" + fileName + " sz:" + size + " md5:" + md5 + " mod:" + safeDate(lastModified) + " taken:" + safeDate(taken) + " camera:" + camera;
     }
+
     String safeDate(Date d) {
-        return DateFormat.format(d,"????-??-?? ??:??:??");
+        return DateFormat.format(d, "????-??-?? ??:??:??");
     }
 
     @Override
@@ -73,8 +74,5 @@ public class FSImage {
         hash = 97 * hash + (this.camera != null ? this.camera.hashCode() : 0);
         return hash;
     }
-
-
-    
 }
 
