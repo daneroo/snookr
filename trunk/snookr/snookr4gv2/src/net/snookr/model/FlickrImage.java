@@ -18,12 +18,13 @@ public class FlickrImage {
     /** Creates a new instance of FlickrImage */
     public FlickrImage() {
     }
-    
+
     public String toString() {
-        return "id:"+photoid+" md5:"+md5+" taken:"+safeDate(taken)+" posted:"+safeDate(posted)+" lastUpdate:"+safeDate(lastUpdate);
+        return "id:" + photoid + " md5:" + md5 + " taken:" + safeDate(taken) + " posted:" + safeDate(posted) + " lastUpdate:" + safeDate(lastUpdate);
     }
+
     String safeDate(Date d) {
-        return DateFormat.format(d,"????-??-?? ??:??:??");
+        return DateFormat.format(d, "????-??-?? ??:??:??");
     }
 }
 

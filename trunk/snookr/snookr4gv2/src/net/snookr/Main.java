@@ -39,9 +39,9 @@ public class Main {
     public static void main(String[] args) {
         Main m = new Main();
 
-        m.scalr();
+        //m.scalr();
         //m.classify();
-        //m.readWriteJSON();
+        m.readWriteJSON();
         //m.clearFlickrDB();
         System.exit(0);
 
