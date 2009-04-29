@@ -47,7 +47,8 @@ class ReadWriteJSON {
                 println(((memoryBased)?"Memory":"File") + " Based Test");
                 roundTripTimerTest(memoryBased,defaultPartSize);
             }
-
+        }
+        if (false){
             println("  -Part Size Tests");
             def sizes=[50,100,200,500,1000];
             sizes.each() { partSize -> //
