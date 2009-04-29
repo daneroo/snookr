@@ -7,26 +7,20 @@ package net.snookr.transcode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.Deflater;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 import net.snookr.model.FSImage;
+import net.snookr.model.FlickrImage;
 
 /**
  *
@@ -39,9 +33,13 @@ import net.snookr.model.FSImage;
 public class JSON {
 
     private Gson gson;
+    public static Type FSImageListType = new TypeToken<List<FSImage>>() {
+    }.getType();
+    public static Type FlickrImageListType = new TypeToken<List<FlickrImage>>() {
+    }.getType();
 
     public JSON() {
-        this(false);
+        this(true);
     }
 
     public JSON(boolean pretty) { // default false: compact
@@ -63,140 +61,30 @@ public class JSON {
     }
 
     public void encode(List l, Appendable writer) {
-        //String json = gson.toJson(list,listTpe);// not sure what more this does
         gson.toJson(l, writer);
     }
 
-    public List decodeFSImageList(String json) {
-        return decodeFSImageList(new StringReader(json));
-    }
-
-    public List decodeFSImageList(Reader reader) {
-        Type listType = new TypeToken<List<FSImage>>() {
-        }.getType();
-        List l = gson.fromJson(reader, listType);
-        return l;
-    }
-
-    public List decodeFSImageListZip(InputStream is) {
-        List l = new ArrayList();
-        ZipInputStream in = new ZipInputStream(is);
-        while (true) {
-            try {
-                ZipEntry ze = in.getNextEntry();
-                if (ze == null) {
-                    break;
-                }
-                if (ze.isDirectory()) {
-                    System.err.println("Ignoring directory: " + ze.getName());
-                    continue;
-                }
-                //System.out.println("Reading next entry: " + ze.getName());
-                List part = decodeFSImageList(new InputStreamReader(in));
-                l.addAll(part);
-            } catch (IOException ex) {
-                Logger.getLogger(JSON.class.getName()).log(Level.SEVERE, null, ex);
-                break;
-            }
-        }
-        return l;
-    }
-
-    /* This works but keep only as example ZipFile code,
-    stream version is OK for now.
-    public List decodeFSImageListZip(File f) {
-    List l = new ArrayList();
-
-    ZipFile zf;
-    try {
-    zf = new ZipFile(f);
-    Enumeration entries = zf.entries();
-
-    while (entries.hasMoreElements()) {
-    try {
-    ZipEntry ze = (ZipEntry) entries.nextElement();
-    if (ze.isDirectory()) {
-    System.err.println("Ignoring directory: " + ze.getName());
-    continue;
-    }
-    //System.out.println("Reading next entry: " + ze.getName());
-    List part = decodeFSImageList(new InputStreamReader(zf.getInputStream(ze)));
-    l.addAll(part);
-    } catch (IOException ex) {
-    Logger.getLogger(JSON.class.getName()).log(Level.SEVERE, null, ex);
-    break;
-    }
-    }
-    zf.close();
-    } catch (ZipException ex) {
-    Logger.getLogger(JSON.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (IOException ex) {
-    Logger.getLogger(JSON.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    return l;
-
-
-    }*/
-    private static final int defaultPartSize = 1000;
-
-    public void encodeZip(List l, OutputStream os, int partSize) {
+    public void encode(List list, OutputStream os) {
         try {
-            ZipOutputStream out = new ZipOutputStream(os);
-            out.setLevel(9);
-            for (int sub = 0; sub < l.size(); sub += partSize) {
-                List nextPart = l.subList(sub, Math.min(sub + partSize, l.size()));
-                String nextPartJson = encode(nextPart);
-                // Add ZIP entry to output stream.
-                out.putNextEntry(new ZipEntry(String.format("part-%08d.json", sub)));
-                // Transfer bytes from to the ZIP file
-                out.write(nextPartJson.getBytes());
-                // Complete the entry
-                out.closeEntry();
-            }
-            // Complete the ZIP file
-            out.close();
-        } catch (IOException e) {
-        }
-
-    }
-
-    public byte[] encodeZip(List l, int partSize) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            if (gzipOutter) {
-                GZIPOutputStream gzos = new GZIPOutputStream(baos) {
-
-                    {
-                        def.setLevel(Deflater.BEST_COMPRESSION);
-                    }
-                };
-                encodeZip(l, gzos, partSize);
-                gzos.finish();
-                gzos.close();
-            } else {
-                encodeZip(l, baos, partSize);
-            }
-            return baos.toByteArray();
+            Writer writer = new OutputStreamWriter(os);
+            encode(list, writer);
+            writer.flush();
         } catch (IOException ex) {
             Logger.getLogger(JSON.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
     }
 
-    public List decodeFSImageListZip(byte[] b) {
-        if (gzipOutter) {
-            ByteArrayInputStream is = new ByteArrayInputStream(b);
-            GZIPInputStream gzis = null;
-            try {
-                gzis = new GZIPInputStream(is);
-            } catch (IOException ex) {
-                Logger.getLogger(JSON.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return decodeFSImageListZip(gzis);
-        } else {
-            ByteArrayInputStream is = new ByteArrayInputStream(b);
-            return decodeFSImageListZip(is);
-        }
+    public List decode(InputStream is, Type listType) {
+        List list = gson.fromJson(new InputStreamReader(is), listType);
+        return list;
     }
-    static boolean gzipOutter = false;
+    public List decode(Reader reader, Type listType) {
+        List list = gson.fromJson(reader, listType);
+        return list;
+    }
+
+    public List decode(String json, Type listType) {
+        return decode(new StringReader(json),listType);
+    }
+
 }
