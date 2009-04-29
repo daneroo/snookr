@@ -33,8 +33,8 @@ import net.snookr.model.FSImage;
  * @author daniel
  * http://sites.google.com/site/gson/gson-user-guide#TOC-Using-Gson
  * test:
- *    List of FSImage, (Generic or not)
- *    MultiMap Later
+ *    List of FSImage|FlickrImage 
+ *    
  */
 public class JSON {
 
