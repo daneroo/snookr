@@ -96,12 +96,12 @@ public class JSONTest {
      * Test of decodeFSImageList method, of class JSON.
      */
     @Test
-    public void testDecodeFSImageList_String() {
+    public void testDecode_String_FSImage() {
         System.out.println("decodeFSImageList");
         String json = knownFSImageList12JSON;
         JSON instance = new JSON();
         List expResult = makeFSImageList();
-        List result = instance.decodeFSImageList(json);
+        List result = instance.decode(json,JSON.FSImageListType);
         assertEquals("Size", expResult.size(), result.size());
         assertEquals("List(0)", expResult.get(0), result.get(0));
         assertEquals("List", expResult, result);
@@ -111,12 +111,12 @@ public class JSONTest {
      * Test of decodeFSImageList method, of class JSON.
      */
     @Test
-    public void testDecodeFSImageList_Reader() {
+    public void testDecode_Reader_FSImage() {
         System.out.println("decodeFSImageList");
         Reader reader = new StringReader(knownFSImageList12JSON);
         JSON instance = new JSON();
         List expResult = makeFSImageList();
-        List result = instance.decodeFSImageList(reader);
+        List result = instance.decode(reader,JSON.FSImageListType);
         assertEquals("Size", expResult.size(), result.size());
         assertEquals("List(0)", expResult.get(0), result.get(0));
         assertEquals("List", expResult, result);

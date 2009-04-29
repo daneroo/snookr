@@ -19,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 /**
  *
  * @author daniel
@@ -36,76 +37,114 @@ import java.io.FileOutputStream;
  */
 class ReadWriteJSON {
     public void run() {
-        println "Hello JSON Read-Write"
-        Timer tt = new Timer();
 
-        List list;
+        println "Hello JSONZip Read-Write (${getHost()})"
 
-        def sizes=[10,50,100,200,500,1000];
-        //def sizes=[200];
-        sizes.each() { partSize -> //
-            [1,2,3].each() {
-                oldTest(partSize);
+        if (true){
+            println("  -Memory vs File Tests");
+            int defaultPartSize=500;
+            [true,false].each() { memoryBased -> //
+                println(((memoryBased)?"Memory":"File") + " Based Test");
+                roundTripTimerTest(memoryBased,defaultPartSize);
             }
-        }
-        println "Hello JSONZip Read-Write"
-        [true,false].each() { memoryBased -> //
-            println(((memoryBased)?"Memory":"File") + " Based Test");
+
+            println("  -Part Size Tests");
+            def sizes=[50,100,200,500,1000];
             sizes.each() { partSize -> //
-                [1,2,3].each() {
-                    newTest(memoryBased,partSize);
-                }
+                roundTripTimerTest(false,partSize);
             }
+        }
+
+        // partitioning: byPartSize, byDirectory, byDate, byHash
+        println("Partitioning Tests");
+        // Here we need a comparator, and a groupByClosure.
+        SimpleDateFormat yyyyFmt=new SimpleDateFormat("yyyy");
+        SimpleDateFormat yyyyMMFmt=new SimpleDateFormat("yyyy-MM");
+        def partitioners = [
+            [   name: "byYear",
+                comparator: { fsima -> fsima.taken.getTime();  },
+                grouper: { fsima -> yyyyFmt.format(fsima.taken); },
+            ],
+            [   name: "byYearMonth",
+                comparator: { fsima -> fsima.taken.getTime();  },
+                grouper: { fsima -> yyyyMMFmt.format(fsima.taken); },
+            ],
+            [   name: "byDirectory",
+                comparator: { fsima -> fsima.fileName;  },
+                grouper: { fsima -> new File(fsima.fileName).getParent().replaceAll("/",":"); },
+            ],
+        ];
+        partitioners.each() { partitioner -> //
+            List list = readFromDB();
+            showPartition(list,partitioner);
+
         }
     }
 
-    private void oldTest(int partSize){
-        Timer tt = new Timer();
-        tt.restart();
-        List list = readFromDB();
-
-        tt.restart();
-        writeToGSONZipFile(list,partSize);
-        def wtime = tt.diff();
-
-        list = null;
-        tt.restart();
-        list = readFromGSONZipFile();
-        def rtime = tt.diff();
-        println("part size partsz=${String.format("%4d",partSize)} write: ${wtime}s. read: ${rtime}s. -> ${list.size()} images ${new File(gsonZipFilename).size()/1024.0} kB");
+    private String getHost() {
+        try {
+            //return java.net.InetAddress.getLocalHost().getCanonicalHostName();
+            return java.net.InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(JSONZip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
-    private void newTest(boolean memoryBased,int partSize){
-        Timer tt = new Timer();
-        tt.restart();
-        tt.restart();
-        Map map = groupByPartSize(readFromDB(),partSize);
+    private void showPartition(List list, partitioner){
+        println("Partitioner: ${partitioner.name}");
+        List ordered = list.sort(partitioner.comparator);
+        Map cloMap = list.groupBy(partitioner.grouper);
+        TreeMap sortedMap = new TreeMap(cloMap);
+        int i=0;
+        sortedMap.each() { mappedval,coll -> //
+            if (i<2 || i>sortedMap.size()-3){
+                println("${String.format("%6d",coll.size())} : ${mappedval} ");
+            } else {
+                if (i==2) println("      ...");
+            }
+            i++;
+        }
+        println("${String.format("%6d",list.size())} : Total ");
+        def sizes = sortedMap.collect { mappedval,coll -> coll.size() }
+        println("sizes: ${sizes}");
+        println("sizes min:${sizes.min()} max:${sizes.max()}");
+        roundTripTimerTest(false,sortedMap,"${getHost()}-${partitioner.name}.json.zip");
 
+    }
+
+    private void roundTripTimerTest(boolean memoryBased,int partSize){
+        Map map = groupByPartSize(readFromDB(),partSize);
+        roundTripTimerTest(memoryBased,map,"${getHost()}-byPart-${String.format("%04d",partSize)}.json.zip");
+    }
+
+    private void roundTripTimerTest(boolean memoryBased,Map map,String zipName){
+        Timer tt = new Timer();
         tt.restart();
         byte[] b = null;
         if (memoryBased) {
             b = new JSONZip().encode(map);
         } else {
-            OutputStream fos = new FileOutputStream(gsonZipFilename);
+            OutputStream fos = new FileOutputStream(zipName);
             new JSONZip().encode(map,fos);
             fos.close();
         }
-        //println("Wrote ${list.size()} entries to   gson.zip[sz=${String.format("%4d",partSize)}] in ${tt.diff()}s.");
         def wtime = tt.diff();
 
         List list = null;
         tt.restart();
         if (memoryBased) {
-            list = join(new JSONZip().decode(b,JSONZip.FSImageListType));
+            list = join(new JSONZip().decode(b,JSON.FSImageListType));
         } else {
-            InputStream fis = new FileInputStream(gsonZipFilename);
-            list = join(new JSONZip().decode(fis,JSONZip.FSImageListType));
+            InputStream fis = new FileInputStream(zipName);
+            list = join(new JSONZip().decode(fis,JSON.FSImageListType));
             fis.close();
         }
 
         def rtime = tt.diff();
-        long size = (memoryBased)?b.length:new File(gsonZipFilename).size();
-        println("part size partsz=${String.format("%4d",partSize)} write: ${wtime}s. read: ${rtime}s. -> ${list.size()} images ${size/1024.0} kB");
+        long size = (memoryBased)?b.length:new File(zipName).size();
+        println("${String.format("%20s",zipName)} write: ${wtime}s. read: ${rtime}s. -> ${list.size()} images ${size/1024.0} kB");
     }
+
     private List join(Map<String,List> map){
         List list = [];
         for (Map.Entry<String, List> e : map.entrySet()) {
@@ -124,40 +163,6 @@ class ReadWriteJSON {
         }
         return map;
     }
-
-    private static String gsonFilename = "filesystem.json";
-    public void writeToGSONFile(List list){
-        FileWriter fw = new FileWriter(gsonFilename);
-        new JSON().encode(list,fw);
-        fw.close();
-    }
-    public List readFromGSONFile() {
-        FileReader fr = new FileReader(gsonFilename);
-        List list = new JSON().decodeFSImageList(fr);
-        fr.close();
-        return list;
-    }
-
-    private static String gsonZipFilename = "filesystem.json.zip";
-    public void writeToGSONZipFile(List list,int partSize){
-        OutputStream out = new FileOutputStream(gsonZipFilename);
-        new JSON().encodeZip(list,out,partSize);
-        out.close();
-    }
-    public List readFromGSONZipFile() {
-        boolean useStream=true;
-        if (useStream){
-            InputStream is = new FileInputStream(gsonZipFilename);
-            List list = new JSON().decodeFSImageListZip(is);
-            is.close();
-            return list;
-        } else {
-            List list = new JSON().decodeFSImageListZip(new File(gsonZipFilename));
-            return list;
-        }
-
-    }
-
 
     public List readFromDB() {
         Database db = new Database();
