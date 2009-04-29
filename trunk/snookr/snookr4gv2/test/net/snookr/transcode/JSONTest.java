@@ -70,7 +70,7 @@ public class JSONTest {
     public void testEncode_List() {
         System.out.println("encode");
         List l = makeFSImageList();
-        JSON instance = new JSON();
+        JSON instance = new JSON(false);
         String expResult = knownFSImageList12JSON;
         String result = instance.encode(l);
         assertEquals(expResult, result);
@@ -85,7 +85,7 @@ public class JSONTest {
         List l = makeFSImageList();
         StringBuffer sb = new StringBuffer();
         Appendable writer = sb;
-        JSON instance = new JSON();
+        JSON instance = new JSON(false);
         instance.encode(l, writer);
         String expResult = knownFSImageList12JSON;
         String result = sb.toString();
@@ -99,7 +99,7 @@ public class JSONTest {
     public void testDecode_String_FSImage() {
         System.out.println("decodeFSImageList");
         String json = knownFSImageList12JSON;
-        JSON instance = new JSON();
+        JSON instance = new JSON(false);
         List expResult = makeFSImageList();
         List result = instance.decode(json,JSON.FSImageListType);
         assertEquals("Size", expResult.size(), result.size());
@@ -114,7 +114,7 @@ public class JSONTest {
     public void testDecode_Reader_FSImage() {
         System.out.println("decodeFSImageList");
         Reader reader = new StringReader(knownFSImageList12JSON);
-        JSON instance = new JSON();
+        JSON instance = new JSON(false);
         List expResult = makeFSImageList();
         List result = instance.decode(reader,JSON.FSImageListType);
         assertEquals("Size", expResult.size(), result.size());
@@ -125,7 +125,7 @@ public class JSONTest {
     @Test
     public void testFSImageRoundtrip() {
         System.out.println("FSImage Roundtrip");
-        JSON instance = new JSON();
+        JSON instance = new JSON(false);
         FSImage fsima = makeFSImage(42);
         String json = instance.getGson().toJson(fsima);
         FSImage fsima2 = instance.getGson().fromJson(json, FSImage.class);
@@ -135,7 +135,7 @@ public class JSONTest {
     @Test
     public void testPrimitives() {
         System.out.println("Test Primitives");
-        JSON instance = new JSON();
+        JSON instance = new JSON(false);
         Gson gson = instance.getGson();
         assertEquals("int", "1", gson.toJson(1));
         assertEquals("String", "\"abcd\"", gson.toJson("abcd"));
