@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.example;
+package net.scalr;
 
+import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,7 +18,13 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import javax.servlet.ServletConfig;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.IOUtils;
 
@@ -27,12 +34,13 @@ import org.apache.commons.io.IOUtils;
  *   push this with something like:
  *     curl -m 30  -F "value=@filesystem.json.gz;type=application/octet-stream"  http://localhost:8080/upload
  */
-public class FileUpload extends HttpServlet {
-    static final int MAXPOSTSIZE=1024*1024;
-    private static final Logger log =
-            Logger.getLogger(FileUpload.class.getName());
+public class CloudZipServlet extends HttpServlet {
 
-    /** 
+    static final int MAXPOSTSIZE = 10 * 1024 * 1024;
+    private static final Logger log =
+            Logger.getLogger(CloudZipServlet.class.getName());
+
+    /**
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -45,10 +53,10 @@ public class FileUpload extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
-            log.warning("Servlet FileUpload GET response");
+            log.warning("Servlet CloudZipServlet GET response");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet FileUpload</title>");
+            out.println("<title>Servlet CloudZipServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h3>ContextPath: " + request.getContextPath() + "</h3>");
@@ -72,7 +80,7 @@ public class FileUpload extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            log.warning("Servlet FileUpload POST");
+            log.warning("Servlet CloudZipServlet POST");
             boolean fullEcho = false;
             if (fullEcho) {
                 // OutputStream, so headers not sent to response
@@ -98,7 +106,7 @@ public class FileUpload extends HttpServlet {
         }
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
      * @return a String containing servlet description
      */
@@ -124,7 +132,7 @@ public class FileUpload extends HttpServlet {
     private void handleMultipart(PrintWriter out, HttpServletRequest request) throws IOException, FileUploadException {
         ServletFileUpload upload = new ServletFileUpload();
         upload.setFileSizeMax(MAXPOSTSIZE);
-        out.println("Servlet FileUpload POST response (sum)");
+        out.println("Servlet CloudZip POST response (sum)");
         FileItemIterator iterator = upload.getItemIterator(request);
         while (iterator.hasNext()) {
             FileItemStream item = iterator.next();
@@ -134,11 +142,32 @@ public class FileUpload extends HttpServlet {
                 String message = "Form field: " + item.getFieldName() + " length: " + value.length() + " value: " + value;
                 out.println(message);
             } else {
-                byte[] content = IOUtils.toByteArray(stream);
-                String md5sum = MD5.digest(content);
-                String message = "File field: " + item.getFieldName() + " name: " + item.getName() + " length: " + content.length + " md5sum: " + md5sum;
-                log.warning(message);
-                out.println(message);
+                boolean inMem = true;
+                if (inMem) { // get the array first into memory
+                    byte[] content = IOUtils.toByteArray(stream);
+                    String md5sum = MD5.digest(content);
+                    String message = "File field: " + item.getFieldName() + " name: " + item.getName() + " length: " + content.length + " md5: " + md5sum;
+                    log.warning(message);
+                    out.println(message);
+                    InputStream is = new ByteArrayInputStream(content);
+                    Map<String, byte[]> zipMap = expandZipStream(is);
+                    is.close();
+                    for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
+                        String name = e.getKey();
+                        byte[] innercontent = e.getValue();
+                        out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
+                    }
+                } else {
+                    String message = "File field: " + item.getFieldName() + " name: " + item.getName();
+                    log.warning(message);
+                    out.println(message);
+                    Map<String, byte[]> zipMap = expandZipStream(stream);
+                    for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
+                        String name = e.getKey();
+                        byte[] innercontent = e.getValue();
+                        out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
+                    }
+                }
             }
         }
     }
@@ -147,5 +176,33 @@ public class FileUpload extends HttpServlet {
      */
     private void echoRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         IOUtils.copy(request.getInputStream(), response.getOutputStream());
+    }
+
+    private Map<String, byte[]> expandZipStream(InputStream is) {
+        // LinkedHashMap preserves insertion order in iteration
+        Map<String, byte[]> map = new LinkedHashMap<String, byte[]>();
+        ZipInputStream zipis = new ZipInputStream(is);
+        while (true) {
+            try {
+                ZipEntry ze = zipis.getNextEntry();
+                if (ze == null) {
+                    break;
+                }
+                if (ze.isDirectory()) {
+                    System.err.println("Ignoring directory: " + ze.getName());
+                    continue;
+                }
+                //System.out.println("Reading next entry: " + ze.getName());
+                String name = ze.getName();
+                byte[] content = IOUtils.toByteArray(zipis);
+                String md5sum = MD5.digest(content);
+                System.out.println("Read: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
+                map.put(name, content);
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, null, ex);
+                break;
+            }
+        }
+        return map;
     }
 }

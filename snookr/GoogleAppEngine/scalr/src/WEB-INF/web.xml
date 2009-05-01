@@ -2,21 +2,15 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <display-name>Scalr</display-name>
   
-    <servlet>
-        <servlet-name>hello</servlet-name>
-        <servlet-class>org.example.HelloAppEngineServlet</servlet-class>
-    </servlet>
+
+
 
     <servlet>
-        <servlet-name>upload</servlet-name>
-        <servlet-class>org.example.FileUpload</servlet-class>
+        <servlet-name>zip</servlet-name>
+        <servlet-class>net.scalr.CloudZipServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>hello</servlet-name>
-        <url-pattern>/helloappengine</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>upload</servlet-name>
-        <url-pattern>/upload</url-pattern>
+        <servlet-name>zip</servlet-name>
+        <url-pattern>/zip</url-pattern>
     </servlet-mapping>
 </web-app>
