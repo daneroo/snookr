@@ -4,6 +4,7 @@
  */
 package net.scalr;
 
+import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -17,14 +18,16 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.servlet.ServletConfig;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.IOUtils;
 
@@ -143,6 +146,7 @@ public class CloudZipServlet extends HttpServlet {
                 out.println(message);
             } else {
                 boolean inMem = true;
+                Map<String, byte[]> zipMap = null;
                 if (inMem) { // get the array first into memory
                     byte[] content = IOUtils.toByteArray(stream);
                     String md5sum = MD5.digest(content);
@@ -150,23 +154,25 @@ public class CloudZipServlet extends HttpServlet {
                     log.warning(message);
                     out.println(message);
                     InputStream is = new ByteArrayInputStream(content);
-                    Map<String, byte[]> zipMap = expandZipStream(is);
+                    zipMap = expandZipStream(is);
                     is.close();
-                    for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-                        String name = e.getKey();
-                        byte[] innercontent = e.getValue();
-                        out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
-                    }
                 } else {
                     String message = "File field: " + item.getFieldName() + " name: " + item.getName();
                     log.warning(message);
                     out.println(message);
-                    Map<String, byte[]> zipMap = expandZipStream(stream);
-                    for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-                        String name = e.getKey();
-                        byte[] innercontent = e.getValue();
-                        out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
-                    }
+                    zipMap = expandZipStream(stream);
+                }
+                for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
+                    String name = e.getKey();
+                    byte[] innercontent = e.getValue();
+                    out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
+                }
+                String jsonManifest = makeManifest(zipMap);
+                out.println(jsonManifest);
+                List<Map<String,String>> manifestList = decodeManifest(jsonManifest);
+                for (Map<String,String> m: manifestList){
+                    out.println("  +" + m.get("name") + ": length: " + m.get("length") + " md5: " + m.get("md5"));
+
                 }
             }
         }
@@ -204,5 +210,39 @@ public class CloudZipServlet extends HttpServlet {
             }
         }
         return map;
+    }
+
+    private String makeManifest(Map<String, byte[]> zipMap) {
+        List<Map<String, String>> manifestList = new ArrayList<Map<String, String>>();
+        //= new LinkedHashMap<String, String>();
+        for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
+            String name = e.getKey();
+            byte[] content = e.getValue();
+            Map<String, String> manifestEntry = new LinkedHashMap<String, String>();
+            manifestEntry.put("name", name);
+            manifestEntry.put("md5", MD5.digest(content));
+            manifestEntry.put("length", "" + content.length);
+            manifestList.add(manifestEntry);
+        }
+        return new JSON().encode(manifestList);
+    }
+
+    private List<Map<String, String>> decodeManifest(String jsonManifest) {
+        List<Map<String, String>> manifestList = null;
+        Type listType = new TypeToken<List<Map<String, String>>>() {
+        }.getType();
+
+        manifestList = new JSON().decode(jsonManifest, listType);
+        return manifestList;
+    }
+
+    private String makeManifestAsMap(Map<String, byte[]> zipMap) {
+        Map<String, String> manifestMap = new LinkedHashMap<String, String>();
+        for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
+            String name = e.getKey();
+            byte[] content = e.getValue();
+            manifestMap.put(name, MD5.digest(content));
+        }
+        return new JSON().encode(manifestMap);
     }
 }
