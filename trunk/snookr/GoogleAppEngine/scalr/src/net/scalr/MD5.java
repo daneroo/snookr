@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.example;
+package net.scalr;
 
 /*
  */
