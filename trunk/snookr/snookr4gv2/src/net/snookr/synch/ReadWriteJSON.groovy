@@ -12,6 +12,9 @@ import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.Flickr2Database;
 import net.snookr.transcode.JSON;
 import net.snookr.transcode.JSONZip;
+import net.snookr.transcode.Partitioner;
+import net.snookr.transcode.PartitionFSImage;
+import net.snookr.transcode.PartitionFlickrImage;
 import net.snookr.util.Timer;
 import net.snookr.model.FSImage
 import com.google.gson.Gson;
@@ -36,66 +39,57 @@ import java.text.SimpleDateFormat;
  *     List -> byte[] { zip (parts.json) }
  */
 class ReadWriteJSON {
+
+
+    // Here is the Test bootstrap.
     public void run() {
 
         println "Hello JSONZip Read-Write (${getHost()})"
 
-        if (true){
-            println("  -Memory vs File Tests");
-            int defaultPartSize=500;
-            [true,false].each() { memoryBased -> //
-                println(((memoryBased)?"Memory":"File") + " Based Test");
-                roundTripTimerTest(memoryBased,defaultPartSize);
-            }
-        }
-        if (false){
-            println("  -Part Size Tests");
-            def sizes=[50,100,200,500,1000];
-            sizes.each() { partSize -> //
-                roundTripTimerTest(false,partSize);
-            }
-        }
-
-        // partitioning: byPartSize, byDirectory, byDate, byHash
-        println("Partitioning Tests");
-        // Here we need a comparator, and a groupByClosure.
-        SimpleDateFormat yyyyFmt=new SimpleDateFormat("yyyy");
-        SimpleDateFormat yyyyMMFmt=new SimpleDateFormat("yyyy-MM");
-        def partitioners = [
-            [   name: "byYear",
-                comparator: { fsima -> fsima.taken.getTime();  },
-                grouper: { fsima -> yyyyFmt.format(fsima.taken); },
-            ],
-            [   name: "byYearMonth",
-                comparator: { fsima -> fsima.taken.getTime();  },
-                grouper: { fsima -> yyyyMMFmt.format(fsima.taken); },
-            ],
-            [   name: "byDirectory",
-                comparator: { fsima -> fsima.fileName;  },
-                grouper: { fsima -> new File(fsima.fileName).getParent().replaceAll("/",":"); },
-            ],
+        println("FS Partitioning Tests");
+        def fspartitioners = [
+            PartitionFSImage.BY_YEAR,
+            PartitionFSImage.BY_YEARMONTH,
+            PartitionFSImage.BY_DIRECTORY,
         ];
-        partitioners.each() { partitioner -> //
-            List list = readFromDB();
+        fspartitioners.each() { partitioner -> //
+            List list = readFSImageFromDB();
             showPartition(list,partitioner);
 
+            String hostname = getHost();
+            String zipName = "${hostname}-${partitioner.name}.json.zip"
+
+            Map sortedMap = partitioner.toMap(list);
+
+            Type listType = JSON.FSImageListType;//FlickrImageListType
+            (1..3).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
+            (1..3).each(){roundTripTimerTest(true,sortedMap,zipName,listType);}
         }
+
+        
+        println("Flickr Partitioning Tests");
+        def flipartitioners = [
+            PartitionFlickrImage.BY_YEAR,
+            PartitionFlickrImage.BY_YEARMONTH,
+        ];
+        flipartitioners.each() { partitioner -> //
+            List list = readFlickrImageFromDB();
+            showPartition(list,partitioner);
+
+            String zipName = "Flickr-${partitioner.name}.json.zip"
+
+            Map sortedMap = partitioner.toMap(list);
+
+            Type listType = JSON.FlickrImageListType
+            (1..3).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
+            (1..3).each(){roundTripTimerTest(true,sortedMap,zipName,listType);}
+        }
+        
     }
 
-    private String getHost() {
-        try {
-            //return java.net.InetAddress.getLocalHost().getCanonicalHostName();
-            return java.net.InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(JSONZip.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-    private void showPartition(List list, partitioner){
+    private void showPartition(List list,Partitioner partitioner){
         println("Partitioner: ${partitioner.name}");
-        List ordered = list.sort(partitioner.comparator);
-        Map cloMap = list.groupBy(partitioner.grouper);
-        TreeMap sortedMap = new TreeMap(cloMap);
+        Map sortedMap = partitioner.toMap(list);
         int i=0;
         sortedMap.each() { mappedval,coll -> //
             if (i<2 || i>sortedMap.size()-3){
@@ -109,16 +103,10 @@ class ReadWriteJSON {
         def sizes = sortedMap.collect { mappedval,coll -> coll.size() }
         println("sizes: ${sizes}");
         println("sizes min:${sizes.min()} max:${sizes.max()}");
-        roundTripTimerTest(false,sortedMap,"${getHost()}-${partitioner.name}.json.zip");
 
     }
 
-    private void roundTripTimerTest(boolean memoryBased,int partSize){
-        Map map = groupByPartSize(readFromDB(),partSize);
-        roundTripTimerTest(memoryBased,map,"${getHost()}-byPart-${String.format("%04d",partSize)}.json.zip");
-    }
-
-    private void roundTripTimerTest(boolean memoryBased,Map map,String zipName){
+    private void roundTripTimerTest(boolean memoryBased,Map map,String zipName,Type listType){
         Timer tt = new Timer();
         tt.restart();
         byte[] b = null;
@@ -134,16 +122,17 @@ class ReadWriteJSON {
         List list = null;
         tt.restart();
         if (memoryBased) {
-            list = join(new JSONZip().decode(b,JSON.FSImageListType));
+            list = join(new JSONZip().decode(b,listType));
         } else {
             InputStream fis = new FileInputStream(zipName);
-            list = join(new JSONZip().decode(fis,JSON.FSImageListType));
+            list = join(new JSONZip().decode(fis,listType));
             fis.close();
         }
 
         def rtime = tt.diff();
         long size = (memoryBased)?b.length:new File(zipName).size();
-        println("${String.format("%20s",zipName)} write: ${wtime}s. read: ${rtime}s. -> ${list.size()} images ${size/1024.0} kB");
+        String memFlag = (memoryBased)?"M":"F";
+        println("${memFlag} ${String.format("%20s",zipName)} write: ${wtime}s. read: ${rtime}s. -> ${list.size()} images ${size/1024.0} kB");
     }
 
     private List join(Map<String,List> map){
@@ -155,17 +144,8 @@ class ReadWriteJSON {
         }
         return list;
     }
-    private Map<String,List> groupByPartSize(List list,int partSize){
-        Map<String,List> map = new LinkedHashMap<String,List>();
-        for (int sub = 0; sub < list.size(); sub += partSize) {
-            String name = String.format("part-%08d.json", sub);
-            List nextPart = list.subList(sub, Math.min(sub + partSize, list.size()));
-            map.put(name,nextPart);
-        }
-        return map;
-    }
 
-    public List readFromDB() {
+    public List readFSImageFromDB() {
         Database db = new Database();
         FSImageDAO fsImageDAO = new FSImageDAO();
         fsImageDAO.setDatabase(db);
@@ -179,6 +159,32 @@ class ReadWriteJSON {
             list.add(fsima);
         }
         return list;
+    }
+
+    public List readFlickrImageFromDB() {
+        Database db = new Database();
+        FlickrImageDAO flickrImageDAO = new FlickrImageDAO();
+        flickrImageDAO.setDatabase(db);
+
+        Map dbMapByPhotoid = flickrImageDAO.getMapByPrimaryKey();
+        db.close();
+
+        // part 1 - extract camera info
+        List list = [];
+        dbMapByPhotoid.each() { photoid,flima -> //
+            list.add(flima);
+        }
+        return list;
+    }
+
+    private String getHost() {
+        try {
+            //return java.net.InetAddress.getLocalHost().getCanonicalHostName();
+            return java.net.InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(JSONZip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
 
