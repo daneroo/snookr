@@ -17,8 +17,6 @@ import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.snookr.db.Database;
-import net.snookr.db.FSImageDAO;
-import net.snookr.model.FSImage;
 import net.snookr.scalr.ScalrImpl;
 import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.Flickr2Database;
@@ -31,8 +29,9 @@ import net.snookr.synch.ClearFlickrDB;
 import net.snookr.util.Exif;
 import net.snookr.util.MD5;
 import net.snookr.util.Timer;
-import net.snookr.filesystem.Filesystem;
-import net.snookr.synch.FilesystemSynch;
+import net.snookr.synch.Filesystem2JSON;
+import net.snookr.transcode.PartitionFSImage;
+import net.snookr.transcode.Partitioner;
 
 /**
  *
@@ -134,23 +133,9 @@ public class Main {
         }
 
         public void run() {
-            Filesystem fs = new Filesystem();
-            fs.setBaseDir(sourceDir);
-            List<FSImage> list = fs.getFSImageList();
-
-            Database db = new Database();
-            FSImageDAO fsImageDAO = new FSImageDAO();
-            fsImageDAO.setDatabase(db);
-
-            Map dbMapByFileName = fsImageDAO.getMapByPrimaryKey();
-            db.close();
-
-            // part 1 - extract camera info
-            List predictor = new ArrayList(dbMapByFileName.size());
-            predictor.addAll(dbMapByFileName.values());
-
-            FilesystemSynch fss = new FilesystemSynch(list, predictor);
-            fss.run();
+            Partitioner partitioner = PartitionFSImage.BY_DIRECTORY;
+            //Partitioner partitioner = PartitionFSImage.BY_YEARMONTH;
+            new Filesystem2JSON(sourceDir, hostname,partitioner).run();
         }
     }
 
@@ -322,15 +307,15 @@ public class Main {
     // this doesn't work on hilbert
     private String getDefaultHost() {
         try {
-            System.err.println("canonical host: " + java.net.InetAddress.getLocalHost().getCanonicalHostName());
+            //System.err.println("canonical host: " + java.net.InetAddress.getLocalHost().getCanonicalHostName());
             String hostnamealias = java.net.InetAddress.getLocalHost().getHostName();
-            System.err.println("host: " + hostnamealias);
+            //System.err.println("host: " + hostnamealias);
             int firstDot = hostnamealias.indexOf(".");
             if (firstDot > 0) {
                 hostnamealias = hostnamealias.substring(0, firstDot);
             }
             hostnamealias = hostnamealias.toLowerCase();
-            System.err.println("alias: " + hostnamealias);
+            //System.err.println("alias: " + hostnamealias);
             return hostnamealias;
         } catch (UnknownHostException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
