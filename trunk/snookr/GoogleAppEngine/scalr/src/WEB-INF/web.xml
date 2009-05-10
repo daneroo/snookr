@@ -9,7 +9,7 @@
         <servlet-name>zip</servlet-name>
         <servlet-class>net.scalr.CloudZipServlet</servlet-class>
     </servlet>
-    <servlet-mapping>
+    <servlet><servlet-name>map</servlet-name><servlet-class>net.scalr.CloudMapServlet</servlet-class></servlet><servlet-mapping>
         <servlet-name>zip</servlet-name>
         <url-pattern>/zip</url-pattern>
     </servlet-mapping>
