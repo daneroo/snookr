@@ -86,18 +86,6 @@ public class CloudMapServlet extends HttpServlet {
                 }
             }
         }
-
-    // debugging all params for url-encoding-ness
-    /*
-    sos.println("--------ALL params -------");
-    Map<String, String[]> servletParamsMap = request.getParameterMap();
-    for (Map.Entry<String, String[]> e : servletParamsMap.entrySet()) {
-    String pName = e.getKey();
-    for (String v: e.getValue()){
-    sos.println("param : name=" + pName+" value="+v);
-    }
-    }
-     */
     }
 
     /**
@@ -131,10 +119,6 @@ public class CloudMapServlet extends HttpServlet {
         } catch (FileUploadException ex) {
             Logger.getLogger(CloudMapServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-    //log.warning("Servlet CloudMapServlet PMF.doit");
-    //new Test().doit();
-
 
     }
 
