@@ -4,9 +4,6 @@
  */
 package net.scalr;
 
-import com.google.gson.reflect.TypeToken;
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,17 +15,14 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import java.io.InputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import javax.servlet.ServletOutputStream;
+import net.scalr.dao.CloudMapDAO;
+import net.scalr.model.CloudMap;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.IOUtils;
 
@@ -55,20 +49,55 @@ public class CloudMapServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/plain;charset=UTF-8");
+        Map<String, String[]> params = request.getParameterMap();
+        String names[] = params.get("name");
+        boolean sign = params.get("sign") != null;
+        boolean delete = params.get("delete") != null;
+
         ServletOutputStream sos = response.getOutputStream();
-        String names[] = request.getParameterValues("name");
         /* validation
          *    names==null (or names.length==0) get List
          */
         log.warning("Servlet CloudMapServlet GET response");
-        if (names==null || names.length<1){
-            sos.println("warning no key: return map keys");
-        } else if (names.length>1){
+        CloudMapDAO dao = new CloudMapDAO();
+        if (names == null || names.length < 1) {
+            sos.println("--no key: return map keys (manifest)");
+            List<CloudMap> list = dao.getAll();
+            sos.println("List has " + list.size() + " CloudMap entries");
+            for (CloudMap clm : list) {
+                sos.println(" " + clm.getName() + " --> md5:" + MD5.digest(clm.getContent()));
+            }
+
+        } else if (names.length > 1) {
             sos.println("error: multiple key names not supported");
         } else { // names.length==1
             String name = names[0];
-            sos.println("result: value for key name="+name);
+            if (delete) {
+                log.warning("  Deleting name=" + name);
+                dao.delete(name);
+                sos.println("deleted name=" + name);
+            } else {
+                log.warning("  Fetching name=" + name);
+                CloudMap clm = dao.get(name);
+                if (sign) {
+                    sos.println("fetched name=" + clm.getName() + " md5=" + MD5.digest(clm.getContent()));
+                } else { // content
+                    sos.write(clm.getContent());
+                }
+            }
         }
+
+    // debugging all params for url-encoding-ness
+    /*
+    sos.println("--------ALL params -------");
+    Map<String, String[]> servletParamsMap = request.getParameterMap();
+    for (Map.Entry<String, String[]> e : servletParamsMap.entrySet()) {
+    String pName = e.getKey();
+    for (String v: e.getValue()){
+    sos.println("param : name=" + pName+" value="+v);
+    }
+    }
+     */
     }
 
     /**
@@ -81,31 +110,32 @@ public class CloudMapServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            log.warning("Servlet CloudZipServlet POST");
-            boolean fullEcho = false;
-            if (fullEcho) {
-                // OutputStream, so headers not sent to response
-                dumpHeaders(request, null);
-                echoRequest(request, response);
-            } else {
-                //Process upload params
-                response.setContentType("text/plain");
-                PrintWriter out = response.getWriter();
+        response.setContentType("text/plain;charset=UTF-8");
+        ServletOutputStream sos = response.getOutputStream();
+        log.warning("Servlet CloudMapServlet POST");
 
-                //dumpHeaders(request, out);
-                if (ServletFileUpload.isMultipartContent(request)) {
-                    handleMultipart(out, request);
-                } else {
-                    String message = "IGNORING: Post is not multipart";
-                    log.warning(message);
-                    out.println(message);
-                }
-            }
-        } catch (Exception ex) {
-            log.warning("Upload Post threw exception: " + ex.getMessage());
-            throw new ServletException(ex);
+        try {
+            Map<String, byte[]> params = getRequestParams(request);
+            String name = bytesToString(params.get("name"));
+            byte[] content = params.get("content");
+            /* validation
+             *    names==null (or names.length==0) get List
+             */
+            CloudMap clm = new CloudMap(name, content);
+            CloudMapDAO dao = new CloudMapDAO();
+            dao.createOrUpdate(clm);
+            sos.println("saved  name=" + clm.getName() + " md5=" + MD5.digest(clm.getContent()));
+            CloudMap check = dao.get(name);
+            sos.println("checked name=" + check.getName() + " md5="+MD5.digest(check.getContent()));
+
+        } catch (FileUploadException ex) {
+            Logger.getLogger(CloudMapServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+    //log.warning("Servlet CloudMapServlet PMF.doit");
+    //new Test().doit();
+
+
     }
 
     /**
@@ -114,134 +144,58 @@ public class CloudMapServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Scalr upload with multipart handling";
+        return "Scalr CloupMap";
     }// </editor-fold>
 
-    /* dump headers to Logs, and writer, if write param not null*/
-    private void dumpHeaders(HttpServletRequest request, PrintWriter writer) {
-        String message = "POST request headers";
-        for (Enumeration headers = request.getHeaderNames(); headers.hasMoreElements();) {
-            String headerName = (String) headers.nextElement();
-            message = message + "\n" + "  Header[" + headerName + "] = " + request.getHeader(headerName);
-        }
-        log.warning(message);
-        if (writer != null) {
-            writer.println(message);
-        }
-
+    // hook for converting posted "Strings" to bytes...
+    private byte[] stringToBytes(String str) {
+        return str.getBytes(); // which charset ?
     }
 
-    private void handleMultipart(PrintWriter out, HttpServletRequest request) throws IOException, FileUploadException {
+    private String bytesToString(byte[] b) {
+        return new String(b); // which charset ?
+    }
+
+
+    // handles both normal post, and delegates for multipart post
+    private Map<String, byte[]> getRequestParams(HttpServletRequest request) throws IOException, FileUploadException {
+        if (ServletFileUpload.isMultipartContent(request)) {
+            log.warning("Multipart POST");
+            return getRequestParamsMultipart(request);
+        } else {
+            log.warning("NOT Multipart POST");
+            Map<String, byte[]> params = new HashMap<String, byte[]>();
+            Map<String, String[]> servletParamsMap = request.getParameterMap();
+            for (Map.Entry<String, String[]> e : servletParamsMap.entrySet()) {
+                // extract first parameter!
+                String pName = e.getKey();
+                String[] pValues = e.getValue();
+                String firstValue = pValues[0];
+                params.put(pName, stringToBytes(firstValue));
+            }
+            return params;
+        }
+    }
+
+    private Map<String, byte[]> getRequestParamsMultipart(HttpServletRequest request) throws IOException, FileUploadException {
         ServletFileUpload upload = new ServletFileUpload();
         upload.setFileSizeMax(MAXPOSTSIZE);
-        out.println("Servlet CloudZip POST response (sum)");
+
+        Map<String, byte[]> params = new HashMap<String, byte[]>();
+
         FileItemIterator iterator = upload.getItemIterator(request);
         while (iterator.hasNext()) {
             FileItemStream item = iterator.next();
+            String name = item.getFieldName();
+            byte[] value = null;
             InputStream stream = item.openStream();
             if (item.isFormField()) {
-                String value = Streams.asString(stream);
-                String message = "Form field: " + item.getFieldName() + " length: " + value.length() + " value: " + value;
-                out.println(message);
-            } else {
-                boolean inMem = true;
-                Map<String, byte[]> zipMap = null;
-                if (inMem) { // get the array first into memory
-                    byte[] content = IOUtils.toByteArray(stream);
-                    String md5sum = MD5.digest(content);
-                    String message = "File field: " + item.getFieldName() + " name: " + item.getName() + " length: " + content.length + " md5: " + md5sum;
-                    log.warning(message);
-                    out.println(message);
-                    InputStream is = new ByteArrayInputStream(content);
-                    zipMap = expandZipStream(is);
-                    is.close();
-                } else {
-                    String message = "File field: " + item.getFieldName() + " name: " + item.getName();
-                    log.warning(message);
-                    out.println(message);
-                    zipMap = expandZipStream(stream);
-                }
-                for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-                    String name = e.getKey();
-                    byte[] innercontent = e.getValue();
-                    out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
-                }
-                String jsonManifest = makeManifest(zipMap);
-                out.println(jsonManifest);
-                List<Map<String, String>> manifestList = decodeManifest(jsonManifest);
-                for (Map<String, String> m : manifestList) {
-                    out.println("  +" + m.get("name") + ": length: " + m.get("length") + " md5: " + m.get("md5"));
-
-                }
+                value = stringToBytes(Streams.asString(stream));
+            } else { // File Field : discard item.getName (a.k.a upload file name) for now
+                value = IOUtils.toByteArray(stream);
             }
+            params.put(name, value);
         }
-    }
-
-    /* This assumes that getWriter has not/will not be called
-     */
-    private void echoRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        IOUtils.copy(request.getInputStream(), response.getOutputStream());
-    }
-
-    private Map<String, byte[]> expandZipStream(InputStream is) {
-        // LinkedHashMap preserves insertion order in iteration
-        Map<String, byte[]> map = new LinkedHashMap<String, byte[]>();
-        ZipInputStream zipis = new ZipInputStream(is);
-        while (true) {
-            try {
-                ZipEntry ze = zipis.getNextEntry();
-                if (ze == null) {
-                    break;
-                }
-                if (ze.isDirectory()) {
-                    System.err.println("Ignoring directory: " + ze.getName());
-                    continue;
-                }
-                //System.out.println("Reading next entry: " + ze.getName());
-                String name = ze.getName();
-                byte[] content = IOUtils.toByteArray(zipis);
-                String md5sum = MD5.digest(content);
-                System.out.println("Read: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
-                map.put(name, content);
-            } catch (IOException ex) {
-                log.log(Level.SEVERE, null, ex);
-                break;
-            }
-        }
-        return map;
-    }
-
-    private String makeManifest(Map<String, byte[]> zipMap) {
-        List<Map<String, String>> manifestList = new ArrayList<Map<String, String>>();
-        //= new LinkedHashMap<String, String>();
-        for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-            String name = e.getKey();
-            byte[] content = e.getValue();
-            Map<String, String> manifestEntry = new LinkedHashMap<String, String>();
-            manifestEntry.put("name", name);
-            manifestEntry.put("md5", MD5.digest(content));
-            manifestEntry.put("length", "" + content.length);
-            manifestList.add(manifestEntry);
-        }
-        return new JSON().encode(manifestList);
-    }
-
-    private List<Map<String, String>> decodeManifest(String jsonManifest) {
-        List<Map<String, String>> manifestList = null;
-        Type listType = new TypeToken<List<Map<String, String>>>() {
-        }.getType();
-
-        manifestList = new JSON().decode(jsonManifest, listType);
-        return manifestList;
-    }
-
-    private String makeManifestAsMap(Map<String, byte[]> zipMap) {
-        Map<String, String> manifestMap = new LinkedHashMap<String, String>();
-        for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-            String name = e.getKey();
-            byte[] content = e.getValue();
-            manifestMap.put(name, MD5.digest(content));
-        }
-        return new JSON().encode(manifestMap);
+        return params;
     }
 }
