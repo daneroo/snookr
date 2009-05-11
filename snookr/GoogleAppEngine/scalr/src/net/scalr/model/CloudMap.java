@@ -4,6 +4,7 @@
  */
 package net.scalr.model;
 
+import com.google.appengine.api.datastore.Blob;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
@@ -26,18 +27,19 @@ public class CloudMap {
     }
 
     @Persistent(defaultFetchGroup="true")
-    private byte[] content;
+    private Blob content;
 
     public byte[] getContent() {
-        return content;
+        if (content==null) return null;
+        return content.getBytes();
     }
 
     public void setContent(byte[] content) {
-        this.content = content;
+        this.content = new Blob(content);
     }
 
     public CloudMap(String name,byte[] content){
         this.name=name;
-        this.content=content;
+        this.content=new Blob(content);
     }
 }
