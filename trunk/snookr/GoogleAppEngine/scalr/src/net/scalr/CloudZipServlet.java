@@ -28,6 +28,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.servlet.ServletOutputStream;
+import net.scalr.dao.CloudZipDAO;
+import net.scalr.model.CloudMap;
+import net.scalr.model.CloudZip;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.IOUtils;
 
@@ -53,22 +57,58 @@ public class CloudZipServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            log.warning("Servlet CloudZipServlet GET response");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CloudZipServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h3>ContextPath: " + request.getContextPath() + "</h3>");
-            out.println("<h3>URI        :" + request.getRequestURI() + "</h3>");
-            out.println("<p>Should only be used for POST</p>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
+
+        // hmm not quite
+        response.setContentType("text/plain;charset=UTF-8");
+        Map<String, String[]> params = request.getParameterMap();
+        String names[] = params.get("name");
+        boolean manifest = params.get("manifest") != null;
+        boolean verify = params.get("verify") != null;
+        boolean delete = params.get("delete") != null;
+
+        ServletOutputStream sos = response.getOutputStream();
+        /* validation
+         *    names==null (or names.length==0) get List
+         */
+        log.warning("Servlet CloudMapServlet GET response");
+        CloudZipDAO dao = new CloudZipDAO();
+        if (names == null || names.length < 1) {
+            sos.println("--no key: return map keys (manifest)");
+            List<String> list = dao.getAllKeys();
+            sos.println("List has " + list.size() + " CloudZip entries");
+            for (String name : list) {
+                sos.println(" " + name + " --> entries:" + "...");
+            }
+
+        } else if (names.length > 1) {
+            sos.println("error: multiple key names not supported");
+        } else { // names.length==1
+            String name = names[0];
+            if (delete) {
+                log.warning("  Deleting name=" + name);
+                dao.delete(name);
+                sos.println("deleted name=" + name);
+            } else {
+                log.warning("  Fetching name=" + name);
+                CloudZip cz = dao.get(name);
+                if (manifest) {
+                    sos.println("fetched name=" + cz.getName());
+                    sos.println("manifest: -=-=-=-=-");
+                    sos.println(cz.getManifest());
+                    sos.println("-=-=-=-=-=-=-=-=-=-");
+                } else if (verify) {
+                    sos.println("fetched name=" + cz.getName());
+                    sos.println("verified: -=-=-=-=-");
+                    String jsonManifest = makeManifest(cz.getEntries());
+                    sos.println(jsonManifest);
+                    sos.println("-=-=-=-=-=-=-=-=-=-");
+                } else { // content
+                    //sos.write(clm.getContent());
+                    sos.println("--- Content goes here -manifest for now- -=-=-=-");
+                    sos.println(cz.getManifest());
+                    sos.println("-=-=-=-=-=-=-=-=-=-");
+                }
+            }
         }
     }
 
@@ -144,33 +184,43 @@ public class CloudZipServlet extends HttpServlet {
                 String value = Streams.asString(stream);
                 String message = "Form field: " + item.getFieldName() + " length: " + value.length() + " value: " + value;
                 out.println(message);
-            } else {
+            } else { // File Item
                 boolean inMem = true;
-                Map<String, byte[]> zipMap = null;
+                CloudZip zip = null;
                 if (inMem) { // get the array first into memory
                     byte[] content = IOUtils.toByteArray(stream);
-                    String md5sum = MD5.digest(content);
-                    String message = "File field: " + item.getFieldName() + " name: " + item.getName() + " length: " + content.length + " md5: " + md5sum;
-                    log.warning(message);
-                    out.println(message);
+                    //String md5sum = MD5.digest(content);
+                    //String message = "File field: " + item.getFieldName() + " name: " + item.getName() + " length: " + content.length + " md5: " + md5sum;
+                    //log.warning(message);
+                    //out.println(message);
                     InputStream is = new ByteArrayInputStream(content);
-                    zipMap = expandZipStream(is);
+                    Map<String, byte[]> zipMap = expandZipStream(is);
                     is.close();
+                    String name = item.getName();
+                    zip = new CloudZip(name, zipMap);
                 } else {
-                    String message = "File field: " + item.getFieldName() + " name: " + item.getName();
-                    log.warning(message);
-                    out.println(message);
-                    zipMap = expandZipStream(stream);
+                    //String message = "File field: " + item.getFieldName() + " name: " + item.getName();
+                    //log.warning(message);
+                    //out.println(message);
+                    Map<String, byte[]> zipMap = expandZipStream(stream);
+                    String name = item.getName();
+                    zip = new CloudZip(name, zipMap);
                 }
-                for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-                    String name = e.getKey();
-                    byte[] innercontent = e.getValue();
-                    out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
+
+                /*for (Map.Entry<String, byte[]> e : zip.getEntries().entrySet()) {
+                String name = e.getKey();
+                byte[] innercontent = e.getValue();
+                out.println("  -" + name + ": length: " + innercontent.length + " md5: " + MD5.digest(innercontent));
                 }
-                String jsonManifest = makeManifest(zipMap);
-                out.println(jsonManifest);
-                List<Map<String,String>> manifestList = decodeManifest(jsonManifest);
-                for (Map<String,String> m: manifestList){
+                 */
+                Map<String, byte[]> zipEntries = zip.getEntries();
+                String jsonManifest = makeManifest(zipEntries);
+                //out.println(jsonManifest);
+                zip.setManifest(jsonManifest);
+                CloudZipDAO dao = new CloudZipDAO();
+                dao.createOrReplace(zip);
+                List<Map<String, String>> manifestList = decodeManifest(zip.getManifest());
+                for (Map<String, String> m : manifestList) {
                     out.println("  +" + m.get("name") + ": length: " + m.get("length") + " md5: " + m.get("md5"));
 
                 }
@@ -201,8 +251,8 @@ public class CloudZipServlet extends HttpServlet {
                 //System.out.println("Reading next entry: " + ze.getName());
                 String name = ze.getName();
                 byte[] content = IOUtils.toByteArray(zipis);
-                String md5sum = MD5.digest(content);
-                System.out.println("Read: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
+                //String md5sum = MD5.digest(content);
+                //System.out.println("Read: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
                 map.put(name, content);
             } catch (IOException ex) {
                 log.log(Level.SEVERE, null, ex);
@@ -236,13 +286,16 @@ public class CloudZipServlet extends HttpServlet {
         return manifestList;
     }
 
+    /* Chose List representation instead
+     *
     private String makeManifestAsMap(Map<String, byte[]> zipMap) {
-        Map<String, String> manifestMap = new LinkedHashMap<String, String>();
-        for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-            String name = e.getKey();
-            byte[] content = e.getValue();
-            manifestMap.put(name, MD5.digest(content));
-        }
-        return new JSON().encode(manifestMap);
+    Map<String, String> manifestMap = new LinkedHashMap<String, String>();
+    for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
+    String name = e.getKey();
+    byte[] content = e.getValue();
+    manifestMap.put(name, MD5.digest(content));
     }
+    return new JSON().encode(manifestMap);
+    }
+     */
 }
