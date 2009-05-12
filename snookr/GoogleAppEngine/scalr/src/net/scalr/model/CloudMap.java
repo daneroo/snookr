@@ -17,7 +17,6 @@ import javax.jdo.annotations.Persistent;
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class CloudMap {
 
-// ...
     @PrimaryKey
     @Persistent
     private String name;
