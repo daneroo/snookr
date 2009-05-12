@@ -51,14 +51,19 @@ public class CloudMapDAO {
 
     public List<CloudMap> getAll() {
         PersistenceManager pm = PMF.get().getPersistenceManager();
-        Query query = pm.newQuery(CloudMap.class);
-        //Query query = pm.newQuery("select from CloudMap");
-        List<CloudMap> results = (List<CloudMap>) query.execute();
-        return results;
+        try {
+            Query query = pm.newQuery(CloudMap.class);
+            //Query query = pm.newQuery("select from CloudMap");
+            List<CloudMap> results = (List<CloudMap>) query.execute();
+            return results;
+        } finally {
+            pm.close();
+        }
+
     }
 
     public void print(List<CloudMap> list) {
-        System.out.println("List has "+list.size()+" CloudMap entries");
+        System.out.println("List has " + list.size() + " CloudMap entries");
         for (CloudMap clm : list) {
             System.out.println(" " + clm.getName() + " --> " + new String(clm.getContent()));
         }
