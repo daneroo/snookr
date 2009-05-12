@@ -10,11 +10,16 @@ package net.snookr.scalr;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.snookr.util.Timer;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
@@ -29,19 +34,55 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 public class ScalrImpl {
 
     /* Convinience to return as string */
-    static final int MAXRETURNBODYLENGTH = 10000000;
+    static final int MAXRETURNBODYLENGTH = 10 * 1024 * 1024;
+    final boolean verboseGETRate = false;
+    final boolean verbosePOSTRate = true;
 
-    public String postMultipart(String postURL, Map params) {
-        byte[] response = postMultipart(postURL, params, MAXRETURNBODYLENGTH);
-        //log("returned Body length in bytes: "+response.length);
+    public byte[] get(String getURL, Map<String, String> params) {
+        GetMethod getMethod = new GetMethod(getURL);
 
-        if (response == null) {
-            return null;
+        int numParams = params.size();
+        NameValuePair[] nvpairs = new NameValuePair[numParams];
+        int p = 0;
+        for (Map.Entry<String, String> e : params.entrySet()) {
+            String pName = e.getKey();
+            String pValue = e.getValue();
+            nvpairs[p++] = new NameValuePair(pName, pValue);
         }
-        
-        //String asString = new String(response, UTF8);
-        String asString = new String(response);
-        return asString;
+        getMethod.setQueryString(nvpairs);
+
+        HttpClient client = new HttpClient();
+        // set per default
+        //client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+        //        new DefaultHttpMethodRetryHandler());
+
+        try {
+            Timer tt = new Timer();
+            int statusCode = client.executeMethod(getMethod);
+
+            if (statusCode != HttpStatus.SC_OK) {
+                System.err.println("Method failed: " + getMethod.getStatusLine());
+            }
+
+            byte[] responseBody = getMethod.getResponseBody(MAXRETURNBODYLENGTH);
+            if (verboseGETRate) {
+                float sizekB = responseBody.length / 1024.0f;
+                String rateMsg = String.format("Transfer %.1f kB / %.1f s rate: %.1f kB/s ", sizekB, tt.diff(), sizekB / tt.diff());
+                System.out.println("-=-=-=-" + rateMsg);
+            }
+            return responseBody;
+
+        } catch (HttpException e) {
+            System.err.println("Fatal protocol violation: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Fatal transport error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Release the connection.
+            getMethod.releaseConnection();
+        }
+        return null;
     }
 
     /* Convert params:Map to Part array
@@ -66,8 +107,7 @@ public class ScalrImpl {
         return parts;
     }
 
-    private byte[] postMultipart(String postURL, Map params, int maxReturnLength) {
-        File f = new File("/Users/daniel/small.txt");
+    public byte[] postMultipart(String postURL, Map params) {
         PostMethod filePost = new PostMethod(postURL);
         try {
 
@@ -75,17 +115,25 @@ public class ScalrImpl {
             //filePost.setContentChunked(true);
 
             Part[] parts = paramsToPartList(params);
-            filePost.setRequestEntity(
-                    new MultipartRequestEntity(parts, filePost.getParams()));
+            MultipartRequestEntity mpre = new MultipartRequestEntity(parts, filePost.getParams());
+            filePost.setRequestEntity(mpre);
+
             HttpClient client = new HttpClient();
 
             client.getHttpConnectionManager().
                     getParams().setConnectionTimeout(5000);
 
+            Timer tt = new Timer();
             int status = client.executeMethod(filePost);
             if (status == HttpStatus.SC_OK) {
                 //String body = filePost.getResponseBodyAsString();
-                return filePost.getResponseBody(maxReturnLength);
+                byte[] responseBody = filePost.getResponseBody(MAXRETURNBODYLENGTH);
+                if (verbosePOSTRate) {
+                    float sizekB = mpre.getContentLength() / 1024.0f;
+                    String rateMsg = String.format("Transfer %.1f kB / %.1f s rate: %.1f kB/s ", sizekB, tt.diff(), sizekB / tt.diff());
+                    System.out.println("-=-=-=-" + rateMsg);
+                }
+                return responseBody;
             } else {
                 log("Upload failed, response=" + HttpStatus.getStatusText(status));
             }

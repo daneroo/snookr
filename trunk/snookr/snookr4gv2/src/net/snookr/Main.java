@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.snookr.db.Database;
+import net.snookr.scalr.CloudMap;
 import net.snookr.scalr.ScalrImpl;
 import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.Flickr2Database;
@@ -45,11 +46,11 @@ public class Main {
     public static void main(String[] args) {
         Main m = new Main();
 
-        //m.scalr();
+        m.scalr();
         //m.classify();
         //m.readWriteJSON();
         //m.clearFlickrDB();
-        //System.exit(0);
+        System.exit(0);
 
         List<Runnable> runParts = m.parse(args);
         for (Runnable r : runParts) {
@@ -66,46 +67,40 @@ public class Main {
 
     /* Exercise the httpclient 3.1 multipart post
      */
-    static final String postURL = "http://localhost:8080/zip";
-    //static final String postURL = "http://scalr.appspot.com/zip";
+    static final String postZipURL = "http://localhost:8080/zip";
+    //static final String postZipURL = "http://scalr.appspot.com/zip";
+    //static final String postMapURL = "http://localhost:8080/map";
+    static final String postMapURL = "http://scalr.appspot.com/map";
 
     public void scalr() {
-        ScalrImpl scalr = new ScalrImpl();
-        if (false) {
-            // LinkedHashMap preserves insertion order in iteration
-            Map params = new LinkedHashMap();
-            params.put("testkeyforstring", "Hello Scalr, from String");
-            params.put("testkeyforbytes1", "Hello Scalr from Bytes-1".getBytes());
-            params.put("testkeyforbytes2", "Hello Scalr from Bytes-2".getBytes());
-            params.put("testkeyforbytes3", "Hello Scalr from Bytes-3".getBytes());
-            params.put("testkeyforfile", new File("/Users/daniel/small.txt"));
-            String result = scalr.postMultipart(postURL, params);
-            System.out.println("Result: -=-=-=-=-=-=-=-");
-            System.out.println(result);
-            System.out.println("-=-=-=-=-=-=-=-=-=-=--=");
-        }
+        if (true) { // map stuff
+            CloudMap cm = new CloudMap(postMapURL);
 
-
-        int maxSz = 1024 * 1024 * 8;
-        //maxSz = 1024*1024;
-        for (int sz = 1024 * 512; sz <= maxSz; sz *= 2) {
-            Map params = new LinkedHashMap();
-            byte[] content = new byte[sz];
-            for (int i = 0; i < content.length; i++) {
-                content[i] = (byte) (i % 256);
+            if (false) {
+                String key1 = "snookr.testkey1";
+                cm.post(key1, "Hello Snookr-Scalr from Bytes-1".getBytes());
+                cm.sign(key1);
+                cm.get(key1);
+                cm.delete(key1);
             }
-            String expectedMD5 = MD5.digest(content);
-            System.out.println(String.format("Testing size: %.1f kB expecting MD5: %s", sz / 1024.0, expectedMD5));
 
-            params.put("key", "test:sz:" + sz);
-            params.put("value", content);
-            Timer tt = new Timer();
-            String result = scalr.postMultipart(postURL, params);
-            float rate = tt.rate(sz) / 1024.0f;
-            System.out.println(String.format("Transfer rate: %.1f kB/s (%.1fs)", rate, tt.diff()));
-            System.out.println("Result: -=-=-=-=-=-=-=-");
-            System.out.println(result);
-            System.out.println("-=-=-=-=-=-=-=-=-=-=--=");
+            int maxSz = 1024 * 1024 * 1;
+            //maxSz = 1024*1024;
+            if (true) {
+                for (int sz = 1024; sz < maxSz; sz *= 2) {
+                    String key = "test:sz:" + sz;
+                    byte[] content = new byte[sz];
+                    for (int i = 0; i < content.length; i++) {
+                        content[i] = (byte) (i % 256);
+                    }
+                    String expectedMD5 = MD5.digest(content);
+                    System.out.println(String.format("Testing size: %.1f kB expecting MD5: %s", sz / 1024.0, expectedMD5));
+                    cm.post(key, content);
+                    cm.sign(key);
+                    //cm.get(key);
+                    cm.delete(key);
+                }
+            }
         }
     }
 
@@ -135,7 +130,7 @@ public class Main {
         public void run() {
             Partitioner partitioner = PartitionFSImage.BY_DIRECTORY;
             //Partitioner partitioner = PartitionFSImage.BY_YEARMONTH;
-            new Filesystem2JSON(sourceDir, hostname,partitioner).run();
+            new Filesystem2JSON(sourceDir, hostname, partitioner).run();
         }
     }
 
