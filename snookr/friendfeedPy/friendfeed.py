@@ -112,6 +112,23 @@ class FriendFeed(object):
         """
         return self._fetch_feed("/api/feed/home", **kwargs)
 
+    # modifications for real time updates: copied off fetch_home
+    # /api/updates 	Call this method to get a starting value for the update token. This method always returns an empty entries collection.
+    # /api/updates/home 	Get updates to the users home feed. Authentication is always required.
+    def fetch_update_start(self, **kwargs):
+        """Call this method to get a starting value for the update token.
+        This method always returns an empty entries collection.
+        """
+        return self._fetch_feed("/api/updates",None, **kwargs)
+
+    def fetch_update_home(self,token,timeout, **kwargs):
+        """Get updates to the users home feed.
+        Authentication is always required.
+        """
+        kwargs["token"] = token
+        kwargs["timeout"] = timeout
+        return self._fetch_feed("/api/updates/home",None, **kwargs)
+
     def search(self, q, **kwargs):
         """Searches over entries in FriendFeed.
 
@@ -261,7 +278,10 @@ class FriendFeed(object):
     def _fetch(self, uri, post_args, **url_args):
         url_args["format"] = "json"
         args = urllib.urlencode(url_args)
-        url = "http://friendfeed.com" + uri + "?" + args
+        host = "friendfeed.com"
+        if uri.startswith("/api/updates"):
+            host="chan.friendfeed.com"
+        url = "http://" + host + uri + "?" + args
         if post_args is not None:
             request = urllib2.Request(url, urllib.urlencode(post_args))
         else:
