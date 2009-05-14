@@ -211,6 +211,14 @@ class FriendFeed(object):
         feed = self._fetch_feed("/api/share", post_args=post_args)
         return feed["entries"][0]
 
+    # Modifications for entry deletion
+    def delete_entry(self, entry_id):
+        """Delete the entry with the given ID.
+        """
+        post_args = {"entry": entry_id}
+        feed = self._fetch_feed("/api/entry/delete", post_args=post_args)
+        return feed
+
     def add_comment(self, entry_id, body, via=None):
         """Adds the given comment to the entry with the given ID.
 
