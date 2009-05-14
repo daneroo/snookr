@@ -4,6 +4,9 @@
 import wsgiref.handlers
 import logging
 import datetime
+import base64
+import urllib
+import urllib2
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -71,11 +74,49 @@ class PublishPage(webapp.RequestHandler):
 class SubscribePage (webapp.RequestHandler):
   """ http://imetrical.appspot.com/feeds?owner=daniel
 """
-  def get(self):
-    owner = self.request.get("owner")
+  def adviseFriendfeed(self,owner,lastRead):
+    logging.info("Advise of activity for %s @ %s" % (owner,lastRead))
+    auth_nickname="imetrical"
+    auth_key="unite369tumid"
+    post_args = {"title": "iMetrical::Read by %s @ %s"%(owner,lastRead) }
+    uri="/api/share"
+    url_args={"format":"json"}
+
+    # this is mostly from my patched friendfeed.py::_fetch
+    args = urllib.urlencode(url_args)
+    host = "friendfeed.com"
+    url = "http://" + host + uri + "?" + args
+    if post_args is not None:
+      request = urllib2.Request(url, urllib.urlencode(post_args))
+    else:
+      request = urllib2.Request(url)
+    if auth_nickname and auth_key:
+      pair = "%s:%s" % (auth_nickname, auth_key)
+      token = base64.b64encode(pair)
+      request.add_header("Authorization", "Basic %s" % token)
+    stream = urllib2.urlopen(request)
+    data = stream.read()
+    stream.close()
+    logging.info("POST Reply: %s" % (data))      
+
+  def advisePublisher(self,owner):
+    accessThreshold=600
+    accessedSecondsAgo=accessThreshold
+    previousLastRead = memcache.get("lastRead:%s" % owner)
+    if (previousLastRead is not None):
+      accessedSecondsAgo = (datetime.datetime.now()-previousLastRead).seconds
+      
     lastRead = datetime.datetime.now()
     expireSeconds = 8 * 3600
     memcache.set("lastRead:%s" % owner, lastRead,expireSeconds)
+
+    # Do we need to publish notification
+    if ( accessedSecondsAgo >= accessThreshold ):
+      self.adviseFriendfeed(owner,lastRead)
+
+  def get(self):
+    owner = self.request.get("owner")
+    self.advisePublisher(owner)
 
     feeds = Feeds.get_by_key_name(owner)
     self.response.headers['Content-Type'] = "text/xml"
