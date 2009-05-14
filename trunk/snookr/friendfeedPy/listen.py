@@ -33,7 +33,7 @@ if session.auth_nickname and session.auth_key:
         update = session.fetch_update_home(token,timeoutSeconds)
         token = update["update"]["token"]
         #print update
-        print update["entries"]
+        #print update["entries"]
         print "Got %d updated entries" % len(update["entries"])
         for e in update["entries"]:
             if e["title"].startswith(subscriptionPrefix):
