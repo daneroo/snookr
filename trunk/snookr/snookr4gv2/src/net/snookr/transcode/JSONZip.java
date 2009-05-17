@@ -60,16 +60,21 @@ public class JSONZip {
                 //System.err.println("Zipping: " + name+" sz: "+part.size());
                 ZipEntry ze = new ZipEntry(name);
 
-                //String directive = ((part.size() % 2) == 0) ? "ADD_OR_REPLACE" : "DELETE";
-                String directive = "ADD_OR_REPLACE";
+                // Add a directive for marker empty lists
+                // but do not add the directive for default "ADD/REPLACE"
+                String directive = null;//"ADD_OR_REPLACE";
                 if (part == DELETION_MARKER_EMPTYLIST) {
                     directive = "DELETE";
                 } else if (part == PRESERVE_MARKER_EMPTYLIST) {
                     directive = "PRESERVE";
                 }
-                ze.setComment(directive);
-                ze.setExtra(directive.getBytes());
-                //System.err.println("set Comment: " + ze.getComment());
+                // We add both comment and "extra" because
+                // comment is not available when decodig from zipstream,
+                // but comment convienently appear when doing a simple unzip -l .. from shell
+                if (directive != null) {
+                    ze.setComment(directive);
+                    ze.setExtra(directive.getBytes());
+                }
                 zipos.putNextEntry(ze);
                 json.encode(part, zipos);
                 zipos.closeEntry();
@@ -96,12 +101,12 @@ public class JSONZip {
                     break;
                 }
                 String name = ze.getName();
-                
+
                 if (ze.getComment() != null) {
                     System.err.println("Comment: " + ze.getComment());
                 }
                 if (ze.getExtra() != null) {
-                    System.err.println("Extra: " + new String(ze.getExtra())+" "+name);
+                    System.err.println("Extra: " + new String(ze.getExtra()) + " " + name);
                 }
                 if (ze.isDirectory()) {
                     System.err.println("Ignoring directory: " + name);
