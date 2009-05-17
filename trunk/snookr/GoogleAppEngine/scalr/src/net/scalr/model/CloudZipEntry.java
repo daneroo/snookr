@@ -12,6 +12,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import net.scalr.GZIP;
+import net.scalr.MD5;
 
 /**
  *
@@ -24,10 +25,20 @@ public class CloudZipEntry {
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
     @Persistent
-    private String name;
+    private final String name;
+    @Persistent
+    private final int length;
+    @Persistent
+    private final String md5;
 
     public String getName() {
         return name;
+    }
+    public int getLength() {
+        return length;
+    }
+    public String getMd5() {
+        return md5;
     }
 
     /* Careful with fetching...
@@ -40,13 +51,14 @@ public class CloudZipEntry {
         if (content == null) {
             return null;
         }
-        // return content.getBytes();
+        //return content.getBytes();
         byte[] uncompressed = new GZIP().gunzip(content.getBytes());
-        System.out.println("  Uncompressed "+content.getBytes().length+"->"+uncompressed.length);
+        //System.out.println("  Uncompressed "+content.getBytes().length+"->"+uncompressed.length);
         return uncompressed;
     }
 
     public void setContent(byte[] content) {
+        //this.content = new Blob(content);
         byte[] compressed = new GZIP().gzip(content);
         //System.out.println("  Compressed "+content.length+"->"+compressed.length);
         this.content = new Blob(compressed);
@@ -54,6 +66,8 @@ public class CloudZipEntry {
 
     public CloudZipEntry(String name, byte[] content) {
         this.name = name;
+        this.length = content.length;
+        this.md5 = MD5.digest(content);
         setContent(content);
     }
 }
