@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -86,7 +87,7 @@ public class JSONZip {
     }
 
     public Map<String, List> decode(InputStream is, Type listType) {
-        Map<String, List> map = new HashMap<String, List>();
+        Map<String, List> map = new LinkedHashMap<String, List>();
         ZipInputStream zipis = new ZipInputStream(is);
         while (true) {
             try {
@@ -94,18 +95,18 @@ public class JSONZip {
                 if (ze == null) {
                     break;
                 }
+                String name = ze.getName();
+                
                 if (ze.getComment() != null) {
                     System.err.println("Comment: " + ze.getComment());
                 }
                 if (ze.getExtra() != null) {
-                    System.err.println("Extra: " + new String(ze.getExtra()));
+                    System.err.println("Extra: " + new String(ze.getExtra())+" "+name);
                 }
                 if (ze.isDirectory()) {
-                    System.err.println("Ignoring directory: " + ze.getName());
+                    System.err.println("Ignoring directory: " + name);
                     continue;
                 }
-                //System.out.println("Reading next entry: " + ze.getName());
-                String name = ze.getName();
                 List part = json.decode(zipis, listType);
                 map.put(name, part);
             } catch (IOException ex) {
