@@ -62,8 +62,9 @@ class ReadWriteJSON {
             Map sortedMap = partitioner.toMap(list);
 
             Type listType = JSON.FSImageListType;//FlickrImageListType
-            (1..3).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
-            (1..3).each(){roundTripTimerTest(true,sortedMap,zipName,listType);}
+            (1..1).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
+            //(1..3).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
+            //(1..3).each(){roundTripTimerTest(true,sortedMap,zipName,listType);}
         }
 
         
@@ -81,8 +82,9 @@ class ReadWriteJSON {
             Map sortedMap = partitioner.toMap(list);
 
             Type listType = JSON.FlickrImageListType
-            (1..3).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
-            (1..3).each(){roundTripTimerTest(true,sortedMap,zipName,listType);}
+            (1..1).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
+            //(1..3).each(){roundTripTimerTest(false,sortedMap,zipName,listType);}
+            //(1..3).each(){roundTripTimerTest(true,sortedMap,zipName,listType);}
         }
         
     }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,10 @@ import java.util.zip.ZipOutputStream;
  */
 public class JSONZip {
 
-    public static final int ZIP_ENCODE_LEVEL = Deflater.BEST_COMPRESSION;
+    private static final int ZIP_ENCODE_LEVEL = Deflater.BEST_COMPRESSION;
     private JSON json;
+    public static final List DELETION_MARKER_EMPTYLIST = new ArrayList();
+    public static final List PRESERVE_MARKER_EMPTYLIST = new ArrayList();
 
     public JSONZip() {
         this(new JSON());
@@ -54,9 +57,19 @@ public class JSONZip {
                 List part = e.getValue();
 
                 //System.err.println("Zipping: " + name+" sz: "+part.size());
+                ZipEntry ze = new ZipEntry(name);
 
-                zipos.putNextEntry(new ZipEntry(name));
-                //out.write(encodedJSONBytes);
+                //String directive = ((part.size() % 2) == 0) ? "ADD_OR_REPLACE" : "DELETE";
+                String directive = "ADD_OR_REPLACE";
+                if (part == DELETION_MARKER_EMPTYLIST) {
+                    directive = "DELETE";
+                } else if (part == PRESERVE_MARKER_EMPTYLIST) {
+                    directive = "PRESERVE";
+                }
+                ze.setComment(directive);
+                ze.setExtra(directive.getBytes());
+                //System.err.println("set Comment: " + ze.getComment());
+                zipos.putNextEntry(ze);
                 json.encode(part, zipos);
                 zipos.closeEntry();
             }
@@ -81,6 +94,12 @@ public class JSONZip {
                 if (ze == null) {
                     break;
                 }
+                if (ze.getComment() != null) {
+                    System.err.println("Comment: " + ze.getComment());
+                }
+                if (ze.getExtra() != null) {
+                    System.err.println("Extra: " + new String(ze.getExtra()));
+                }
                 if (ze.isDirectory()) {
                     System.err.println("Ignoring directory: " + ze.getName());
                     continue;
@@ -96,5 +115,4 @@ public class JSONZip {
         }
         return map;
     }
-
 }
