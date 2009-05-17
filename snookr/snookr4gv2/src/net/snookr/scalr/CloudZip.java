@@ -18,6 +18,8 @@ import net.snookr.util.Timer;
 public class CloudZip {
 
     private final String baseURL;
+    private static final boolean verboseGETResult = false;
+    private static final boolean verbosePOSTResult = false;
 
     public CloudZip(String baseURL) {
         this.baseURL = baseURL;
@@ -25,13 +27,16 @@ public class CloudZip {
 
     public byte[] post(String name, byte[] content) {
         Map postParams = new LinkedHashMap();
-        postParams.put("name", name);
-        postParams.put("content", content);
+        //postParams.put("name", name);
+        //postParams.put("content", content);
+        postParams.put(name, content);
 
         Timer tt = new Timer();
         ScalrImpl scalr = new ScalrImpl();
         byte[] postResult = scalr.postMultipart(baseURL, postParams);
-        printResult(postResult);
+        if (verbosePOSTResult) {
+            printResult(postResult);
+        }
         return postResult;
     }
 
@@ -40,11 +45,11 @@ public class CloudZip {
     }
     /*
     public byte[] get(String name) {
-        return get(name, false, false);
+    return get(name, false, false);
     }
 
     public byte[] delete(String name) {
-        return get(name, false, true);
+    return get(name, false, true);
     }
      */
 
@@ -57,7 +62,9 @@ public class CloudZip {
         ScalrImpl scalr = new ScalrImpl();
         Timer tt = new Timer();
         byte[] getResult = scalr.get(baseURL, getParams);
-        //printResult(getResult);
+        if (verboseGETResult) {
+            printResult(getResult);
+        }
         return getResult;
     }
 
@@ -70,5 +77,4 @@ public class CloudZip {
         }
         System.out.println("-=-=-=-=-=-=-=-= ");
     }
-
 }

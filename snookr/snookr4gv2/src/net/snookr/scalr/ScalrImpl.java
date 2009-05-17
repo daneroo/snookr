@@ -35,8 +35,8 @@ public class ScalrImpl {
 
     /* Convinience to return as string */
     static final int MAXRETURNBODYLENGTH = 10 * 1024 * 1024;
-    final boolean verboseGETRate = false;
-    final boolean verbosePOSTRate = true;
+    private static final boolean verboseGETRate = false;
+    private static final boolean verbosePOSTRate = true;
 
     public byte[] get(String getURL, Map<String, String> params) {
         GetMethod getMethod = new GetMethod(getURL);

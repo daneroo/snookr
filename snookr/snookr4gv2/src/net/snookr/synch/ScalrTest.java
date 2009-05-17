@@ -111,7 +111,7 @@ public class ScalrTest {
         Map<String, List> lessTyped = new LinkedHashMap<String, List>(fsJsonMap);
         byte[] deltaZip = new JSONZip().encode(lessTyped);
         byte[] postResponse = cz.post(zipName, deltaZip);
-        //showManifest("POST result", postResponse);
+        showManifest("POST result", postResponse);
     }
 
     private Map readJSON() {
@@ -132,7 +132,7 @@ public class ScalrTest {
     private List<Map<String, String>> decodeManifest(byte[] manifestBytes) {
         JSON json = new JSON();
         Type listType = JSON.ManifestEntryListType;
-        List list = json.decode(new String(manifestBytes), listType);
+        List<Map<String,String>> list = json.decode(new String(manifestBytes), listType);
         return list;
     }
 
@@ -152,7 +152,8 @@ public class ScalrTest {
         for (Map.Entry<String, Map<String, String>> e : manifestMap.entrySet()) {
             String name = e.getKey();
             Map<String, String> entry = e.getValue();
-            System.out.println(String.format("-name:%s == %s length:%s md5:%s", name, entry.get("name"), entry.get("length"), entry.get("md5")));
+            // here name = entry.get("name")
+            System.out.println(String.format("-name:%s length:%s md5:%s", entry.get("name"), entry.get("length"), entry.get("md5")));
         }
     }
 }
