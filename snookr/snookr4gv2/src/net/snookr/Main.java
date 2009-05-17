@@ -31,6 +31,7 @@ import net.snookr.util.Exif;
 import net.snookr.util.MD5;
 import net.snookr.util.Timer;
 import net.snookr.synch.Filesystem2JSON;
+import net.snookr.synch.ScalrTest;
 import net.snookr.transcode.PartitionFSImage;
 import net.snookr.transcode.Partitioner;
 
@@ -46,9 +47,9 @@ public class Main {
     public static void main(String[] args) {
         Main m = new Main();
 
+        //m.readWriteJSON();
         m.scalr();
         //m.classify();
-        //m.readWriteJSON();
         //m.clearFlickrDB();
         System.exit(0);
 
@@ -73,7 +74,10 @@ public class Main {
     static final String postMapURL = "http://scalr.appspot.com/map";
 
     public void scalr() {
-        if (true) { // map stuff
+        if (true){
+            new ScalrTest(getDefaultHost()+".json.zip").run();
+        }
+        if (false) { // map stuff
             CloudMap cm = new CloudMap(postMapURL);
 
             if (false) {

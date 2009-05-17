@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.snookr.model.FSImage;
@@ -36,6 +37,8 @@ public class JSON {
     public static Type FSImageListType = new TypeToken<List<FSImage>>() {
     }.getType();
     public static Type FlickrImageListType = new TypeToken<List<FlickrImage>>() {
+    }.getType();
+    public static Type ManifestEntryListType = new TypeToken<List<Map<String,String>>>() {
     }.getType();
 
     public JSON() {
