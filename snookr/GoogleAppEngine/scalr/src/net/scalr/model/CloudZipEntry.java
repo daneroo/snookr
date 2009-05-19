@@ -6,6 +6,7 @@ package net.scalr.model;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
@@ -24,19 +25,26 @@ public class CloudZipEntry {
     @PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
+
     @Persistent
-    private final String name;
+    private String name;
+
+    public String getKeyDescription() {
+        return String.format("Key as String: %s | name: %s", KeyFactory.keyToString(key), name);
+    }
     @Persistent
-    private final int length;
+    private int length;
     @Persistent
-    private final String md5;
+    private String md5;
 
     public String getName() {
         return name;
     }
+
     public int getLength() {
         return length;
     }
+
     public String getMd5() {
         return md5;
     }
@@ -69,5 +77,8 @@ public class CloudZipEntry {
         this.length = content.length;
         this.md5 = MD5.digest(content);
         setContent(content);
+    }
+    private CloudZipEntry() {
+// Default construcot required by JDO, even if private
     }
 }

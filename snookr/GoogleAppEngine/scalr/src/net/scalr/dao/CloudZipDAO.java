@@ -53,10 +53,10 @@ public class CloudZipDAO {
             tx.begin();
             CloudZip cz = internalGet(pm, name);
             if (cz != null) {
-                log.info("Deleting CloudZip name:" + name);
+                log.warning("Deleting CloudZip name:" + name);
                 pm.deletePersistent(cz);
             } else {
-                log.info("Unable to Delete CloudZip with name: " + name);
+                log.warning("Unable to Delete CloudZip with name: " + name);
             }
             tx.commit();
         } finally {
@@ -72,7 +72,7 @@ public class CloudZipDAO {
         Transaction tx = pm.currentTransaction();
         try {
             tx.begin();
-            log.info("Creating new CloudZip name:" + cz.getName());
+            log.warning("Creating new CloudZip name:" + cz.getName());
             pm.makePersistent(cz);
             tx.commit();
         } finally {
@@ -109,39 +109,6 @@ public class CloudZipDAO {
         }
     }
 
-    public void subsample(String name) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        //Transaction tx = pm.currentTransaction();
-        try {
-            //tx.begin();
-            CloudZip cz = internalGet(pm, name);
-            if (cz != null) {
-                System.out.println("Subsampling CloudZip: " + cz.getName());
-                //List<CloudZipEntry> nuList = new ArrayList<CloudZipEntry>();
-                for (ListIterator<CloudZipEntry> it = cz.getEntries().listIterator(); it.hasNext();) {
-                    int index = it.nextIndex();
-                    boolean delete = (index % 2) == 0;
-                    //boolean delete = index <2;
-                    CloudZipEntry ze = it.next();
-                    if (delete) {
-                        System.out.println("Deleting ZipEntry with index:" + index + " name:" + ze.getName());
-                        it.remove();
-                    } else {
-                        //nuList.add(ze);
-                    }
-                }
-            //cz.setEntries(nuList);
-            }
-        //tx.commit();
-        } finally {
-            //if (tx.isActive()) {
-            //    tx.rollback();
-            //}
-            pm.close();
-        }
-
-    }
-
     // As we traverse the incoming zip entries,
     // track which of the preivious entries have been replaced, by removing them from
     //  a tracking set: entryNamesToDeleteAfter.
@@ -155,12 +122,19 @@ public class CloudZipDAO {
                 cz = new CloudZip(name);
                 pm.makePersistent(cz);
             }
+            // the manifest is invalidated as needed by insert/deletes
+            //cz.invalidateManifest();
+
             List<CloudZipEntry> entries = cz.getEntries();
             Set<String> entryNamesDeleteAfter = new HashSet<String>();
             if (entries != null) {
+                log.info("Examining entries before; size:" + entries.size());
                 for (CloudZipEntry cze : entries) {
+                    log.info("  entry: " + cze.getKeyDescription());
                     entryNamesDeleteAfter.add(cze.getName());
                 }
+            } else {
+                log.info("Entries before null List:");
             }
             ZipInputStream zipis = new ZipInputStream(is);
             while (true) {
@@ -171,7 +145,7 @@ public class CloudZipDAO {
                     }
                     String ename = ze.getName();
                     if (ze.isDirectory()) {
-                        System.err.println("Ignoring directory: " + ename);
+                        log.info("Ignoring directory: " + ename);
                         continue;
                     }
 
@@ -179,7 +153,7 @@ public class CloudZipDAO {
                     boolean delete = false;
                     byte[] extra = ze.getExtra();
                     if (extra != null) {
-                        System.out.println("Extra: " + new String(extra) + " " + ename);
+                        log.info("Extra: " + new String(extra) + " " + ename);
                         if (new String(extra).startsWith("PRESERVE")) {
                             preserve = true;
                         } else if (new String(extra).startsWith("DELETE")) {
@@ -189,7 +163,7 @@ public class CloudZipDAO {
 
                     byte[] content = IOUtils.toByteArray(zipis);
                     String md5sum = MD5.digest(content);
-                    System.out.println("upd: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
+                    log.info("zipentry: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
 
                     if (delete) {
                         cz.deleteAllEntriesWithName(ename);
@@ -200,31 +174,47 @@ public class CloudZipDAO {
                         entryNamesDeleteAfter.remove(ename);
                         cz.addEntry(new CloudZipEntry(ename, content));
                     }
-
-                //map.put(ename, content);
                 } catch (IOException ex) {
-                    Logger.getLogger(CloudZipDAO.class.getName()).log(Level.SEVERE, null, ex);
+                    log.log(Level.SEVERE, null, ex);
                     break;
                 }
+
             }
             // now delete any unnaccounted for entries
-            log.warning("Cleaning up remaining "+entryNamesDeleteAfter.size()+" entries");
+            log.info("Cleaning up remaining " + entryNamesDeleteAfter.size() + " entries");
             for (String ename : entryNamesDeleteAfter) {
                 if (ename == null) {
-                    log.severe("ename is null ??");
+                    log.severe("CloudZip entry name is null");
                 } else {
+                log.warning("Cleaning up remaining entry with name:" + ename);
                     cz.deleteAllEntriesWithName(ename);
                 }
             }
-            String jsonManifest = cz.getOrCreateManifest();
-            pm.makePersistent(cz);
-            return jsonManifest;
+            // to avoid second fetch below - recalculating manifest with fetch implies ordering entries
+            if (cz.isManifestValid()){
+                return cz.getOrCreateManifest();
+            }
         } finally {
             pm.close();
         }
-
+        // new fetch before making manifest
+        // this is just to ensure the proper ordering of entities
+        // This is wasteful if the manifest has not been invalidated
+        pm = PMF.get().getPersistenceManager();
+        try {
+            CloudZip cz = internalGet(pm, name);
+            if (cz != null) {
+                return cz.getOrCreateManifest();
+            } else {
+                log.severe("null CloudZip after update");
+                return "[]";
+            }
+        } finally {
+            pm.close();
+        }
     }
 
+    // not used: moved from Servlet for callback based template
     private List<CloudZipEntry> expandZipStream(InputStream is) {
         // LinkedHashMap preserves insertion order in iteration
         List<CloudZipEntry> entries = new ArrayList<CloudZipEntry>();
@@ -236,13 +226,12 @@ public class CloudZipDAO {
                     break;
                 }
                 if (ze.isDirectory()) {
-                    System.err.println("Ignoring directory: " + ze.getName());
+                    log.info("Ignoring directory: " + ze.getName());
                     continue;
                 }
-                //System.out.println("Reading next entry: " + ze.getName());
                 String name = ze.getName();
                 if (ze.getExtra() != null) {
-                    System.err.println("Extra: " + new String(ze.getExtra()) + " " + name);
+                    log.info("Extra: " + new String(ze.getExtra()) + " " + name);
                 }
 
                 byte[] content = IOUtils.toByteArray(zipis);
@@ -264,7 +253,7 @@ public class CloudZipDAO {
         } catch (javax.jdo.JDOObjectNotFoundException jdonfe) {
             // we are meant to discard this exception
         } catch (Exception e) {
-            Logger.getLogger(CloudZipDAO.class.getName()).log(Level.SEVERE, null, e);
+            log.log(Level.SEVERE, null, e);
         }
         return cz;
     }
