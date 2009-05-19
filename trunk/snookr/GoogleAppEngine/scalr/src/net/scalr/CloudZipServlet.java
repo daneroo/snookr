@@ -164,7 +164,8 @@ public class CloudZipServlet extends HttpServlet {
                 //String message = "File field: " + item.getFieldName() + " name: " + item.getName();
                 CloudZipDAO dao = new CloudZipDAO();
                 String name = item.getName();
-                String jsonManifest = dao.updateWithStream(name, stream);
+                //String jsonManifest = dao.updateWithStream(name, stream);
+                String jsonManifest = dao.updateWithStreamAndTimeout(name, stream);
                 out.println(jsonManifest);
             }
         }

@@ -7,9 +7,9 @@ package net.scalr.dao;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -186,12 +186,13 @@ public class CloudZipDAO {
                 if (ename == null) {
                     log.severe("CloudZip entry name is null");
                 } else {
-                log.warning("Cleaning up remaining entry with name:" + ename);
+                    log.warning("Cleaning up remaining entry with name:" + ename);
                     cz.deleteAllEntriesWithName(ename);
                 }
             }
+            cz.getOrCreateManifest();
             // to avoid second fetch below - recalculating manifest with fetch implies ordering entries
-            if (cz.isManifestValid()){
+            if (cz.isManifestValid()) {
                 return cz.getOrCreateManifest();
             }
         } finally {
@@ -213,6 +214,153 @@ public class CloudZipDAO {
             pm.close();
         }
     }
+
+    // used to get names of entries to delete if not preserved....
+    private Set<String> getEntryNames(String name) {
+        Set<String> entryNamesDeleteAfter = new HashSet<String>();
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            CloudZip cz = internalGet(pm, name);
+            if (cz != null) {
+                List<CloudZipEntry> entries = cz.getEntries();
+                if (entries != null) {
+                    log.info("Examining entries before; size:" + entries.size());
+                    for (CloudZipEntry cze : entries) {
+                        log.info("  entry: " + cze.getKeyDescription());
+                        entryNamesDeleteAfter.add(cze.getName());
+                    }
+                } else {
+                    log.info("Entries before null List:");
+                }
+            }
+            return entryNamesDeleteAfter;
+        } finally {
+            pm.close();
+        }
+    }
+
+    private void addEntry(String name, CloudZipEntry cze) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            CloudZip cz = internalGet(pm, name);
+            if (cz == null) {
+                log.info("Creating new CloudZip name:" + name);
+                cz = new CloudZip(name);
+            }
+            cz.addEntry(cze);
+            // in case new CloudZip... makepersistant
+            pm.makePersistent(cz);
+        } finally {
+            pm.close();
+        }
+        makeManifest(name);
+    }
+
+    private void deleteAllEntriesWithName(String name, String entryName) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            CloudZip cz = internalGet(pm, name);
+            if (cz == null) {
+                log.warning("Cannot delete from non-existant CloudZip name:" + name);
+                return;
+            }
+            cz.deleteAllEntriesWithName(entryName);
+        } finally {
+            pm.close();
+        }
+        makeManifest(name);
+    }
+
+    private String makeManifest(String name) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            CloudZip cz = internalGet(pm, name);
+            if (cz != null) {
+                return cz.getOrCreateManifest();
+            }
+            log.severe("null CloudZip for makeManifest");
+            return "[]";
+        } finally {
+            pm.close();
+        }
+    }
+    private final long timeout = 22000;
+
+    public String updateWithStreamAndTimeout(String name, InputStream is) {
+        long start = new Date().getTime();
+        boolean expiredTimeout = false;
+        Set<String> entryNamesDeleteAfter = getEntryNames(name);
+
+        ZipInputStream zipis = new ZipInputStream(is);
+
+        while (true) {
+            try {
+                long elapsed = new Date().getTime() - start;
+                if (elapsed > timeout) {
+                    log.severe("Timeout about to expire: Bolting");
+                    expiredTimeout = true;
+                    break;
+                } else {
+                    log.severe("Continue: elapsed= " + elapsed);
+                }
+                ZipEntry ze = zipis.getNextEntry();
+                if (ze == null) {
+                    break;
+                }
+                String ename = ze.getName();
+                if (ze.isDirectory()) {
+                    log.info("Ignoring directory: " + ename);
+                    continue;
+                }
+
+                boolean preserve = false;
+                boolean delete = false;
+                byte[] extra = ze.getExtra();
+                if (extra != null) {
+                    log.info("Extra: " + new String(extra) + " " + ename);
+                    if (new String(extra).startsWith("PRESERVE")) {
+                        preserve = true;
+                    } else if (new String(extra).startsWith("DELETE")) {
+                        delete = true;
+                    }
+                }
+
+                byte[] content = IOUtils.toByteArray(zipis);
+                String md5sum = MD5.digest(content);
+                log.info("zipentry: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
+
+                if (delete) {
+                    entryNamesDeleteAfter.remove(ename);
+                    deleteAllEntriesWithName(name, ename);
+                } else if (preserve) {
+                    entryNamesDeleteAfter.remove(ename);
+                } else { // normal add/replace mode
+                    entryNamesDeleteAfter.remove(ename);
+                    addEntry(name, new CloudZipEntry(ename, content));
+                }
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, null, ex);
+                break;
+            }
+
+        }
+        // now delete any unnaccounted for entries
+        if (expiredTimeout) { // contains too many entries: not all handled
+            log.info("No time for cleanup! " + entryNamesDeleteAfter.size() + " entries");
+        } else {
+            log.info("Cleaning up remaining " + entryNamesDeleteAfter.size() + " entries");
+            for (String ename : entryNamesDeleteAfter) {
+                if (ename == null) {
+                    log.severe("CloudZip entry name is null");
+                } else {
+                    log.warning("Cleaning up remaining entry with name:" + ename);
+                    deleteAllEntriesWithName(name, ename);
+                }
+            }
+        }
+        return makeManifest(name);
+    }
+
 
     // not used: moved from Servlet for callback based template
     private List<CloudZipEntry> expandZipStream(InputStream is) {
