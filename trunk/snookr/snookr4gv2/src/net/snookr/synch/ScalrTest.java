@@ -102,6 +102,7 @@ public class ScalrTest {
             }
         }
         // manifestMap now contains entries to be deleted
+        // This is actually not required, zip update with stream performs same logic.
         for (Map.Entry<String, Map<String, String>> e : manifestMap.entrySet()) {
             String name = e.getKey();
             Map<String, String> entry = e.getValue();
