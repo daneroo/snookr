@@ -50,19 +50,29 @@ public class CloudZip {
     private Text manifest;
 
     public String getOrCreateManifest() {
-        if (manifest != null) {
+        if (isManifestValid()) {
+            log.info("Reusing manifest");
             return manifest.getValue();
         }
         // make the manifest
+        log.warning("Making new manifest");
         this.manifest = new Text(makeManifest());
 
         return manifest.getValue();
     }
 
-    public void invalidateManifest() {
+    public boolean isManifestValid() {
         if (manifest == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public void invalidateManifest() {
+        if (!isManifestValid()) {
             return;
         }
+        log.warning("Invalidating manifest");
         this.manifest = null;
     }
 
@@ -70,7 +80,7 @@ public class CloudZip {
      */
     //@Persistent(defaultFetchGroup = "true")
     @Persistent
-    //@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "name asc"))
+    @Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "name asc"))
     private List<CloudZipEntry> entries;
 
     public List<CloudZipEntry> getEntries() {
@@ -79,30 +89,26 @@ public class CloudZip {
 
     public void deleteAllEntriesWithName(String entryName) {
         if (entries == null) {
-            log.warning("No entries to delete from = with name: " + entryName);
+            log.info("No entries to delete from = with name: " + entryName);
             return;
         }
-        log.warning("Deleting all entries with name: " + entryName);
-        List<CloudZipEntry> matchesToDelete = new ArrayList<CloudZipEntry>();
-        for (CloudZipEntry ze : entries) {
-            if (entryName.equals(ze.getName())) {
-                matchesToDelete.add(ze);
-                log.warning("Deleting ZipEntry name:" + ze.getName());
-            }
-        }
-        log.warning("Deleting "+matchesToDelete.size()+" entries with name: " + entryName);
-        entries.removeAll(matchesToDelete);
-        /*
+        log.info("Delete examining " + entries.size() + " entries for name: " + entryName);
         for (ListIterator<CloudZipEntry> it = entries.listIterator(); it.hasNext();) {
             int index = it.nextIndex();
             CloudZipEntry ze = it.next();
             if (entryName.equals(ze.getName())) {
-                log.info("Deleting ZipEntry with index:" + index + " name:" + ze.getName());
+                log.warning("Deleting ZipEntry with index:" + index + " name:" + ze.getName());
+                it.remove();
+                invalidateManifest();
+            }
+            // this should not happen any more
+            // remove code when tested
+            if (ze.getName() == null) {
+                log.severe("Deleting ZipEntry with index:" + index + " name:" + ze.getName());
                 it.remove();
                 invalidateManifest();
             }
         }
-         */
     }
 
     public void addEntry(CloudZipEntry entry) {
@@ -117,19 +123,32 @@ public class CloudZip {
 
     public CloudZip(String name) {
         this.name = name;
-        this.entries = new ArrayList<CloudZipEntry>();
+    }
+
+    private CloudZip() {
+// Default construcot required by JDO, even if private
     }
 
     private String makeManifest() {
         List<Map<String, String>> manifestList = new ArrayList<Map<String, String>>();
-        //= new LinkedHashMap<String, String>();
-        for (CloudZipEntry e : entries) {
-            Map<String, String> manifestEntry = new LinkedHashMap<String, String>();
-            manifestEntry.put("name", e.getName());
-            manifestEntry.put("length", "" + e.getLength());
-            manifestEntry.put("md5", e.getMd5());
-            manifestList.add(manifestEntry);
+        //String now = new Date().toString();
+        //log.warning("Making Manifest @ " + now);
+        if (entries != null) {
+            for (CloudZipEntry e : entries) {
+                if (e == null || e.getName() == null) {
+                    log.warning("Manifest has null entry: " + e.getKeyDescription());
+                } else {
+                    log.info("Manifest has good entry: " + e.getKeyDescription());
+                    Map<String, String> manifestEntry = new LinkedHashMap<String, String>();
+                    manifestEntry.put("name", e.getName());
+                    manifestEntry.put("length", "" + e.getLength());
+                    manifestEntry.put("md5", e.getMd5());
+                    manifestList.add(manifestEntry);
+                }
+            }
+            return new JSON().encode(manifestList);
+        } else { // null entries
+            return "[]";
         }
-        return new JSON().encode(manifestList);
     }
 }
