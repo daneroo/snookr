@@ -102,26 +102,21 @@ public class CloudZipServlet extends HttpServlet {
                 //dao.subsample(name);
                 CloudZip cz = dao.get(name);
                 if (cz == null) {
+                    // non-persitent Object
                     cz = new CloudZip(name);
-                    List<CloudZipEntry> zipEntries = cz.getEntries();
-                    String jsonManifest = makeManifest(zipEntries);
-                    //out.println(jsonManifest);
-                    cz.setManifest(jsonManifest);
-
                 }
                 if (manifest) {
-                    sos.println(cz.getManifest());
+                    sos.println(cz.getOrCreateManifest());
                 } else if (verify) {
-                    sos.println("verified: -=-=-=-=-");
-                    String jsonManifest = makeManifest(cz.getEntries());
-                    sos.println(jsonManifest);
+                    sos.println("Should have verified: -=-=-=-=-");
+                    sos.println(cz.getOrCreateManifest());
                     sos.println("-=-=-=-=-=-=-=-=-=-");
                 } else { // content
                     sos.println("fetched name=" + cz.getName());
                     sos.println("Key: " + cz.getKeyDescription());
                     //sos.write(clm.getContent());
                     sos.println("--- Content goes here -manifest for now- -=-=-=-");
-                    sos.println(cz.getManifest());
+                    sos.println(cz.getOrCreateManifest());
                     sos.println("-=-=-=-=-=-=-=-=-=-");
                 }
             }
@@ -178,64 +173,12 @@ public class CloudZipServlet extends HttpServlet {
                 //String message = "File field: " + item.getFieldName() + " name: " + item.getName();
                 CloudZipDAO dao = new CloudZipDAO();
                 String name = item.getName();
-                boolean newWay = true;
-                if (newWay) {
-                    dao.updateWithStream(name, stream);
-                } else {
-
-                    List<CloudZipEntry> zipEntries = expandZipStream(stream);
-                    CloudZip zip = new CloudZip(name, zipEntries);
-                    String jsonManifest = makeManifest(zipEntries);
-                    zip.setManifest(jsonManifest);
-                    dao.createOrReplace(zip);
-                    out.println(jsonManifest);
-                }
-                out.println("[]");
+                String jsonManifest = dao.updateWithStream(name, stream);
+                //String jsonManifest = dao.get(name).getOrCreateManifest();
+                out.println(jsonManifest);
+                //out.println("[]");
             }
         }
-    }
-
-    private List<CloudZipEntry> expandZipStream(InputStream is) {
-        // LinkedHashMap preserves insertion order in iteration
-        List<CloudZipEntry> entries = new ArrayList<CloudZipEntry>();
-        ZipInputStream zipis = new ZipInputStream(is);
-        while (true) {
-            try {
-                ZipEntry ze = zipis.getNextEntry();
-                if (ze == null) {
-                    break;
-                }
-                if (ze.isDirectory()) {
-                    System.err.println("Ignoring directory: " + ze.getName());
-                    continue;
-                }
-                //System.out.println("Reading next entry: " + ze.getName());
-                String name = ze.getName();
-                if (ze.getExtra() != null) {
-                    System.err.println("Extra: " + new String(ze.getExtra()) + " " + name);
-                }
-
-                byte[] content = IOUtils.toByteArray(zipis);
-                entries.add(new CloudZipEntry(name, content));
-            } catch (IOException ex) {
-                log.log(Level.SEVERE, null, ex);
-                break;
-            }
-        }
-        return entries;
-    }
-
-    private String makeManifest(List<CloudZipEntry> entries) {
-        List<Map<String, String>> manifestList = new ArrayList<Map<String, String>>();
-        //= new LinkedHashMap<String, String>();
-        for (CloudZipEntry e : entries) {
-            Map<String, String> manifestEntry = new LinkedHashMap<String, String>();
-            manifestEntry.put("name", e.getName());
-            manifestEntry.put("length", "" + e.getLength());
-            manifestEntry.put("md5", e.getMd5());
-            manifestList.add(manifestEntry);
-        }
-        return new JSON().encode(manifestList);
     }
 
     private List<Map<String, String>> decodeManifest(String jsonManifest) {

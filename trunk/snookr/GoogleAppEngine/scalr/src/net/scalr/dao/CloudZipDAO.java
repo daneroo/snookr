@@ -7,8 +7,10 @@ package net.scalr.dao;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -26,6 +28,9 @@ import org.apache.commons.io.IOUtils;
  * @author daniel
  */
 public class CloudZipDAO {
+
+    private static final Logger log =
+            Logger.getLogger(CloudZipDAO.class.getName());
 
     public CloudZip get(String name) {
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -48,8 +53,10 @@ public class CloudZipDAO {
             tx.begin();
             CloudZip cz = internalGet(pm, name);
             if (cz != null) {
-                System.out.println("Deleting CloudZip");
+                log.info("Deleting CloudZip name:" + name);
                 pm.deletePersistent(cz);
+            } else {
+                log.info("Unable to Delete CloudZip with name: " + name);
             }
             tx.commit();
         } finally {
@@ -65,7 +72,7 @@ public class CloudZipDAO {
         Transaction tx = pm.currentTransaction();
         try {
             tx.begin();
-            System.out.println("Creating new CloudZip");
+            log.info("Creating new CloudZip name:" + cz.getName());
             pm.makePersistent(cz);
             tx.commit();
         } finally {
@@ -135,7 +142,92 @@ public class CloudZipDAO {
 
     }
 
-    public void updateWithStream(String name, InputStream is) {
+    // As we traverse the incoming zip entries,
+    // track which of the preivious entries have been replaced, by removing them from
+    //  a tracking set: entryNamesToDeleteAfter.
+    // at the end we can remove remaining entries from the original list.
+    public String updateWithStream(String name, InputStream is) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            CloudZip cz = internalGet(pm, name);
+            if (cz == null) {
+                log.info("Creating new CloudZip name:" + name);
+                cz = new CloudZip(name);
+                pm.makePersistent(cz);
+            }
+            List<CloudZipEntry> entries = cz.getEntries();
+            Set<String> entryNamesDeleteAfter = new HashSet<String>();
+            if (entries != null) {
+                for (CloudZipEntry cze : entries) {
+                    entryNamesDeleteAfter.add(cze.getName());
+                }
+            }
+            ZipInputStream zipis = new ZipInputStream(is);
+            while (true) {
+                try {
+                    ZipEntry ze = zipis.getNextEntry();
+                    if (ze == null) {
+                        break;
+                    }
+                    String ename = ze.getName();
+                    if (ze.isDirectory()) {
+                        System.err.println("Ignoring directory: " + ename);
+                        continue;
+                    }
+
+                    boolean preserve = false;
+                    boolean delete = false;
+                    byte[] extra = ze.getExtra();
+                    if (extra != null) {
+                        System.out.println("Extra: " + new String(extra) + " " + ename);
+                        if (new String(extra).startsWith("PRESERVE")) {
+                            preserve = true;
+                        } else if (new String(extra).startsWith("DELETE")) {
+                            delete = true;
+                        }
+                    }
+
+                    byte[] content = IOUtils.toByteArray(zipis);
+                    String md5sum = MD5.digest(content);
+                    System.out.println("upd: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
+
+                    if (delete) {
+                        cz.deleteAllEntriesWithName(ename);
+                        entryNamesDeleteAfter.remove(ename);
+                    } else if (preserve) {
+                        entryNamesDeleteAfter.remove(ename);
+                    } else { // normal add/replace mode
+                        entryNamesDeleteAfter.remove(ename);
+                        cz.addEntry(new CloudZipEntry(ename, content));
+                    }
+
+                //map.put(ename, content);
+                } catch (IOException ex) {
+                    Logger.getLogger(CloudZipDAO.class.getName()).log(Level.SEVERE, null, ex);
+                    break;
+                }
+            }
+            // now delete any unnaccounted for entries
+            log.warning("Cleaning up remaining "+entryNamesDeleteAfter.size()+" entries");
+            for (String ename : entryNamesDeleteAfter) {
+                if (ename == null) {
+                    log.severe("ename is null ??");
+                } else {
+                    cz.deleteAllEntriesWithName(ename);
+                }
+            }
+            String jsonManifest = cz.getOrCreateManifest();
+            pm.makePersistent(cz);
+            return jsonManifest;
+        } finally {
+            pm.close();
+        }
+
+    }
+
+    private List<CloudZipEntry> expandZipStream(InputStream is) {
+        // LinkedHashMap preserves insertion order in iteration
+        List<CloudZipEntry> entries = new ArrayList<CloudZipEntry>();
         ZipInputStream zipis = new ZipInputStream(is);
         while (true) {
             try {
@@ -143,26 +235,24 @@ public class CloudZipDAO {
                 if (ze == null) {
                     break;
                 }
-                String ename = ze.getName();
                 if (ze.isDirectory()) {
-                    System.err.println("Ignoring directory: " + ename);
+                    System.err.println("Ignoring directory: " + ze.getName());
                     continue;
                 }
-                byte[] extra = ze.getExtra();
-                if (extra != null) {
-                    System.out.println("Extra: " + new String(extra) + " " + ename);
+                //System.out.println("Reading next entry: " + ze.getName());
+                String name = ze.getName();
+                if (ze.getExtra() != null) {
+                    System.err.println("Extra: " + new String(ze.getExtra()) + " " + name);
                 }
 
                 byte[] content = IOUtils.toByteArray(zipis);
-                String md5sum = MD5.digest(content);
-                System.out.println("upd: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
-
-            //map.put(ename, content);
+                entries.add(new CloudZipEntry(name, content));
             } catch (IOException ex) {
-                Logger.getLogger(CloudZipDAO.class.getName()).log(Level.SEVERE, null, ex);
+                log.log(Level.SEVERE, null, ex);
                 break;
             }
         }
+        return entries;
     }
 
     // just to catch the runtime exception:
