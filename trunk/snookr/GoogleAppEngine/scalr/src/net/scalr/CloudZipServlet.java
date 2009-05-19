@@ -5,7 +5,6 @@
 package net.scalr;
 
 import com.google.gson.reflect.TypeToken;
-import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,21 +18,13 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import java.io.InputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import javax.servlet.ServletOutputStream;
 import net.scalr.dao.CloudZipDAO;
 import net.scalr.model.CloudZip;
-import net.scalr.model.CloudZipEntry;
 import org.apache.commons.fileupload.util.Streams;
-import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -174,13 +165,12 @@ public class CloudZipServlet extends HttpServlet {
                 CloudZipDAO dao = new CloudZipDAO();
                 String name = item.getName();
                 String jsonManifest = dao.updateWithStream(name, stream);
-                //String jsonManifest = dao.get(name).getOrCreateManifest();
                 out.println(jsonManifest);
-                //out.println("[]");
             }
         }
     }
 
+    // unused
     private List<Map<String, String>> decodeManifest(String jsonManifest) {
         List<Map<String, String>> manifestList = null;
         Type listType = new TypeToken<List<Map<String, String>>>() {
@@ -190,16 +180,4 @@ public class CloudZipServlet extends HttpServlet {
         return manifestList;
     }
 
-    /* Chose List representation instead
-     *
-    private String makeManifestAsMap(Map<String, byte[]> zipMap) {
-    Map<String, String> manifestMap = new LinkedHashMap<String, String>();
-    for (Map.Entry<String, byte[]> e : zipMap.entrySet()) {
-    String name = e.getKey();
-    byte[] content = e.getValue();
-    manifestMap.put(name, MD5.digest(content));
-    }
-    return new JSON().encode(manifestMap);
-    }
-     */
 }
