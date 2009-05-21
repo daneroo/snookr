@@ -23,7 +23,8 @@ class Feeds(db.Model):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    self.redirect("/iG/googleviz-fb.html");
+    #self.redirect("/iG/googleviz-fb.html");
+    self.redirect("/s/p/www-6bc.html");
     #count = db.GqlQuery("SELECT * FROM Feeds").count()
     #self.response.out.write("""Hello iMetrical World!
     #  I have retreived %d records
