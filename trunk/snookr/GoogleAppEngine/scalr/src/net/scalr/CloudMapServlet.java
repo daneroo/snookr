@@ -31,6 +31,20 @@ import org.apache.commons.io.IOUtils;
  * @author daniel
  *   push this with something like:
  *     curl -m 30  -F "value=@filesystem.json.gz;type=application/octet-stream"  http://localhost:8080/upload
+ * parameter api:
+ *  we need to accomplish
+ *    manifest of group
+ *    manifest of entry
+ *    put (group=defaul,name,content) -> return manifest
+ *    put (group=default, {name,content}*) -> return manifest
+ *    delete group
+ *    delete entry
+ *    get (group=default) -> zip of groups contnt
+ *    get (group=default, name) -> content
+ *  post: either
+ *    not nulti-part
+ *       "group"->group, "name"->name, "content"->content
+ *    multipart
  */
 public class CloudMapServlet extends HttpServlet {
 
@@ -51,10 +65,29 @@ public class CloudMapServlet extends HttpServlet {
         response.setContentType("text/plain;charset=UTF-8");
         Map<String, String[]> params = request.getParameterMap();
         String names[] = params.get("name");
-        boolean sign = params.get("sign") != null;
+        boolean manifest = params.get("manifest") != null;
         boolean delete = params.get("delete") != null;
 
         ServletOutputStream sos = response.getOutputStream();
+        // test harness
+        boolean testOnly = true;
+        if (testOnly) {
+            sos.println("invoked CloudMap DAO Test");
+            CloudMapDAO tdao = new CloudMapDAO();
+            if (params.get("deleteAll") != null) {
+                tdao.deleteAll();
+            }
+            if (params.get("big") != null) {
+                sos.println(tdao.testBigRandRW());
+            }
+            if (params.get("small") != null) {
+                sos.println(tdao.testSmallRandRW());
+            }
+            if (params.get("crud") != null) {
+                sos.println(tdao.testCRD());
+            }
+            return;
+        }
         /* validation
          *    names==null (or names.length==0) get List
          */
@@ -79,7 +112,7 @@ public class CloudMapServlet extends HttpServlet {
             } else {
                 log.warning("  Fetching name=" + name);
                 CloudMap clm = dao.get(name);
-                if (sign) {
+                if (manifest) {
                     sos.println("fetched name=" + clm.getName() + " md5=" + MD5.digest(clm.getContent()));
                 } else { // content
                     sos.write(clm.getContent());
@@ -109,12 +142,12 @@ public class CloudMapServlet extends HttpServlet {
             /* validation
              *    names==null (or names.length==0) get List
              */
-            CloudMap clm = new CloudMap(name, content);
+            CloudMap clm = new CloudMap("default", name, content);
             CloudMapDAO dao = new CloudMapDAO();
             dao.createOrUpdate(clm);
             sos.println("saved  name=" + clm.getName() + " md5=" + MD5.digest(clm.getContent()));
             CloudMap check = dao.get(name);
-            sos.println("checked name=" + check.getName() + " md5="+MD5.digest(check.getContent()));
+            sos.println("checked name=" + check.getName() + " md5=" + MD5.digest(check.getContent()));
 
         } catch (FileUploadException ex) {
             Logger.getLogger(CloudMapServlet.class.getName()).log(Level.SEVERE, null, ex);
