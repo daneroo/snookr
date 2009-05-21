@@ -15,12 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 import net.scalr.MD5;
-import net.scalr.model.CloudZip;
-import net.scalr.model.CloudZipEntry;
+import net.scalr.model.CloudMap;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -31,61 +27,10 @@ public class CloudZipDAO {
 
     private static final Logger log =
             Logger.getLogger(CloudZipDAO.class.getName());
-
-    public CloudZip get(String name) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            // Touch entries, so we have access.
-            if (cz != null) {
-                cz.getEntries();
-            }
-            return cz;
-        } finally {
-            pm.close();
-        }
-    }
+    final CloudMapDAO cmdao = new CloudMapDAO();
 
     public void delete(String name) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        Transaction tx = pm.currentTransaction();
-        try {
-            tx.begin();
-            CloudZip cz = internalGet(pm, name);
-            if (cz != null) {
-                log.warning("Deleting CloudZip name:" + name);
-                pm.deletePersistent(cz);
-            } else {
-                log.warning("Unable to Delete CloudZip with name: " + name);
-            }
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            pm.close();
-        }
-    }
-
-    public void create(CloudZip cz) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        Transaction tx = pm.currentTransaction();
-        try {
-            tx.begin();
-            log.warning("Creating new CloudZip name:" + cz.getName());
-            pm.makePersistent(cz);
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            pm.close();
-        }
-    }
-
-    public void createOrReplace(CloudZip cz) {
-        delete(cz.getName());
-        create(cz);
+        cmdao.deleteGroup(name);
     }
 
     /* Take a look at:
@@ -93,20 +38,14 @@ public class CloudZipDAO {
      * :: query.setResult("count(param1), max(param2), param3"); --> Obect[]
      *  Hmm Could not get that to work
      */
-    public List<String> getAllKeys() {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            Query query = pm.newQuery(CloudZip.class);
-            //Query query = pm.newQuery("select from CloudMap");
-            List<CloudZip> results = (List<CloudZip>) query.execute();
-            List<String> keys = new ArrayList<String>(results.size());
-            for (CloudZip cz : results) {
-                keys.add(cz.getName());
-            }
-            return keys;
-        } finally {
-            pm.close();
+    public Set<String> getAllGroups() {
+        List<CloudMap> all = cmdao.getAll();
+        log.warning("getAllGroups found: "+all.size()+" map entries");
+        Set<String> groups = new HashSet<String>();
+        for (CloudMap cm : all) {
+            groups.add(cm.getGroup());
         }
+        return groups;
     }
 
     // As we traverse the incoming zip entries,
@@ -114,175 +53,78 @@ public class CloudZipDAO {
     //  a tracking set: entryNamesToDeleteAfter.
     // at the end we can remove remaining entries from the original list.
     public String updateWithStream(String name, InputStream is) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            if (cz == null) {
-                log.info("Creating new CloudZip name:" + name);
-                cz = new CloudZip(name);
-                pm.makePersistent(cz);
-            }
-            // the manifest is invalidated as needed by insert/deletes
-            //cz.invalidateManifest();
-
-            List<CloudZipEntry> entries = cz.getEntries();
-            Set<String> entryNamesDeleteAfter = new HashSet<String>();
-            if (entries != null) {
-                log.info("Examining entries before; size:" + entries.size());
-                for (CloudZipEntry cze : entries) {
-                    log.info("  entry: " + cze.getKeyDescription());
-                    entryNamesDeleteAfter.add(cze.getName());
-                }
-            } else {
-                log.info("Entries before null List:");
-            }
-            ZipInputStream zipis = new ZipInputStream(is);
-            while (true) {
-                try {
-                    ZipEntry ze = zipis.getNextEntry();
-                    if (ze == null) {
-                        break;
-                    }
-                    String ename = ze.getName();
-                    if (ze.isDirectory()) {
-                        log.info("Ignoring directory: " + ename);
-                        continue;
-                    }
-
-                    boolean preserve = false;
-                    boolean delete = false;
-                    byte[] extra = ze.getExtra();
-                    if (extra != null) {
-                        log.info("Extra: " + new String(extra) + " " + ename);
-                        if (new String(extra).startsWith("PRESERVE")) {
-                            preserve = true;
-                        } else if (new String(extra).startsWith("DELETE")) {
-                            delete = true;
-                        }
-                    }
-
-                    byte[] content = IOUtils.toByteArray(zipis);
-                    String md5sum = MD5.digest(content);
-                    log.info("zipentry: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
-
-                    if (delete) {
-                        cz.deleteAllEntriesWithName(ename);
-                        entryNamesDeleteAfter.remove(ename);
-                    } else if (preserve) {
-                        entryNamesDeleteAfter.remove(ename);
-                    } else { // normal add/replace mode
-                        entryNamesDeleteAfter.remove(ename);
-                        cz.addEntry(new CloudZipEntry(ename, content));
-                    }
-                } catch (IOException ex) {
-                    log.log(Level.SEVERE, null, ex);
+        Set<String> entryNamesDeleteAfter = getEntryNames(name);
+        ZipInputStream zipis = new ZipInputStream(is);
+        while (true) {
+            try {
+                ZipEntry ze = zipis.getNextEntry();
+                if (ze == null) {
                     break;
                 }
-
-            }
-            // now delete any unnaccounted for entries
-            log.info("Cleaning up remaining " + entryNamesDeleteAfter.size() + " entries");
-            for (String ename : entryNamesDeleteAfter) {
-                if (ename == null) {
-                    log.severe("CloudZip entry name is null");
-                } else {
-                    log.warning("Cleaning up remaining entry with name:" + ename);
-                    cz.deleteAllEntriesWithName(ename);
+                String ename = ze.getName();
+                if (ze.isDirectory()) {
+                    log.info("Ignoring directory: " + ename);
+                    continue;
                 }
+
+                boolean preserve = false;
+                boolean delete = false;
+                byte[] extra = ze.getExtra();
+                if (extra != null) {
+                    log.info("Extra: " + new String(extra) + " " + ename);
+                    if (new String(extra).startsWith("PRESERVE")) {
+                        preserve = true;
+                    } else if (new String(extra).startsWith("DELETE")) {
+                        delete = true;
+                    }
+                }
+
+                byte[] content = IOUtils.toByteArray(zipis);
+                String md5sum = MD5.digest(content);
+                log.info("zipentry: " + ze.getName() + " length: " + content.length + " md5: " + md5sum);
+
+                if (delete) {
+                    entryNamesDeleteAfter.remove(ename);
+                    cmdao.delete(new CloudMap(name, ename, null));
+                } else if (preserve) {
+                    entryNamesDeleteAfter.remove(ename);
+                } else { // normal add/replace mode
+                    entryNamesDeleteAfter.remove(ename);
+                    cmdao.createOrUpdate(new CloudMap(name, ename, content));
+                }
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, null, ex);
+                break;
             }
-            cz.getOrCreateManifest();
-            // to avoid second fetch below - recalculating manifest with fetch implies ordering entries
-            if (cz.isManifestValid()) {
-                return cz.getOrCreateManifest();
-            }
-        } finally {
-            pm.close();
+
         }
-        // new fetch before making manifest
-        // this is just to ensure the proper ordering of entities
-        // This is wasteful if the manifest has not been invalidated
-        pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            if (cz != null) {
-                return cz.getOrCreateManifest();
+        // now delete any unnaccounted for entries
+        log.info("Cleaning up remaining " + entryNamesDeleteAfter.size() + " entries");
+        for (String ename : entryNamesDeleteAfter) {
+            if (ename == null) {
+                log.severe("CloudZip entry name is null");
             } else {
-                log.severe("null CloudZip after update");
-                return "[]";
+                log.warning("Cleaning up remaining entry with name:" + ename);
+                cmdao.delete(new CloudMap(name, ename, null));
             }
-        } finally {
-            pm.close();
         }
+        return cmdao.makeManifest(name);
     }
 
     // used to get names of entries to delete if not preserved....
     private Set<String> getEntryNames(String name) {
         Set<String> entryNamesDeleteAfter = new HashSet<String>();
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            if (cz != null) {
-                List<CloudZipEntry> entries = cz.getEntries();
-                if (entries != null) {
-                    log.info("Examining entries before; size:" + entries.size());
-                    for (CloudZipEntry cze : entries) {
-                        log.info("  entry: " + cze.getKeyDescription());
-                        entryNamesDeleteAfter.add(cze.getName());
-                    }
-                } else {
-                    log.info("Entries before null List:");
-                }
+        List<CloudMap> entries = cmdao.getGroup(name);
+        if (entries != null) {
+            log.info("Examining entries before; size:" + entries.size());
+            for (CloudMap cme : entries) {
+                log.info("  entry: " + cme.getKeyDescription());
+                entryNamesDeleteAfter.add(cme.getName());
             }
-            return entryNamesDeleteAfter;
-        } finally {
-            pm.close();
+        } else {
+            log.info("Entries before null List:");
         }
-    }
-
-    private void addEntry(String name, CloudZipEntry cze) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            if (cz == null) {
-                log.info("Creating new CloudZip name:" + name);
-                cz = new CloudZip(name);
-            }
-            cz.addEntry(cze);
-            // in case new CloudZip... makepersistant
-            pm.makePersistent(cz);
-        } finally {
-            pm.close();
-        }
-        makeManifest(name);
-    }
-
-    private void deleteAllEntriesWithName(String name, String entryName) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            if (cz == null) {
-                log.warning("Cannot delete from non-existant CloudZip name:" + name);
-                return;
-            }
-            cz.deleteAllEntriesWithName(entryName);
-        } finally {
-            pm.close();
-        }
-        makeManifest(name);
-    }
-
-    private String makeManifest(String name) {
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-            CloudZip cz = internalGet(pm, name);
-            if (cz != null) {
-                return cz.getOrCreateManifest();
-            }
-            log.severe("null CloudZip for makeManifest");
-            return "[]";
-        } finally {
-            pm.close();
-        }
+        return entryNamesDeleteAfter;
     }
     private final long timeout = 22000;
 
@@ -331,13 +173,14 @@ public class CloudZipDAO {
 
                 if (delete) {
                     entryNamesDeleteAfter.remove(ename);
-                    deleteAllEntriesWithName(name, ename);
+                    cmdao.delete(new CloudMap(name, ename, null));
                 } else if (preserve) {
                     entryNamesDeleteAfter.remove(ename);
                 } else { // normal add/replace mode
                     entryNamesDeleteAfter.remove(ename);
-                    addEntry(name, new CloudZipEntry(ename, content));
+                    cmdao.createOrUpdate(new CloudMap(name, ename, content));
                 }
+
             } catch (IOException ex) {
                 log.log(Level.SEVERE, null, ex);
                 break;
@@ -348,24 +191,25 @@ public class CloudZipDAO {
         if (expiredTimeout) { // contains too many entries: not all handled
             log.info("No time for cleanup! " + entryNamesDeleteAfter.size() + " entries");
         } else {
+            // now delete any unnaccounted for entries
             log.info("Cleaning up remaining " + entryNamesDeleteAfter.size() + " entries");
             for (String ename : entryNamesDeleteAfter) {
                 if (ename == null) {
                     log.severe("CloudZip entry name is null");
                 } else {
                     log.warning("Cleaning up remaining entry with name:" + ename);
-                    deleteAllEntriesWithName(name, ename);
+                    cmdao.delete(new CloudMap(name, ename, null));
                 }
             }
         }
-        return makeManifest(name);
+        return cmdao.makeManifest(name);
     }
 
 
     // not used: moved from Servlet for callback based template
-    private List<CloudZipEntry> expandZipStream(InputStream is) {
+    private List<CloudMap> expandZipStream(String group,InputStream is) {
         // LinkedHashMap preserves insertion order in iteration
-        List<CloudZipEntry> entries = new ArrayList<CloudZipEntry>();
+        List<CloudMap> entries = new ArrayList<CloudMap>();
         ZipInputStream zipis = new ZipInputStream(is);
         while (true) {
             try {
@@ -377,13 +221,13 @@ public class CloudZipDAO {
                     log.info("Ignoring directory: " + ze.getName());
                     continue;
                 }
-                String name = ze.getName();
+                String ename = ze.getName();
                 if (ze.getExtra() != null) {
-                    log.info("Extra: " + new String(ze.getExtra()) + " " + name);
+                    log.info("Extra: " + new String(ze.getExtra()) + " " + ename);
                 }
 
                 byte[] content = IOUtils.toByteArray(zipis);
-                entries.add(new CloudZipEntry(name, content));
+                entries.add(new CloudMap(group,ename, content));
             } catch (IOException ex) {
                 log.log(Level.SEVERE, null, ex);
                 break;
@@ -392,17 +236,4 @@ public class CloudZipDAO {
         return entries;
     }
 
-    // just to catch the runtime exception:
-    // avax.jdo.JDOObjectNotFoundException: Could not retrieve entity of kind CloudZip with key CloudZip(....
-    private CloudZip internalGet(PersistenceManager pm, String name) {
-        CloudZip cz = null;
-        try {
-            cz = pm.getObjectById(CloudZip.class, name);
-        } catch (javax.jdo.JDOObjectNotFoundException jdonfe) {
-            // we are meant to discard this exception
-        } catch (Exception e) {
-            log.log(Level.SEVERE, null, e);
-        }
-        return cz;
-    }
 }

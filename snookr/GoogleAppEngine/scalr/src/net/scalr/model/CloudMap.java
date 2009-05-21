@@ -72,11 +72,16 @@ public class CloudMap {
     }
 
     public void setContent(byte[] content) {
-        this.length = content.length;
-        this.md5 = MD5.digest(content);
-        byte[] compressed = new GZIP().gzip(content);
-        //System.out.println("  Compressed "+content.length+"->"+compressed.length);
-        this.content = new Blob(compressed);
+        if (content == null) {
+            this.length = 0;
+            this.md5 = MD5.digest("");
+        } else {
+            this.length = content.length;
+            this.md5 = MD5.digest(content);
+            byte[] compressed = new GZIP().gzip(content);
+            //System.out.println("  Compressed "+content.length+"->"+compressed.length);
+            this.content = new Blob(compressed);
+        }
     }
 
     public CloudMap(String group, String name, byte[] content) {

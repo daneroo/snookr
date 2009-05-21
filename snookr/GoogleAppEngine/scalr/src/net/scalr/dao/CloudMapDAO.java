@@ -86,10 +86,12 @@ public class CloudMapDAO {
         return makeManifest(getAll());
     }
 
+    @Deprecated
     public CloudMap get(String name) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Deprecated
     public void delete(String name) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -110,6 +112,11 @@ public class CloudMapDAO {
 
     // These are external entities: must look up again?
     // unless we use detached entotie ??
+    public void delete(CloudMap toDeleteExternal) {
+        List<CloudMap> justOne = new ArrayList<CloudMap>(1);
+        justOne.add(toDeleteExternal);
+        delete(justOne);
+    }
     public void delete(List<CloudMap> toDeleteExternal) {
         PersistenceManager pm = PMF.get().getPersistenceManager();
         try {
@@ -118,6 +125,15 @@ public class CloudMapDAO {
                 toDeleteInternal.addAll(internalGetEntry(pm, e.getGroup(), e.getName()));
             }
             internalDelete(pm, toDeleteInternal);
+        } finally {
+            pm.close();
+        }
+    }
+
+    public void deleteGroup(String group) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            internalDelete(pm, internalGetGroup(pm, group));
         } finally {
             pm.close();
         }
@@ -155,12 +171,15 @@ public class CloudMapDAO {
         }
     }
 
+    public String makeManifest(String group) {
+        return makeManifest(getGroup(group));
+    }
     public String makeManifest(List<CloudMap> entries) {
         List<Map<String, String>> manifestList = new ArrayList<Map<String, String>>();
         //String now = new Date().toString();
         //log.warning("Making Manifest @ " + now);
         if (entries != null) {
-            boolean myOwnPrettyJson = true;
+            boolean myOwnPrettyJson = false;
             if (myOwnPrettyJson) {
                 if (entries.size() == 0) {
                     return "[]";
