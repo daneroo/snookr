@@ -20,10 +20,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.servlet.ServletOutputStream;
+import net.scalr.dao.CloudMapDAO;
 import net.scalr.dao.CloudZipDAO;
-import net.scalr.model.CloudZip;
 import org.apache.commons.fileupload.util.Streams;
 
 /**
@@ -74,12 +75,11 @@ public class CloudZipServlet extends HttpServlet {
         CloudZipDAO dao = new CloudZipDAO();
         if (names == null || names.length < 1) {
             sos.println("--no key: return map keys (manifest)");
-            List<String> list = dao.getAllKeys();
-            sos.println("List has " + list.size() + " CloudZip entries");
-            for (String name : list) {
-                sos.println(" " + name + " --> entries:" + "...");
+            Set<String> groups = dao.getAllGroups();
+            sos.println("There are " + groups.size() + " CloudMap groups");
+            for (String group : groups) {
+                sos.println(" " + group + " --> entries:" + "...");
             }
-
         } else if (names.length > 1) {
             sos.println("error: multiple key names not supported");
         } else { // names.length==1
@@ -90,24 +90,18 @@ public class CloudZipServlet extends HttpServlet {
                 sos.println("deleted name=" + name);
             } else {
                 log.warning("  Fetching name=" + name);
-                //dao.subsample(name);
-                CloudZip cz = dao.get(name);
-                if (cz == null) {
-                    // non-persitent Object
-                    cz = new CloudZip(name);
-                }
+                String jsonManifest = new CloudMapDAO().makeManifest(name);
                 if (manifest) {
-                    sos.println(cz.getOrCreateManifest());
+                    sos.println(jsonManifest);
                 } else if (verify) {
                     sos.println("Should have verified: -=-=-=-=-");
-                    sos.println(cz.getOrCreateManifest());
+                    sos.println(jsonManifest);
                     sos.println("-=-=-=-=-=-=-=-=-=-");
                 } else { // content
-                    sos.println("fetched name=" + cz.getName());
-                    sos.println("Key: " + cz.getKeyDescription());
+                    sos.println("fetched name=" + name);
                     //sos.write(clm.getContent());
                     sos.println("--- Content goes here -manifest for now- -=-=-=-");
-                    sos.println(cz.getOrCreateManifest());
+                    sos.println(jsonManifest);
                     sos.println("-=-=-=-=-=-=-=-=-=-");
                 }
             }
