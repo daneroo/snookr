@@ -36,26 +36,27 @@ public class CloudMapDAO {
     }
 
     private byte[] rand(int sz) {
+        Random rnd = new Random();
         byte[] content = new byte[sz];
         rnd.nextBytes(content);
         return content;
     }
-    Random rnd = new Random(123456);
 
 //        int constSz = 512 * 1024;
     public String testBigRandRW() {
-        return testRandRW("group-rw-big", 512 * 1024, 30, 10);
+        return testRandRW("group-rw-big", 512 * 1024, 30, 3);
     }
 
     public String testSmallRandRW() {
-        return testRandRW("group-rw-small", 1024, 300, 100);
+        return testRandRW("group-rw-small", 1024, 300, 30);
     }
 
     public String testRandRW(String group, int writeSize, int totalEntries, int entriesToWrite) {
         // random read-write
+        log.warning("Wtriting g:" + group + " sz:" + writeSize + " total:" + totalEntries + " write:" + entriesToWrite);
         for (int i = 0; i < entriesToWrite; i++) {
             int index = new Random().nextInt(totalEntries);
-            CloudMap clm = new CloudMap(group, "const:sz:" + String.format("%04d", index), ramp(writeSize));
+            CloudMap clm = new CloudMap(group, "const:sz:" + String.format("%04d", index), rand(writeSize));
             createOrUpdate(clm);
         }
         return makeManifest(getAll());
