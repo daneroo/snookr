@@ -143,7 +143,7 @@ public class CloudZipDAO {
                     expiredTimeout = true;
                     break;
                 } else {
-                    log.severe("Continue: elapsed= " + elapsed);
+                    log.info("Continue: elapsed= " + elapsed);
                 }
                 ZipEntry ze = zipis.getNextEntry();
                 if (ze == null) {
