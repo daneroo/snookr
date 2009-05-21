@@ -44,12 +44,14 @@ public class CloudMapDAO {
 
 //        int constSz = 512 * 1024;
     public String testBigRandRW() {
-        return testRandRW("group-rw-big",512*1024, 30, 10);
+        return testRandRW("group-rw-big", 512 * 1024, 30, 10);
     }
+
     public String testSmallRandRW() {
-        return testRandRW("group-rw-small",1024, 300, 100);
+        return testRandRW("group-rw-small", 1024, 300, 100);
     }
-    public String testRandRW(String group,int writeSize,int totalEntries,int entriesToWrite) {
+
+    public String testRandRW(String group, int writeSize, int totalEntries, int entriesToWrite) {
         // random read-write
         for (int i = 0; i < entriesToWrite; i++) {
             int index = new Random().nextInt(totalEntries);
@@ -105,6 +107,32 @@ public class CloudMapDAO {
         }
     }
 
+    // These are external entities: must look up again?
+    // unless we use detached entotie ??
+    public void delete(List<CloudMap> toDeleteExternal) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            List<CloudMap> toDeleteInternal = new ArrayList<CloudMap>(toDeleteExternal.size());
+            for (CloudMap e : toDeleteExternal) {
+                toDeleteInternal.addAll(internalGetEntry(pm, e.getGroup(), e.getName()));
+            }
+            internalDelete(pm, toDeleteInternal);
+        } finally {
+            pm.close();
+        }
+    }
+
+    public List<CloudMap> getGroup(String group) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+            List<CloudMap> entities = internalGetGroup(pm, group);
+            // Sort this thing
+            return sortByGroupAndName(entities);
+        } finally {
+            pm.close();
+        }
+    }
+
     public List<CloudMap> getAll() {
         PersistenceManager pm = PMF.get().getPersistenceManager();
         try {
@@ -126,7 +154,7 @@ public class CloudMapDAO {
         }
     }
 
-    private String makeManifest(List<CloudMap> entries) {
+    public String makeManifest(List<CloudMap> entries) {
         List<Map<String, String>> manifestList = new ArrayList<Map<String, String>>();
         //String now = new Date().toString();
         //log.warning("Making Manifest @ " + now);
@@ -141,7 +169,7 @@ public class CloudMapDAO {
                     sb.append(String.format("g:%s n:%s l:%7d md5:%s\n", e.getGroup(), e.getName(), e.getLength(), e.getMd5()));
                 }
                 // remove the last newline
-                sb.append("] sz="+entries.size());
+                sb.append("] sz=" + entries.size());
                 return sb.toString();
             }
             for (CloudMap e : entries) {
@@ -176,12 +204,14 @@ public class CloudMapDAO {
         Query query = pm.newQuery(CloudMap.class,
                 "group == groupParam && name == nameParam");
         query.declareParameters("java.lang.String groupParam,java.lang.String nameParam");
-        List<CloudMap> entries = (List<CloudMap>) query.execute(group,name);
+        List<CloudMap> entries = (List<CloudMap>) query.execute(group, name);
         // hit this thing....
         entries.size();
         return entries;
     }
-    // unused replaced by different Query
+
+    /* unused replaced by different Query
+     */
     private List<CloudMap> internalGetEntryWithFilter(PersistenceManager pm, String group, String name) {
         List<CloudMap> entries = internalGetGroupUnsorted(pm, group);
         List<CloudMap> matched = new ArrayList<CloudMap>(1);
