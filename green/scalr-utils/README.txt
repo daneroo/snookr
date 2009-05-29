@@ -1,3 +1,4 @@
+2009-05-29 Update from subclipse
 2008-12-18 TODO
   -doSQLDump : see /home/daniel/java/solochain/heads/wdel/ext_resources/masterslave/doSqlDumpOnSlave as example
 
