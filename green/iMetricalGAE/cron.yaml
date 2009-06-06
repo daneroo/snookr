@@ -1,6 +1,6 @@
 cron:
 - description: periodic frienfeed push
   url: /graph?owner=daniel&postfriend=1
-  schedule: every 5 minutes
+  schedule: every 6 hours
   timezone: America/Montreal
 
