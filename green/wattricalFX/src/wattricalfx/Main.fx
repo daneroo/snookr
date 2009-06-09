@@ -138,7 +138,7 @@ Stage {
         feedLocation: feedURL
     };
 
-    title: "Wattrical FX"
+    title: "iMetrical FX"
     width: env.screenWidth
     height: env.screenHeight
     scene:
