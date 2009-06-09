@@ -8,7 +8,6 @@ package wattricalfx.parser;
 
 import java.io.InputStream;
 import java.lang.Exception;
-import java.lang.System;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -171,7 +170,7 @@ public class ObsFeedParser {
             }
         }
 
-        request.enqueue();
+        request.start();
     }
 
 }
