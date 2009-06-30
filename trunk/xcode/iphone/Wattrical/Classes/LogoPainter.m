@@ -66,7 +66,8 @@ void ZZHSVtoRGB(CGFloat h, CGFloat s, CGFloat v, CGFloat* r, CGFloat* g, CGFloat
 }
 
 - (void) drawLightning:(CGRect)bounds {
-	NSTimeInterval secs = [animateUntil timeIntervalSinceNow]-3;
+	// Animation for Lightning is 1.5 second
+	NSTimeInterval secs = [animateUntil timeIntervalSinceNow]-1.5;
 
 	
 	if (!l1Image) {
@@ -161,8 +162,8 @@ void ZZHSVtoRGB(CGFloat h, CGFloat s, CGFloat v, CGFloat* r, CGFloat* g, CGFloat
 }
 
 - (void)drawBandsAndDots:(CGRect)bounds {
-	// seconds
-	NSTimeInterval secs = [animateUntil timeIntervalSinceNow]-3;
+	// seconds for band animation: 1.5 seconds
+	NSTimeInterval secs = [animateUntil timeIntervalSinceNow]-1.5;
 	if (secs<0) secs=0;
 	
 	CGFloat angle;
