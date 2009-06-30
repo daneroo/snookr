@@ -48,7 +48,9 @@
 	//NSLog(@"timer %f",[animateUntil timeIntervalSinceNow]);
     if ([animateUntil timeIntervalSinceNow]<=0) { // expired
 		[logoAnimTimer invalidate];
-		[logoAnimTimer release];
+		NSLog(@"logoAnimTimer retaincount: %d",[logoAnimTimer retainCount]);
+		// was never retained, so shouldn't release..
+		//[logoAnimTimer release];
 		logoAnimTimer=nil;
 		((GraphView *)self.tableView.tableHeaderView).animateUntil = nil;
 	}
@@ -340,7 +342,9 @@ static NSOperationQueue *oq=nil;
     graphView.rootViewController = self; // hook back to us
 	self.tableView.tableHeaderView = graphView;	// note this will override UITableView's 'sectionHeaderHeight' property
     [graphView release]; // now that it has been retained.
-	graphView.animateUntil = [NSDate dateWithTimeIntervalSinceNow:10.0];
+	
+	// total animation time: 2.0 seconds 1.5 fo bands, overlapp 1.5s for lightning
+	graphView.animateUntil = [NSDate dateWithTimeIntervalSinceNow:2.0];
 
     graphView.observations = nil;
     
