@@ -1,0 +1,18 @@
+So: daniel is partt of sudoers (wheel on fedora)
+sudo chmod a+rw /dev/ttyUSB*
+# Aztech-2
+stty -F /dev/ttyUSB0 speed 38400
+echo DEBUGON>/dev/ttyUSB0
+cat /dev/ttyUSB0 > iMetricalData/AZ2-`date +%Y%m%dT%H%M%S%z`.log &
+# CurrentCost-1
+stty -F /dev/ttyUSB1 speed 57600
+cat /dev/ttyUSB1 > iMetricalData/CC1-`date +%Y%m%dT%H%M%S%z`.log &
+# CurrentCost-2
+stty -F /dev/ttyUSB2 speed 57600
+cat /dev/ttyUSB2 > iMetricalData/CC2-`date +%Y%m%dT%H%M%S%z`.log &
+
+Stamping on top ...
+
+tail -f CC1-20090701T225212-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > CC1-20090701T225212-0400.stamp.log &
+tail -f CC2-20090701T225213-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > CC2-20090701T225213-0400.stamp.log &
+tail -f AZ2-20090701T225132-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > AZ2-20090701T225132-0400.stamp.log &
