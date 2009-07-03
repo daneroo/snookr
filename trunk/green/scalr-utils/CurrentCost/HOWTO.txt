@@ -47,3 +47,148 @@ CREATE TABLE `cc_native` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 mysql currentcost
+
+
+now some selects against ted.watt
+
+select sensorid,count(*) from cc_native group by sensorid;
++----------+----------+
+| sensorid | count(*) |
++----------+----------+
+| 1214     |     3954 | 
+| 3887     |     2165 | 
++----------+----------+
+
+select cc.stamp,cc.watt,cc.sensorid,tt.stamp,tt.watt from cc_native cc,ted.watt tt where tt.stamp=cc.stamp and cc.sensorid=3887;
+
+select cc.watt as CC3887, tt.watt as TED from cc_native cc,ted.watt tt where tt.stamp=cc.stamp and cc.sensorid=3887;
+
+select cc.stamp as GMT,cc.sensorid as SensorID, cc.watt as CC, tt.watt as TED from cc_native cc,ted.watt tt where tt.stamp=cc.stamp order by cc.stamp;
+
+as tabs
+mysql currentcost -b -e "select cc.stamp as GMT,cc.sensorid as SensorID, cc.watt as CC, tt.watt as TED from cc_native cc,ted.watt tt where tt.stamp=cc.stamp order by cc.stamp;"
+
+How about aggregates:
+
+DROP TABLE IF EXISTS `cc_agg_minute`;
+CREATE TABLE `cc_agg_minute` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt_ted` int(11) NOT NULL default '0',
+  `watt_cc1` int(11) NOT NULL default '0',
+  `watt_cc2` int(11) NOT NULL default '0',
+  `watt_cc1_ch1` int(11) NOT NULL default '0',
+  `watt_cc1_ch2` int(11) NOT NULL default '0',
+  `watt_cc2_ch1` int(11) NOT NULL default '0',
+  `watt_cc2_ch2` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`stamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `cc_agg_tenminute`;
+CREATE TABLE `cc_agg_tenminute` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt_ted` int(11) NOT NULL default '0',
+  `watt_cc1` int(11) NOT NULL default '0',
+  `watt_cc2` int(11) NOT NULL default '0',
+  `watt_cc1_ch1` int(11) NOT NULL default '0',
+  `watt_cc1_ch2` int(11) NOT NULL default '0',
+  `watt_cc2_ch1` int(11) NOT NULL default '0',
+  `watt_cc2_ch2` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`stamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `cc_agg_hour`;
+CREATE TABLE `cc_agg_hour` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt_ted` int(11) NOT NULL default '0',
+  `watt_cc1` int(11) NOT NULL default '0',
+  `watt_cc2` int(11) NOT NULL default '0',
+  `watt_cc1_ch1` int(11) NOT NULL default '0',
+  `watt_cc1_ch2` int(11) NOT NULL default '0',
+  `watt_cc2_ch1` int(11) NOT NULL default '0',
+  `watt_cc2_ch2` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`stamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+produce aggregates for minute and tenminute:
+get min-max from cc_native : 2009-07-02 20:20:17 | 2009-07-03 03:39:10 
+
+# Hour-TED
+select concat(left(stamp,13),':00:00') as g, avg(watt) from ted.watt where stamp>='2009-07-02 20:20:00' and stamp<'2009-07-03 03:40:00' group by g;
+# Hour-CC1
+select concat(left(stamp,13),':00:00') as g, avg(watt) from cc_native where sensorid=1214 group by g;
+# Hour-CC2
+select concat(left(stamp,13),':00:00') as g, avg(watt) from cc_native where sensorid=3887 group by g;
+# 4 channels
+select concat(left(stamp,13),':00:00') as g, avg(ch1watt) from cc_native where sensorid=1214 group by g;
+select concat(left(stamp,13),':00:00') as g, avg(ch2watt) from cc_native where sensorid=1214 group by g;
+select concat(left(stamp,13),':00:00') as g, avg(ch1watt) from cc_native where sensorid=3887 group by g;
+select concat(left(stamp,13),':00:00') as g, avg(ch2watt) from cc_native where sensorid=3887 group by g;
+
+
+now insert: creates all key values,
+
+######### do Hour just for test: actualy create minute, and average to get tenminute, and hour
+
+insert into cc_agg_hour(stamp,watt_ted) select concat(left(stamp,13),':00:00') as g, avg(watt) from ted.watt where stamp>='2009-07-02 20:20:00' and stamp<'2009-07-03 03:40:00' group by g;
+update cc_agg_hour dst set watt_cc1=(select avg(src.watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+update cc_agg_hour dst set watt_cc2=(select avg(src.watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+update cc_agg_hour dst set watt_cc1_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+update cc_agg_hour dst set watt_cc1_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+update cc_agg_hour dst set watt_cc2_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+update cc_agg_hour dst set watt_cc2_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+
+insert into cc_agg_minute(stamp,watt_ted) select concat(left(stamp,16),':00') as g, avg(watt) from ted.watt where stamp>='2009-07-02 20:20:00' and stamp<'2009-07-03 03:40:00' group by g;
+update cc_agg_minute dst set watt_cc1=(select avg(src.watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,16),':00'));
+update cc_agg_minute dst set watt_cc2=(select avg(src.watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,16),':00'));
+update cc_agg_minute dst set watt_cc1_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,16),':00'));
+update cc_agg_minute dst set watt_cc1_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,16),':00'));
+update cc_agg_minute dst set watt_cc2_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,16),':00'));
+update cc_agg_minute dst set watt_cc2_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,16),':00'));
+
+before:
+mysql> select * from cc_agg_hour;
++---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+| stamp               | watt_ted | watt_cc1 | watt_cc2 | watt_cc1_ch1 | watt_cc1_ch2 | watt_cc2_ch1 | watt_cc2_ch2 |
++---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+| 2009-07-02 20:00:00 |     1390 |     1200 |     1212 |          595 |          605 |          628 |          584 | 
+| 2009-07-02 21:00:00 |     1440 |     1161 |     1172 |          637 |          524 |          547 |          624 | 
+| 2009-07-02 22:00:00 |     5134 |     4382 |     4435 |         1970 |         2412 |         2417 |         2018 | 
+| 2009-07-02 23:00:00 |     2695 |     2365 |     2402 |         1152 |         1213 |         1224 |         1178 | 
+| 2009-07-03 00:00:00 |     1334 |     1211 |     1225 |          588 |          623 |          638 |          587 | 
+| 2009-07-03 01:00:00 |     1845 |     1568 |        0 |          856 |          711 |            0 |            0 | 
+| 2009-07-03 02:00:00 |     3086 |     2643 |        0 |         1424 |         1218 |            0 |            0 | 
+| 2009-07-03 03:00:00 |     1357 |     1201 |        0 |          745 |          456 |            0 |            0 | 
++---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+
+
+replace into cc_agg_hour(stamp,watt_ted,watt_cc1,watt_cc2,watt_cc1_ch1,watt_cc1_ch2,watt_cc2_ch1,watt_cc2_ch2) 
+ select concat(left(stamp,13),':00:00') as g, avg(watt_ted),avg(watt_cc1),avg(watt_cc2),avg(watt_cc1_ch1),avg(watt_cc1_ch2),avg(watt_cc2_ch1),avg(watt_cc2_ch2) 
+ from cc_agg_minute group by g;
+
+replace into cc_agg_tenminute(stamp,watt_ted,watt_cc1,watt_cc2,watt_cc1_ch1,watt_cc1_ch2,watt_cc2_ch1,watt_cc2_ch2) 
+ select concat(left(stamp,15),'0:00') as g, avg(watt_ted),avg(watt_cc1),avg(watt_cc2),avg(watt_cc1_ch1),avg(watt_cc1_ch2),avg(watt_cc2_ch1),avg(watt_cc2_ch2) 
+ from cc_agg_minute group by g;
+
+after...
+mysql> select * from cc_agg_hour;
++---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+| stamp               | watt_ted | watt_cc1 | watt_cc2 | watt_cc1_ch1 | watt_cc1_ch2 | watt_cc2_ch1 | watt_cc2_ch2 |
++---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+| 2009-07-02 20:00:00 |     1390 |     1200 |     1212 |          595 |          605 |          628 |          584 | 
+| 2009-07-02 21:00:00 |     1444 |     1162 |     1146 |          638 |          524 |          531 |          616 | 
+| 2009-07-02 22:00:00 |     4977 |     4403 |     4664 |         1976 |         2427 |         2566 |         2098 | 
+| 2009-07-02 23:00:00 |     2695 |     2390 |     2434 |         1165 |         1225 |         1240 |         1194 | 
+| 2009-07-03 00:00:00 |     1334 |     1211 |     1106 |          587 |          623 |          577 |          529 | 
+| 2009-07-03 01:00:00 |     1845 |     1569 |        0 |          858 |          711 |            0 |            0 | 
+| 2009-07-03 02:00:00 |     3086 |     2649 |        0 |         1429 |         1220 |            0 |            0 | 
+| 2009-07-03 03:00:00 |     1357 |     1195 |        0 |          742 |          453 |            0 |            0 | 
++---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+
+
+
+out to tsv:
+
+mysql currentcost -b -e "select * from cc_agg_minute" >agg_minute.tsv
+mysql currentcost -b -e "select * from cc_agg_tenminute" >agg_tenminute.tsv
+mysql currentcost -b -e "select * from cc_agg_hour" >agg_hour.tsv
