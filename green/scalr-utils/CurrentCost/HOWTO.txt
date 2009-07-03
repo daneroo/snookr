@@ -16,3 +16,34 @@ Stamping on top ...
 tail -f CC1-20090701T225212-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > CC1-20090701T225212-0400.stamp.log &
 tail -f CC2-20090701T225213-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > CC2-20090701T225213-0400.stamp.log &
 tail -f AZ2-20090701T225132-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > AZ2-20090701T225132-0400.stamp.log &
+
+
+start comparing:
+-run the parser:
+  python ../scalr-utils/CurrentCost/ParseStampedCC.py < CC1-20090701T225212-0400.stamp.log
+  python ../scalr-utils/CurrentCost/ParseStampedCC.py < CC2-20090701T225213-0400.stamp.log
+
+-make a big csv
+cat CC*stamp.log|python ../scalr-utils/CurrentCost/ParseStampedCC.py|grep -v "^INSERT">coco.csv
+
+make a big sql:
+cat CC*stamp.log|python ../scalr-utils/CurrentCost/ParseStampedCC.py|grep "^INSERT">coco.sql
+
+pump to cantor
+
+mysqladmin create currentcost
+
+DROP TABLE IF EXISTS `cc_native`;
+CREATE TABLE `cc_native` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt` int(11) NOT NULL default '0',
+  `sensorid` varchar(255) default NULL,
+  `ch1watt` int(11) NOT NULL default '0',
+  `ch2watt` int(11) NOT NULL default '0',
+  `drift` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`stamp`),
+  KEY `byStampSensor` (`stamp`,`sensorid`),
+  KEY `bySensorStamp` (`stamp`,`sensorid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+mysql currentcost
