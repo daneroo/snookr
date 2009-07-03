@@ -192,3 +192,86 @@ out to tsv:
 mysql currentcost -b -e "select * from cc_agg_minute" >agg_minute.tsv
 mysql currentcost -b -e "select * from cc_agg_tenminute" >agg_tenminute.tsv
 mysql currentcost -b -e "select * from cc_agg_hour" >agg_hour.tsv
+
+
+Starting Aztech:
+  connecting from vik-> mysql on cantor...
+  mysql -e "grant all on *.* to daniel@192.168.5.226"
+from vik:...
+
+Time zone info: http://dev.mysql.com/doc/refman/5.1/en/time-zone-support.html
+Load em up on cantor:
+  mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+Wow:
+ mysql mysql -e "select * from time_zone_name where Name like '%Montreal%'"
++------------------------+--------------+
+| Name                   | Time_zone_id |
++------------------------+--------------+
+| America/Montreal       |          154 | 
+| posix/America/Montreal |          704 | 
+| right/America/Montreal |         1255 | 
++------------------------+--------------+
+
+Timezone offsets: straight interval math
+	 mysql -h cantor ted -e "select stamp,stamp - interval 4 hour,watt from watt_hour where stamp>'2009-07-03'"
+Using CONVERT_TZ(dt,from_tz,to_tz)
+  mysql -h cantor ted -e "SELECT @@global.time_zone, @@session.time_zone;"
+
+Round trip
+mysql -h cantor ted -e "SELECT now(),CONVERT_TZ(now(),'America/Montreal','GMT'),CONVERT_TZ(CONVERT_TZ(now(),'America/Montreal','GMT'),'GMT','America/Montreal')""
+
+This is how I can know that America/Montreal is My System Timezone
+[daniel@cantor ~]$ md5sum /etc/localtime 
+64defc8d6747feef853cd3abbc645116  /etc/localtime
+[daniel@cantor ~]$ find /usr/share/zoneinfo/ -type f -exec md5sum {} \;|grep 64defc8d6747feef853cd3abbc645116
+64defc8d6747feef853cd3abbc645116  /usr/share/zoneinfo/posix/America/Montreal
+64defc8d6747feef853cd3abbc645116  /usr/share/zoneinfo/America/Montreal
+
+Bingo: Confirm transitions at 2008-11-02, and 2009-03-08
+mysql -h cantor ted -e "SELECT stamp as GMT,CONVERT_TZ(stamp,'GMT','America/Montreal') as Eastern,TIMEDIFF(CONVERT_TZ(stamp,'GMT','America/Montreal'),stamp) as UTCOFFSET, watt from watt_hour order by stamp"
+
++---------------------+---------------------+-----------+------+
+| GMT                 | Eastern             | UTCOFFSET | watt |
++---------------------+---------------------+-----------+------+
+| 2008-07-30 00:00:00 | 2008-07-29 20:00:00 | -04:00:00 |  596 | 
+| 2008-11-02 05:00:00 | 2008-11-02 01:00:00 | -04:00:00 |  932 | 
+| 2008-11-02 06:00:00 | 2008-11-02 01:00:00 | -05:00:00 | 1276 | 
+| 2009-03-08 06:00:00 | 2009-03-08 01:00:00 | -05:00:00 | 1590 | 
+| 2009-03-08 07:00:00 | 2009-03-08 03:00:00 | -04:00:00 | 1590 | 
+| 2009-07-03 19:00:00 | 2009-07-03 15:00:00 | -04:00:00 |  496 | 
++---------------------+---------------------+-----------+------+
+
+So now for info purposes, how are undefined time handled!
+mysql -t -h cantor ted -e "select CONVERT_TZ('2008-11-02 01:30:00','America/Montreal','GMT')"
+mysql -t -h cantor ted -e "select CONVERT_TZ('2009-03-08 02:00:00','America/Montreal','GMT')"
+
+Ambiguous    2008-11-02 01:30:00 Eastern -> GMT: 2008-11-02 05:30:00 but it could have been 2008-11-02 06:30:00
+   The Hole all maps to the instant:
+Non-Existent 2009-03-08 02:00:00 Eastern -> GMT: 2009-03-08 07:00:00
+	     2009-03-08 02:01:00 Eastern -> GMT: 2009-03-08 07:00:00
+	     2009-03-08 02:30:00 Eastern -> GMT: 2009-03-08 07:00:00
+	     2009-03-08 02:59:00 Eastern -> GMT: 2009-03-08 07:00:00
+	     2009-03-08 03:00:00 Eastern -> GMT: 2009-03-08 07:00:00
+
+mysql -t -h cantor ted -e "select (UNIX_TIMESTAMP('2009-03-09')-UNIX_TIMESTAMP('2009-03-08'))/3600"
+  23.0000
+mysql -t -h cantor ted -e "select (UNIX_TIMESTAMP('2008-11-03')-UNIX_TIMESTAMP('2008-11-02'))/3600"
+  25.0000 
+
+How about arithmetic: I THINK ARITHMETIC is TIMEZONE AGNOSTIC
+ 2009-03-08 00:59:00 + 2 minutes
+ 2008-11-02 00:59:00 + 2 minutes
+mysql -t -h cantor ted -e "select '2009-03-08 00:59:00','2009-03-08 00:59:00'+interval 2 minute"
++---------------------+-----------------------------------------+
+| 2009-03-08 00:59:00 | '2009-03-08 00:59:00'+interval 2 minute |
++---------------------+-----------------------------------------+
+| 2009-03-08 00:59:00 | 2009-03-08 01:01:00                     | 
++---------------------+-----------------------------------------+
+mysql -t -h cantor ted -e "select '2008-11-02 00:59:00','2008-11-02 00:59:00'+interval 2 minutes"
++---------------------+-----------------------------------------+
+| 2008-11-02 00:59:00 | '2008-11-02 00:59:00'+interval 2 minute |
++---------------------+-----------------------------------------+
+| 2008-11-02 00:59:00 | 2008-11-02 01:01:00                     | 
++---------------------+-----------------------------------------+
+
+OK back to Aztech:
