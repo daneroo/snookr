@@ -275,3 +275,37 @@ mysql -t -h cantor ted -e "select '2008-11-02 00:59:00','2008-11-02 00:59:00'+in
 +---------------------+-----------------------------------------+
 
 OK back to Aztech:
+These are my stamped readings
+grep "0400 \[R\]" AZ2-20090701T225132-0400.stamp.log | grep 23704002
+Pick the first-last lines:
+  By Hand: My stamp [R] type,meter id, wh/10,?, seconds since power,?,?,?,?,?,reading id
+2009-07-02T16:20:17-0400 [R],07,23704002,3342918,10,82568,00,A,0B,28,06DB,1739
+2009-07-03T15:13:26-0400 [R],07,23704002,3346280,10,165338,01,A,0B,2B,0997,2439
+Math on time stamps:
+165338 - 82568  = 82770 secnods between theese two readings
+mysql -t -h cantor ted -e "select '2009-07-02 16:20:17'+ interval (165338 - 82568) second"
++---------------------------------------------------------+
+| '2009-07-02 16:20:17'+ interval (165338 - 82568) second |
++---------------------------------------------------------+
+| 2009-07-03 15:19:47                                     | 
++---------------------------------------------------------+
+Close but not exact!
+
+Now let's check avg power consumption on ted in that period:
+
+and compare that agaist both readings: 3346280-3342918 (10wh)
+
+mysql -t -h cantor ted -e "select avg(watt),min(stamp),max(stamp), UNIX_TIMESTAMP(max(stamp))-UNIX_TIMESTAMP(min(stamp)) as seconds,(UNIX_TIMESTAMP(max(stamp))-UNIX_TIMESTAMP(min(stamp)))*avg(watt)/3600/1000 as kWh_TED,(3346280-3342918)*10/1000 as kWh_AZ from watt where stamp >='2009-07-02 16:20:17' and stamp <'2009-07-03 15:13:26'"
++-----------+---------------------+---------------------+---------+-----------------+---------+
+| avg(watt) | min(stamp)          | max(stamp)          | seconds | kWh_TED         | kWh_AZ  |
++-----------+---------------------+---------------------+---------+-----------------+---------+
+| 1427.8363 | 2009-07-02 16:20:17 | 2009-07-03 15:13:25 |   82388 | 32.676826269422 | 33.6200 | 
++-----------+---------------------+---------------------+---------+-----------------+---------+
+
+Old Reading:
+              grep 23704002 ../scalr-utils/Aztech-data/Aztech-01.txt |head
+2009-01-23 02:20:54 EST |Response|=  41 : 2008/09/23 15:26:22 New Unit ID= 23704002
+2009-01-23 02:22:49 EST |Response|=  57 : [R],07,23704002,2790572,10,10362027,00,A,14,26,676F,26363
+2009-01-23 02:23:22 EST |Response|=  57 : [R],07,23704002,2790572,10,10362061,00,A,14,2E,6774,26368
+and thos from Aztech-02.txt (binary ???)
+2009-01-23 04:14:18 EST |Response|=  53 : [R],07,23704002,2790799,10,60167,01,A,0B,23,08E7,2121
