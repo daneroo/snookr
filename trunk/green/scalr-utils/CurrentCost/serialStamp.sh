@@ -92,6 +92,7 @@ rotatelog() {
 
 #outer forever loop
 setupTTY
+echo DEBUGON >&3
 while true; do
     rotatelog
     # inner loop -- use -u fd, to read from a fd instead.
