@@ -1,17 +1,59 @@
 #!/bin/bash                                                                                             
-# this file reads a usb serial port
+# This program reads a usb serial port and 
+# writes all ouput to timestampled logfiles
+# each output line is also prefixed with a timestamp
+
+# check parameter here: add outputdir ?
+# usage
+#  ./serialStamp.sh /dev/ttyUSB1 57600 CC1
+#  ./serialStamp.sh /dev/ttyUSB0 38400 AZ2
+
+# this is the name of the current logrotated file
+#OUTPUTSTAMPFORMAT="%Y%m%dT%H%M00%z" # by Minute
+OUTPUTSTAMPFORMAT="%Y%m%dT%H0000%z" # by Hour
+#OUTPUTSTAMPFORMAT="%Y%m%dT000000%z" # by Day
+OUTPUTFILE="DEVICE-2001-02-03T040506+0400.log"
+
+# this should be the /dev/ttyUSBx
+#INPUTTTY="../CC2-20090701T225213-0400.log"
+INPUTTTY=${1:-"/dev/ttyUSB-NOTEXIST"}
+# use FileDescriptor 3 for input tty: (output too for Aztech)
+exec 3<> "${INPUTTTY}"
+
+TTYSPEED=${2:-"57600"}
+DEVICEALIAS=${3:-"DEVICE"}
+# this is the read timeout: in seconds: has  no  effect if read is not reading input from  the terminal or a pipe
+READTIMEOUT=2
+
+
+
 # - first set its params (speed)
 # e.g. 
 #   read:  stty -F /dev/ttyUSB1 speed
 #   write: stty -F /dev/ttyUSB1 speed 57600
 # check for non-zero return code: USB does not exist, perm denied...
 # read each line
-
-# usage
-#  ./serialStampRotate /dev/ttyUSB1 57600 CC1
-#  ./serialStampRotate /dev/ttyUSB0 38400 AZ2
-
-# chaeck parameter here: add outputdir ?
+setupTTY(){
+    echo Setting tty params for ${INPUTTTY}
+    CURRENTSPEED=`stty -F ${INPUTTTY} speed`
+    if [ $? -ne 0 ]; then
+	echo Could not read tty params for ${INPUTTTY}
+	exit 1
+    fi
+    echo " " Current Speed is: ${CURRENTSPEED}
+    if [ "${CURRENTSPEED}" != "${TTYSPEED}" ]; then
+	echo Setting new speed to ${TTYSPEED}
+	NEWSPEED=`stty -F ${INPUTTTY} speed ${TTYSPEED}`
+	if [ $? -ne 0 ]; then
+	    echo Could not set tty speed to ${TTYSPEED} for ${INPUTTTY}
+	    exit 1
+	else
+	    echo " " Speed was set to ${NEWSPEED} for ${INPUTTTY}
+	fi
+    else
+	echo "Speed is alread OK"
+    fi
+}
 
 # Notes
 #  exit status : $?
@@ -20,22 +62,7 @@
 #    echo -n . >&3
 #  exec 4>&1                              # Save current "value" of stdout.
 
-# this is the name of the current logrotated file
-#OUTPUTSTAMPFORMAT="%Y%m%dT%H%M%S%z"
-OUTPUTSTAMPFORMAT="%Y%m%dT%H%M00%z"
-OUTPUTFILE="DEVICE-2001-02-03T040506+0400.log"
 
-# this should be the /dev/ttyUSBx
-#INPUTFILE="../CC2-20090701T225213-0400.log"
-INPUTFILE=${1:-"/dev/ttyUSB-NOTEXIST"}
-INPUTFILEDESCRIPTOR=3
-# use FileDescriptor 3 for input tty: (output too for Aztech)
-exec 3<> "${INPUTFILE}"
-
-TTYSPEED=${2:-"57600"}
-DEVICEALIAS=${3:-"DEVICE"}
-# this is the read timeout: in seconds: has  no  effect if read is not reading input from  the terminal or a pipe
-READTIMEOUT=5
 # this funcion wraps the line content (pased as argument
 stampline() {
     echo `date +%Y-%m-%dT%H:%M:%S%z` $1; 
@@ -53,7 +80,7 @@ rotatelog() {
     touch "${OUTPUTFILE}"
     if [ -w ${OUTPUTFILE} ]; then
 	#echo Creating new log file ${OUTPUTFILE}
-	echo "<!-- `hostname`: `date +%Y-%m-%dT%H:%M:%S%z`: reading ${INPUTFILE} @ ${TTYSPEED}bps for device ${DEVICEALIAS} -->">>${OUTPUTFILE}
+	echo "<!-- `hostname`: `date +%Y-%m-%dT%H:%M:%S%z`: reading ${INPUTTTY} @ ${TTYSPEED}bps for device ${DEVICEALIAS} -->">>${OUTPUTFILE}
 	return
     else
 	# could not create outputfile: ERROR
@@ -64,6 +91,7 @@ rotatelog() {
 }
 
 #outer forever loop
+setupTTY
 while true; do
     rotatelog
     # inner loop -- use -u fd, to read from a fd instead.
