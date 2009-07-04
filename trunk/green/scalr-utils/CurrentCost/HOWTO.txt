@@ -1,5 +1,20 @@
 So: daniel is partt of sudoers (wheel on fedora)
 sudo chmod a+rw /dev/ttyUSB*
+
+TODO
+  Check that script fails if bad perms (ro, or none) on tty
+  Check that speed is actuall reset...
+    ** Unplug replug will do both of theese
+  ADD DEBUGON echo to script!
+  test by setting DEBUGOFF by hand....
+
+All rolled into: /home/daniel/scalr-utils/CurrentCost/serialStamp.sh
+/home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB0 38400 AZ2 &
+/home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB1 57600 CC1 &
+/home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB2 57600 CC2 &
+
+
+
 # Aztech-2
 stty -F /dev/ttyUSB0 speed 38400
 echo DEBUGON>/dev/ttyUSB0
