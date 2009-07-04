@@ -1,7 +1,13 @@
 So: daniel is partt of sudoers (wheel on fedora)
 sudo chmod a+rw /dev/ttyUSB*
+Or how about we run the script as root... on wrtsl54gs at least.
 
 TODO
+  output to usb mass storage on wrtsl54gs with hub and three devices...
+
+  tty should be reset WHEN ?
+  Timeout loop is flaky ...
+
   Check that script fails if bad perms (ro, or none) on tty
   Check that speed is actuall reset...
     ** Unplug replug will do both of theese
