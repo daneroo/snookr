@@ -2,6 +2,9 @@ So: daniel is partt of sudoers (wheel on fedora)
 sudo chmod a+rw /dev/ttyUSB*
 Or how about we run the script as root... on wrtsl54gs at least.
 
+added setserial
+  ipkg install setserial
+
 Format USB on wrtsl54gs:
   ls -ld /dev/scsi/host0/bus0/target0/lun0/
 
