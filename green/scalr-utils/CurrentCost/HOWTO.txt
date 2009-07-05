@@ -2,6 +2,19 @@ So: daniel is partt of sudoers (wheel on fedora)
 sudo chmod a+rw /dev/ttyUSB*
 Or how about we run the script as root... on wrtsl54gs at least.
 
+Format USB on wrtsl54gs:
+  ls -ld /dev/scsi/host0/bus0/target0/lun0/
+
+  fdisk /dev/scsi/host0/bus0/target0/lun0/disc
+   p - gives information on what partitions are on the device
+   d - deletes any partitions that are present
+   n - creates the new partition (default settings are fine)
+   t - chooses the file system; b=fat32, recognized both by Windows and Linux
+   w - writes the partition and exits
+
+   no fstools.. go to vik to format
+  mkfs.vfat -F 32 /dev/sdb1
+
 TODO
   output to usb mass storage on wrtsl54gs with hub and three devices...
 
