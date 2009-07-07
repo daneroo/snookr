@@ -72,7 +72,7 @@ setupTTY(){
 
 # this funcion wraps the line content (pased as argument
 stampline() {
-    echo `date +%Y-%m-%dT%H:%M:%S%z` $1; 
+    echo `date +%Y-%m-%dT%H:%M:%S%z` $1|tr -d '\015'; 
 }
 
 rotatelog() {
