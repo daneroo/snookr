@@ -346,3 +346,39 @@ Old Reading:
 2009-01-23 02:23:22 EST |Response|=  57 : [R],07,23704002,2790572,10,10362061,00,A,14,2E,6774,26368
 and thos from Aztech-02.txt (binary ???)
 2009-01-23 04:14:18 EST |Response|=  53 : [R],07,23704002,2790799,10,60167,01,A,0B,23,08E7,2121
+
+
+Parsing AZ Logdump:
+  make datetime into gmt/utc but Aztech has no DST: always use GMT-4:00
+  as oposed to using America/Montreal! e.g.
+2009-07-07 03:01:00 =  mysql -h cantor currentcost -e "select CONVERT_TZ('2009-07-06 23:01:00','America/Montreal','GMT')"
+2009-07-07 03:01:00 =  mysql -h cantor currentcost -e "select CONVERT_TZ('2009-07-06 23:01:00','-04:00','GMT')"
+2009-01-07 04:01:00  = mysql -h cantor currentcost -e "select CONVERT_TZ('2009-01-06 23:01:00','America/Montreal','GMT')"
+2009-01-07 03:01:00 =  mysql -h cantor currentcost -e "select CONVERT_TZ('2009-01-06 23:01:00','-04:00','GMT')"
+
+DROP TABLE IF EXISTS `az_hour_logdump`;
+CREATE TABLE `az_hour_logdump` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `readingWh` int(11) NOT NULL default '0',
+  `wattPrecedingHour` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`stamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+and run as:
+
+python ../scalr-utils/CurrentCost/ParseAZLogdump.py  < AZ1-LOGDUMP-20090706T235100-0400.log|mysql -h cantor currentcost -vvv
+
+out to tsv:
+
+mysql -h cantor currentcost -b -e "select az.stamp - interval 1 hour as GMT, tt.stamp as TEDGMT,CONVERT_TZ(tt.stamp,'GMT','America/Montreal') as Montreal, az.wattPrecedingHour as AZ_Wh,tt.watt as TED_Wh  from az_hour_logdump az, ted.watt_hour tt where (az.stamp - interval 1 hour) = tt.stamp" >TEDvsAZbyHour.tsv
+
+Aggregate By Day
+
+mysql -h cantor currentcost -b -e "select Left(CONVERT_TZ(tt.stamp,'GMT','America/Montreal'),10) as Montreal_day, avg(az.wattPrecedingHour)*24 as AZ_Wh,avg(tt.watt)*24 as TED_Wh  from az_hour_logdump az, ted.watt_hour tt where (az.stamp - interval 1 hour) = tt.stamp group by Montreal_day" >TEDvsAZbyDay.tsv
+
+Redoing CurrentCostAggregates:
+ TED vs AZ1 vs CC1 vs CC2
+
+
+
+
