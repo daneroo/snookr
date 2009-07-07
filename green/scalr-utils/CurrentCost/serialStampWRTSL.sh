@@ -5,6 +5,10 @@
 
 # check parameter here: add outputdir ?
 # usage
+# 
+#  on wrtsl54gs
+#  ./serialStampWRTSL.sh /dev/usb/tts/1 38400 AZ1
+#  on vik
 #  ./serialStamp.sh /dev/ttyUSB1 57600 CC1
 #  ./serialStamp.sh /dev/ttyUSB0 38400 AZ2
 
@@ -34,6 +38,9 @@ READTIMEOUT=2
 # check for non-zero return code: USB does not exist, perm denied...
 # read each line
 setupTTY(){
+    echo Ignoring TTY params on WRTSL
+    return
+
     echo Setting tty params for ${INPUTTTY}
     CURRENTSPEED=`stty -F ${INPUTTTY} speed`
     if [ $? -ne 0 ]; then
