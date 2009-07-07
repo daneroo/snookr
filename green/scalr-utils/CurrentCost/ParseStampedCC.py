@@ -29,11 +29,24 @@ def formatGMTForMysql(stampSecs):
 	gmtStr =  time.strftime(ISO_DATE_FORMAT_MYSQL,time.gmtime(stampSecs))
 	return gmtStr
 
-def parseFragment(stampStrNoTZ,ccfragment):
+# stampStr has the format: 
+def parseFragment(stampStr,ccfragment):
+	# date format: 2009-07-02T19:08:12-0400
+	# remove the utcoffset in string
+	stampStrNoTZ = stampStr[:-5]
+	# reformat utcofset from -0400 to -04:00
+	UTCOffset = "%s:%s" % (stampStr[-5:-2],stampStr[-2:])
+	# gmtStampStrExpr = "CONVERT_TZ('%s','America/Montreal','GMT')"%(stampStrNoTZ)
+	gmtStampStrExpr = "CONVERT_TZ('%s','%s','GMT') " % ( stampStrNoTZ,UTCOffset)
+	# we also need actual value for csv.
+	stampSecs = parseLocaltimeToSecs(stampStrNoTZ)
+	gmtStr=formatGMTForMysql(stampSecs)
+
 	ccdom = minidom.parseString(ccfragment)
+
+	#calculate drift
 	ccTimeStr = ccdom.getElementsByTagName('time')[0].childNodes[0].nodeValue
 	ccStampStr = stampStrNoTZ[:-8]+ccTimeStr
-	stampSecs = parseLocaltimeToSecs(stampStrNoTZ)
 	ccTimeSecs = parseLocaltimeToSecs(ccStampStr)
 	drift = ccTimeSecs - stampSecs
 
@@ -53,28 +66,19 @@ def parseFragment(stampStrNoTZ,ccfragment):
 		wattarray.append(watt)
 		sumwatts += watt
 	# print "T=%s S=%d watts=%d walen:%d" % (ccTimeStr,sensor,sumwatts,len(wattarray))
-	gmtStr=formatGMTForMysql(stampSecs)
-	sql = "INSERT IGNORE INTO cc_native (stamp, watt, sensorid, ch1watt, ch2watt, drift) VALUES ('%s','%d','%s', '%d','%d','%d');" % (gmtStr,sumwatts,sensorID,wattarray[0],wattarray[1],drift)
+	sql = "INSERT IGNORE INTO cc_native (stamp, watt, sensorid, ch1watt, ch2watt, drift) VALUES (%s,'%d','%s', '%d','%d','%d');" % (gmtStampStrExpr,sumwatts,sensorID,wattarray[0],wattarray[1],drift)
 	print sql
 	csv = ','.join([gmtStr,str(sumwatts),str(sensorID),str(wattarray[0]),str(wattarray[1]),str(drift)])
 	print csv
 
 def handleLine(line):
+	if (line[:4]=="<!--"):
+		return
 	stampStr = line[:24]
-	# date format: 2009-07-02T19:08:12-0400
-	# remove the utcoffset in string
-	stampStrNoTZ = stampStr[:-5]
-	stampSecs = parseLocaltimeToSecs(stampStrNoTZ)
-
-	#ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
-	#gmtStr =  time.strftime(ISO_DATE_FORMAT,time.gmtime(stampSecs))+'Z'
-	#gmtStr =  time.strftime(ISO_DATE_FORMAT,time.gmtime(stampSecs))+'+0000'
-	#localtimeStr =   time.strftime(ISO_DATE_FORMAT,time.localtime(stampSecs)) 
-	#print "line %d --- %s %s" % (totallines,stampStr,localtimeStr) 
-
 	CCStr = line[25:-1] # to remove the newline ?
+	# omit empty lines
 	if (len(CCStr)>0):
-		parseFragment(stampStrNoTZ,CCStr)
+		parseFragment(stampStr,CCStr)
 
 if __name__ == "__main__":
         usage = 'python %s' % sys.argv[0]
@@ -85,12 +89,14 @@ if __name__ == "__main__":
 		if not line:                        # or an empty string at EOF
 			break
 		totallines+=1
+
+		if ((totallines % 10000) == 0):
+			sys.stderr.write("line # %d \n" % (totallines))
+		
 		handleLine(line)
-		if (totallines>1000000):
-			break
+		#if (totallines>100):
+		#	break
                 # (stamp, watts,volts) = getGMTTimeWattsAndVoltsFromTedService()
 
-
-print "Done; counted %d lines" % (totallines)
-
+sys.stderr.write("Done; counted %d lines\n" % (totallines))
 
