@@ -36,35 +36,19 @@ All rolled into: /home/daniel/scalr-utils/CurrentCost/serialStamp.sh
 /home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB2 57600 CC2 &
 
 
-
-# Aztech-2
-stty -F /dev/ttyUSB0 speed 38400
-echo DEBUGON>/dev/ttyUSB0
-cat /dev/ttyUSB0 > iMetricalData/AZ2-`date +%Y%m%dT%H%M%S%z`.log &
-# CurrentCost-1
-stty -F /dev/ttyUSB1 speed 57600
-cat /dev/ttyUSB1 > iMetricalData/CC1-`date +%Y%m%dT%H%M%S%z`.log &
-# CurrentCost-2
-stty -F /dev/ttyUSB2 speed 57600
-cat /dev/ttyUSB2 > iMetricalData/CC2-`date +%Y%m%dT%H%M%S%z`.log &
-
-Stamping on top ...
-
-tail -f CC1-20090701T225212-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > CC1-20090701T225212-0400.stamp.log &
-tail -f CC2-20090701T225213-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > CC2-20090701T225213-0400.stamp.log &
-tail -f AZ2-20090701T225132-0400.log | while read line; do echo `date +%Y-%m-%dT%H:%M:%S%z` $line; done > AZ2-20090701T225132-0400.stamp.log &
-
-
 start comparing:
 -run the parser:
-  python ../scalr-utils/CurrentCost/ParseStampedCC.py < CC1-20090701T225212-0400.stamp.log
-  python ../scalr-utils/CurrentCost/ParseStampedCC.py < CC2-20090701T225213-0400.stamp.log
+  cd iMetricalData
+  cat CC*log |   python ../scalr-utils/CurrentCost/ParseStampedCC.py 
 
--make a big csv
-cat CC*stamp.log|python ../scalr-utils/CurrentCost/ParseStampedCC.py|grep -v "^INSERT">coco.csv
-
-make a big sql:
-cat CC*stamp.log|python ../scalr-utils/CurrentCost/ParseStampedCC.py|grep "^INSERT">coco.sql
+rm coco.csv coco.sql
+for i in FirstTrial/CC*stamp.log Hourly/CC*log CC*log; do 
+    wc -l $i; 
+    #make a big csv
+    #cat $i | python ../scalr-utils/CurrentCost/ParseStampedCC.py|grep -v "^INSERT" >>coco.csv 
+    # make a big sql
+    cat $i | python ../scalr-utils/CurrentCost/ParseStampedCC.py|grep "^INSERT"  >>coco.sql
+done
 
 pump to cantor
 
@@ -88,21 +72,8 @@ mysql currentcost
 
 now some selects against ted.watt
 
-select sensorid,count(*) from cc_native group by sensorid;
-+----------+----------+
-| sensorid | count(*) |
-+----------+----------+
-| 1214     |     3954 | 
-| 3887     |     2165 | 
-+----------+----------+
 
-select cc.stamp,cc.watt,cc.sensorid,tt.stamp,tt.watt from cc_native cc,ted.watt tt where tt.stamp=cc.stamp and cc.sensorid=3887;
-
-select cc.watt as CC3887, tt.watt as TED from cc_native cc,ted.watt tt where tt.stamp=cc.stamp and cc.sensorid=3887;
-
-select cc.stamp as GMT,cc.sensorid as SensorID, cc.watt as CC, tt.watt as TED from cc_native cc,ted.watt tt where tt.stamp=cc.stamp order by cc.stamp;
-
-as tabs
+cc_native, all sensors: as tabs
 mysql currentcost -b -e "select cc.stamp as GMT,cc.sensorid as SensorID, cc.watt as CC, tt.watt as TED from cc_native cc,ted.watt tt where tt.stamp=cc.stamp order by cc.stamp;"
 
 How about aggregates:
@@ -110,6 +81,7 @@ How about aggregates:
 DROP TABLE IF EXISTS `cc_agg_minute`;
 CREATE TABLE `cc_agg_minute` (
   `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt_az` int(11) NOT NULL default '0',
   `watt_ted` int(11) NOT NULL default '0',
   `watt_cc1` int(11) NOT NULL default '0',
   `watt_cc2` int(11) NOT NULL default '0',
@@ -123,6 +95,7 @@ CREATE TABLE `cc_agg_minute` (
 DROP TABLE IF EXISTS `cc_agg_tenminute`;
 CREATE TABLE `cc_agg_tenminute` (
   `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt_az` int(11) NOT NULL default '0',
   `watt_ted` int(11) NOT NULL default '0',
   `watt_cc1` int(11) NOT NULL default '0',
   `watt_cc2` int(11) NOT NULL default '0',
@@ -136,6 +109,7 @@ CREATE TABLE `cc_agg_tenminute` (
 DROP TABLE IF EXISTS `cc_agg_hour`;
 CREATE TABLE `cc_agg_hour` (
   `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt_az` int(11) NOT NULL default '0',
   `watt_ted` int(11) NOT NULL default '0',
   `watt_cc1` int(11) NOT NULL default '0',
   `watt_cc2` int(11) NOT NULL default '0',
@@ -148,66 +122,74 @@ CREATE TABLE `cc_agg_hour` (
 
 
 produce aggregates for minute and tenminute:
-get min-max from cc_native : 2009-07-02 20:20:17 | 2009-07-03 03:39:10 
+get min-max from cc_native : 2009-07-02 20:20:17 | 2009-07-07 17:57:16
 
-# Hour-TED
-select concat(left(stamp,13),':00:00') as g, avg(watt) from ted.watt where stamp>='2009-07-02 20:20:00' and stamp<'2009-07-03 03:40:00' group by g;
-# Hour-CC1
-select concat(left(stamp,13),':00:00') as g, avg(watt) from cc_native where sensorid=1214 group by g;
-# Hour-CC2
-select concat(left(stamp,13),':00:00') as g, avg(watt) from cc_native where sensorid=3887 group by g;
-# 4 channels
-select concat(left(stamp,13),':00:00') as g, avg(ch1watt) from cc_native where sensorid=1214 group by g;
-select concat(left(stamp,13),':00:00') as g, avg(ch2watt) from cc_native where sensorid=1214 group by g;
-select concat(left(stamp,13),':00:00') as g, avg(ch1watt) from cc_native where sensorid=3887 group by g;
-select concat(left(stamp,13),':00:00') as g, avg(ch2watt) from cc_native where sensorid=3887 group by g;
+select sensorid,count(*),min(stamp),max(stamp) from cc_native group by sensorid;
++----------+----------+---------------------+---------------------+
+| sensorid | count(*) | min(stamp)          | max(stamp)          |
++----------+----------+---------------------+---------------------+
+| 1214     |    62706 | 2009-07-02 20:20:17 | 2009-07-07 17:56:47 | 
+| 3887     |     2165 | 2009-07-02 20:20:18 | 2009-07-03 00:54:26 | 
+| 607      |    50411 | 2009-07-03 08:51:09 | 2009-07-07 17:57:16 | 
++----------+----------+---------------------+---------------------+
 
+create entries:
+  -Insert stamp  by select from cc_native
+  -Update each value column through a temp table
 
-now insert: creates all key values,
+# create all "minute' stamps from cc_native table
+replace into cc_agg_minute(stamp) select concat(left(stamp,16),':00') as g from cc_native;
 
-######### do Hour just for test: actualy create minute, and average to get tenminute, and hour
+Use a temporary table:
+CREATE TEMPORARY TABLE `cc_agg_temp` (
+  `stamp` datetime NOT NULL default '1970-01-01 00:00:00',
+  `watt` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`stamp`)
+);
 
-insert into cc_agg_hour(stamp,watt_ted) select concat(left(stamp,13),':00:00') as g, avg(watt) from ted.watt where stamp>='2009-07-02 20:20:00' and stamp<'2009-07-03 03:40:00' group by g;
-update cc_agg_hour dst set watt_cc1=(select avg(src.watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,13),':00:00'));
-update cc_agg_hour dst set watt_cc2=(select avg(src.watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,13),':00:00'));
-update cc_agg_hour dst set watt_cc1_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,13),':00:00'));
-update cc_agg_hour dst set watt_cc1_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,13),':00:00'));
-update cc_agg_hour dst set watt_cc2_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,13),':00:00'));
-update cc_agg_hour dst set watt_cc2_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,13),':00:00'));
+# add a where clause to speed thing up ted.watt.stamp>'2009-07-01'
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) 
+  select concat(left(ted.watt.stamp,16),':00') as g, avg(watt) from ted.watt,cc_agg_minute where ted.watt.stamp>'2009-07-01' and concat(left(ted.watt.stamp,16),':00')=cc_agg_minute.stamp group by g;
+update cc_agg_minute dst set watt_ted=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
 
-insert into cc_agg_minute(stamp,watt_ted) select concat(left(stamp,16),':00') as g, avg(watt) from ted.watt where stamp>='2009-07-02 20:20:00' and stamp<'2009-07-03 03:40:00' group by g;
-update cc_agg_minute dst set watt_cc1=(select avg(src.watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,16),':00'));
-update cc_agg_minute dst set watt_cc2=(select avg(src.watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,16),':00'));
-update cc_agg_minute dst set watt_cc1_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,16),':00'));
-update cc_agg_minute dst set watt_cc1_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=1214 and dst.stamp=concat(left(src.stamp,16),':00'));
-update cc_agg_minute dst set watt_cc2_ch1=(select avg(src.ch1watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,16),':00'));
-update cc_agg_minute dst set watt_cc2_ch2=(select avg(src.ch2watt) from cc_native src where src.sensorid=3887 and dst.stamp=concat(left(src.stamp,16),':00'));
+#cc1
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) select concat(left(src.stamp,16),':00') as g,avg(src.watt) from cc_native src where src.sensorid in (1214) group by g;
+update cc_agg_minute dst set watt_cc1=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
+#cc2
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) select concat(left(src.stamp,16),':00') as g,avg(src.watt) from cc_native src where src.sensorid in (3887,607) group by g;
+update cc_agg_minute dst set watt_cc2=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
+#cc1.ch1
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) select concat(left(src.stamp,16),':00') as g,avg(src.ch1watt) from cc_native src where src.sensorid in (1214) group by g;
+update cc_agg_minute dst set watt_cc1_ch1=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
+#cc1.ch2
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) select concat(left(src.stamp,16),':00') as g,avg(src.ch2watt) from cc_native src where src.sensorid in (1214) group by g;
+update cc_agg_minute dst set watt_cc1_ch2=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
+#cc2.ch1
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) select concat(left(src.stamp,16),':00') as g,avg(src.ch1watt) from cc_native src where src.sensorid in (3887,607) group by g;
+update cc_agg_minute dst set watt_cc2_ch1=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
+#cc2.ch2
+delete from cc_agg_temp;
+insert into cc_agg_temp(stamp,watt) select concat(left(src.stamp,16),':00') as g,avg(src.ch2watt) from cc_native src where src.sensorid in (3887,607) group by g;
+update cc_agg_minute dst set watt_cc2_ch2=(select src.watt from cc_agg_temp src where dst.stamp=src.stamp);
 
-before:
-mysql> select * from cc_agg_hour;
-+---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
-| stamp               | watt_ted | watt_cc1 | watt_cc2 | watt_cc1_ch1 | watt_cc1_ch2 | watt_cc2_ch1 | watt_cc2_ch2 |
-+---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
-| 2009-07-02 20:00:00 |     1390 |     1200 |     1212 |          595 |          605 |          628 |          584 | 
-| 2009-07-02 21:00:00 |     1440 |     1161 |     1172 |          637 |          524 |          547 |          624 | 
-| 2009-07-02 22:00:00 |     5134 |     4382 |     4435 |         1970 |         2412 |         2417 |         2018 | 
-| 2009-07-02 23:00:00 |     2695 |     2365 |     2402 |         1152 |         1213 |         1224 |         1178 | 
-| 2009-07-03 00:00:00 |     1334 |     1211 |     1225 |          588 |          623 |          638 |          587 | 
-| 2009-07-03 01:00:00 |     1845 |     1568 |        0 |          856 |          711 |            0 |            0 | 
-| 2009-07-03 02:00:00 |     3086 |     2643 |        0 |         1424 |         1218 |            0 |            0 | 
-| 2009-07-03 03:00:00 |     1357 |     1201 |        0 |          745 |          456 |            0 |            0 | 
-+---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
+#check:
+select * from cc_agg_minute limit 20;
+
+replace into cc_agg_tenminute(stamp,watt_ted,watt_cc1,watt_cc2,watt_cc1_ch1,watt_cc1_ch2,watt_cc2_ch1,watt_cc2_ch2) 
+ select concat(left(stamp,15),'0:00') as g, avg(watt_ted),avg(watt_cc1),avg(watt_cc2),avg(watt_cc1_ch1),avg(watt_cc1_ch2),avg(watt_cc2_ch1),avg(watt_cc2_ch2) 
+ from cc_agg_minute group by g;
 
 
 replace into cc_agg_hour(stamp,watt_ted,watt_cc1,watt_cc2,watt_cc1_ch1,watt_cc1_ch2,watt_cc2_ch1,watt_cc2_ch2) 
  select concat(left(stamp,13),':00:00') as g, avg(watt_ted),avg(watt_cc1),avg(watt_cc2),avg(watt_cc1_ch1),avg(watt_cc1_ch2),avg(watt_cc2_ch1),avg(watt_cc2_ch2) 
  from cc_agg_minute group by g;
 
-replace into cc_agg_tenminute(stamp,watt_ted,watt_cc1,watt_cc2,watt_cc1_ch1,watt_cc1_ch2,watt_cc2_ch1,watt_cc2_ch2) 
- select concat(left(stamp,15),'0:00') as g, avg(watt_ted),avg(watt_cc1),avg(watt_cc2),avg(watt_cc1_ch1),avg(watt_cc1_ch2),avg(watt_cc2_ch1),avg(watt_cc2_ch2) 
- from cc_agg_minute group by g;
-
-after...
 mysql> select * from cc_agg_hour;
 +---------------------+----------+----------+----------+--------------+--------------+--------------+--------------+
 | stamp               | watt_ted | watt_cc1 | watt_cc2 | watt_cc1_ch1 | watt_cc1_ch2 | watt_cc2_ch1 | watt_cc2_ch2 |
@@ -224,11 +206,11 @@ mysql> select * from cc_agg_hour;
 
 
 
-out to tsv:
+out to ONE tsv: split it back up in Google docs: split on header lines!
 
-mysql currentcost -b -e "select * from cc_agg_minute" >agg_minute.tsv
-mysql currentcost -b -e "select * from cc_agg_tenminute" >agg_tenminute.tsv
-mysql currentcost -b -e "select * from cc_agg_hour" >agg_hour.tsv
+mysql currentcost -b -e "select * from cc_agg_hour" >agg_combined.tsv
+mysql currentcost -b -e "select * from cc_agg_tenminute" >>agg_combined.tsv
+mysql currentcost -b -e "select * from cc_agg_minute" >>agg_combined.tsv
 
 
 Starting Aztech:
