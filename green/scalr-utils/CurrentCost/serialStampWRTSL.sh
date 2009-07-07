@@ -14,8 +14,8 @@
 
 # this is the name of the current logrotated file
 #OUTPUTSTAMPFORMAT="%Y%m%dT%H%M00%z" # by Minute
-OUTPUTSTAMPFORMAT="%Y%m%dT%H0000%z" # by Hour
-#OUTPUTSTAMPFORMAT="%Y%m%dT000000%z" # by Day
+#OUTPUTSTAMPFORMAT="%Y%m%dT%H0000%z" # by Hour
+OUTPUTSTAMPFORMAT="%Y%m%dT000000%z" # by Day
 OUTPUTFILE="DEVICE-2001-02-03T040506+0400.log"
 
 # this should be the /dev/ttyUSBx
