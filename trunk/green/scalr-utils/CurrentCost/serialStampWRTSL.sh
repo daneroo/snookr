@@ -1,4 +1,4 @@
-#!/bin/bash                                                                                             
+#!/bin/ash                                                                                             
 # This program reads a usb serial port and 
 # writes all ouput to timestampled logfiles
 # each output line is also prefixed with a timestamp
@@ -87,7 +87,7 @@ rotatelog() {
     touch "${OUTPUTFILE}"
     if [ -w ${OUTPUTFILE} ]; then
 	#echo Creating new log file ${OUTPUTFILE}
-	echo "<!-- `hostname`: `date +%Y-%m-%dT%H:%M:%S%z`: reading ${INPUTTTY} @ ${TTYSPEED}bps for device ${DEVICEALIAS} -->">>${OUTPUTFILE}
+	echo "<!-- WRTSL54GS: `date +%Y-%m-%dT%H:%M:%S%z`: reading ${INPUTTTY} @ ${TTYSPEED}bps for device ${DEVICEALIAS} -->">>${OUTPUTFILE}
 	return
     else
 	# could not create outputfile: ERROR
