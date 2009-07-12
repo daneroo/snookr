@@ -34,6 +34,8 @@ All rolled into: /home/daniel/scalr-utils/CurrentCost/serialStamp.sh
 /home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB0 38400 AZ2 &
 /home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB1 57600 CC1 &
 /home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB2 57600 CC2 &
+And CC3 (as CC2 for WaterHeater)
+/home/daniel/scalr-utils/CurrentCost/serialStamp.sh /dev/ttyUSB2 57600 CC3H2O &
 
 
 start comparing:
