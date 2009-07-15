@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>cc128</title>
+        <!-- relative paths for css and js
+            should use ../css/, ../jq/ and ../js/
+            absolute path would be
+             /s/css, /s/jq, and /s/jq
+
+             Consolidate all css (include ? jq-ui) yes: required
+        <link type="text/css" href="../jq/theme/ui.all.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.layout.css" rel="Stylesheet" />
+        <link type="text/css" href="../css/imetrical.theme.css" rel="Stylesheet" />
+
+        -->
+        <link type="text/css" href="../css/imetrical.all.css" rel="Stylesheet" />
+        <script type="text/javascript" src="../jq/jquery-1.3.1.js"></script>
+        <script type="text/javascript" src="../js/jquery.timer.js"></script>
+        <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
+        <script type="text/javascript">
+
+
+            // getting ready to inject from settings..
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 5;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                if (refreshInterval<2) refreshInterval=2;
+                return refreshInterval*1000; // every n seconds
+            };
+
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=1;
+            function myInjector(feeds) {
+                //flashInjector();
+                feedsRef = feeds;
+
+                standardInjector(feeds);
+                // feeds array: L H D W M Y
+                var wattLive= Math.round(feeds[0].value);
+                var kWhForDay = Math.round(feeds[2].value*24.0/1000);
+                var kWhForWeek = Math.round(feeds[3].value*24.0/1000*7);
+                var kWhForMonth = Math.round(feeds[5].value*24.0/1000*30);
+                $('#status').html('wattLive : '+wattLive
+                    +' | kWh Day : '+kWhForDay
+                    +' | kWh Week : '+kWhForWeek
+                    +' | kWh Month : '+kWhForMonth
+                    + "<br>"+new Date()     );
+                currentFeed= (currentFeed+1)%5;
+                //alert("myInjector");
+            }
+
+
+            $(function(){
+                iM18nLang='en';
+                //  timers
+                animCanRun=true;
+
+                // storyboard anim...
+                startAnimNow(5000, function (timer) {
+                    storyboardNextAndRollTheme();
+                    //storyboardNext();
+                });
+
+                // fetching timer
+                startAnimNow(getRefreshIntervalMS(), function (timer) {
+                    fetchAndMapFeeds(null,myInjector);
+                });
+
+
+            });
+        </script>
+        <style type="text/css">
+            /* Here be dragons: customize the css */
+            .cc128-bg {
+                background-image:url('cc128-7903-bg-800.png');
+                width:800px;
+                height:533px;
+                border: solid 1px red;
+            }
+            .cc128-lcdmask {
+                background-image:url('cc128-lcd-218.png');
+                width:218px;
+                height:260px;
+                position:relative;
+                left:350px;
+                left:130px;
+                top:67px;
+                border: solid 1px red;
+            }
+            .powdigits {
+                position:relative;
+                left:101px;
+                top:19px;
+            }
+            .pp {
+                position:absolute;
+                left:0px; top:22px;
+                background-color:#ee0;
+                background-color:transparent;
+            }
+            #pp0 {
+                left:101px; 
+            }
+            #pp1 {
+                left:126px; 
+            }
+            #pp2 {
+                left:150px; 
+            }
+            #status {
+                font-size:smaller; color:gray;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="cc128-bg">
+            <div class="cc128-lcdmask">
+                <div class="powdigits">
+                    <img id="p0" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
+                    <img id="p1" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
+                    <img id="p2" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
+                </div>
+                <img id="pp0" class="pp" src="digit43px/digit8.png" width="20" height="32" alt="digit"/>
+                <img id="pp1" class="pp" src="digit43px/digit8.png" width="20" height="32" alt="digit"/>
+                <img id="pp2" class="pp" src="digit43px/digit8.png" width="20" height="32" alt="digit"/>
+                <br><br><br><br><br>MASK
+            </div>
+        </div>
+        <div id="status">status</div>
+    </body>
+</html>
+
+
