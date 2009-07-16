@@ -20,6 +20,106 @@
         <script type="text/javascript" src="../js/imetrical-1.0.js"></script>
         <script type="text/javascript">
 
+            var digits = new Array(11);
+            for ( i=0; i < 10; i++ ) {
+                digits[i]= new Image();
+                digits[i].src="digit43px/digit" + i + ".png";
+            }
+            digits[10] = new Image();
+            digits[10].src="digit43px/digit-blank.png";
+            //blank = digits[10];
+            digits[11] = new Image();
+            digits[11].src="digit43px/digit-dash.png";
+            //dash = digits[11];
+
+            function setdigit(pfx,pos,digit){
+                var imgname = ""+pfx+""+pos;
+                try {
+                    document.images[imgname].src = digits[digit].src;
+                } catch(err) {
+                    //alert("digit="+randdigit);
+                }
+            }
+            function setpower(watts){ // in watts
+                if(watts<0 || watts>9999) {
+                    setdigit("pp",0,11);
+                    setdigit("pp",1,11);
+                    setdigit("pp",2,11);
+                } else {
+                    setdigit("pp",0,Math.floor(watts/1000));
+                    setdigit("pp",1,Math.floor((watts/100)%10));
+                    setdigit("pp",2,Math.floor((watts/10)%10));
+                }
+
+            }
+            function setcost(cents){ // in cents
+                if(cents<0 || cents>999) {
+                    setdigit("cc",0,11);
+                    setdigit("cc",1,11);
+                    setdigit("cc",2,11);
+                } else {
+                    setdigit("cc",0,Math.floor(cents/100));
+                    setdigit("cc",1,Math.floor((cents/10)%10));
+                    setdigit("cc",2,Math.floor(cents%10));
+                }
+
+            }
+            function setavghist(scope,kwh){ // in kwh
+                if (scope==1){
+                    setdigit("ss",0,1);
+                    setdigit("ss",1,10);
+                } else if (scope==7){
+                    setdigit("ss",0,7);
+                    setdigit("ss",1,10);
+                } else if (scope==30){
+                    setdigit("ss",0,3);
+                    setdigit("ss",1,0);
+                } else {
+                    setdigit("ss",0,11);
+                    setdigit("ss",1,11);
+                }
+                if(kwh<0 || kwh>9999) {
+                    setdigit("aa",0,11);
+                    setdigit("aa",1,11);
+                    setdigit("aa",2,11);
+                    setdigit("aa",3,11);
+                } else { // remove leading 0's
+                    var d4 = Math.floor(kwh/1000); if (d4==0) d4=10; // blank
+                    setdigit("aa",0,d4);
+                    var d3 = Math.floor((kwh/100)%10); if (d4==10 && d3==0) d3=10; // blank
+                    setdigit("aa",1,d3);
+                    var d2 = Math.floor((kwh/10)%10); if (d4==10 && d3==10 && d2==0) d2=10; // blank
+                    setdigit("aa",2,d2);
+                    setdigit("aa",3,Math.floor(kwh%10));
+                }
+
+            }
+
+            function setclock() {
+                var now = new Date();
+                h12 = now.getHours() % 12;
+                if (h12>=10) {
+                    setdigit("hh",0,1);
+                } else {
+                    setdigit("hh",0,10); // blank
+                }
+                setdigit("hh",1,h12%10);
+
+                mm = now.getMinutes();
+                setdigit("hh",2,Math.floor(mm/10));
+                setdigit("hh",3,mm%10);
+
+            }
+            function settemp(temp){
+                if(temp<0 || temp>99) {
+                    setdigit("t",0,11);
+                    setdigit("t",1,11);
+                } else {
+                    setdigit("t",0,Math.floor(temp/10));
+                    setdigit("t",1,Math.floor(temp%10));
+                }
+            }
+
 
             // getting ready to inject from settings..
             var prefs = null;
@@ -40,10 +140,22 @@
 
                 standardInjector(feeds);
                 // feeds array: L H D W M Y
+
                 var wattLive= Math.round(feeds[0].value);
                 var kWhForDay = Math.round(feeds[2].value*24.0/1000);
                 var kWhForWeek = Math.round(feeds[3].value*24.0/1000*7);
                 var kWhForMonth = Math.round(feeds[5].value*24.0/1000*30);
+                var kWhForScopes = [kWhForDay,kWhForWeek,kWhForMonth];
+
+                setpower(wattLive);
+                setcost(Math.round(kWhForDay*5.45));
+                var scopes = [1,7,30];
+                var whichScope = Math.floor(new Date().getSeconds()/10%3);
+                var scope = scopes[whichScope];
+                setavghist(scope,kWhForScopes[whichScope]);
+                setclock();
+                settemp(77);
+
                 $('#status').html('wattLive : '+wattLive
                     +' | kWh Day : '+kWhForDay
                     +' | kWh Week : '+kWhForWeek
@@ -87,52 +199,7 @@
                 height:260px;
                 position:relative;
                 left:350px;
-                left:130px;
                 top:67px;
-                border: solid 1px red;
-            }
-            .powdigits {
-                position:relative;
-                left:101px;
-                top:19px;
-            }
-            .costdigits {
-                position:relative;
-                left:101px;
-                top:19px;
-            }
-            .avghistscope {
-                position:relative;
-                left:157px;
-                top:48px;
-            }
-            .avghistscoped1 {
-                position:relative;
-                left:-5px;
-            }
-            .avghistdigits {
-                position:relative;
-                left:115px;
-                top:72px;
-                top:52px;
-            }
-            .hourdigits {
-                position:relative;
-                left:-5px;
-                top:105px;
-                top:84px;
-            }
-            .minutedigits {
-                position:relative;
-                left:48px;
-                top:69px;
-                top:49px;
-            }
-            .tempdigits {
-                position:relative;
-                left:142px;
-                top:32px;
-                top:12px;
             }
             .pp {
                 position:absolute;
@@ -196,47 +263,14 @@
     <body>
         <div class="cc128-bg">
             <div class="cc128-lcdmask">
-<!--                <div class="powdigits">
-                    <img id="p0" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
-                    <img id="p1" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
-                    <img id="p2" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
-                </div>
-                <div class="costdigits">
-                    <img name="c0" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="c1" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="c2" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                </div>
-                <div class="avghistscope">
-                    <img name="s0" src="digit15px/digit1.png" width="7" height="11" alt="digit0"/>
-                    <img class="avghistscoped1" name="s1" src="digit15px/digit1.png" width="7" height="11" alt="digit0"/>
-                </div>
-                <div class="avghistdigits">
-                    <img name="a0" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="a1" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="a2" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="a3" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                </div>
-                <div class="hourdigits">
-                    <img name="h0" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="h1" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                </div>
-                <div class="minutedigits">
-                    <img name="m0" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="m1" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                </div>
-                <div class="tempdigits">
-                    <img name="t0" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                    <img name="t1" src="digit43px/digit1.png" width="20" height="32" alt="digit0"/>
-                </div>
--->
                 <img id="pp0" class="pp" src="digit43px/digit2.png" width="20" height="32" alt="digit"/>
                 <img id="pp1" class="pp" src="digit43px/digit9.png" width="20" height="32" alt="digit"/>
                 <img id="pp2" class="pp" src="digit43px/digit2.png" width="20" height="32" alt="digit"/>
                 <img id="cc0" class="cc" src="digit43px/digit3.png" width="20" height="32" alt="digit"/>
                 <img id="cc1" class="cc" src="digit43px/digit8.png" width="20" height="32" alt="digit"/>
                 <img id="cc2" class="cc" src="digit43px/digit1.png" width="20" height="32" alt="digit"/>
-                <img id="ss0" class="ss" src="digit15px/digit3.png" width="7" height="11" alt="digit"/>
-                <img id="ss1" class="ss" src="digit15px/digit0.png" width="7" height="11" alt="digit"/>
+                <img id="ss0" class="ss" src="digit43px/digit3.png" width="7" height="11" alt="digit"/>
+                <img id="ss1" class="ss" src="digit43px/digit0.png" width="7" height="11" alt="digit"/>
                 <img id="aa0" class="aa" src="digit43px/digit2.png" width="20" height="32" alt="digit"/>
                 <img id="aa1" class="aa" src="digit43px/digit3.png" width="20" height="32" alt="digit"/>
                 <img id="aa2" class="aa" src="digit43px/digit4.png" width="20" height="32" alt="digit"/>
@@ -247,7 +281,6 @@
                 <img id="hh3" class="hh" src="digit43px/digit6.png" width="20" height="32" alt="digit"/>
                 <img id="tt0" class="tt" src="digit43px/digit7.png" width="20" height="32" alt="digit"/>
                 <img id="tt1" class="tt" src="digit43px/digit7.png" width="20" height="32" alt="digit"/>
-                <br><br><br><br><br>MASK
             </div>
         </div>
         <div id="status">status</div>
