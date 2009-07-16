@@ -133,7 +133,8 @@
 
 
             var feedsRef; // keep a reference to the feeds array
-            var currentFeed=1;
+                          // This is for when we split animation loop from injector loop.
+            var currentScope=0;
             function myInjector(feeds) {
                 //flashInjector();
                 feedsRef = feeds;
@@ -150,19 +151,21 @@
                 setpower(wattLive);
                 setcost(Math.round(kWhForDay*5.45));
                 var scopes = [1,7,30];
-                var whichScope = Math.floor(new Date().getSeconds()/10%3);
+                //var whichScope = Math.floor(new Date().getSeconds()/10%3);
+                // get scope from animation loop
+                var whichScope = currentScope;
                 var scope = scopes[whichScope];
                 setavghist(scope,kWhForScopes[whichScope]);
                 setclock();
                 settemp(77);
 
-                $('#status').html('wattLive : '+wattLive
+                $('#status').html('Energy Now : '+wattLive+ ' W'
                     +' | kWh Day : '+kWhForDay
                     +' | kWh Week : '+kWhForWeek
                     +' | kWh Month : '+kWhForMonth
                     + "<br>"+new Date()     );
-                currentFeed= (currentFeed+1)%5;
-                //alert("myInjector");
+
+                currentScope= (currentScope+1)%3;
             }
 
 
@@ -191,7 +194,6 @@
                 background-image:url('cc128-7903-bg-800.png');
                 width:800px;
                 height:533px;
-                border: solid 1px red;
             }
             .cc128-lcdmask {
                 background-image:url('cc128-lcd-218.png');
