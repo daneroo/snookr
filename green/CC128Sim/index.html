@@ -83,7 +83,7 @@
             //dash = digits[11];
 
             function setdigit(pfx,pos,digit){
-                var imgname = ""+pfx+pfx+""+pos;
+                var imgname = ""+pfx+""+pos;
                 try {
                     document.images[imgname].src = digits[digit].src;
                 } catch(err) {
@@ -92,55 +92,55 @@
             }
             function setpower(watts){ // in watts
                 if(watts<0 || watts>9999) {
-                    setdigit("p",0,11);
-                    setdigit("p",1,11);
-                    setdigit("p",2,11);
+                    setdigit("pp",0,11);
+                    setdigit("pp",1,11);
+                    setdigit("pp",2,11);
                 } else {
-                    setdigit("p",0,Math.floor(watts/1000));
-                    setdigit("p",1,Math.floor((watts/100)%10));
-                    setdigit("p",2,Math.floor((watts/10)%10));
+                    setdigit("pp",0,Math.floor(watts/1000));
+                    setdigit("pp",1,Math.floor((watts/100)%10));
+                    setdigit("pp",2,Math.floor((watts/10)%10));
                 }
 
             }
             function setcost(cents){ // in cents
                 if(cents<0 || cents>999) {
-                    setdigit("c",0,11);
-                    setdigit("c",1,11);
-                    setdigit("c",2,11);
+                    setdigit("cc",0,11);
+                    setdigit("cc",1,11);
+                    setdigit("cc",2,11);
                 } else {
-                    setdigit("c",0,Math.floor(cents/100));
-                    setdigit("c",1,Math.floor((cents/10)%10));
-                    setdigit("c",2,Math.floor(cents%10));
+                    setdigit("cc",0,Math.floor(cents/100));
+                    setdigit("cc",1,Math.floor((cents/10)%10));
+                    setdigit("cc",2,Math.floor(cents%10));
                 }
 
             }
             function setavghist(scope,kwh){ // in kwh
                 if (scope==1){
-                    setdigit("s",0,1);
-                    setdigit("s",1,10);
+                    setdigit("ss",0,1);
+                    setdigit("ss",1,10);
                 } else if (scope==7){
-                    setdigit("s",0,7);
-                    setdigit("s",1,10);
+                    setdigit("ss",0,7);
+                    setdigit("ss",1,10);
                 } else if (scope==30){
-                    setdigit("s",0,3);
-                    setdigit("s",1,0);
+                    setdigit("ss",0,3);
+                    setdigit("ss",1,0);
                 } else {
-                    setdigit("s",0,11);
-                    setdigit("s",1,11);
+                    setdigit("ss",0,11);
+                    setdigit("ss",1,11);
                 }
                 if(kwh<0 || kwh>9999) {
-                    setdigit("a",0,11);
-                    setdigit("a",1,11);
-                    setdigit("a",2,11);
-                    setdigit("a",3,11);
+                    setdigit("aa",0,11);
+                    setdigit("aa",1,11);
+                    setdigit("aa",2,11);
+                    setdigit("aa",3,11);
                 } else { // remove leading 0's
                     var d4 = Math.floor(kwh/1000); if (d4==0) d4=10; // blank
-                    setdigit("a",0,d4);
+                    setdigit("aa",0,d4);
                     var d3 = Math.floor((kwh/100)%10); if (d4==10 && d3==0) d3=10; // blank
-                    setdigit("a",1,d3);
+                    setdigit("aa",1,d3);
                     var d2 = Math.floor((kwh/10)%10); if (d4==10 && d3==10 && d2==0) d2=10; // blank
-                    setdigit("a",2,d2);
-                    setdigit("a",3,Math.floor(kwh%10));
+                    setdigit("aa",2,d2);
+                    setdigit("aa",3,Math.floor(kwh%10));
                 }
 
             }
@@ -149,15 +149,15 @@
                 var now = new Date();
                 h12 = now.getHours() % 12;
                 if (h12>=10) {
-                    setdigit("h",0,1);
+                    setdigit("hh",0,1);
                 } else {
-                    setdigit("h",0,10); // blank
+                    setdigit("hh",0,10); // blank
                 }
-                setdigit("h",1,h12%10);
+                setdigit("hh",1,h12%10);
 
                 mm = now.getMinutes();
-                setdigit("h",2,Math.floor(mm/10));
-                setdigit("h",3,mm%10);
+                setdigit("hh",2,Math.floor(mm/10));
+                setdigit("hh",3,mm%10);
 
             }
             function settemp(temp){
