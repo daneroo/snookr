@@ -9,7 +9,9 @@ Source Overlay: LCDMask.xcf @ 942x1125
 Source Digit: Digit43px.xcf for 20x32 digit images
   saved as transparent png into digit43px/digit?.png 
   with blank,dash,colon,period
-convert to 15px fonts with
+USE 43px font for 15px font simply by using img tags as:
+  <img src="digit43px/digit3.png" width="7" height="11" alt="digit"/>
+NOT: convert to 15px fonts with
   for i in *.png; do echo $i; convert -geometry 33% $i ../digit15px/$i; done
 cc128-7903-bg-800.png:
   convert -geometry 800 IMG_7903.JPG cc128-7903-bg-800.png
