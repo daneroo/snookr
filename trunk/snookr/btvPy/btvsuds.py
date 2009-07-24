@@ -73,12 +73,13 @@ def propListToDict(list):
         #print "  %s ::= %s" % (prop.Name,prop.Value)
     return dico
 
-# To convert Array Of Shows
-def getShows(showResult): # as in FlatViewByDate
-    showList = []
-    for showBag in showResult.PVSPropertyBag:
-        showList.append(propListToDict(showBag.Properties.PVSProperty))
-    return showList
+
+# To convert Array Of Shows, or Jobs, (so far)
+def getListOfDict(result): # as in GetJobs, or FlatViewByDate
+    list = []
+    for bag in result.PVSPropertyBag:
+        list.append(propListToDict(bag.Properties.PVSProperty))
+    return list
 
 def formatBTVDuration(show):
     if (not 'Duration' in show):
@@ -190,11 +191,11 @@ def testLibraryClient():
         print ""
         print "Show as dict: %s" % firstShow
 
-    allShows = getShows(fvbd)
+    allShows = getListOfDict(fvbd)
 
     #formatShow(allShows[8],'all')
 
-    print "Found %d shows" % len(allShows)
+    print "Found %d library shows" % len(allShows)
     for show in allShows:
         formatShow(show,'short')
 
@@ -262,6 +263,48 @@ def testSettings():
         print "Channel: %s : UID %s" % (cname,cid)
 ########### End of testSettings
 
+def formatRecording(recording,format='all'):
+    if (format=='short'):
+        if (not 'Duration' in recording):
+            recording['Duration']=recording['TargetDuration']
+        #print "%s @ %s [%s]" % (recording['DisplayTitle'],formatBTVDate(recording['TargetStart']),formatBTVDuration(recording))
+        print "%s [%10s] : %s" % (formatBTVDate(recording['TargetStart']),formatBTVDuration(recording),recording['DisplayTitle'],)
+    else: # format=='all'
+        srt = recording.keys()
+        srt.sort()
+        for k in srt:
+            print " %s: %s"% (k, recording[k])
+        print "---------"
+
+def testScheduler():
+    # GetNextRecording, GetLastRecording GetUpcomingRecordings
+    # GetRecordings is for specific GUID
+
+    schedulerClient = Client(urlForService('BTVScheduler'))
+
+    upcomingRecs = schedulerClient.service.GetUpcomingRecordings(authTicket)
+    upcomingRecsList = getListOfDict(upcomingRecs)
+    print "-=-=-= Found %d upcoming recordings" % len(upcomingRecsList)
+    for rec in upcomingRecsList:
+        #formatRecording(rec,'all')
+        formatRecording(rec,'short')
+
+    # NOT WORKING YET wrong structure
+    #nextRecording = schedulerClient.service.GetNextRecording(authTicket)
+    #nextRecList = getListOfDict(nextRecording)
+    #print "-=-=-= Found %d next recordings" % len(nextRecList)
+    #for rec in nextRecList:
+    #    #formatRecording(rec,'all')
+    #    formatRecording(rec,'short')
+
+    #print nextRecXML
+    # last is 'last scheduled'
+    #lastRecXML = schedulerClient.service.GetLastRecording(authTicket)
+    #print lastRecXML
+
+
+########### End of testScheduler
+
 
 # Execution Start
 btvVersion = getBTVVersion()
@@ -269,7 +312,8 @@ authTicket = getLogonAuthTicket()
 print "BTV Version:%s  authTicket: %s" % (btvVersion,authTicket)
 
 #printAllAPI()
-#testLibraryClient()
+testLibraryClient()
 #testGuideUpdaterClient()
-testSettings()
 #testGuideDataClient()
+#testSettings()
+testScheduler()
