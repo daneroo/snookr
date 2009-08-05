@@ -819,7 +819,15 @@ var hydroData = [
 },
 {
     stampStr: '2009-05-01T05:00:00Z'	,
-    value: 	1245.5238
+    value: 	1238.0000
+},
+{
+    stampStr: '2009-06-01T05:00:00Z'	,
+    value: 	1219.3667
+},
+{
+    stampStr: '2009-07-01T05:00:00Z'	,
+    value: 	1180.9677
 }
 ];
 hydroData.reverse();
@@ -868,7 +876,15 @@ var tedData = [
 },
 {
     stampStr: '2009-05-01T05:00:00Z'	,
-    value: 	1245.5238
+    value: 	1238.0000
+},
+{
+    stampStr: '2009-06-01T05:00:00Z'	,
+    value: 	1219.3667
+},
+{
+    stampStr: '2009-07-01T05:00:00Z'	,
+    value: 	1180.9677
 }
 
 ];
