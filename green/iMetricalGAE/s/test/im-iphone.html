@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>im-iphone</title>
+        <meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.5; user-scalable=no;">
+        <script type="text/javascript">
+            function setOrientation() {
+                //alert(window.orientation);
+                var orient = Math.abs(window.orientation) === 90 ? 'landscape' : 'portrait';
+                var cl = document.body.className;
+                cl = cl.replace(/portrait|landscape/, orient);
+                document.body.className = cl;
+                scrollTo(0,1);
+            }
+            window.addEventListener('orientationchange', setOrientation, false);
+
+            window.addEventListener('load', function(){
+                setOrientation();
+                //scrollTo(0,1);
+            }, false);
+        </script>
+        <style type="text/css">
+            /* Here be dragons: customize the css */
+            body {
+                background: black;
+                margin:0px;
+                padding:0px;
+            }
+            div#wrapper0 {
+                margin:0px;
+                padding:0px;
+            }
+            body.portrait div#wrapper0 {
+                padding-top:120px;
+            }
+            body.landscape div#wrapper0 {
+                padding-top:30px;
+                padding-left:00px;
+            }
+        </style>
+    </head>
+    <body class="portrait">
+
+        <div id="wrapper0">
+            <iframe src ="http://imetrical.appspot.com/s/p/www-3b.html" width="350" height="150" frameborder="0" scrolling="no" allowTransparency="true">
+                <p>Your browser does not support iframes.</p>
+            </iframe>
+        </div>
+        <div id="vertPaddingToHideToolBar" style="height:400px;"></div>
+    </body>
+</html>
+
+
