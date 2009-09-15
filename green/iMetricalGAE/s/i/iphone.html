@@ -7,21 +7,19 @@
 
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.min.css";</style>
         <style type="text/css" media="screen">@import "themes/jqt/theme.min.css";</style>
-        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript" src="googleviz/jsapi-1.0.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            // new google viz stuff replaces
+            //google.load("visualization", "1", {packages:["columnchart","areachart"]});
+            vizLoaded = false;
+            google.setOnLoadCallback(function(){vizLoaded=true});
+        </script>
+        <script type="text/javascript" src="googleviz/googleviz-1.0.js"></script>
         <script src="jqtouch/jquery.1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
         <script type="text/javascript" src="jquery.timer.js"></script>
         <script type="text/javascript" src="imetrical-1.0.js"></script>
         <script type="text/javascript" charset="utf-8">
-            // new google viz stuff
-            google.load("visualization", "1", {packages:["columnchart","areachart"]});
-            vizLoaded = false;
-            google.setOnLoadCallback(function(){vizLoaded=true});
-
-            function drawAChart(whichOne) {
-                feed = feedsRef[whichOne%feedsRef.length];
-                drawChart(feed);
-            }
 
             // getting ready to inject from settings..
             var prefs = null;
@@ -35,16 +33,25 @@
 
 
             var feedsRef; // keep a reference to the feeds array
-            var currentFeed=1;
+            var currentFeed=2;
+            var animCanRun=false;
             function myInjector(feeds) {
                 flashInjector();
                 feedsRef = feeds;
                 standardInjector(feeds);
+                if (animCanRun) {
+                    currentFeed= (currentFeed+1)%5;
+                }
+                selectChart(currentFeed);
+            }
+            function selectChart(whichOne){
+                currentFeed= (whichOne)%5;
+                feed = feedsRef[whichOne%feedsRef.length];
+                drawAChart(currentFeed);
+            }
+            function drawAChart(whichOne) {
                 if (vizLoaded) {
-                    drawAChart(currentFeed);
-                    if (animCanRun) {
-                        currentFeed= (currentFeed+1)%5;
-                    }
+                    drawChart(feed);
                 }
             }
 
@@ -165,7 +172,7 @@
             }
             #chart {
                 /*background-color: blue;*/
-                height: 200px;
+                height: 180px;
             }
         </style>
     </head>
@@ -181,12 +188,12 @@
                 <div id="error" style="display:none" ></div>
             </div>
             <ul>
-                <li class="im-feed-Live" onclick="drawAChart(0)"><a href="#"><span class="im-feed-name">Live</span></a><small class="counter"><span class="im-v-w">0000</span> <span class="im-feed-units">W</span></small></li>
-                <li class="im-feed-Hour" onclick="drawAChart(1)"><a href="#"><span class="im-feed-name">Hour</span></a><small class="counter"><span class="im-v-kw">0.00</span> <span class="im-feed-units">kW</span></small></li>
-                <li class="im-feed-Day" onclick="drawAChart(2)"><a href="#"><span class="im-feed-name">Day</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
-                <li class="im-feed-Week" onclick="drawAChart(3)"><a href="#"><span class="im-feed-name">Week</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
-                <li class="im-feed-Month" onclick="drawAChart(4)"><a href="#"><span class="im-feed-name">Month</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
-                <li class="im-feed-Year" onclick="drawAChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Live" onclick="selectChart(0)"><a href="#"><span class="im-feed-name">Live</span></a><small class="counter"><span class="im-v-w">0000</span> <span class="im-feed-units">W</span></small></li>
+                <li class="im-feed-Hour" onclick="selectChart(1)"><a href="#"><span class="im-feed-name">Hour</span></a><small class="counter"><span class="im-v-kw">0.00</span> <span class="im-feed-units">kW</span></small></li>
+                <li class="im-feed-Day" onclick="selectChart(2)"><a href="#"><span class="im-feed-name">Day</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Week" onclick="selectChart(3)"><a href="#"><span class="im-feed-name">Week</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Month" onclick="selectChart(4)"><a href="#"><span class="im-feed-name">Month</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Year" onclick="selectChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
             </ul>
             <div id="status"></div>
             <!--

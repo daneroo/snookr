@@ -1,0 +1,22 @@
+Simply for caching:
+  Trracing net activity, from safari
+
+Transformed:
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript" charset="utf-8">
+    google.load("visualization", "1", {packages:["columnchart","areachart"]});
+    vizLoaded = false;
+    google.setOnLoadCallback(function(){vizLoaded=true});
+  </script>
+
+into
+  <script type="text/javascript" src="jsapi.js"></script>
+  <script type="text/javascript" charset="utf-8">
+     vizLoaded = false;
+     google.setOnLoadCallback(function(){vizLoaded=true});
+   </script>
+   <script type="text/javascript" src="googleviz.js"></script>
+
+fetched by curl:
+  curl http://google.com/jsapi >jsapi-1.0.js
+  curl "http://www.google.com/uds/api/visualization/1.0/ba1fb6aaa265dceb11fe416634011ffd/default,areachart,columnchart.I.js" > googleviz-1.0.js
