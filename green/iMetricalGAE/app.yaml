@@ -4,6 +4,16 @@ runtime: python
 api_version: 1
 
 handlers:
+#- url: /s/i/(.*\.manifest)
+#  static_files: /s/i/\1
+#  upload: /s/i/(.*\.manifest)
+#  mime_type: text/cache-manifest
+# if we use url: /(.*\.manifest) the file would be in {ROOT}/cache-manifest/s/i/xx.manifest
+- url: /s/i/(.*\.manifest)
+  static_files: cache-manifest/\1
+  upload: cache-manifest/(.*\.manifest)
+  mime_type: text/cache-manifest
+
 - url: /s
   static_dir: s
 
