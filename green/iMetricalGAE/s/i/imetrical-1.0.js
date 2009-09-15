@@ -337,7 +337,7 @@ function drawChart(feed) {
      * */
     options =  {
         //backgroundColor: "#444444",
-        backgroundColor: "#000",
+        backgroundColor: "#000000",
         //backgroundColor: rgba(85,255,0,.8),
         axisColor:"#444",
         axisBackgroundColor:"#222",
