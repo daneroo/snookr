@@ -27,7 +27,7 @@
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
             var getRefreshIntervalMS = function() {
-                var refreshInterval = 10;
+                var refreshInterval = 15;
                 if (prefs) refreshInterval = prefs.getString("refreshInterval");
                 if (refreshInterval<2) refreshInterval=2;
                 return refreshInterval*1000; // every n seconds
@@ -163,11 +163,14 @@
             ul li { /* p: t r b l */
                 padding: 2px 10px 2px 10px;
             }
-
+            #chart {
+                /*background-color: blue;*/
+                height: 200px;
+            }
         </style>
     </head>
     <body>
-        <div id="home" classNOT="metalNOT plasticNOT">
+        <div id="home">
             <div class="toolbar">
                 <a class="button leftButton flip" id="infoButton" href="#about">About</a>
                 <h1>Mirawatt &beta;</h1>
@@ -185,7 +188,7 @@
                 <li class="im-feed-Month" onclick="drawAChart(4)"><a href="#"><span class="im-feed-name">Month</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
                 <li class="im-feed-Year" onclick="drawAChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
             </ul>
-            <div id="status" ></div>
+            <div id="status"></div>
             <!--
 
         <ul class="individual">
