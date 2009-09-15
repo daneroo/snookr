@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# stamp: 2009092106
+# stamp: 2009100039
 # javascript
 imetrical-1.0.js
 jqtouch/jqtouch.js
@@ -48,5 +48,12 @@ themes/jqt/img/toggle.png
 themes/jqt/img/toggleOn.png
 themes/jqt/img/toolbar.png
 themes/jqt/img/whiteButton.png
+
 NETWORK:
 staticfeed.xml
+/feeds
+http://chart.apis.google.com/chart
+# seems prefix is sufficient...more stable!
+http://www.google.com/
+#http://www.google.com/jsapi
+#http://www.google.com/uds/
