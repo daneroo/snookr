@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Charting examples</title>
+    </head>
+    <body>
+        <!--
+
+
+        ref
+        original blue yearly url:
+          http://chart.apis.google.com/chart?cht=bvs&chs=320x200&chbh=a&chd=t:33,35,39,42,39,38,40,41,35,37,31|19,16,10,10,13,18,16,15,21,11,13&chds=0,60&chco=c6d9fd,4d89f9&chxt=x,y&chxl=0:|Jul|Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29
+
+chd=t:33,35,39,42,39,38,40,41,35,37,31|
+      19,16,10,10,13,18,16,15,21,11,13
+        daily: http://chart.apis.google.com/chart?chxt=x,y&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chco=55ff00,33aa00&chbh=a&chs=320x180&cht=bvs&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3";
+                    // solid fill black with alpha=0: &chf=bg,s,00000000
+                    // title color: chts=FFFFFF  (optional: ,fontSize)
+                    // axis 0,1 colors: chxs=0,000000,,,000000|1,000000,,,000000
+
+        My Original notes
+Google chart example:
+data:
+echo `mysql -N -B -e "select round(avg(watt)/1000*24) from watt_billing where stamp>'2007-07-01'  and stamp<'2008-06-01' group by left(stamp,7)" hydro`|sed -e 's/ /,/g'
+52,49,49,52,52,56,56,56,56,48,44
+echo `mysql -N -B -e "select round(avg(watt)/1000*24) from watt_day where stamp>'2008-07-01'  and stamp<'2009-06-01' group by left(stamp,7)" ted`|sed -e 's/ /,/g'
+33,35,39,42,39,38,40,41,35,37,31
+Delta by hand to stack:
+
+
+-chbh=a for autosizing width of bars:
+
+http://chart.apis.google.com/chart?cht=bvg&chs=320x200&chbh=a&chd=t:52,49,49,52,52,56,56,56,56,48,44|33,35,39,42,39,38,40,41,35,37,31&chds=0,60&chco=4d89f9,c6d9fd&chxt=x,y&chxl=0:|Jul|Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|1:|0|30|60&chdl=Previous Yr|Current Yr&chdlp=b&chtt=Monthly Power Connsumption (kWh/d)
+
+Now try stacked, calculate delta
+52,49,49,52,52,56,56,56,56,48,44
+33,35,39,42,39,38,40,41,35,37,31
+19,16,10,10,13,18,16,15,21,11,13
+
+http://chart.apis.google.com/chart?cht=bvs&chs=320x200&chbh=a&chd=t:33,35,39,42,39,38,40,41,35,37,31|19,16,10,10,13,18,16,15,21,11,13&chds=0,60&chco=c6d9fd,4d89f9&chxt=x,y&chxl=0:|Jul|Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|1:|0|30|60&chdl=Current Yr|Previous Yr&chdlp=b&chtt=Monthly Power Connsumption (kWh/d)
+
+shortened: grouped:  http://bit.ly/kkEU1
+shortened: stacked:   http://bit.ly/ave1x
+
+again:
+52,49,49,52,52,56,56,56,56,48,44,51,51,38,38
+33,35,39,42,39,38,40,41,35,37,30,29,28,32,27
+19,16,10,10,13,18,16,15,21,11,13,22,23,06,11
+
+chd=t:33,35,39,42,39,38,40,41,35,37,30,29,28,32,27|19,16,10,10,13,18,16,15,21,11,13,22,23,06,11
+chxl=0:|Jul|Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60
+
+chd=t:42,39,38,40,41,35,37,30,29,28,32,27|10,13,18,16,15,21,11,13,22,23,06,11
+chxl=0:|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60
+
+-->
+        <div style="background-color:#000000">
+            yearly:
+
+            <img src="http://chart.apis.google.com/chart?cht=bvs&chts=FFFFFF&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chf=bg,s,00000000&chs=320x180&chbh=a&chd=t:33,35,39,42,39,38,40,41,35,37,31|19,16,10,10,13,18,16,15,21,11,13&chds=0,60&chco=55ff00,33aa00&chxt=x,y&chxl=0:|Jul|Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29"/>
+            <img src="http://chart.apis.google.com/chart?cht=bvs&chts=FFFFFF&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chf=bg,s,00000000&chs=320x180&chbh=a&chd=t:33,35,39,42,39,38,40,41,35,37,30,29,28,32,27|19,16,10,10,13,18,16,15,21,11,13,22,23,06,11&chds=0,60&chco=55ff00,33aa00&chxt=x,y&chxl=0:|Jul|Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29"/>
+            <img src="http://chart.apis.google.com/chart?cht=bvs&chts=FFFFFF&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chf=bg,s,00000000&chs=320x180&chbh=a&chd=t:42,39,38,40,41,35,37,30,29,28,32,27|10,13,18,16,15,21,11,13,22,23,06,11&chds=0,60&chco=55ff00,33aa00&chxt=x,y&chxl=0:|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29"/>
+
+            daily:
+            <img src="http://chart.apis.google.com/chart?chxt=x,y&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chf=bg,s,00000000&chco=55ff00,33aa00&chbh=a&chs=320x180&cht=bvs&chts=FFFFFF&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3"/>
+
+        </div>
+    </body>
+</html>

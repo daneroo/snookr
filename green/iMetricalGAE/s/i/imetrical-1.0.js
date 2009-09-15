@@ -844,7 +844,16 @@ var hydroData = [
 {
     stampStr: '2009-07-01T05:00:00Z'	,
     value: 	1180.9677
+},
+{
+    stampStr: '2009-08-01T05:00:00Z'	,
+    value: 	1320.0323
+},
+{
+    stampStr: '2009-09-01T05:00:00Z'	,
+    value: 	1123.2000
 }
+
 ];
 hydroData.reverse();
 // sql to gen from ted.watt_day
@@ -901,6 +910,14 @@ var tedData = [
 {
     stampStr: '2009-07-01T05:00:00Z'	,
     value: 	1180.9677
+},
+{
+    stampStr: '2009-08-01T05:00:00Z'	,
+    value: 	1320.0323
+},
+{
+    stampStr: '2009-09-01T05:00:00Z'	,
+    value: 	1123.2000
 }
 
 ];
