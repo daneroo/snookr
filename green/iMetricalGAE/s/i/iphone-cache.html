@@ -30,6 +30,10 @@
                 return refreshInterval*1000; // every n seconds
             };
 
+            function triggerRedrawToFixChartVizBug(){
+                $('#blinking-light-to-fix-chat-bug').toggle();
+            }
+
             var feedsRef; // keep a reference to the feeds array
             var currentFeed=2;
             var animCanRun=false;
@@ -57,6 +61,7 @@
                 var elapsed = new Date().getTime()-startLoad.getTime();
                 if (vizLoaded && elapsed>30000){
                     drawChart(feed);
+                    setTimeout('triggerRedrawToFixChartVizBug()',200);
                 } else {
                     //chartURL="http://chart.apis.google.com/chart?chxt=x,y&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chco=55ff00,33aa00&chbh=a&chs=320x180&cht=bvs&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3";
                     // solid fill black with alpha=0: &chf=bg,s,00000000
@@ -129,6 +134,9 @@
                     //fetchAndMapFeeds("staticfeed.xml",myInjector);
                     fetchAndMapFeeds("/feeds?owner=daniel",myInjector);
                 });
+                startAnimNow(1000, function (timer) {
+                    triggerRedrawToFixChartVizBug();
+                });
 
             });
         </script>
@@ -196,7 +204,7 @@
     </head>
     <body>
         <div id="home">
-            <div id="home-toolbar" class="toolbar">
+             <div id="home-toolbar" class="toolbar">
                 <a class="button leftButton flip" id="infoButton" href="#about">About</a>
                 <h1>Mirawatt &kappa;</h1>
                 <a class="button slideup" id="infoButton" href="#settings">Settings</a>
@@ -217,6 +225,8 @@
                 <li class="im-feed-Year" onclick="selectChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
             </ul>
             <div id="status"></div>
+            <!-- empty div for triggering redraw (toggle()) -->
+            <div id="blinking-light-to-fix-chat-bug"></div>
             <!--
             <ul class="individual">
                 <li><a>Settings</a></li>
