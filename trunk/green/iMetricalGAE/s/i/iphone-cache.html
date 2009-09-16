@@ -47,7 +47,7 @@
                 selectChart(currentFeed);
             }
             function selectChart(whichOne){
-                currentFeed= whichOne%feedsRef.length;
+                currentFeed= (whichOne+feedsRef.length)%feedsRef.length;
                 feed = feedsRef[currentFeed];
                 drawAChart(currentFeed);
             }
@@ -102,9 +102,16 @@
             $(function(){
 
                 // Show a swipe event on swipe test
-                $('#swipeme').addTouchHandlers().bind('swipe', function(evt, data){
-                    $(this).html('You swiped <strong>' + data.direction + '</strong>!');
-                    // alert('Swiped '+ data.direction +' on #' + $(evt.currentTarget).attr('id') + '.');
+                $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
+                    $('#status').html('swipe: ' + data.direction);
+                    var delta=0;
+                    if ('left'==data.direction){
+                        delta=-1;
+                    }
+                    if ('right'==data.direction){
+                        delta=+1;
+                    }
+                    selectChart(currentFeed+delta);
                 });
 
                 // Orientation callback event
