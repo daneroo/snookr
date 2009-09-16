@@ -185,34 +185,21 @@
             ul li { /* p: t r b l */
                 padding: 2px 10px 2px 10px;
             }
-            #chartAnchor {
-                /*background-color: black;*/
-                height: 180px;
-            }
-            /* for flipping to 480x270 image
-            body.landscape * #chartAnchor {
-            height: 270px;
-            background-color:red;
-            }*/
             #chart {
                 /*background-color: blue;*/
                 height: 180px;
-                position: relative; top: 0px; left: 0px;
-                z-index:10;
             }
         </style>
     </head>
     <body>
         <div id="home">
-             <div id="home-toolbar" class="toolbar">
+            <div id="home-toolbar" class="toolbar">
                 <a class="button leftButton flip" id="infoButton" href="#about">About</a>
                 <h1>Mirawatt &kappa;</h1>
                 <a class="button slideup" id="infoButton" href="#settings">Settings</a>
             </div>
             <div>
-                <div id="chartAnchor">
-                    <div id="chart"><!--<img id="chartImg" src="daily.png">--></div>
-                </div>
+                <div id="chart"><!--<img id="chartImg" src="daily.png">--></div>
                 <!--<div id="swipeme">Swipe me!</div>-->
                 <div id="error" ></div>
             </div>
