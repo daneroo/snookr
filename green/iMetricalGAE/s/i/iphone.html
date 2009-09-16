@@ -67,11 +67,11 @@
                     // solid fill black with alpha=0: &chf=bg,s,00000000
                     // title color: chts=FFFFFF  (optional: ,fontSize)
                     // axis 0,1 colors: chxs=0,000000,,,000000|1,000000,,,000000
-                    var yealryURL="http://chart.apis.google.com/chart?cht=bvs&chts=FFFFFF&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chf=bg,s,00000000&chs=320x180&chbh=a&chd=t:42,39,38,40,41,35,37,30,29,28,32,27|10,13,18,16,15,21,11,13,22,23,06,11&chds=0,60&chco=55ff00,33aa00&chxt=x,y&chxl=0:|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29";
+                    var yearlyURL="http://chart.apis.google.com/chart?cht=bvs&chts=FFFFFF&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chf=bg,s,00000000&chs=320x180&chbh=a&chd=t:42,39,38,40,41,35,37,30,29,28,32,27|10,13,18,16,15,21,11,13,22,23,06,11&chds=0,60&chco=55ff00,33aa00&chxt=x,y&chxl=0:|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29";
                     var dailyURL="http://chart.apis.google.com/chart?chxt=x,y&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chf=bg,s,00000000&chco=55ff00,33aa00&chbh=a&chs=320x180&cht=bvs&chts=FFFFFF&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3";
                     var chartURL=dailyURL;
                     if (currentFeed%2==1){
-                        chartURL=yealryURL;
+                        chartURL=yearlyURL;
                     }
                     var chartImgHtml='<img id="chartImg" src="'+chartURL+'">';
                     $("#chart").html(chartImgHtml);
