@@ -109,20 +109,8 @@
 
                 // Orientation callback event
                 $('body').bind('turn', function(e, data){
-                    //$('#orient').html('Orientation: ' + data.orientation);
                     $('#home-toolbar, #home-ul').toggle('profile'==data.orientation);
                     //$('#status').html('Orientation: ' + data.orientation);
-
-                    /* for flipping to 480x270 and back
-                    var chartURL="http://chart.apis.google.com/chart?chxt=x,y&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chf=bg,s,00000000&chco=55ff00,33aa00&chbh=a&cht=bvs&chts=FFFFFF&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3";
-                    if ('profile'==data.orientation){
-                        chartURL+='&chs=320x180';
-                    } else {
-                        chartURL+='&chs=480x270';
-                    }
-                    var chartImgHtml='<img id="chartImg" src="'+chartURL+'">';
-                    $("#chart").html(chartImgHtml);
-                     */
                 })
 
                 // here be imetrical stuff:
