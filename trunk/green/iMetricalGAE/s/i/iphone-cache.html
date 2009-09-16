@@ -9,11 +9,8 @@
 
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.min.css";</style>
         <style type="text/css" media="screen">@import "themes/jqt/theme.min.css";</style>
-        <!--<script type="text/javascript" src="http://www.google.com/jsapi"></script>-->
         <script type="text/javascript" src="googleviz/jsapi-1.0.js"></script>
         <script type="text/javascript" charset="utf-8">
-            // new google viz stuff
-            //google.load("visualization", "1", {packages:["columnchart","areachart"]});
             vizLoaded = false;
             google.setOnLoadCallback(function(){vizLoaded=true});
         </script>
@@ -34,7 +31,7 @@
             };
 
             var feedsRef; // keep a reference to the feeds array
-            var currentFeed=1;
+            var currentFeed=2;
             var animCanRun=false;
             function myInjector(feeds) {
                 flashInjector();
@@ -50,13 +47,13 @@
                 feed = feedsRef[currentFeed];
                 drawAChart(currentFeed);
             }
-            function drawAChart() {
-                if (vizLoaded) {
-                    drawChart(feed);
-                }
-            }
+
             var startLoad=new Date()
             function drawAChart() {
+                /*simple googleviz only
+                if (vizLoaded) {
+                    drawChart(feed);
+                }*/
                 var elapsed = new Date().getTime()-startLoad.getTime();
                 if (vizLoaded && elapsed>30000){
                     drawChart(feed);
@@ -103,41 +100,6 @@
                 $('#swipeme').addTouchHandlers().bind('swipe', function(evt, data){
                     $(this).html('You swiped <strong>' + data.direction + '</strong>!');
                     // alert('Swiped '+ data.direction +' on #' + $(evt.currentTarget).attr('id') + '.');
-                });
-
-                $('a[target="_blank"]').click(function(){
-                    if(confirm('This link opens in a new window.'))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        $(this).removeClass('active');
-                        return false;
-                    }
-                });
-
-                // Page transition callback events
-                $('#pageevents').
-                    bind('pageTransitionStart', function(e, info){
-                    $(this).find('.info').append('Started transitioning ' + info.direction + '&hellip; ');
-                }).
-                    bind('pageTransitionEnd', function(e, info){
-                    $(this).find('.info').append(' finished transitioning ' + info.direction + '.<br /><br />');
-                });
-
-
-                // AJAX with callback event
-                $('#callback').
-                    bind('pageTransitionEnd', function(e, info){
-                    if (info.direction == 'in' && $(this).data('loaded') != 'true')
-                    {
-                        $(this).
-                            append($('<div>Loading&hellip;</div>').
-                            load('ajax.html .info', function(){
-                            $(this).parent().data('loaded', 'true');
-                        }));
-                    }
                 });
 
                 // Orientation callback event
@@ -237,13 +199,14 @@
             <div id="home-toolbar" class="toolbar">
                 <a class="button leftButton flip" id="infoButton" href="#about">About</a>
                 <h1>Mirawatt &kappa;</h1>
-                <a class="button slideup" id="infoButton" href="#about">Settings</a>
+                <a class="button slideup" id="infoButton" href="#settings">Settings</a>
             </div>
             <div>
-                <div id="error" >ERR</div>
                 <div id="chartAnchor">
                     <div id="chart"><!--<img id="chartImg" src="daily.png">--></div>
                 </div>
+                <!--<div id="swipeme">Swipe me!</div>-->
+                <div id="error" ></div>
             </div>
             <ul id="home-ul">
                 <li class="im-feed-Live" onclick="selectChart(0)"><a href="#"><span class="im-feed-name">Live</span></a><small class="counter"><span class="im-v-w">0000</span> <span class="im-feed-units">W</span></small></li>
@@ -265,43 +228,6 @@
             </div>
         </div>
 
-        <div id="callbacks">
-            <div class="toolbar">
-                <h1>Events</h1>
-                <a class="back" href="#home">Home</a>
-            </div>
-            <ul>
-                <li><a href="#pageevents">Page events</a></li>
-                <li id="swipeme">Swipe me!</li>
-                <li id="orient">Orientation: <strong>profile</strong></li>
-            </ul>
-        </div>
-
-        <div id="demos">
-            <div class="toolbar">
-                <h1>Demos</h1>
-                <a class="back" href="#home">Home</a>
-            </div>
-            <div class="info">
-                These apps open in a new window. Don&#8217;t forget to save them to your home screen to enable full-screen mode.
-            </div>
-            <ul>
-                <li class="forward"><a target="_blank" href="../todo/">To do app</a></li>
-                <li class="forward"><a target="_blank" href="../clock/">Clock app</a></li>
-            </ul>
-
-        </div>
-
-        <div id="pageevents">
-            <div class="toolbar">
-                <h1>Page Events</h1>
-                <a class="back" href="#home">Events</a>
-            </div>
-            <div class="info" style="font-weight: normal;">
-
-            </div>
-        </div>
-
         <div id="about">
             <p><img src="mirawattIPhoneAbout-200x200.png" /></p>
             <p>Save Energy Now</p>
@@ -310,165 +236,40 @@
             <p><br /><br /><a href="#" class="grayButton goback">Close</a></p>
         </div>
 
-        <div id="ajax">
+
+        <div id="settings">
             <div class="toolbar">
-                <h1>AJAX</h1>
-                <a class="back" href="#home">Home</a>
-            </div>
-            <ul>
-                <li class="arrow"><a href="#ajax_post">POST Form Example</a></li>
-                <li class="arrow"><a href="ajax.html">GET Example</a></li>
-                <li class="arrow"><a href="#callback">With Callback</a></li>
-            </ul>
-        </div>
-
-        <div id="flipdemo">
-            <div style="font-size: 1.5em; text-align: center; margin: 160px 0 160px; font-family: Marker felt;">
-                Pretty smooth, eh?
-            </div>
-            <a style="margin:0 10px;color:rgba(0,0,0,.9)" href="#" class="whiteButton goback">Go back</a>
-        </div>
-
-        <form id="ajax_post" action="ajax_post.php" method="POST" class="form">
-            <div class="toolbar">
-                <h1>Post Demo</h1>
-                <a class="back" href="#">Ajax</a>
-            </div>
-            <ul>
-                <li>
-                    <input type="text" name="zip" value="" placeholder="Zip Code" />
-                </li>
-            </ul>
-            <a style="margin:0 10px;color:rgba(0,0,0,.9)" href="#" class="submit whiteButton">Submit</a>
-        </form>
-
-        <div id="callback">
-            <div class="toolbar">
-                <h1>AJAX w/Callback</h1>
-                <a class="back" href="#">Ajax</a>
-            </div>
-        </div>
-
-        <div id="ui">
-            <div class="toolbar">
-                <h1>UI Demos</h1>
-                <a class="back" href="#">Home</a>
-            </div>
-
-            <h2>Animation</h2>
-            <ul>
-                <li><a class="flip" href="#flipdemo">Page Flip</a></li>
-            </ul>
-            <h2>Lists</h2>
-            <ul>
-                <li class="arrow"><a href="#edge">Edge to Edge</a></li>
-                <li class="arrow"><a href="#plastic">Plastic</a></li>
-                <li class="arrow"><a href="#metal">Metal</a></li>
-            </ul>
-            <h2>Forms</h2>
-            <ul>
-                <li class="arrow"><a href="#forms">Forms</a></li>
-            </ul>
-
-        </div>
-
-        <div id="edge" class="edgetoedge">
-            <div class="toolbar">
-                <h1>Edge to Edge</h1>
-                <a href="#" class="back">Back</a>
-            </div>
-
-            <h4>E</h4>
-
-            <ul>
-                <li><a href="#">Elea <em>Peliche</em></a></li>
-                <li>Elizabeth <em>Nogales</em></li>
-                <li><small>Es mi hermano</small> <a href="#">Emiliano <em>Martín Lafuente</em></a></li>
-                <li><a href="#">Enrique <em>Dans</em></a></li>
-                <li><a href="#">Ernesto <em>González Aro…</em></a></li>
-            </ul>
-
-            <h4>F</h4>
-
-            <ul>
-                <li><a href="#">Fernández <em>Cols Aleix</em></a></li>
-                <li><a href="#">Fernández <em>Dominguez Alex</em></a></li>
-                <li><a href="#">Flavia <em>Olmedo</em></a></li>
-                <li><a href="#">Francesc <em>Esplugas</em></a></li>
-                <li><a href="#">Francisco <em>Perez Garzón</em></a></li>
-            </ul>
-
-            <h4>Optional List</h4>
-
-            <ul>
-                <li><small>It's free</small> <a href="#" class="arrow">Label + minilabel</a></li>
-                <li><a href="#" class="arrow">Only arrow</a></li>
-                <li><small>✔</small> Only labels</li>
-                <li><small>☆</small> <a href="#">Only labels</a></li>
-                <li><small>★</small> <a href="#">Only labels</a></li>
-            </ul>
-
-        </div>
-
-        <div id="plastic" class="plastic">
-            <div class="toolbar">
-                <h1>Plastic Lists</h1>
-                <a href="#" class="back">Back</a>
-            </div>
-            <ul>
-                <li class="arrow"><small>2,99€</small> <a href="#">Simple list</a></li>
-                <li class="arrow"><small>Free</small> <a href="#">Contact list</a></li>
-                <li class="arrow"><small>Open Source</small> <a href="#">Content List</a></li>
-                <li class="arrow"><small>35€</small> <a href="#">Metal list</a></li>
-                <li><a href="normal-metal.html">Metal list</a></li>
-                <li class="arrow"><a href="normal-content.html">Content List</a></li>
-                <li><a href="#">Download</a></li>
-            </ul>
-            <div class="info">
-                <p><strong>Best enjoyed on a real iPhone</strong></p>
-            </div>
-        </div>
-
-        <div id="metal" class="metal">
-            <div class="toolbar">
-                <h1>Metal Lists</h1>
-                <a href="#" class="back">Back</a>
-            </div>
-            <ul>
-                <li class="arrow"><a href="#"><small>AM</small> 9:40 <em>Buenos Aires</em></a></li>
-                <li class="arrow"><a href="#"><small>PM</small> 19:40 <em>Singapur</em></a></li>
-                <li><a href="#"><small>PM</small> 22:40 <em>Japan</em></a></li>
-                <li class="arrow"><a href="#">11:40 <em>New York</em></a></li>
-                <li class="arrow"><a href="#">9:40 <em>Ontario</em></a></li>
-            </ul>
-        </div>
-
-        <div id="forms">
-            <div class="toolbar">
-                <h1>Forms</h1>
+                <h1>Settings</h1>
                 <a href="#" class="back">Back</a>
             </div>
             <form>
+                <h2>Account</h2>
                 <ul class="edit">
-                    <li><input type="text" name="name" placeholder="Text" id="some_name" /></li>
-                    <li><input type="text" name="search" placeholder="Search" id="some_name" /></li>
-                    <li><input type="text" name="phone" placeholder="Phone" id="some_name"  /></li>
-                    <li><input type="text" name="zip" placeholder="Numbers" id="some_name" /></li>
-                    <li><textarea>Textarea</textarea></li>
-                    <li>Sample Toggle <span class="toggle"><input type="checkbox" /></span></li>
-                    <li><select id="lol"><optgroup label="Swedish Cars">
-                                <option value ="volvo">Volvo</option>
-                                <option value ="saab">Saab</option>
+                    <li><input type="text" name="username" placeholder="User Name" id="username" /></li>
+                    <li><input type="password" name="password" value="nonefornow" id="password" /></li>
+                </ul>
+                <h2>Feed</h2>
+                <ul class="edit">
+                    <li><select id="feedname" name="feedname"><optgroup label="My Account">
+                                <option value ="daniel">Daniel Lauzon</option>
                             </optgroup>
-                            <optgroup label="German Cars">
-                                <option value ="mercedes">Mercedes</option>
-                                <option value ="audi">Audi</option>
+                            <optgroup label="Friends">
+                                <option value ="jean">Jean DesRosiers</option>
+                                <option value ="louis">Louis Veilleux</option>
                     </optgroup></select></li>
-                    <li><input type="password" name="some_name" value="iphonedelcopon" id="some_name" /></li>
-                    <li><input type="checkbox" name="some_name" value="Hello" id="some_name" title="V8 Engine Type" /></li>
-                    <li><input type="checkbox" name="some_name" value="Hello" checked="checked" id="some_name" title="V12 Engine Type" /></li>
-                    <li><input type="radio" name="some_name" value="Hello" id="some_name" title="Only cars" /></li>
-                    <li><input type="radio" name="some_name" value="Hello" id="some_name" title="Only motorbikes" /></li>
+                    <li>Remember Me<span class="toggle"><input id="rememberme" name="rememberme" type="checkbox" /></span></li>
+                </ul>
+                <h2>Look 'n Feel</h2>
+                <ul class="edit">
+                    <li><select id="refreshrate" name="refreshrate">
+                            <option value ="10">Fetch feed every 10 sec</option>
+                            <option value ="30">Fetch feed every 30 sec</option>
+                            <option value ="60">Fetch feed every 1 min</option>
+                    </select></li>
+                    <li><select id="chartmethod" name="chartmethod">
+                            <option value ="chartapi">Google Chart (Network)</option>
+                            <option value ="googleviz">Google Viz</option>
+                    </select></li>
                 </ul>
             </form>
         </div>
