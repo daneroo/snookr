@@ -256,7 +256,7 @@ function drawChart(feed) {
             break;
         case "Hour":
             timeFormat = function(stamp){
-                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes());
             };
             isBarChart=false;
             units = "kW";
@@ -264,7 +264,7 @@ function drawChart(feed) {
             break;
         case "Day":
             timeFormat = function(stamp){
-                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes());
             };
             units = "kWh";
             multiplier=1.0/1000.0;
@@ -322,6 +322,7 @@ function drawChart(feed) {
         data.setValue(feed.observations.length-i-1, currentColumn, o.value*multiplier); // div by 1 to get Number ?
     }
 
+    // necessay otherwise appends.
     $('#chart').html("");
     var chart;
     if (isBarChart){
@@ -336,13 +337,13 @@ function drawChart(feed) {
      * http://code.google.com/apis/visualization/documentation/gallery/areachart.html
      * */
     options =  {
-        //backgroundColor: "#444444",
-        backgroundColor: "#000000",
+        backgroundColor: "#444444",
+        //backgroundColor: "#000000",
         //backgroundColor: rgba(85,255,0,.8),
-        axisColor:"#444",
-        axisBackgroundColor:"#222",
+        axisColor:"#555555",
+        axisBackgroundColor:"#444444",
         //colors:["#7f93bc","#3b5998"],
-        colors:["#55ff00","#cccccc"],
+        colors:["#55ff00","#33aa00"],
         width: 320,
         height: 180,
         min: 0,
@@ -351,10 +352,10 @@ function drawChart(feed) {
         title: getI18n(feed.name)+' - '+getI18n('Power Consumption')+' ('+getI18n(units)+')',
         titleY: getI18n(units),
         titleFontSize: 12,
-        titleColor: "#fff",
+        titleColor: "#ffffff",
         legend:legend,
-        legendBackgroundColor:"#000",
-        legendTextColor: "#fff",
+        legendBackgroundColor:"#444444",
+        legendTextColor: "#ffffff",
         legendFontSize:8
 
     };
@@ -936,13 +937,13 @@ function makeDatesFromStrForFeed(data) {
 }
 makeDatesFromStrForFeed(hydroData);
 makeDatesFromStrForFeed(tedData);
-
+var monthsToShow=15;
 var staticYearFeed = {
     name: "Year",
     stamp: hydroData[0].stamp,
     value: hydroData[0].value,
-    observations:  hydroData.slice(0,18) ,
-    compareobs: hydroData.slice(12,18+12)
+    observations:  hydroData.slice(0,monthsToShow) ,
+    compareobs: hydroData.slice(12,monthsToShow+12)
 }
 var sum12Month=0;
 $.each(hydroData.slice(0,12),function(){
