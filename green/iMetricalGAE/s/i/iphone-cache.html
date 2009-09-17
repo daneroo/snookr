@@ -151,7 +151,7 @@
                 });
                 //if not on iphone : use click; don't use both...'
                 if(!((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
-                    alert('not an iThing');
+                    //alert('not an iThing');
                     $('#chart').click(function(){
                         selectChart(currentFeed+1);
                     });
@@ -188,7 +188,6 @@
                     }, 3000 );
                 });
                  */
-                alert(navigator.userAgent);
             });
         </script>
         <style type="text/css" media="screen">
