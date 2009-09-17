@@ -1,121 +1,190 @@
-function chartURL(feed){
+function addChartImg(parentID,feedName,feedUnits){
+    var html = '<div class="im-chart im-feed-'+feedName+'">'+
+    '      <img class="im-chart-img"  />'+
+    '      <div class="im-chart-text">'+
+    '           <span class="im-feed-name">'+getI18n(feedName)+'</span>'+
+    '           <span class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</span>'+
+    '           <span class="im-feed-units">'+getI18n(feedUnits.name)+'</span>'+
+    '      <div>'+
+    '</div>';
+    $(parentID).append(html);
+// hiding and decorationg is performed in add6Badges.
+}
+
+function chartURL(feed,options){
+    /* The actual vaues in tha graph data are decaWatts (avg power), we only scale the axis Label!
+     *
+     * options:
+     *   width: default 320
+     *   height: default 180
+     *   bgColor: no hash mark
+     *      e.g. cfc, ccffcc, may include alpha: ccffcc77
+     *   penColors: array of colors e.g. ['55ff00','33aa00']
+     *   textColor: as bg.
+     */
+    calcOptions={ // copy over theese defaults
+      width: 320,
+      height:180,
+      bgColor: '00000000', // alpha==0;
+      penColors: ['55ff00','33aa00'],
+      textColor: 'cccccc'
+    };
+    for (var key in options) {
+        calcOptions[key] = options[key];
+    }
+
     var weekDayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     var monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     var isBarChart=true; // switch areachart(line) or columnchart(bar)
     var units = "?";
     var multiplier=1.0;
+    var yAxisQuant=1.0;
+    const LineChartType='lc';
+    const BarChartGroupedType='bvg';
+    const BarChartStackedType='bvs';
+    var chartType=null;
     switch (feed.name){
         case "Live":
+            chartType=LineChartType;
             timeFormat = function(stamp){
-                return ""+stamp.getHMS()
+                //return ""+stamp.getHMS()
+                if (stamp.getSeconds()!=0) return "";
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
             };
             isBarChart=false;
-            units = "Watts";
-            multiplier=1.0;
+            //units = "Watts";
+            //multiplier=1.0;
+            //yAxisQuant=1000;
+            units = "kW";
+            multiplier=1.0/1000.0;
+            yAxisQuant=1.0;
             break;
         case "Hour":
+            chartType=LineChartType;
             timeFormat = function(stamp){
+                if (stamp.getMinutes()%15!=0) return "";
                 return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
             };
             isBarChart=false;
             units = "kW";
             multiplier=1.0/1000.0;
+            yAxisQuant=1.0;
             break;
         case "Day":
+            chartType=BarChartGroupedType;
             timeFormat = function(stamp){
+                if (stamp.getHours()%6!=0) return "";
                 return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
             };
             units = "kWh";
             multiplier=1.0/1000.0;
+            yAxisQuant=2.0;
             break;
         case "Week":
+            chartType=BarChartGroupedType;
             timeFormat = function(stamp){
                 return getI18n(weekDayNames[stamp.getDay()]);
             };
             units = "kWh/d";
             multiplier=24.0/1000.0;
+            yAxisQuant=10.0;
             break;
         case "Month":
+            chartType=BarChartGroupedType;
             timeFormat = function(stamp){
-                return getI18n(monthNames[stamp.getMonth()])+" "+stamp.getDate();
+                //return getI18n(monthNames[stamp.getMonth()])+" "+stamp.getDate();
+                var dd = stamp.getDate();
+                if (dd==1) return getI18n(monthNames[stamp.getMonth()]).substr(0, 3)+" 1";
+                if (dd==10 || dd==20) return dd;
+                return "";
             };
             units = "kWh/d";
             multiplier=24.0/1000.0;
+            yAxisQuant=10.0;
             break;
         case "Year":
+            chartType=BarChartStackedType;
             timeFormat = function(stamp){
+                var month =  getI18n(monthNames[stamp.getMonth()]).substr(0,2);
+                return month;
                 return getI18n(monthNames[stamp.getMonth()])+" "+stamp.getFullYear();
             };
             units = "kWh/d";
             multiplier=24.0/1000.0;
+            yAxisQuant=10.0;
             break;
         default : // nothing
     }
 
-    // not used yet
-    /*
-                var hasPredictor = (feed.compareobs!=null);
-                var currentColumn=1;
-                if (hasPredictor) currentColumn=2;
-                 */
+    var hasPredictor = (feed.compareobs!=null);
 
-    data.addColumn('string', getI18n('Time'));
-    if (hasPredictor) {
-        data.addColumn('number', getI18n('Previous Year'));
-        data.addColumn('number', getI18n('Current Year'));
-    } else {
-        data.addColumn('number', getI18n(units));
-    }
-
-    data.addRows(feed.observations.length);
-    // reverso order ..
-    for (var i = 0; i < feed.observations.length ; i++) {
+    // build value array decaWattAA=[[1,2,3,4],[5,4,3,2]]
+    // and time array:   timeA=[]
+    var decaWattAA=[[],[]]; // for compare values
+    timeA=[];
+    // reverse order
+    var decaWattMax=0;
+    for (var i = feed.observations.length-1; i>=0 ; i--) {
         var o = feed.observations[i];
-        var c = null;
-        if (hasPredictor) c=feed.compareobs[i];
         var timeLabel = ""+timeFormat(o.stamp);
-        data.setValue(feed.observations.length-i-1, 0, timeLabel);
-        if (hasPredictor) {
-            data.setValue(feed.observations.length-i-1, 1, c.value*multiplier); // div by 1 to get Number ?
+        timeA.push(timeLabel);
+        var decaWatt=Math.round(o.value/10.0);
+        decaWattAA[0].push(decaWatt);
+        if (decaWattMax<decaWatt) {
+            decaWattMax=decaWatt;
         }
-        data.setValue(feed.observations.length-i-1, currentColumn, o.value*multiplier); // div by 1 to get Number ?
+        if (hasPredictor) {
+            var c = feed.compareobs[i];
+            decaWatt=Math.round(c.value/10.0);
+            decaWattAA[1].push(decaWatt);
+            if (decaWattMax<decaWatt) {
+                decaWattMax=decaWatt;
+            }
+        }
     }
-
-    $('#chart').html("");
-    var chart;
-    if (isBarChart){
-        chart = new google.visualization.ColumnChart(document.getElementById('chart'));
-    } else {
-        chart = new google.visualization.AreaChart(document.getElementById('chart'));
+    
+    // Quantize yAxis values
+    var yAxisMax = Math.ceil((decaWattMax*10.0*multiplier)/yAxisQuant)*yAxisQuant;
+    var yAxis=[0,yAxisMax/2,yAxisMax];
+    // text encoded data (with scaling) see also Simple and Extended Coding..
+    var dataEncoding='t:'+decaWattAA[0].join(',');
+    if (hasPredictor) {
+        if (chartType==BarChartStackedType){
+            for(i=0;i<decaWattAA[1].length;i++){
+                decaWattAA[1][i]-=decaWattAA[0][i];
+                if (decaWattAA[1][i]<0) decaWattAA[1][i]=0;
+            }
+        }
+        dataEncoding += '|'+decaWattAA[1].join(',');
     }
-
-    var legend = 'none';
-    if (hasPredictor) legend='bottom';
-    /* documentation for options at:
-                 * http://code.google.com/apis/visualization/documentation/gallery/areachart.html
-                 * */
-    options =  {
-        //backgroundColor: "#444444",
-        backgroundColor: "#000000",
-        //backgroundColor: rgba(85,255,0,.8),
-        axisColor:"#444",
-        axisBackgroundColor:"#222",
-        //colors:["#7f93bc","#3b5998"],
-        colors:["#55ff00","#cccccc"],
-        width: 320,
-        height: 180,
-        min: 0,
-        pointSize: 1,
-        is3D: false,
-        title: getI18n(feed.name)+' - '+getI18n('Power Consumption')+' ('+getI18n(units)+')',
-        titleY: getI18n(units),
-        titleFontSize: 12,
-        titleColor: "#fff",
-        legend:legend,
-        legendBackgroundColor:"#000",
-        legendTextColor: "#fff",
-        legendFontSize:8
-
+    var txtClr = calcOptions['textColor'];
+    var optsinuse = {
+        cht: chartType, /* chart type: lc, bvg, bvs*/
+        chts: txtClr,
+        //chxs: '0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff',
+        chxs: '0,'+txtClr+',12,0,lt,'+txtClr+'|1,'+txtClr+',12,1,lt,'+txtClr+'',
+        chf: 'bg,s,'+calcOptions['bgColor'], // background fill may include alpha
+        chs: ''+calcOptions['width']+'x'+calcOptions['height'],
+        chbh: 'a', // bar auto-sizing
+        chd: dataEncoding,
+        chds: [0,yAxisMax/10.0/multiplier].join(','),
+        chco: calcOptions['penColors'].join(','),
+        chxt: 'x,y', // list of x,y,r,t for bott,left,right,top
+        chxl: '0:|'+timeA.join('|')+'|1:|'+yAxis.join('|'),
+        chtt: getI18n(feed.name)+' - '+getI18n('Power Consumption')+' ('+getI18n(units)+')'
     };
-    chart.draw(data, options);
+    if (chartType==LineChartType) {
+        optsinuse['chm'] = 'B,'+calcOptions['penColors'][1]+',0,0,0'; // fill area under line chart
+    }
+    if (feed.name=='Year'){
+        // legend and position
+        optsinuse['chdl']= getI18n('Current Year')+'|'+getI18n('Previous Year');
+        optsinuse['chdlp']= 'b';
+    }
+    var params=[];
+    for (var key in optsinuse) {
+        params.push([key, optsinuse[key]].join("="));
+    }
+    var chartURL = "http://chart.apis.google.com/chart?"+params.join("&");
+    return chartURL;
 }

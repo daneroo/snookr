@@ -8,10 +8,12 @@
 
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.min.css";</style>
         <style type="text/css" media="screen">@import "themes/jqt/theme.min.css";</style>
+        <!--
         <script type="text/javascript" src="googleviz/jsapi-1.0.js"></script>
+        -->
         <script type="text/javascript" charset="utf-8">
             vizLoaded = false;
-            google.setOnLoadCallback(function(){vizLoaded=true});
+            //google.setOnLoadCallback(function(){vizLoaded=true});
         </script>
         <!--
         <script type="text/javascript" src="googleviz/googleviz-1.0.js"></script>
@@ -20,7 +22,12 @@
         <script src="jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
         <script type="text/javascript" src="jquery.timer.js"></script>
         <script type="text/javascript" src="imetrical-1.0.js"></script>
+        <script type="text/javascript" src="charturl.js"></script>
         <script type="text/javascript" charset="utf-8">
+            function preventTouchMove(event) {
+                // Prevent scrolling on this element
+                event.preventDefault();
+            }
             // getting ready to inject from settings..
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
@@ -46,6 +53,12 @@
                     currentFeed= (currentFeed+1)%6;
                 }
                 selectChart(currentFeed);
+                // decay overlaid text
+                $(".im-chart-text").css({opacity:""});
+                $(".im-chart-text").animate({
+                    opacity: 0.0
+                }, 3000 );
+
             }
             function selectChart(whichOne){
                 currentFeed= (whichOne+feedsRef.length)%feedsRef.length;
@@ -64,18 +77,40 @@
                     drawChart(feed);
                     setTimeout('triggerRedrawToFixChartVizBug()',200);
                 } else {
-                    //chartURL="http://chart.apis.google.com/chart?chxt=x,y&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chco=55ff00,33aa00&chbh=a&chs=320x180&cht=bvs&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3";
-                    // solid fill black with alpha=0: &chf=bg,s,00000000
-                    // title color: chts=FFFFFF  (optional: ,fontSize)
-                    // axis 0,1 colors: chxs=0,000000,,,000000|1,000000,,,000000
-                    var yearlyURL="http://chart.apis.google.com/chart?cht=bvs&chts=FFFFFF&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chf=bg,s,00000000&chs=320x180&chbh=a&chd=t:42,39,38,40,41,35,37,30,29,28,32,27|10,13,18,16,15,21,11,13,22,23,06,11&chds=0,60&chco=55ff00,33aa00&chxt=x,y&chxl=0:|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|1:|0|30|60&chdl=Current%20Yr|Previous%20Yr&chdlp=b&chtt=Monthly%20Power%20Connsumption%20%28kWh/d%29";
-                    var dailyURL="http://chart.apis.google.com/chart?chxt=x,y&chxs=0,ffffff,12,0,lt,ffffff|1,ffffff,12,1,lt,ffffff&chds=0,300&chd=t:61,42,58,107,81,75,150,222,190,216,102,56,56,65,71,71,114,69,65,147,74,71,55,135&chf=bg,s,00000000&chco=55ff00,33aa00&chbh=a&chs=320x180&cht=bvs&chts=FFFFFF&chtt=Power%20Connsumption%20last%2024%20hours%20(kW)&chxl=0:|12||||||18||||||00||||||06||||||1:|0|3";
-                    var chartURL=dailyURL;
-                    if (currentFeed%2==1){
-                        chartURL=yearlyURL;
-                    }
                     var chartImgHtml='<img id="chartImg" src="'+chartURL+'">';
-                    $("#chart").html(chartImgHtml);
+                    $("#chart").html("");
+                    var unitsForFeedName={
+                        'Live' :  iMUnits.w,
+                        'Hour' :  iMUnits.kw,
+                        'Day'  :   iMUnits.kwhd,
+                        'Week' :  iMUnits.kwhd,
+                        'Month':  iMUnits.kwhd,
+                        'Year' :  iMUnits.kwhd
+                    };
+                    addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
+                    $(".im-chart-text").css({opacity:0.0});
+
+                    // this is the injection code: run ONE now
+                    var darkOptions={};// all defaults
+                    var lightOptions={
+                        width:320,
+                        height:180,
+                        bgColor:'ffffff00',
+                        penColors:["3b5998","7f93bc"],
+                        textColor:'222222'
+                    };
+                    var options = darkOptions;
+                    $('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
+                    // to redraw the text
+                    standardInjector(feedsRef);
+                    /*
+                    $('#chart  .im-feed-Live  .im-chart-img').attr('src',chartURL(feedsRef[0],darkOptions));
+                    $('#chart  .im-feed-Hour  .im-chart-img').attr('src',chartURL(feedsRef[1],darkOptions));
+                    $('#chart  .im-feed-Day   .im-chart-img').attr('src',chartURL(feedsRef[2],darkOptions));
+                    $('#chart  .im-feed-Week  .im-chart-img').attr('src',chartURL(feedsRef[3],darkOptions));
+                    $('#chart  .im-feed-Month .im-chart-img').attr('src',chartURL(feedsRef[4],darkOptions));
+                    $('#chart  .im-feed-Year  .im-chart-img').attr('src',chartURL(feedsRef[5],darkOptions));
+                     */
                 }
             }
 
@@ -114,6 +149,14 @@
                     }
                     selectChart(currentFeed+delta);
                 });
+                //if not on iphone : use click; don't use both...'
+                if(!((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
+                    alert('not an iThing');
+                    $('#chart').click(function(){
+                        selectChart(currentFeed+1);
+                    });
+                }
+
 
                 // Orientation callback event
                 $('body').bind('turn', function(e, data){
@@ -130,10 +173,22 @@
                     //fetchAndMapFeeds("staticfeed.xml",myInjector);
                     fetchAndMapFeeds("/feeds?owner=daniel",myInjector);
                 });
+                // fix googleviz-safari-mobile...redraw bug
                 startAnimNow(1000, function (timer) {
                     triggerRedrawToFixChartVizBug();
                 });
 
+                // pulse the text overlay - NOVED to injector
+                /*
+                startAnimNow(10000, function (timer) {
+                    // decay overlaid text
+                    $(".im-chart-text").css({opacity:""});
+                    $(".im-chart-text").animate({
+                        opacity: 0.0
+                    }, 3000 );
+                });
+                 */
+                alert(navigator.userAgent);
             });
         </script>
         <style type="text/css" media="screen">
@@ -185,10 +240,40 @@
                 /*background-color: blue;*/
                 height: 180px;
             }
+            .im-chart /*> .im-chart-img*/ {
+                height: 180px;
+                width:320px;
+                /*border:1px gray dashed;
+                background-color:red;*/
+            }
+            .im-chart-img {
+                /*border: 0px solid gray;*/
+            }
+            .im-chart-text {
+                font-weight:bold;
+                font-size:300%;
+                color:#cccccc;
+                position:relative;
+                top:-150px;
+                text-align:center;
+            }
+            .im-chart-text .im-v-w,.im-chart-text .im-v-kw,.im-chart-text .im-v-kwhd{
+                /* override the general rule for color of watt values*/
+                color: #44cc00; /* (cccccc instead of 55ff00)/2*/
+                text-shadow: rgba(85,255,0,.5) 0 2px -2px;
+            }
+            .im-chart-text .im-feed-name{
+                display:none;
+            }
+            .im-chart-text .im-feed-name,.im-chart-text .im-feed-units{
+                font-size:50%;
+                vertical-align:middle;
+            }
+
         </style>
     </head>
     <body>
-        <div id="home">
+        <div id="home" ontouchmove="preventTouchMove(event)">
             <div id="home-toolbar" class="toolbar">
                 <a class="button leftButton flip" id="infoButton" href="#about">About</a>
                 <h1>Mirawatt &kappa;</h1>
