@@ -256,7 +256,7 @@ function drawChart(feed) {
             break;
         case "Hour":
             timeFormat = function(stamp){
-                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes());
             };
             isBarChart=false;
             units = "kW";
@@ -264,7 +264,7 @@ function drawChart(feed) {
             break;
         case "Day":
             timeFormat = function(stamp){
-                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes());
             };
             units = "kWh";
             multiplier=1.0/1000.0;
@@ -322,6 +322,7 @@ function drawChart(feed) {
         data.setValue(feed.observations.length-i-1, currentColumn, o.value*multiplier); // div by 1 to get Number ?
     }
 
+    // necessay otherwise appends.
     $('#chart').html("");
     var chart;
     if (isBarChart){
@@ -332,11 +333,15 @@ function drawChart(feed) {
 
     var legend = 'none';
     if (hasPredictor) legend='bottom';
+    /* documentation for options at:
+     * http://code.google.com/apis/visualization/documentation/gallery/areachart.html
+     * */
     options =  {
         colors:["#7f93bc","#3b5998"],
         width: 550,
         height: 360,
         min: 0,
+        pointSize: 1,
         is3D: false,
         title: getI18n(feed.name)+' - '+getI18n('Power Consumption')+' ('+getI18n(units)+')',
         titleY: getI18n(units),
@@ -828,6 +833,14 @@ var hydroData = [
 {
     stampStr: '2009-07-01T05:00:00Z'	,
     value: 	1180.9677
+},
+{
+    stampStr: '2009-08-01T05:00:00Z'	,
+    value: 	1320.0323
+},
+{
+    stampStr: '2009-09-01T05:00:00Z'	,
+    value: 	1123.2000
 }
 ];
 hydroData.reverse();
@@ -885,6 +898,14 @@ var tedData = [
 {
     stampStr: '2009-07-01T05:00:00Z'	,
     value: 	1180.9677
+},
+{
+    stampStr: '2009-08-01T05:00:00Z'	,
+    value: 	1320.0323
+},
+{
+    stampStr: '2009-09-01T05:00:00Z'	,
+    value: 	1123.2000
 }
 
 ];
@@ -903,13 +924,13 @@ function makeDatesFromStrForFeed(data) {
 }
 makeDatesFromStrForFeed(hydroData);
 makeDatesFromStrForFeed(tedData);
-
+var monthsToShow=18;
 var staticYearFeed = {
     name: "Year",
     stamp: hydroData[0].stamp,
     value: hydroData[0].value,
-    observations:  hydroData.slice(0,18) ,
-    compareobs: hydroData.slice(12,18+12)
+    observations:  hydroData.slice(0,monthsToShow) ,
+    compareobs: hydroData.slice(12,monthsToShow+12)
 }
 var sum12Month=0;
 $.each(hydroData.slice(0,12),function(){
