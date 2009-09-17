@@ -135,7 +135,8 @@
                     });
 
 
-
+                // Removing the maxButton alltogether
+                /*
                 $("#maxButton").click(toggleProfileView);
                 // add the icon: actually hide it on home view, now that click does the same
                 if (isCanvasView()) {
@@ -144,6 +145,7 @@
                     $("#maxButton").find(".ui-icon").addClass('ui-icon-circle-plus');
                     $("#maxButton").hide();
                 }
+                */
 
                 function showWinSize(){
                     var info=""+$(window).width()+"X"+$(window).height();
@@ -158,7 +160,9 @@
             /* Here be dragons: customize the css */
         </style>
 
+        <!-- Removing the maxButton allTogether
         <div id="maxButton" style="float: right; width:1em; height:1em;"><span class="ui-icon"></div>
+        -->
    <div>
         <div id="scaleTheFont" style="font-size:100%">
             <!-- toggler/im-lf class added in $() -->
