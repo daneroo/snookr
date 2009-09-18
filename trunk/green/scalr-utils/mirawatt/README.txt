@@ -4,7 +4,7 @@ Mirawatt (Sheeva) Pump
 
  Software Architecture
   -Watchdog  (on sheeva): Robust assembly of daemons, ensures each is running (once)
-    -heartbeat  : captures state of hub: identity (MAC,ip's), clock, resources(Disk space), daemons
+    -heartbeat  : captures state of hub: identity (MAC,ip's), clock, versions, resources(Disk space), daemons
                   and publishes it to Central Server.
     -capture    : Establish Device connectivity (one for now), device discovery, selection, config
                   It's main fnction is to capture the data in a raw state.
@@ -17,7 +17,11 @@ Mirawatt (Sheeva) Pump
 
   -Clients : Connect to summarized data state on central server.
 
-Watchdog: 
+  TODO:
+   +make randomly dying client, to test the watchdog functionality
+   +test smtp notification (watchdog@mirawatt.com)
+
+Watchdog Upstream Source:
   use python script: http://www.mi-ange.net/blog/msg.php?id=67&lng=en
   The copy in this directory was obtained by:
    svn export http://svn.arluison.com/wdog/trunk/ wdog
@@ -27,5 +31,4 @@ svn log http://svn.arluison.com/wdog/trunk/|more
 r19 | guillaume | 2009-05-08 10:45:24 -0400 (Fri, 08 May 2009) | 2 lines
 ------------
   
-  Dev: make randomly dying client, to test the watchdog functionality
-   -test smtp notification (watchdog@mirawatt.com)
+
