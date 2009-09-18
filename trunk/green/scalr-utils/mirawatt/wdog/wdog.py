@@ -77,11 +77,15 @@ wdogLockFile=wdogDir+'wdog.lock'
 wconf=None
 mylogger=None
 isLocked=False
+#FORMATTER_DATEFMT='%a, %d %b %Y %H:%M:%S'
+#FORMATTER_DATEFMT='%Y-%m-%dT%H:%M:%S'
+#FORMATTER_DATEFMT=None
+FORMATTER_DATEFMT='%Y-%m-%dT%H:%M:%S%z'
 
 class myLogger(logging.Logger):
     def __init__(self, cfParser):
         r = RotatingFileHandler(wdogDir+'wdog.log', 'a', SIZE_LOG_FILE, NB_LOG_FILE)
-        f = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', '%a, %d %b %Y %H:%M:%S')
+        f = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', FORMATTER_DATEFMT)
         r.setFormatter(f)
         self.l=logging.getLogger('wdog')
         self.l.addHandler(r)
@@ -90,7 +94,7 @@ class myLogger(logging.Logger):
         self.l.addHandler(o)
         self.l.setLevel(logging.DEBUG)
         
-        self.out=logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', '%a, %d %b %Y %H:%M:%S')
+        self.out=logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', FORMATTER_DATEFMT)
         self.isAtty=sys.stderr.isatty()
         
         # configure smtp alerting
@@ -108,7 +112,7 @@ class myLogger(logging.Logger):
                 self.smtpUsername=None
         except:
             pass
-        
+
         # configure msn alerting
         self.msnAlerts=False
         try:
@@ -166,7 +170,13 @@ class myLogger(logging.Logger):
         self.l.info("trying to send mail from %s to %s", self.smtpFrom, self.smtpTo)
         smtp = SMTP()
         try:
-            smtp.connect(self.smtpHost)
+            if ("smtp.gmail.com"==self.smtpHost):
+                smtp.connect(self.smtpHost,587) # port 465 or 587
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+            else:
+                smtp.connect(self.smtpHost)
             if self.smtpUsername:
                 smtp.login(self.smtpUsername, self.smtpPassword)
             uniq_id = md5('%s' % time()).hexdigest()
