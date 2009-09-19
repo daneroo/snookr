@@ -1,3 +1,31 @@
+-=-=-= CC Capture on Sheeva 2009-09-17
+SEE GDocs: SheevaPlug Installation Notes
+  For details on kernel update!
+  upgrade with pre-built 2.6.30.6 with usbserial/pl2303 modules
+
+From cantor to sheeva on serial console
+screen /dev/ttyUSB2 115200
+
+Confirmed sheeva debian ubuntu has stty! we can use serialStamp.sh
+mkdir -p /mirawatt
+cd /mirawatt/
+scp -p daniel@cantor.dl.sologlobe.com:netbeans-workspace/green/scalr-utils/CurrentCost/serialStamp.sh .
+scp -p daniel@cantor.dl.sologlobe.com:netbeans-workspace/green/scalr-utils/CurrentCost/ParseStampedCC.py .
+# Check: e745e80e529bae7572e05064ccd3eff5  serialStamp.sh
+#  and   0ecf3e4ade1e859406b9fc7a33c82e98  ParseStampedCC.py
+
+# Now run it
+# chmod +x serialStamp.sh
+cd /mirawatt/
+/mirawatt/serialStamp.sh /dev/ttyUSB0 57600 CC1 &
+
+Just Test the old Parser:
+at /mirawatt/CC*log |   python /mirawatt/ParseStampedCC.py
+
+
+
+
+-=-=-= CC Compare tests in 2009-07
 So: daniel is partt of sudoers (wheel on fedora)
 sudo chmod a+rw /dev/ttyUSB*
 Or how about we run the script as root... on wrtsl54gs at least.
