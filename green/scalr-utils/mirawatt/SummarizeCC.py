@@ -19,6 +19,8 @@ import time
 import urllib 
 from xml.dom import minidom  
 
+summaryHours = {'2001-01-01T01:00:00-0400': 1000}
+
 def parseLocaltimeToSecs(stampStrNoTZ):
 	# date format: 2009-07-02T19:08:12
 	ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
@@ -28,6 +30,30 @@ def formatGMTForMysql(stampSecs):
 	ISO_DATE_FORMAT_MYSQL = '%Y-%m-%d %H:%M:%S'
 	gmtStr =  time.strftime(ISO_DATE_FORMAT_MYSQL,time.gmtime(stampSecs))
 	return gmtStr
+
+def doHistNode(stampStr,histNode):
+	# msg/hist/data/sensor(0)/../[h|d]???
+	# for all data nodes
+	# find first sensor child, only handle sensor0
+	#  handle all it's (h|d|m)XXX siblings
+	for dataNode in histNode.getElementsByTagName('data'):
+		sensor = string.atol(dataNode.getElementsByTagName('sensor')[0].childNodes[0].nodeValue)
+		#print "Found sensor: %d" % sensor
+		if (sensor==0):
+			#print "Handling sensor: %d" % sensor
+			for hdm in dataNode.childNodes:
+				#print "tag: %s" % hdm.tagName
+				if ("sensor"==hdm.tagName):
+					continue
+				if ("h"==hdm.tagName[:1]):
+					print "%s Hour  %05d %10.5f" % ( stampStr, string.atoi(hdm.tagName[1:]),string.atof(hdm.childNodes[0].nodeValue ) )
+				if ("d"==hdm.tagName[:1]):
+					print "%s Day   %05d %10.5f" % ( stampStr, string.atoi(hdm.tagName[1:]),string.atof(hdm.childNodes[0].nodeValue ) )
+				if ("m"==hdm.tagName[:1]):
+					print "%s Month %05d %10.5f" % ( stampStr, string.atoi(hdm.tagName[1:]),string.atof(hdm.childNodes[0].nodeValue ) )
+		#else:
+		#	pass
+		#	print "Ignoring sensor: %d" % sensor
 
 # stampStr has the format: 
 def parseFragment(stampStr,ccfragment):
@@ -55,9 +81,11 @@ def parseFragment(stampStr,ccfragment):
 	ccTimeSecs = parseLocaltimeToSecs(ccStampStr)
 	drift = ccTimeSecs - stampSecs
 
-	histNode = ccdom.getElementsByTagName('hist')
-	if (histNode):
-		print "Detected History Drift=%f" % drift
+	histNodeList = ccdom.getElementsByTagName('hist')
+	if (histNodeList):
+		# confirm only one history Node ?
+		print "Detected History T: %s Drift: %f" % (stampStr,drift)
+		doHistNode(stampStr,histNodeList[0])
 		return
 
 	sensor = string.atol(ccdom.getElementsByTagName('sensor')[0].childNodes[0].nodeValue)
