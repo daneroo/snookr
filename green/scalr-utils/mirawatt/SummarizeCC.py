@@ -79,13 +79,15 @@ def showHours():
 		h2 = roundHour(hh,-1)
 		v1=0
 		v2=0
-		avg12=0
+		avg=0
+		errPercent=0
 		if ((h1 in averageHours) and (h2 in averageHours)):
 			v1 = averageHours[h1][0]/averageHours[h1][1];
 			v2 = averageHours[h2][0]/averageHours[h2][1];
-			avg12=(v1+v2)/2.0
-		print "Hour Summary: %s  %8.2f  avg: %8.2f = (%8.2f+%8.2f)/2 [%s,%s]" % (hh, summaryHours[hh],avg12,v1,v2,h1,h2)
-		#print "CSV Hour Summary, %s,  %8.2f,   %8.2f" % (hh, summaryHours[hh],avg12)
+			avg=(v1+v2)/2.0
+			errPercent = (avg-summaryHours[hh])/avg*100
+		print "Hour Summary: %s  %8.2f  avg: %8.2f [%5.2f %%]= (%8.2f +%8.2f)/2 [%s,%s]" % (hh, summaryHours[hh],avg,errPercent,v1,v2,h1,h2)
+		#print "CSV Hour Summary, %s,  %8.2f,   %8.2f" % (hh, summaryHours[hh],avg)
 
 def doHistNode(stampStr,histNode):
 	# msg/hist/data/sensor(0)/../[h|d]???
@@ -147,9 +149,9 @@ def parseFragment(stampStr,ccfragment):
 	if (histNodeList):
 		# confirm only one history Node ?
 		print "Detected History T: %s Drift: %f" % (stampStr,drift)
-		#doHistNode(stampStr,histNodeList[0])
+		doHistNode(stampStr,histNodeList[0])
 		# use CC's time
-		doHistNode(ccStampStr,histNodeList[0])
+		#doHistNode(ccStampStr,histNodeList[0])
 		return
 
 	sensor = string.atol(ccdom.getElementsByTagName('sensor')[0].childNodes[0].nodeValue)
@@ -167,9 +169,9 @@ def parseFragment(stampStr,ccfragment):
 	#print sql
 	#csv = ','.join([gmtStr,str(sumwatts),str(sensorID),str(wattarray[0]),str(wattarray[1]),str(drift)])
 	#print csv
-	#averageForHours(stampStr, sumwatts )
+	averageForHours(stampStr, sumwatts )
 	# use CC's time
-	averageForHours(ccStampStr, sumwatts )
+	#averageForHours(ccStampStr, sumwatts )
 
 
 def handleLine(line):
