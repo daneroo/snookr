@@ -115,10 +115,10 @@ def accumulateDays(stampStr, scopeIndex, scopeValue ):
 		oldValue = summaryDays[dayStampOffsetByIndex]
 		if (oldValue!=newValue):
 			print "Day %s replacing  %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
-		else:
-			print "Day %s preserving %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
-	else:
-		print "Day %s setting    %f        (%s - %dd)" % (dayStampOffsetByIndex,newValue,stampStr,scopeIndex)
+		#else:
+		#	print "Day %s preserving %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
+	#else:
+		#print "Day %s setting    %f        (%s - %dd)" % (dayStampOffsetByIndex,newValue,stampStr,scopeIndex)
 	summaryDays[dayStampOffsetByIndex]=newValue;
 
 averageDays = {}
