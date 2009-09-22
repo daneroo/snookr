@@ -42,6 +42,23 @@ def roundHour(stampStr,deltaHours):
 	#print "%s <-- Hour  %s  %05d" % ( hourStampOffsetByDelta,hourStamp, deltaHours )
 	return hourStampOffsetByDelta
 
+def roundDay(stampStr,deltaDays,secondsOffset):
+	# NOT DST Safe
+	# add second offset and round again
+	stampSecsPreSecondOffset = parseLocaltimeToSecs(stampStr[:19])
+	stampStrOffsetBySeconds = formatLocal(stampSecsPreSecondOffset+secondsOffset)
+
+	# round hours, index back by scope
+	#dayStamp = stampStr[:11]+'00:00:00'
+	dayStamp = stampStrOffsetBySeconds[:11]+'00:00:00'
+	daySecs = parseLocaltimeToSecs(dayStamp)
+
+	
+	# now do the deltaDays
+	dayStampOffsetByDelta = formatLocal(daySecs+deltaDays*24*3600)
+	#print "%s <-- Day  %s  %05d" % ( dayStampOffsetByDelta,dayStamp, deltaDays )
+	return dayStampOffsetByDelta
+
 summaryHours = {}
 def accumulateHours(stampStr, scopeIndex, scopeValue ):
 	# round hours, index back by scope
@@ -89,6 +106,49 @@ def showHours():
 		print "Hour Summary: %s  %8.2f  avg: %8.2f [%5.2f %%]= (%8.2f +%8.2f)/2 [%s,%s]" % (hh, summaryHours[hh],avg,errPercent,v1,v2,h1,h2)
 		#print "CSV Hour Summary, %s,  %8.2f,   %8.2f" % (hh, summaryHours[hh],avg)
 
+summaryDays = {}
+def accumulateDays(stampStr, scopeIndex, scopeValue ):
+	# round days, index back by scope
+	dayStampOffsetByIndex = roundDay(stampStr,-scopeIndex,3600)
+	newValue = scopeValue/24*1000; # kWh/24h -> watt
+	if (dayStampOffsetByIndex in summaryDays):
+		oldValue = summaryDays[dayStampOffsetByIndex]
+		if (oldValue!=newValue):
+			print "Day %s replacing  %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
+		else:
+			print "Day %s preserving %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
+	else:
+		print "Day %s setting    %f        (%s - %dd)" % (dayStampOffsetByIndex,newValue,stampStr,scopeIndex)
+	summaryDays[dayStampOffsetByIndex]=newValue;
+
+averageDays = {}
+def averageForDays(stampStr, scopeValue ):
+	dayStamp = roundDay(stampStr,0,0)
+	if (dayStamp in averageDays):
+		averageDays[dayStamp][0]=averageDays[dayStamp][0]+scopeValue
+		averageDays[dayStamp][1]=averageDays[dayStamp][1]+1
+	else:
+		averageDays[dayStamp]=[scopeValue,1];
+
+def showDays():
+	print "-=-=-=-=-= Average Days"
+	sortedKeys = averageDays.keys()
+	sortedKeys.sort()
+	for d in sortedKeys:
+		print "Day Average: %s  %f    (%f, %d)" % (d, averageDays[d][0]/averageDays[d][1],averageDays[d][0],averageDays[d][1])
+	print "-=-=-=-=-= Summary Days"
+	sortedKeys = summaryDays.keys()
+	sortedKeys.sort()
+	for dd in sortedKeys:
+		d1 = roundHour(dd,0)
+		avg=0
+		errPercent=0
+		if (d1 in averageDays):
+			avg = averageDays[d1][0]/averageDays[d1][1];
+			errPercent = (avg-summaryDays[dd])/avg*100
+		print "Day Summary: %s  %8.2f  avg: %8.2f [%5.2f %%]" % (dd, summaryDays[dd],avg,errPercent)
+		#print "CSV Day Summary, %s,  %8.2f,   %8.2f" % (hh, summaryDays[hh],avg)
+
 def doHistNode(stampStr,histNode):
 	# msg/hist/data/sensor(0)/../[h|d]???
 	# for all data nodes
@@ -107,11 +167,11 @@ def doHistNode(stampStr,histNode):
 				scopeIndex=string.atoi(hdm.tagName[1:]) # 4 in h004 or 2 in m002
 				scopeValue=string.atof(hdm.childNodes[0].nodeValue);
 				if ("h"==scopePrefix):
-					print "%s Hour  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
+					#print "%s Hour  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
 					accumulateHours(stampStr, scopeIndex, scopeValue )
 				if ("d"==scopePrefix):
-					print "%s Day  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
-					#summaryDay(stampStr, scopeIndex, scopeValue )
+					#print "%s Day  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
+					accumulateDays(stampStr, scopeIndex, scopeValue )
 				if ("m"==scopePrefix):
 					print "%s Month  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
 					#summaryMonth(stampStr, scopeIndex, scopeValue )
@@ -148,7 +208,7 @@ def parseFragment(stampStr,ccfragment):
 	histNodeList = ccdom.getElementsByTagName('hist')
 	if (histNodeList):
 		# confirm only one history Node ?
-		print "Detected History T: %s Drift: %f" % (stampStr,drift)
+		#print "Detected History T: %s Drift: %f" % (stampStr,drift)
 		doHistNode(stampStr,histNodeList[0])
 		# use CC's time
 		#doHistNode(ccStampStr,histNodeList[0])
@@ -170,9 +230,13 @@ def parseFragment(stampStr,ccfragment):
 	#csv = ','.join([gmtStr,str(sumwatts),str(sensorID),str(wattarray[0]),str(wattarray[1]),str(drift)])
 	#print csv
 	averageForHours(stampStr, sumwatts )
+	averageForDays(stampStr, sumwatts )
 	# use CC's time
 	#averageForHours(ccStampStr, sumwatts )
+	#averageForDays(ccStampStr, sumwatts )
 
+MARKStamp = None #'2000-01-01T00:00:00'
+MARKCheckLen = 13      # 13 for hour,16 for minute
 
 def handleLine(line):
 	if (line[:4]=="<!--"):
@@ -180,6 +244,13 @@ def handleLine(line):
 	stampStr = line[:24]
 	CCStr = line[25:-1] # to remove the newline ?
 	# omit empty lines
+
+	# Mark the logs as the stampStr advances.
+	global MARKStamp
+	if (stampStr[:MARKCheckLen]!=MARKStamp):
+		print "# MARK -- %s" % stampStr
+	MARKStamp=stampStr[:MARKCheckLen]
+
 	if (len(CCStr)>0):
 		parseFragment(stampStr,CCStr)
 
@@ -203,3 +274,4 @@ if __name__ == "__main__":
 
 sys.stderr.write("Done; counted %d lines\n" % (totallines))
 showHours()
+showDays()
