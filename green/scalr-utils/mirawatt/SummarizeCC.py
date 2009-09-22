@@ -19,8 +19,6 @@ import time
 import urllib 
 from xml.dom import minidom  
 
-summaryHours = {'2001-01-01T01:00:00-0400': 1000}
-
 def parseLocaltimeToSecs(stampStrNoTZ):
 	# date format: 2009-07-02T19:08:12
 	ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
@@ -30,6 +28,64 @@ def formatGMTForMysql(stampSecs):
 	ISO_DATE_FORMAT_MYSQL = '%Y-%m-%d %H:%M:%S'
 	gmtStr =  time.strftime(ISO_DATE_FORMAT_MYSQL,time.gmtime(stampSecs))
 	return gmtStr
+
+def formatLocal(stampSecs):
+	ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+	gmtStr =  time.strftime(ISO_DATE_FORMAT,time.localtime(stampSecs))
+	return gmtStr
+
+def roundHour(stampStr,deltaHours):
+	# round hours, index back by scope
+	hourStamp = stampStr[:13]+':00:00'
+	hourSecs = parseLocaltimeToSecs(hourStamp)
+	hourStampOffsetByDelta = formatLocal(hourSecs+deltaHours*3600)
+	#print "%s <-- Hour  %s  %05d" % ( hourStampOffsetByDelta,hourStamp, deltaHours )
+	return hourStampOffsetByDelta
+
+summaryHours = {}
+def accumulateHours(stampStr, scopeIndex, scopeValue ):
+	# round hours, index back by scope
+	# scopeIndex is OFF BY 4 : h004 is really the sum just calculated
+	# i.e. sum of last two hours
+	scopeIndexCORRECTION=4
+	hourStampOffsetByIndex = roundHour(stampStr,-scopeIndex+scopeIndexCORRECTION)
+	newValue = scopeValue/2*1000; # kWh/2h -> watt
+	if (hourStampOffsetByIndex in summaryHours):
+		oldValue = summaryHours[hourStampOffsetByIndex]
+		if (oldValue!=newValue):
+			print "Hour %s replacing %f with %f" % (hourStampOffsetByIndex,summaryHours[hourStampOffsetByIndex],newValue)
+	summaryHours[hourStampOffsetByIndex]=newValue;
+
+averageHours = {}
+def averageForHours(stampStr, scopeValue ):
+	hourStamp = roundHour(stampStr,0)
+	if (hourStamp in averageHours):
+		averageHours[hourStamp][0]=averageHours[hourStamp][0]+scopeValue
+		averageHours[hourStamp][1]=averageHours[hourStamp][1]+1
+	else:
+		averageHours[hourStamp]=[scopeValue,1];
+
+def showHours():
+	print "-=-=-=-=-= Average Hours"
+	sortedKeys = averageHours.keys()
+	sortedKeys.sort()
+	for h in sortedKeys:
+		print "Hour Average: %s  %f    (%f, %d)" % (h, averageHours[h][0]/averageHours[h][1],averageHours[h][0],averageHours[h][1])
+	print "-=-=-=-=-= Summary Hours"
+	sortedKeys = summaryHours.keys()
+	sortedKeys.sort()
+	for hh in sortedKeys:
+		h1 = roundHour(hh,-2)
+		h2 = roundHour(hh,-1)
+		v1=0
+		v2=0
+		avg12=0
+		if ((h1 in averageHours) and (h2 in averageHours)):
+			v1 = averageHours[h1][0]/averageHours[h1][1];
+			v2 = averageHours[h2][0]/averageHours[h2][1];
+			avg12=(v1+v2)/2.0
+		print "Hour Summary: %s  %8.2f  avg: %8.2f = (%8.2f+%8.2f)/2 [%s,%s]" % (hh, summaryHours[hh],avg12,v1,v2,h1,h2)
+		#print "CSV Hour Summary, %s,  %8.2f,   %8.2f" % (hh, summaryHours[hh],avg12)
 
 def doHistNode(stampStr,histNode):
 	# msg/hist/data/sensor(0)/../[h|d]???
@@ -45,12 +101,18 @@ def doHistNode(stampStr,histNode):
 				#print "tag: %s" % hdm.tagName
 				if ("sensor"==hdm.tagName):
 					continue
-				if ("h"==hdm.tagName[:1]):
-					print "%s Hour  %05d %10.5f" % ( stampStr, string.atoi(hdm.tagName[1:]),string.atof(hdm.childNodes[0].nodeValue ) )
-				if ("d"==hdm.tagName[:1]):
-					print "%s Day   %05d %10.5f" % ( stampStr, string.atoi(hdm.tagName[1:]),string.atof(hdm.childNodes[0].nodeValue ) )
-				if ("m"==hdm.tagName[:1]):
-					print "%s Month %05d %10.5f" % ( stampStr, string.atoi(hdm.tagName[1:]),string.atof(hdm.childNodes[0].nodeValue ) )
+				scopePrefix=hdm.tagName[:1]             # h|d|m
+				scopeIndex=string.atoi(hdm.tagName[1:]) # 4 in h004 or 2 in m002
+				scopeValue=string.atof(hdm.childNodes[0].nodeValue);
+				if ("h"==scopePrefix):
+					print "%s Hour  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
+					accumulateHours(stampStr, scopeIndex, scopeValue )
+				if ("d"==scopePrefix):
+					print "%s Day  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
+					#summaryDay(stampStr, scopeIndex, scopeValue )
+				if ("m"==scopePrefix):
+					print "%s Month  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
+					#summaryMonth(stampStr, scopeIndex, scopeValue )
 		#else:
 		#	pass
 		#	print "Ignoring sensor: %d" % sensor
@@ -85,7 +147,9 @@ def parseFragment(stampStr,ccfragment):
 	if (histNodeList):
 		# confirm only one history Node ?
 		print "Detected History T: %s Drift: %f" % (stampStr,drift)
-		doHistNode(stampStr,histNodeList[0])
+		#doHistNode(stampStr,histNodeList[0])
+		# use CC's time
+		doHistNode(ccStampStr,histNodeList[0])
 		return
 
 	sensor = string.atol(ccdom.getElementsByTagName('sensor')[0].childNodes[0].nodeValue)
@@ -101,8 +165,12 @@ def parseFragment(stampStr,ccfragment):
 	#print "T=%s S=%d watts=%d walen:%d" % (ccTimeStr,sensor,sumwatts,len(wattarray))
 	#sql = "INSERT IGNORE INTO cc_native (stamp, watt, sensorid, ch1watt, ch2watt, drift) VALUES (%s,'%d','%s', '%d','%d','%d');" % (gmtStampStrExpr,sumwatts,sensorID,wattarray[0],wattarray[1],drift)
 	#print sql
-	csv = ','.join([gmtStr,str(sumwatts),str(sensorID),str(wattarray[0]),str(wattarray[1]),str(drift)])
+	#csv = ','.join([gmtStr,str(sumwatts),str(sensorID),str(wattarray[0]),str(wattarray[1]),str(drift)])
 	#print csv
+	#averageForHours(stampStr, sumwatts )
+	# use CC's time
+	averageForHours(ccStampStr, sumwatts )
+
 
 def handleLine(line):
 	if (line[:4]=="<!--"):
@@ -132,4 +200,4 @@ if __name__ == "__main__":
                 # (stamp, watts,volts) = getGMTTimeWattsAndVoltsFromTedService()
 
 sys.stderr.write("Done; counted %d lines\n" % (totallines))
-
+showHours()
