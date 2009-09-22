@@ -17,9 +17,16 @@ Mirawatt (Sheeva) Pump
 
   -Clients : Connect to summarized data state on central server.
 
+  RECIPES:
+    #pull logs from sheeva
+    rsync  -avz --progress root@192.168.5.247:/mirawatt/CC1\* .
+
   TODO:
    +make randomly dying client, to test the watchdog functionality
    +test smtp notification (watchdog@mirawatt.com)
+   +make summarize functional
+   -test watchAndRead
+   -summarize -> publish?
 
 Watchdog Upstream Source:
   use python script: http://www.mi-ange.net/blog/msg.php?id=67&lng=en
