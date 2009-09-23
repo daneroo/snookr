@@ -3,7 +3,14 @@
 import sys
 import smtplib
 
-version='$Id$'
+# TO enable svn keyword substitution, use:
+#  svn propset svn:keywords "Id Date Revision" this_file.py
+# and read it back with:
+#  svn propget svn:keywords this_file.py
+# or
+# svn propget -R svn:keywords
+svnVersion='$Id$'
+
 smtpHost='smtp.gmail.com'
 smtpPort=587 #port 465 or 587
 smtpUsername='watchdog@mirawatt.com'
@@ -11,6 +18,7 @@ smtpPassword='' # try md5 or something
 smtpFrom = smtpUsername
 smtpTo = 'alerts@mirawatt.com'
 
+print "GMail SMTP Test V: %s" % svnVersion
 if (not smtpPassword):
     print "SMTP password required: set and rerun"
     sys.exit()
