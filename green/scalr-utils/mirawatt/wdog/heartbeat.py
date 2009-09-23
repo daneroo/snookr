@@ -1,6 +1,7 @@
 
 import sys
 import time
+import os
 import random
 
 # DON't use time.strftime with %z with gmtime!
@@ -12,8 +13,9 @@ def log(msg):
     sys.stdout.flush()
 
 log("Heartbeat is starting")
+log("Current Working Directory is: %s " % os.getcwd())
 while (True):
-    gmtStamp = time.strftime(ISO_DATE_FORMAT,time.gmtime())
+    #gmtStamp = time.strftime(ISO_DATE_FORMAT,time.gmtime())
     gmtStamp = time.strftime(ISO_DATE_FORMAT,time.localtime())
     log("%s heartbeat" % gmtStamp)
 
@@ -27,6 +29,6 @@ while (True):
         log("%s heartbeat is randomly hanging > 60 secs" % gmtStamp)
         time.sleep(60)
 
-    time.sleep(5)
+    time.sleep(10)
 
 log("Heartbeat is exiting")
