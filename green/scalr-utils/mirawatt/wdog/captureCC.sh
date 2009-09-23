@@ -70,7 +70,11 @@ setupTTY(){
 
 # this funcion wraps the line content (pased as argument
 stampline() {
-    echo `date +%Y-%m-%dT%H:%M:%S%z` $1; 
+    if [ "${#1}" -gt "0" ]; then
+	echo `date +%Y-%m-%dT%H:%M:%S%z` $1; 
+#    else
+#        echo "<!--  This line was EMPTY -- ||=0 -->"
+    fi
 }
 
 rotatelog() {
