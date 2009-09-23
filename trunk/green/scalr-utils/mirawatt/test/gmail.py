@@ -9,7 +9,10 @@ import smtplib
 #  svn propget svn:keywords this_file.py
 # or
 # svn propget -R svn:keywords
-svnVersion='$Id$'
+# Full Id in this comment
+# $Id$
+svnVersionDate='$Date$'
+svnVersionRevision='$Rev$'
 
 smtpHost='smtp.gmail.com'
 smtpPort=587 #port 465 or 587
@@ -18,7 +21,7 @@ smtpPassword='' # try md5 or something
 smtpFrom = smtpUsername
 smtpTo = 'alerts@mirawatt.com'
 
-print "GMail SMTP Test Version: %s" % svnVersion
+print "GMail SMTP Test Revision: %s (updated on %s)" % (svnVersionDate,svnVersionRevision)
 if (not smtpPassword):
     print "SMTP password required: set and rerun"
     sys.exit()
