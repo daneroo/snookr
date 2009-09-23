@@ -3,9 +3,9 @@
 # writes all ouput to timestampled logfiles
 # each output line is also prefixed with a timestamp
 
-# check parameter here: add outputdir ?
-# usage
-#  ./captureCC.sh /dev/ttyUSB1 57600 CC1
+# check parameter here: add outputlogdir ?
+# usage 
+#  ./captureCC.sh /dev/ttyUSB 57600 CC1
 
 # Log output files Directory
 OUTPUTLOGDIR="/mirawatt/logs"
@@ -16,8 +16,11 @@ OUTPUTSTAMPFORMAT="%Y%m%dT000000%z" # by Day
 # Determines stdout MARK frequency
 MARKSTAMPFORMAT="%Y%m%dT%H%M00%z" # by Minute
 
-# this should be the /dev/ttyUSBx
-INPUTTTY=${1:-"/dev/ttyUSB-NOTEXIST"}
+# this should be the /dev/ttyUSB\* pattern
+INPUTTTY_PATTERN=${1:-"/dev/ttyUSB"}
+INPUTTTY_DIR=`dirname ${INPUTTTY_PATTERN}`
+INPUTTTY_PREFIX=`basename ${INPUTTTY_PATTERN}`
+INPUTTTY=`find ${INPUTTTY_DIR} -maxdepth 1 -name ${INPUTTTY_PREFIX}\* -type c`
 
 # use FileDescriptor 3 for input tty: (output too for Aztech)
 exec 3<> "${INPUTTTY}"
