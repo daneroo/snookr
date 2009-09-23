@@ -18,7 +18,7 @@ smtpPassword='' # try md5 or something
 smtpFrom = smtpUsername
 smtpTo = 'alerts@mirawatt.com'
 
-print "GMail SMTP Test V: %s" % svnVersion
+print "GMail SMTP Test Version: %s" % svnVersion
 if (not smtpPassword):
     print "SMTP password required: set and rerun"
     sys.exit()
