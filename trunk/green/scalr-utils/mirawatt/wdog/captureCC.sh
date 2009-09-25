@@ -103,15 +103,17 @@ rotatelog() {
 #outer forever loop
 setupTTY
 echo DEBUGON >&3
-LASTMARKSTAMP='NOT-YET-SET'
+MARKSTAMP='NOT-YET-SET'
+LASTMARKSTAMP=${MARKSTAMP}
 while true; do
     rotatelog
     # inner loop -- use -u fd, to read from a fd instead.
     while read -t ${READTIMEOUT} -u 3 line; do 
 	stampline "$line"
+	# only update the MARKSTAMP if there was output
+	MARKSTAMP=`date +${MARKSTAMPFORMAT}`
     done >>"$OUTPUTFILE"
     # Mark the log every Minute: when MAARKSTAMP changes
-    MARKSTAMP=`date +${MARKSTAMPFORMAT}`
     if [ "${MARKSTAMP}" != "${LASTMARKSTAMP}" ]; then
 	echo "#MARK `hostname`: `date +%Y-%m-%dT%H:%M:%S%z`: reading ${INPUTTTY} @ ${TTYSPEED}bps for device ${DEVICEALIAS}"
     fi
