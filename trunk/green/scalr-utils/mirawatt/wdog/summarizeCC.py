@@ -210,7 +210,7 @@ def writeXML():
 		{'id':3, 'name':'Week',  'averages':combinedDays,   'howMany':7},
 		{'id':4, 'name':'Month', 'averages':combinedDays,   'howMany':30},
 	]
-	f = open('feeds.xml', 'w')
+	f = open('/mirawatt/feeds.xml', 'w')
 	print >>f,'<?xml version="1.0"?>'
 	print >>f,'<!DOCTYPE plist PUBLIC "-//iMetrical//DTD OBSFEEDS 1.0//EN" "http://www.imetrical.com/DTDs/ObservationFeeds-1.0.dtd">'
 	print >>f,'<feeds>'
