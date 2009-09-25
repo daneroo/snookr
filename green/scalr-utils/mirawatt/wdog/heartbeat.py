@@ -20,12 +20,12 @@ while (True):
     log("%s heartbeat" % gmtStamp)
 
     # randomly die
-    if (random.random()<.001):
+    if (random.random()<.00001):
         log("%s heartbeat is randomly dying" % gmtStamp)
         sys.exit(0)
 
     # randomly wait more than 30 Secs
-    if (random.random()<.001):
+    if (random.random()<.00001):
         log("%s heartbeat is randomly hanging > 60 secs" % gmtStamp)
         time.sleep(60)
 
