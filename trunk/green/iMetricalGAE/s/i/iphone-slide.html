@@ -70,7 +70,7 @@
                 // decay overlaid text
                 $(".im-chart-text").css({opacity:""});
                 $(".im-chart-text").animate({
-                    opacity: 0.0
+                    opacity: 0.2
                 }, 3000 );
 
             }
@@ -110,7 +110,7 @@
                         'Year' :  iMUnits.kwhd
                     };
                     //addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
-                    $(".im-chart-text").css({opacity:0.0});
+                    $(".im-chart-text").css({opacity:0.2});
 
                     // this is the injection code: run ONE now
                     var darkOptions={};// all defaults
@@ -166,6 +166,7 @@
                 addChartImg(parentID,'Day',   iMUnits.kwhd );
                 addChartImg(parentID,'Hour',  iMUnits.kw   );
                 addChartImg(parentID,'Live',  iMUnits.w    );
+
                 // Show a swipe event on swipe test
                 $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
                     $('#status').html('swipe: ' + data.direction);
@@ -276,6 +277,8 @@
                 background-color:red;*/
             }
             .im-chart-img {
+                height: 180px;
+                width:320px;
                 /*border: 0px solid gray;*/
             }
             .im-chart-text {
@@ -298,7 +301,7 @@
                 font-size:50%;
                 vertical-align:middle;
             }
-            /* tru to get that sligin thing going */
+            /* try to get that sligin thing going */
             div.im-chart {
                 float:left;
             }
