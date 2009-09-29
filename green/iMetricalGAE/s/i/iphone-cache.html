@@ -44,15 +44,26 @@
                 $('#blinking-light-to-fix-chat-bug').toggle();
             }
 
-            function confirmSettings(){
-                alert('confirm');
-            }
-            function cancelSettings(){
-                alert('cancel');
-            }
             function settingsUserChanged(userSelect){
                 var username = (userSelect.options[userSelect.selectedIndex].value);
+                setUsername(username);
+            }
+            function selectNextUser(){
+                var cu = $('#feedname').val();
+                var nu = 'daniel';
+                if (cu=='daniel'){
+                    nu='jean';
+                } else if (cu=='jean'){
+                    nu='louis';
+                }
+                setUsername(nu);
+            }
+            function setUsername(username){
                 feedURL= feedURLBase+"?owner="+username;
+                $('#username').html(username);
+                $('#feedname').val(username);
+                // expire the fetchAndMap loop immediately!
+                lastFetched=null;
             }
 
             var feedsRef; // keep a reference to the feeds array
@@ -157,7 +168,7 @@
 
             // Some sample Javascript functions:
             $(function(){
-                iM18nLang='fr';
+                iM18nLang='en';
                 parentID='#chart-wide';
                 addChartImg(parentID,'Year',  iMUnits.kwhd );
                 addChartImg(parentID,'Month', iMUnits.kwhd );
@@ -166,26 +177,36 @@
                 addChartImg(parentID,'Hour',  iMUnits.kw   );
                 addChartImg(parentID,'Live',  iMUnits.w    );
                 $('#chart-wide  .im-chart-img').css('background-image','url(./themes/jqt/img/loading.gif)');
-                // Show a swipe event on swipe test
-                $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
-                    $('#status').html('swipe: ' + data.direction);
-                    var delta=0;
-                    if ('left'==data.direction){
-                        delta=-1;
-                    }
-                    if ('right'==data.direction){
-                        delta=+1;
-                    }
-                    selectChart(currentFeed+delta);
-                });
+
                 //if not on iphone : use click; don't use both...'
                 if(!((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
                     imIsIPhone=false;
                 }
-                if(!imIsIPhone) {
-                    //alert('not an iThing');
+                if(!imIsIPhone) { // not an iThing');
                     $('#chart').click(function(){
                         selectChart(currentFeed-1);
+                    });
+                    $('#username').click(function(){
+                        selectNextUser();
+                    });
+                } else { // iphone section
+                    // Show a swipe event on swipe test
+                    $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
+                        $('#status').html('swipe: ' + data.direction);
+                        var delta=0;
+                        if ('left'==data.direction){
+                            delta=-1;
+                        }
+                        if ('right'==data.direction){
+                            delta=+1;
+                        }
+                        selectChart(currentFeed+delta);
+                    });
+                    $('#chart').addTouchHandlers().bind('tap', function(evt, data){
+                        selectChart(currentFeed-1);
+                    });
+                    $('#username').addTouchHandlers().bind('tap', function(evt, data){
+                        selectNextUser();
                     });
                 }
 
@@ -197,27 +218,24 @@
                 })
 
                 // fetching timer
-                startAnimNow(getRefreshIntervalMS(), function (timer) {
-                    // http://imetrical.appspot.com/feeds?owner=daniel
-                    //fetchAndMapFeeds(null,myInjector);
-                    //fetchAndMapFeeds("staticfeed.xml",myInjector);
-                    //fetchAndMapFeeds("/feeds?owner=daniel",myInjector);
-                    fetchAndMapFeeds(feedURL,myInjector);
+                lastFetched = null;
+                //startAnimNow(getRefreshIntervalMS(), function (timer) {
+                startAnimNow(500, function (timer) {
+                    // spin this more often but verify expiry !
+                    var elapsed = 100000;
+                    if (lastFetched!=null){
+                        elapsed = new Date().getTime()-lastFetched.getTime();
+                    }
+                    //$('#status').html("elapsed: "+elapsed);
+                    if (elapsed>getRefreshIntervalMS()){
+                        fetchAndMapFeeds(feedURL,myInjector);
+                        lastFetched = new Date();
+                    }
                 });
                 // fix googleviz-safari-mobile...redraw bug
                 startAnimNow(1000, function (timer) {
                     triggerRedrawToFixChartVizBug();
                 });
-                // pulse the text overlay - NOVED to injector
-                /*
-                startAnimNow(10000, function (timer) {
-                    // decay overlaid text
-                    $(".im-chart-text").css({opacity:""});
-                    $(".im-chart-text").animate({
-                        opacity: 0.0
-                    }, 3000 );
-                });
-                 */
             });
         </script>
         <style type="text/css" media="screen">
@@ -239,7 +257,12 @@
                 font-weight: bold;
                 text-decoration: none;
             }
-            #settings select {
+
+            /* override color in settings panel controls : too dark */
+            #settings ul li input[type="text"], #settings  ul li input[type="password"], #settings ul li textarea,
+            #settings ul li select, #settings ul li input[type="checkbox"],
+            #settings ul li input[type="radio"],
+            #settings ul li {
                 color:white;
             }
             /* grid alignment.. */
@@ -256,6 +279,11 @@
                 color:gray;
                 /*text-align:center;*/
                 margin-left:20px;
+            }
+            #username {
+                color:gray;
+                text-align:right;
+                float: right;
             }
             #error {
                 display:none;
@@ -294,7 +322,7 @@
                 font-size:300%;
                 color:#cccccc;
                 position:relative;
-                top:-150px;
+                top:-120px;
                 text-align:center;
             }
             .im-chart-text .im-v-w,.im-chart-text .im-v-kw,.im-chart-text .im-v-kwhd{
@@ -347,6 +375,7 @@
                 <li class="im-feed-Month" onclick="selectChart(4)"><a href="#"><span class="im-feed-name">Month</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
                 <li class="im-feed-Year" onclick="selectChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
             </ul>
+            <div id="username">daniel</div>
             <div id="status"></div>
             <!-- empty div for triggering redraw (toggle()) -->
             <div id="blinking-light-to-fix-chat-bug"></div>
