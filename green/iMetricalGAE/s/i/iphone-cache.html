@@ -100,8 +100,6 @@
                     drawChart(feed);
                     setTimeout('triggerRedrawToFixChartVizBug()',200);
                 } else {
-                    var chartImgHtml='<img id="chartImg" src="'+chartURL+'">';
-                    //$("#chart").html("");
                     var unitsForFeedName={
                         'Live' :  iMUnits.w,
                         'Hour' :  iMUnits.kw,
@@ -241,6 +239,9 @@
                 font-weight: bold;
                 text-decoration: none;
             }
+            #settings select {
+                color:white;
+            }
             /* grid alignment.. */
             .im-feed-units {
                 /*margin-left: 33px;*/
@@ -257,7 +258,7 @@
                 margin-left:20px;
             }
             #error {
-                Zdisplay:none;
+                display:none;
                 color:red;
             }
             .im-flash {
