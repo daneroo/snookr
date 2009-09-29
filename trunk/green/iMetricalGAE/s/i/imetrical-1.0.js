@@ -467,7 +467,7 @@ function standardInjector(feeds) {
     } catch (err) {}
     latency = Math.round(latency/100)/10;
 
-    $('#status').html(""+(new Date().getYMDHMS())+"  (delay: "+latency+"s.)");
+    $('#status').html(""+(new Date().getYMDHMS())+"  ("+latency+"s.)");
 // latency test reveals &dum=stamp necessary
 //$('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
 
