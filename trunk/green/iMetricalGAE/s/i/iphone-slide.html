@@ -122,17 +122,17 @@
                         textColor:'222222'
                     };
                     var options = darkOptions;
-                    $('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
+                    //$('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
                     // to redraw the text
                     standardInjector(feedsRef);
-
-                    $('#chart  .im-feed-Live  .im-chart-img').attr('src',chartURL(feedsRef[0],darkOptions));
-                    $('#chart  .im-feed-Hour  .im-chart-img').attr('src',chartURL(feedsRef[1],darkOptions));
-                    $('#chart  .im-feed-Day   .im-chart-img').attr('src',chartURL(feedsRef[2],darkOptions));
-                    $('#chart  .im-feed-Week  .im-chart-img').attr('src',chartURL(feedsRef[3],darkOptions));
-                    $('#chart  .im-feed-Month .im-chart-img').attr('src',chartURL(feedsRef[4],darkOptions));
-                    $('#chart  .im-feed-Year  .im-chart-img').attr('src',chartURL(feedsRef[5],darkOptions));
-
+                    //return;
+                    for (s=0;s<6;s++){
+                        feedName = feedsRef[s].name;
+                        // set img src
+                        //$('#chart  .im-feed-'+feedName+'  .im-chart-img').attr('src',chartURL(feedsRef[s],darkOptions));
+                        //  set img/div bacground
+                        $('#chart  .im-feed-'+feedName+'  .im-chart-img').css('background-image',"url('"+chartURL(feedsRef[s],darkOptions)+"')");
+                    }
                 }
             }
 
@@ -166,7 +166,7 @@
                 addChartImg(parentID,'Day',   iMUnits.kwhd );
                 addChartImg(parentID,'Hour',  iMUnits.kw   );
                 addChartImg(parentID,'Live',  iMUnits.w    );
-
+                $('#chart-wide  .im-chart-img').css('background-image','url(./themes/jqt/img/loading.gif)');
                 // Show a swipe event on swipe test
                 $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
                     $('#status').html('swipe: ' + data.direction);
@@ -278,8 +278,14 @@
             }
             .im-chart-img {
                 height: 180px;
-                width:320px;
-                border: 0px solid gray;
+                width: 320px;
+                /*border: 0px solid gray;*/
+                /* this is how we set the image:
+                background-image:url('./themes/jqt/img/loading.gif');
+                background-image:url('chart......');
+                */
+                background-position:center center;
+                background-repeat:no-repeat;
             }
             .im-chart-text {
                 font-weight:bold;
