@@ -2,7 +2,7 @@
 <html manifest="mirawatt-iphone.manifest">
     <head>
         <meta charset="UTF-8" />
-        <title>Mirawatt &kappa;</title>
+        <title>Mirawatt &sigma;</title>
         <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=2.3, user-scalable=0;"/>
         <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>-->
 
@@ -29,6 +29,8 @@
                 event.preventDefault();
             }
             // getting ready to inject from settings..
+            feedURLBase="/feeds";
+            feedURL= feedURLBase+"?owner=daniel";
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
             var getRefreshIntervalMS = function() {
@@ -42,9 +44,21 @@
                 $('#blinking-light-to-fix-chat-bug').toggle();
             }
 
+            function confirmSettings(){
+                alert('confirm');
+            }
+            function cancelSettings(){
+                alert('cancel');
+            }
+            function settingsUserChanged(userSelect){
+                var username = (userSelect.options[userSelect.selectedIndex].value);
+                feedURL= feedURLBase+"?owner="+username;
+            }
+
             var feedsRef; // keep a reference to the feeds array
-            var currentFeed=2;
+            var currentFeed=3;
             var animCanRun=false;
+            var imIsIPhone=true;
             function myInjector(feeds) {
                 flashInjector();
                 feedsRef = feeds;
@@ -56,11 +70,19 @@
                 // decay overlaid text
                 $(".im-chart-text").css({opacity:""});
                 $(".im-chart-text").animate({
-                    opacity: 0.0
+                    opacity: 0.2
                 }, 3000 );
 
             }
             function selectChart(whichOne){
+                whichOne = (whichOne+6)%6;
+                leftPos = ''+(-320*whichOne)+'px';
+                $('#error').html('which:'+whichOne+' left:'+leftPos);
+                if(imIsIPhone) {
+                    $('#chart-wide').css({left:leftPos});
+                } else {
+                    $('#chart-wide').animate({left:leftPos},500);
+                }
                 currentFeed= (whichOne+feedsRef.length)%feedsRef.length;
                 feed = feedsRef[currentFeed];
                 drawAChart(currentFeed);
@@ -78,7 +100,7 @@
                     setTimeout('triggerRedrawToFixChartVizBug()',200);
                 } else {
                     var chartImgHtml='<img id="chartImg" src="'+chartURL+'">';
-                    $("#chart").html("");
+                    //$("#chart").html("");
                     var unitsForFeedName={
                         'Live' :  iMUnits.w,
                         'Hour' :  iMUnits.kw,
@@ -87,8 +109,8 @@
                         'Month':  iMUnits.kwhd,
                         'Year' :  iMUnits.kwhd
                     };
-                    addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
-                    $(".im-chart-text").css({opacity:0.0});
+                    //addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
+                    $(".im-chart-text").css({opacity:0.2});
 
                     // this is the injection code: run ONE now
                     var darkOptions={};// all defaults
@@ -100,17 +122,17 @@
                         textColor:'222222'
                     };
                     var options = darkOptions;
-                    $('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
+                    //$('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
                     // to redraw the text
                     standardInjector(feedsRef);
-                    /*
-                    $('#chart  .im-feed-Live  .im-chart-img').attr('src',chartURL(feedsRef[0],darkOptions));
-                    $('#chart  .im-feed-Hour  .im-chart-img').attr('src',chartURL(feedsRef[1],darkOptions));
-                    $('#chart  .im-feed-Day   .im-chart-img').attr('src',chartURL(feedsRef[2],darkOptions));
-                    $('#chart  .im-feed-Week  .im-chart-img').attr('src',chartURL(feedsRef[3],darkOptions));
-                    $('#chart  .im-feed-Month .im-chart-img').attr('src',chartURL(feedsRef[4],darkOptions));
-                    $('#chart  .im-feed-Year  .im-chart-img').attr('src',chartURL(feedsRef[5],darkOptions));
-                     */
+                    //return;
+                    for (s=0;s<6;s++){
+                        feedName = feedsRef[s].name;
+                        // set img src
+                        //$('#chart  .im-feed-'+feedName+'  .im-chart-img').attr('src',chartURL(feedsRef[s],darkOptions));
+                        //  set img/div bacground
+                        $('#chart  .im-feed-'+feedName+'  .im-chart-img').css('background-image',"url('"+chartURL(feedsRef[s],darkOptions)+"')");
+                    }
                 }
             }
 
@@ -136,21 +158,32 @@
 
             // Some sample Javascript functions:
             $(function(){
-
+                iM18nLang='fr';
+                parentID='#chart-wide';
+                addChartImg(parentID,'Year',  iMUnits.kwhd );
+                addChartImg(parentID,'Month', iMUnits.kwhd );
+                addChartImg(parentID,'Week',  iMUnits.kwhd );
+                addChartImg(parentID,'Day',   iMUnits.kwhd );
+                addChartImg(parentID,'Hour',  iMUnits.kw   );
+                addChartImg(parentID,'Live',  iMUnits.w    );
+                $('#chart-wide  .im-chart-img').css('background-image','url(./themes/jqt/img/loading.gif)');
                 // Show a swipe event on swipe test
                 $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
                     $('#status').html('swipe: ' + data.direction);
                     var delta=0;
                     if ('left'==data.direction){
-                        delta=-1;
+                        delta=+1;
                     }
                     if ('right'==data.direction){
-                        delta=+1;
+                        delta=-1;
                     }
                     selectChart(currentFeed+delta);
                 });
                 //if not on iphone : use click; don't use both...'
                 if(!((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
+                    imIsIPhone=false;
+                }
+                if(!imIsIPhone) {
                     //alert('not an iThing');
                     $('#chart').click(function(){
                         selectChart(currentFeed+1);
@@ -164,20 +197,18 @@
                     //$('#status').html('Orientation: ' + data.orientation);
                 })
 
-                // here be imetrical stuff:
-                iM18nLang='en';
                 // fetching timer
                 startAnimNow(getRefreshIntervalMS(), function (timer) {
                     // http://imetrical.appspot.com/feeds?owner=daniel
                     //fetchAndMapFeeds(null,myInjector);
                     //fetchAndMapFeeds("staticfeed.xml",myInjector);
-                    fetchAndMapFeeds("/feeds?owner=daniel",myInjector);
+                    //fetchAndMapFeeds("/feeds?owner=daniel",myInjector);
+                    fetchAndMapFeeds(feedURL,myInjector);
                 });
                 // fix googleviz-safari-mobile...redraw bug
                 startAnimNow(1000, function (timer) {
                     triggerRedrawToFixChartVizBug();
                 });
-
                 // pulse the text overlay - NOVED to injector
                 /*
                 startAnimNow(10000, function (timer) {
@@ -246,7 +277,15 @@
                 background-color:red;*/
             }
             .im-chart-img {
+                height: 180px;
+                width: 320px;
                 /*border: 0px solid gray;*/
+                /* this is how we set the image:
+                background-image:url('./themes/jqt/img/loading.gif');
+                background-image:url('chart......');
+                */
+                background-position:center center;
+                background-repeat:no-repeat;
             }
             .im-chart-text {
                 font-weight:bold;
@@ -259,7 +298,7 @@
             .im-chart-text .im-v-w,.im-chart-text .im-v-kw,.im-chart-text .im-v-kwhd{
                 /* override the general rule for color of watt values*/
                 color: #44cc00; /* (cccccc instead of 55ff00)/2*/
-                text-shadow: rgba(85,255,0,.5) 0 2px -2px;
+                /*text-shadow: rgba(85,255,0,.5) 0 2px -2px;*/
             }
             .im-chart-text .im-feed-name{
                 display:none;
@@ -268,6 +307,21 @@
                 font-size:50%;
                 vertical-align:middle;
             }
+            /* try to get that sligin thing going */
+            div.im-chart {
+                float:left;
+            }
+            #chart {
+                overflow:hidden;
+                width: 320px;
+            }
+            #chart-wide {
+                position: relative;
+                left: -960px; /* -960px; */
+                width: 1920px;
+                /* clipr:ect (top, right, bottom, left)*/
+                /*clip:rect(0px,320px,200px,0px);*/
+            }
 
         </style>
     </head>
@@ -275,11 +329,11 @@
         <div id="home" ontouchmove="preventTouchMove(event)">
             <div id="home-toolbar" class="toolbar">
                 <a class="button leftButton flip" id="infoButton" href="#about">About</a>
-                <h1>Mirawatt &kappa;</h1>
+                <h1>Mirawatt &sigma;</h1>
                 <a class="button slideup" id="infoButton" href="#settings">Settings</a>
             </div>
             <div>
-                <div id="chart"><!--<img id="chartImg" src="daily.png">--></div>
+                <div id="chart"><div id="chart-wide"></div></div>
                 <!--<div id="swipeme">Swipe me!</div>-->
                 <div id="error" ></div>
             </div>
@@ -328,7 +382,7 @@
                 </ul>
                 <h2>Feed</h2>
                 <ul class="edit">
-                    <li><select id="feedname" name="feedname"><optgroup label="My Account">
+                    <li><select onchange="settingsUserChanged(this)" id="feedname" name="feedname"><optgroup label="My Account">
                                 <option value ="daniel">Daniel Lauzon</option>
                             </optgroup>
                             <optgroup label="Friends">
@@ -348,6 +402,12 @@
                             <option value ="googleviz">Google Viz</option>
                     </select></li>
                 </ul>
+                <!--
+                <ul class="individual">
+                    <li><a href="#" onclick="confirmSettings()">OK</a></li>
+                    <li><a href="#" onclick="cancelSettings()">Cancel</a></li>
+                </ul>
+                -->
             </form>
         </div>
     </body>
