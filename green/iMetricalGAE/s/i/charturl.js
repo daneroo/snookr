@@ -1,6 +1,7 @@
 function addChartImg(parentID,feedName,feedUnits){
+    // im-chart-img is now just a div: using background-image
     var html = '<div class="im-chart im-feed-'+feedName+'">'+
-    '      <img class="im-chart-img"  />'+
+    '      <div class="im-chart-img"  />'+
     '      <div class="im-chart-text">'+
     '           <span class="im-feed-name">'+getI18n(feedName)+'</span>'+
     '           <span class="im-v-'+feedUnits.suffix+'">'+feedUnits.format+'</span>'+
