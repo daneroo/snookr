@@ -56,7 +56,7 @@
             }
 
             var feedsRef; // keep a reference to the feeds array
-            var currentFeed=3;
+            var currentFeed=2;
             var animCanRun=false;
             var imIsIPhone=true;
             function myInjector(feeds) {
@@ -76,7 +76,8 @@
             }
             function selectChart(whichOne){
                 whichOne = (whichOne+6)%6;
-                leftPos = ''+(-320*whichOne)+'px';
+                // 0 -> 5*-320, 1 -> 4*-320,..   // 5 -> 0
+                leftPos = ''+(-320*(5-whichOne))+'px';
                 $('#error').html('which:'+whichOne+' left:'+leftPos);
                 if(imIsIPhone) {
                     $('#chart-wide').css({left:leftPos});
@@ -172,10 +173,10 @@
                     $('#status').html('swipe: ' + data.direction);
                     var delta=0;
                     if ('left'==data.direction){
-                        delta=+1;
+                        delta=-1;
                     }
                     if ('right'==data.direction){
-                        delta=-1;
+                        delta=+1;
                     }
                     selectChart(currentFeed+delta);
                 });
@@ -186,7 +187,7 @@
                 if(!imIsIPhone) {
                     //alert('not an iThing');
                     $('#chart').click(function(){
-                        selectChart(currentFeed+1);
+                        selectChart(currentFeed-1);
                     });
                 }
 
@@ -256,7 +257,7 @@
                 margin-left:20px;
             }
             #error {
-                display:none;
+                Zdisplay:none;
                 color:red;
             }
             .im-flash {
