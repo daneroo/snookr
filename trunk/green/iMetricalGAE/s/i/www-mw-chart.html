@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Mirawatt chart</title>
+        <!--
+        <script type="text/javascript" src="googleviz/jsapi-1.0.js"></script>
+        -->
+        <script type="text/javascript" charset="utf-8">
+            vizLoaded = false;
+            //google.setOnLoadCallback(function(){vizLoaded=true});
+        </script>
+        <!--
+        <script type="text/javascript" src="googleviz/googleviz-1.0.js"></script>
+        -->
+        <script src="jqtouch/jquery.1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+        <script type="text/javascript" src="jquery.timer.js"></script>
+        <script type="text/javascript" src="imetrical-1.0.js"></script>
+        <script type="text/javascript" src="charturl.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            // getting ready to inject from settings..
+            feedURLBase="/feeds";
+            feedURL= feedURLBase+"?owner=daniel";
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 15;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                if (refreshInterval<2) refreshInterval=2;
+                return refreshInterval*1000; // every n seconds
+            };
+
+            function settingsUserChanged(userSelect){
+                var username = (userSelect.options[userSelect.selectedIndex].value);
+                setUsername(username);
+            }
+            function selectNextUser(){
+                var cu = $('#feedname').val();
+                var nu = 'daniel';
+                if (cu=='daniel'){
+                    nu='jean';
+                } else if (cu=='jean'){
+                    nu='louis';
+                }
+                setUsername(nu);
+            }
+            function setUsername(username){
+                feedURL= feedURLBase+"?owner="+username;
+                $('#username').html(username);
+                $('#feedname').val(username);
+                // expire the fetchAndMap loop immediately!
+                lastFetched=null;
+            }
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=2;
+            var animCanRun=false;
+            function myInjector(feeds) {
+                flashInjector();
+                feedsRef = feeds;
+                standardInjector(feeds);
+                if (animCanRun) {
+                    currentFeed= (currentFeed+1)%6;
+                }
+                selectChart(currentFeed);
+                // decay overlaid text
+                $(".im-chart-text").css({opacity:""});
+                $(".im-chart-text").animate({
+                    opacity: 0.5
+                }, 3000 );
+
+            }
+            function selectChart(whichOne){
+                whichOne = (whichOne+6)%6;
+                // 0 -> 5*-320, 1 -> 4*-320,..   // 5 -> 0
+                leftPos = ''+(-320*(5-whichOne))+'px';
+                //$('#error').html('which:'+whichOne+' left:'+leftPos);
+
+                //$('#chart-wide').animate({left:leftPos},500);
+                $('#chart-wide').css({left:leftPos},500);
+
+                currentFeed= (whichOne+feedsRef.length)%feedsRef.length;
+                feed = feedsRef[currentFeed];
+                drawAChart(currentFeed);
+            }
+
+            var startLoad=new Date()
+            function drawAChart() {
+                /*simple googleviz only
+                if (vizLoaded) {
+                    drawChart(feed);
+                }*/
+                var elapsed = new Date().getTime()-startLoad.getTime();
+                var unitsForFeedName={
+                    'Live' :  iMUnits.w,
+                    'Hour' :  iMUnits.kw,
+                    'Day'  :   iMUnits.kwhd,
+                    'Week' :  iMUnits.kwhd,
+                    'Month':  iMUnits.kwhd,
+                    'Year' :  iMUnits.kwhd
+                };
+                //addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
+                $(".im-chart-text").css({opacity:0.5});
+
+                // this is the injection code: run ONE now
+                var darkOptions={};// all defaults
+                var lightOptions={
+                    width:320,
+                    height:180,
+                    bgColor:'ffffff00',
+                    penColors:["3b5998","7f93bc"],
+                    textColor:'222222'
+                };
+                var options = darkOptions; //lightOptions;
+                //$('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
+                // to redraw the text
+                standardInjector(feedsRef);
+                //return;
+                for (s=0;s<6;s++){
+                    feedName = feedsRef[s].name;
+                    // set img src
+                    //$('#chart  .im-feed-'+feedName+'  .im-chart-img').attr('src',chartURL(feedsRef[s],darkOptions));
+                    //  set img/div bacground
+                    $('#chart  .im-feed-'+feedName+'  .im-chart-img').css('background-image',"url('"+chartURL(feedsRef[s],options)+"')");
+                }
+
+            }
+            // Some sample Javascript functions:
+            $(function(){
+                iM18nLang='en';
+                parentID='#chart-wide';
+                addChartImg(parentID,'Year',  iMUnits.kwhd );
+                addChartImg(parentID,'Month', iMUnits.kwhd );
+                addChartImg(parentID,'Week',  iMUnits.kwhd );
+                addChartImg(parentID,'Day',   iMUnits.kwhd );
+                addChartImg(parentID,'Hour',  iMUnits.kw   );
+                addChartImg(parentID,'Live',  iMUnits.w    );
+                $('#chart-wide  .im-chart-img').css('background-image','url(./themes/jqt/img/loading.gif)');
+
+                //if not on iphone : use click; don't use both...'
+                $('#chart').click(function(){
+                    selectChart(currentFeed-1);
+                });
+                $('#username').click(function(){
+                    selectNextUser();
+                });
+
+                // fetching timer
+                lastFetched = null;
+                //startAnimNow(getRefreshIntervalMS(), function (timer) {
+                startAnimNow(500, function (timer) {
+                    // spin this more often but verify expiry !
+                    var elapsed = 100000;
+                    if (lastFetched!=null){
+                        elapsed = new Date().getTime()-lastFetched.getTime();
+                    }
+                    //$('#status').html("elapsed: "+elapsed);
+                    if (elapsed>getRefreshIntervalMS()){
+                        fetchAndMapFeeds(feedURL,myInjector);
+                        lastFetched = new Date();
+                    }
+                });
+            });
+        </script>
+        <style type="text/css" media="screen">
+            body {
+                font-family: 'trebuchet ms', verdana, arial;
+                background: transparent;
+            }
+            #home {
+                ZZbackground-color:black;
+                width:320px;
+                height:200px;
+            }
+            /* grid alignment.. */
+            .im-feed-units {
+                /*margin-left: 33px;*/
+                color: #999999;
+                /*width:20px;*/
+
+            }
+            .im-v-w, .im-v-kw, .im-v-kwhd {
+                color: #55ff00;
+            }
+            #status {
+                color:gray;
+                /*text-align:center;*/
+                margin-left:20px;
+            }
+            #username {
+                color:gray;
+                text-align:right;
+                float: right;
+            }
+            #error {
+                display:none;
+                color:red;
+            }
+            .im-flash {
+                color:red;
+            }
+            /* override ul li style */
+            #chart {
+                /*background-color: blue;*/
+                height: 180px;
+            }
+            .im-chart /*> .im-chart-img*/ {
+                height: 180px;
+                width:320px;
+                /*border:1px gray dashed;
+                background-color:red;*/
+            }
+            .im-chart-img {
+                height: 180px;
+                width: 320px;
+                /*border: 0px solid gray;*/
+                /* this is how we set the image:
+                background-image:url('./themes/jqt/img/loading.gif');
+                background-image:url('chart......');
+                */
+                background-position:center center;
+                background-repeat:no-repeat;
+            }
+            .im-chart-text {
+                font-weight:bold;
+                font-size:300%;
+                color:#cccccc;
+                position:relative;
+                top:-120px;
+                text-align:center;
+            }
+            .im-chart-text .im-v-w,.im-chart-text .im-v-kw,.im-chart-text .im-v-kwhd{
+                /* override the general rule for color of watt values*/
+                color: #44cc00; /* (cccccc instead of 55ff00)/2*/
+                /*text-shadow: rgba(85,255,0,.5) 0 2px -2px;*/
+            }
+            .im-chart-text .im-feed-name{
+                display:none;
+            }
+            .im-chart-text .im-feed-name,.im-chart-text .im-feed-units{
+                font-size:50%;
+                vertical-align:middle;
+            }
+            /* try to get that sligin thing going */
+            div.im-chart {
+                float:left;
+            }
+            #chart {
+                overflow:hidden;
+                width: 320px;
+            }
+            #chart-wide {
+                position: relative;
+                left: -960px; /* -960px; */
+                width: 1920px;
+                /* clipr:ect (top, right, bottom, left)*/
+                /*clip:rect(0px,320px,200px,0px);*/
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="home">
+            <div id="chart"><div id="chart-wide"></div></div>
+            <div id="error" ></div>
+            <div id="username">daniel</div>
+            <div id="status"></div>
+        </div>
+        <div id="hiddenSelectForm" style="display:none;"><form><select onchange="settingsUserChanged(this)" id="feedname" name="feedname"><optgroup label="My Account">
+                        <option value ="daniel">Daniel Lauzon</option>
+                    </optgroup>
+                    <optgroup label="Friends">
+                        <option value ="jean">Jean DesRosiers</option>
+                        <option value ="louis">Louis Veilleux</option>
+        </optgroup></select></form></div>
+    </body>
+</html>
