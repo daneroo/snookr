@@ -18,7 +18,7 @@
         <script type="text/javascript" charset="utf-8">
             vizLoaded = false;
             // getting ready to inject from settings..
-            feedURLBase="/feeds";
+            feedURLBase="http://imetrical.appspot.com/feeds";
             feedURL= feedURLBase+"?owner=daniel";
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
