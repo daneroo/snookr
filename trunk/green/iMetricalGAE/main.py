@@ -272,8 +272,8 @@ class GraphPage (webapp.RequestHandler):
             else:
                 HHs.append("")
 
-            decaWatt = int(obs.getAttribute("value"))/10;
-            decaWattStr = "%d" % (decaWatt);
+            decaWatt = float(obs.getAttribute("value"))/10;
+            decaWattStr = "%.0f" % (decaWatt);
             maxkW = max(maxkW,int(math.ceil(decaWatt/100.0)))
             decaWatts.append(decaWattStr)
             #self.response.out.write("<br> %s = %s HH=%s-> %sx10W" %( stamp,eastern,eastern.hour,decaWatt ))
