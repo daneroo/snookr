@@ -299,7 +299,7 @@ class GraphPage (webapp.RequestHandler):
         chartURL = chartURL.replace(' ','%20')
 
         dayFeedStamp = self.eastern(day.getAttribute("stamp"))
-        dayFeed_kWh = int(day.getAttribute("value"))*24.0/1000.0
+        dayFeed_kWh = float(day.getAttribute("value"))*24.0/1000.0
         title = "Power Consumption for %s @ %s  - %.1f kWh" %(owner,dayFeedStamp,dayFeed_kWh)
         self.response.out.write("""<h3>%s</h3>
 <img src="%s" >
