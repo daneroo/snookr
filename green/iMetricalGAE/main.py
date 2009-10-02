@@ -241,7 +241,8 @@ class GraphPage (webapp.RequestHandler):
     logging.info("POST Reply: %s" % (data))
 
   def eastern(self,gmtstring):
-    utc = datetime.strptime(gmtstring, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC_TZINFO)
+    # remove extraneous -400 in bd feeeds: 2009-09-10T23:34:56Z-400
+    utc = datetime.strptime(gmtstring[:20], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC_TZINFO)
     eastern = utc.astimezone(Eastern)
     return eastern
 
