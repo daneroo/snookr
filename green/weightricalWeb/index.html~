@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+ <title>Defaulting The iPhone Keyboard To: Number, Email, Url</title>
+ <script language="javascript">
+   function populate(){
+   //alert('coco');
+   var sel = document.getElementById('wsel');
+   sel.options.length=0;
+   // new Option([text], [value], [defaultSelected], [selected])
+   // sel.options[sel.options.length] = new Option('Apple'); 
+   for (i=0;i<100;i++){
+		var v=160.0+i/10.0;
+		sel.options[sel.options.length] = new Option(""+v,v,false,false); 
+		}
+   }
+   window.onload=populate;
+ </script>
+</head>
+<body">
+<h1>Defaulting The iPhone Keyboard To: Number, Email, Url</h1>
+
+<form>
+  Number: <input type="number" /><br />
+  Url:<input type="url" /><br />
+  Email:<input type="email" /><br />
+
+  <select id="wsel">
+    <option value="coco">Coco</option>
+ </select>
+</form>
+ 
+</body>
+</html>
