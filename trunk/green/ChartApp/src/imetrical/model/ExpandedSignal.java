@@ -17,6 +17,9 @@ public class ExpandedSignal {
     public long offsetMS;
     public double values[];
 
+    private ExpandedSignal(){
+        this(0);
+    }
     public ExpandedSignal(int size) {
         values = new double[size];
     }

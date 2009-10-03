@@ -74,6 +74,7 @@ public class Broker {
     }
 
     public Vector<Object[]> getObjects(String sqlQuery, int maxRows, Handler handler) {
+        //System.err.println("broker getObjects sql: " + sqlQuery);
         Vector<Object[]> vector = new Vector<Object[]>();
         Statement stmt = null;
         ResultSet rs = null;
@@ -117,6 +118,7 @@ public class Broker {
                 }
             }
         }
+        //System.err.println("broker getObjects return size: " + vector.size());
         return vector;
     }
 

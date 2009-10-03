@@ -4,6 +4,8 @@
  */
 package imetrical.entropy;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import imetrical.model.DataFetcher;
 import imetrical.model.ExpandedSignal;
 import imetrical.model.SignalRange;
@@ -11,8 +13,13 @@ import imetrical.time.TimeManip;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPOutputStream;
 
@@ -59,7 +66,7 @@ public class Entropy {
         } catch (IOException e) {
         }
         byte[] compressedData = bos.toByteArray();
-        
+
         boolean actualFileTest = false;
         if (actualFileTest) {
             try {
@@ -116,6 +123,7 @@ public class Entropy {
     }
 
     void codingCost(ExpandedSignal es, String name) {
+        es = toJSONandBack(es, name);
         int max = (int) (Math.ceil(es.max()));
         int min = (int) (Math.floor(es.min()));
         int range = max - min + 1;
@@ -143,6 +151,7 @@ public class Entropy {
             sb.append(String.format("%.0f,", es.values[i]));
         }
         String encoded = sb.toString();
+        //encoded = toJSON(es);
         int uncompressedLen = encoded.length();
         int compressedLen = compress(encoded);
         int gzipedLen = gzip(encoded);
@@ -153,29 +162,89 @@ public class Entropy {
         double gz9bps = gziped9Len * 8.0 / samples;
         //System.out.println(String.format("  %7s Str raw:%6d compressed:%6d  gzipped:%6d gzip9:%6d ratio:%.2f %9.2f bps", name, uncompressedLen, compressedLen, gzipedLen, gziped9Len, ratio, Zbps));
 
-        System.out.println(String.format("  %7s samples:%6d entropy:%5.2f bps gz9:%5.2f bps raw:%7d gz9:%7d ratio:%5.2f", name, samples, H / samples, gz9bps, uncompressedLen, gziped9Len, gz9ratio));
+        System.out.println(String.format("  %10s samples:%6d entropy:%5.2f bps gz9:%5.2f bps raw:%7d gz9:%7d ratio:%5.2f", name, samples, H / samples, gz9bps, uncompressedLen, gziped9Len, gz9ratio));
 
     }
 
-    void entropy(ExpandedSignal es) {
+    void entropy(ExpandedSignal es,String scopePrefix) {
         System.out.println(String.format("Signal:%20s %6d", TimeManip.isoFmt.format(new Date(es.offsetMS)), es.values.length));
-        codingCost(es, "Signal");
+        codingCost(es, scopePrefix+"-Signal");
         // Verified that H(s/10)==H(s)
 
         ExpandedSignal delta = delta(es);
-        codingCost(delta, "Delta");
+        codingCost(delta, scopePrefix+"-Delta");
     }
 
     public void doADay(int daysAgo) {
         SignalRange referenceSR = new SignalRange(daysAgo);
         ExpandedSignal referenceES = DataFetcher.fetchForRange(referenceSR);
-        entropy(referenceES);
+        entropy(referenceES,"D");
     }
 
-    public static void main(String[] args) {
-        for (int i = 1; i < 31; i++) {
-            new Entropy().doADay(i);
+    public void doDays(int numDays) {
+        for (int i = 1; i <= numDays; i++) {
+            doADay(i);
         }
+    }
+
+    public void doAnHour(Date start) {
+        long hourMillis = 60 * 60 * 1000l;
+        Date stop = new Date(start.getTime() + hourMillis);
+        SignalRange referenceSR = new SignalRange(start, stop);
+        ExpandedSignal referenceES = DataFetcher.fetchForRange(referenceSR);
+        entropy(referenceES,"H");
+    }
+    // walk back
+
+    public void doHours(int numHours) {
+        Date start = TimeManip.startOfDay(new Date(), 0);
+        for (int i = 0; i < numHours; i++) {
+            long hourMillis = 60 * 60 * 1000l;
+            start = new Date(start.getTime() - hourMillis);
+            doAnHour(start);
+        }
+    }
+
+    public void doAllTimeHours() {
+        SignalRange referenceSR = new SignalRange("2008-07-29 20:00:00", "2009-06-09 08:00:00", SignalRange.Grain.HOUR);
+        ExpandedSignal referenceES = DataFetcher.fetchForRange(referenceSR);
+        entropy(referenceES,"A");
+    }
+    /*
+     *  Let us consider the representation of a Day (24H GMT or 23-25Local)
+     *  zip(signal.json)
+     *  zip(signal.gson.gz)
+     *  zip(delta.json)
+     *  zip(delta.json.gzip)
+     */
+    public static void main(String[] args) {
+        new Entropy().doAllTimeHours();
+        System.exit(0);
+        int nDays=2;
+        new Entropy().doDays(nDays);
+        new Entropy().doHours(nDays*24);
+    }
+
+    ExpandedSignal toJSONandBack(ExpandedSignal es, String name) {
+        final SimpleDateFormat fileDateFmt = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = fileDateFmt.format(new Date(es.offsetMS)) + "-" + name + ".json";
+        ExpandedSignal readES = null;
+        boolean pretty = false;
+        GsonBuilder gsb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (pretty) {
+            gsb.setPrettyPrinting();
+        }
+        Gson gson = gsb.create();
+        String jsonStr = gson.toJson(new ExpandedSignalInt(es));
+        try {
+            FileWriter fw = new FileWriter(fileName);
+            fw.append(jsonStr);
+            fw.close();
+            readES = gson.fromJson(new FileReader(fileName), ExpandedSignal.class);
+        } catch (IOException ex) {
+            Logger.getLogger(Entropy.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return readES;
     }
 
     double log2(double d) {
@@ -183,5 +252,21 @@ public class Entropy {
             return 0;
         }
         return Math.log(d) / Math.log(2.0);
+    }
+}
+
+class ExpandedSignalInt {
+
+    int intervalLengthSecs = 1;    // 10
+    long offsetMS;
+    int values[];
+
+    ExpandedSignalInt(ExpandedSignal es) {
+        intervalLengthSecs = es.intervalLengthSecs;
+        offsetMS = es.offsetMS;
+        values = new int[es.values.length];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = (int) es.values[i];
+        }
     }
 }

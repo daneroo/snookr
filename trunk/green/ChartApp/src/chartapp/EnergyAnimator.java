@@ -35,8 +35,9 @@ public class EnergyAnimator {
         //graphStart = TimeManip.parseISO("2009-03-26 05:00:00");
         //graphStart = TimeManip.parseISO("2009-04-01 15:00:00");
         //graphStart = TimeManip.parseISO("2009-03-29 06:00:00");
-        //graphStart = TimeManip.parseISO("2009-03-07 20:00:00"); // for the gmt conversion hole: 2009-03-07 21h-22h
-        graphStart = TimeManip.parseISO("2008-11-02 00:00:00");  // for the local repeating time: 2008-11-02 01h
+        graphStart = TimeManip.parseISO("2009-03-07 20:00:00"); // for the gmt conversion hole: 2009-03-07 21h-22h
+        //graphStart = TimeManip.parseISO("2008-11-02 00:00:00");  // for the local repeating time: 2008-11-02 01h
+        //graphStart = TimeManip.parseISO("2009-05-16 17:00:00");  // greatest day ever
 
         graphHighresHours = 3;
         graphPadLowresHours = 1;
