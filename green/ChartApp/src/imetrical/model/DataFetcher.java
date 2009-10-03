@@ -40,18 +40,23 @@ public class DataFetcher {
     private ExpandedSignal fetchForRangeInternal(SignalRange sr) {
         Timer tt = new Timer();
         ExpandedSignal bes = brokerFetchForRange(sr);
+        // NOT SURE THIS IS WORKING!!!!
+        /*
         float bdiff = tt.diff();
         tt.restart();
         ExpandedSignal ces = expandGMTXYDataset(sr);
         float cdiff = tt.diff();
         tt.restart();
         System.out.println(String.format(" b: %fs  c:%fs", bdiff, cdiff));
-
-        ExpandedSignal es = ces;
+         */
+        ExpandedSignal es = bes;
         //es.fillin();
+        /*
         for (int i = 0; i < es.values.length; i += 2) {
-            es.values[i] += 100;
+        // for marking input on graph!!!
+        //es.values[i] += 100;
         }
+         */
         return es;
     }
 
@@ -71,6 +76,7 @@ public class DataFetcher {
         System.err.println("broker sql: " + sql);
         Broker b = Broker.instance();
         Vector<Object[]> v = b.getObjects(sql, 0, new StampGMTAndDoublesHandler());
+        System.err.println("broker return size: " + v.size());
         return v;
     }
 
@@ -83,8 +89,10 @@ public class DataFetcher {
         //Vector<Object[]> v = getWithTZ(tableName, gmtstart, gmtstop);
 
         int n = v.size();
-        int samples = (int) (sr.stop.getTime() - sr.start.getTime()) / sr.grain.intervalLengthMS();
-
+        int samples = (int) ((sr.stop.getTime() - sr.start.getTime()) / sr.grain.intervalLengthMS());
+        System.out.format("start %d, stop:%d grainMS:%d\n", sr.start.getTime(),sr.stop.getTime(),sr.grain.intervalLengthMS() );
+        System.out.format("stop-start:%d grainMS:%d\n", sr.stop.getTime()-sr.start.getTime(),sr.grain.intervalLengthMS() );
+        System.out.format("(stop-start) / grainMS:%d\n", (sr.stop.getTime()-sr.start.getTime())/sr.grain.intervalLengthMS() );
         System.out.println(String.format("b:start: %s  stop: %s samples: %d itemCount: %d", TimeManip.isoFmt.format(sr.start), TimeManip.isoFmt.format(sr.stop), samples, n));
 
         ExpandedSignal es = new ExpandedSignal(samples);
