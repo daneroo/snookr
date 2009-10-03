@@ -33,7 +33,7 @@ def main():
   observations = parseIPhonePlistObsData('observationdata-20091002.xml')
   print "# %s, %s" % ('stamp','value')
   for obs in observations:
-    print "%s, %s" % (obs[0],obs[1])
+    print "%s, %.1f" % (obs[0],float(obs[1])/1000.0)
 
 if __name__ == '__main__':
   main()

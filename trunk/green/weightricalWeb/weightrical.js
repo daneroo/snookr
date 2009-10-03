@@ -4,16 +4,21 @@ function onLoad() {
 
     var timeGeometry = new Timeplot.DefaultTimeGeometry({
         gridColor: new Timeplot.Color("#000000"),
-        axisLabelsPlacement: "bottom"
+        axisLabelsPlacement: "bottom",
+        min:'2009-08-01'
     });
+    /*var timeGeometry = new Timeplot.MagnifyingTimeGeometry({
+        gridColor: new Timeplot.Color("#000000"),
+        axisLabelsPlacement: "bottom"
+    });*/
 
     var valueGeometry = new Timeplot.DefaultValueGeometry({
-        gridColor: "#000000",
-        min: 0,
-        max: 100
+        gridColor: "#000000"
+        //min: 0,
+        //max: 100
     });
 
-    var plotInfo7 = [
+    var plotInfo = [
     Timeplot.createPlotInfo({
         id: "plot1",
         dataSource: new Timeplot.ColumnSource(eventSource,1),
@@ -26,7 +31,7 @@ function onLoad() {
     })
     ];
 
-    timeplot =  Timeplot.create(document.getElementById("timeplotdiv"), plotInfo7);
+    timeplot =  Timeplot.create(document.getElementById("timeplotdiv"), plotInfo);
 
     timeplot.loadText("weightrical-data.txt", ",", eventSource);
     //timeplot.loadText("bush_ratings.txt", ",", eventSource);
