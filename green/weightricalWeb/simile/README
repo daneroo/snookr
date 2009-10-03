@@ -1,0 +1,12 @@
+These need to be installed in server ROOT !!!!!!!!!!!!!!!!
+from 
+http://www.simile-widgets.org/wiki/How_to_Run_Timeplot_Off-line
+
+use as 
+ <script src="/path/to/your/own/timeplot/timeplot-api.js?local"></script>
+
+Here is how you make a local copy of Timeplot that will work in off-line mode
+
+svn export http://simile.mit.edu/repository/timeplot/trunk/src/webapp/api/ timeplot/api/1.0
+svn export http://simile.mit.edu/repository/timeline/trunk/src/webapp/api/ timeline/api-2.0
+svn export http://simile.mit.edu/repository/ajax/trunk/src/webapp/api/     ajax/api-2.0
