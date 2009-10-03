@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+ <title>Defaulting The iPhone Keyboard To: Number, Email, Url</title>
+ <script language="javascript">
+   function populate(){
+   //alert('coco');
+   var sel = document.getElementById('wsel');
+   sel.options.length=0;
+   // new Option([text], [value], [defaultSelected], [selected])
+   // sel.options[sel.options.length] = new Option('Apple'); 
+   for (i=0;i<100;i++){
+		var v=160.0+i/10.0;
+		sel.options[sel.options.length] = new Option(""+v,v,false,false); 
+		}
+   }
+   window.onload=populate;
+ </script>
+</head>
+<body">
+<h1>Defaulting The iPhone Keyboard To: Number, Email, Url</h1>
+
+Inline red dot: <img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAALGP
+C/xhBQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9YGARc5KB0XV+IA
+AAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAF1J
+REFUGNO9zL0NglAAxPEfdLTs4BZM4DIO4C7OwQg2JoQ9LE1exdlYvBBeZ7jq
+ch9//q1uH4TLzw4d6+ErXMMcXuHWxId3KOETnnXXV6MJpcq2MLaI97CER3N0
+vr4MkhoXe0rZigAAAABJRU5ErkJggg==" alt="Red dot" />
+
+<form>
+  Number: <input type="number" /><br />
+  Url:<input type="url" /><br />
+  Email:<input type="email" /><br />
+
+  <select id="wsel">
+    <option value="coco">Coco</option>
+ </select>
+<img src="data:image/gif;base64,R0lGODlhAQABAID%2FAMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw%3D%3D" alt="" />
+</form>
+ 
+</body>
+</html>

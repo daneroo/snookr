@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Weightrical</title>
+        <script src="http://api.simile-widgets.org/timeplot/1.1/timeplot-api.js" type="text/javascript"></script>
+        <script src="weightrical.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            //alert('coco');
+        </script>
+        <style type="text/css">
+            body {
+                font-family: Arial, sans-serif;
+            }
+
+            .timeplot-copyright {
+                display: none;
+            }
+
+       /*---------------------------------*/
+
+        .dark-theme { color: #eee; }
+        .dark-theme .timeline-band-0 .timeline-ether-bg { background-color: #333 }
+        .dark-theme .timeline-band-1 .timeline-ether-bg { background-color: #111 }
+        .dark-theme .timeline-band-2 .timeline-ether-bg { background-color: #222 }
+        .dark-theme .timeline-band-3 .timeline-ether-bg { background-color: #444 }
+
+        .dark-theme .t-highlight1 { background-color: #003; }
+        .dark-theme .p-highlight1 { background-color: #300; }
+
+        .dark-theme .timeline-highlight-label-start .label_t-highlight1 { color: #f00; }
+        .dark-theme .timeline-highlight-label-end .label_t-highlight1 { color: #115; }
+
+        .dark-theme .timeline-band-events .important { color: #c00; }
+        .dark-theme .timeline-band-events .small-important { background: #c00; }
+
+        .dark-theme .timeline-date-label-em { color: #fff; }
+        .dark-theme .timeline-ether-lines { border-color: #555; border-style: solid; }
+        .dark-theme .timeline-ether-highlight { background: #555; }
+
+        .dark-theme .timeline-event-tape,
+        .dark-theme .timeline-small-event-tape { background: #f60; }
+        .dark-theme .timeline-ether-weekends { background: #111; }
+
+        </style>
+    </head>
+    <body onload="onLoad();" onresize="onResize();">
+        <h1>Weightrical</h1>
+        <div id="timeplotdiv" style="height: 350px;"></div>
+    </body>
+</html>
