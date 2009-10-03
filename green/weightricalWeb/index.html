@@ -1,25 +1,37 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
- <title>Defaulting The iPhone Keyboard To: Number, Email, Url</title>
+ <title>Numeric Test</title>
+ <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>
+ <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>-->
  <script language="javascript">
    function populate(){
-   //alert('coco');
    var sel = document.getElementById('wsel');
    sel.options.length=0;
    // new Option([text], [value], [defaultSelected], [selected])
    // sel.options[sel.options.length] = new Option('Apple'); 
-   for (i=0;i<100;i++){
-		var v=160.0+i/10.0;
-		sel.options[sel.options.length] = new Option(""+v,v,false,false); 
-		}
+   selectedValue="165.4"
+   for (i=0;i<=100;i+=2){   
+	//var v=160.0+i/10.0;
+        var txt = ""+Math.floor(160+i/10)+"."+(i%10)
+        isSel = selectedValue==txt
+	sel.options[sel.options.length] = new Option(txt,txt,isSel,isSel); 
+	}
    }
    window.onload=populate;
  </script>
-</head>
-<body">
-<h1>Defaulting The iPhone Keyboard To: Number, Email, Url</h1>
+ <style type="text/css">
+            * { margin:0; padding:0;}
+            body {
+                font-family: Arial, sans-serif;
+            }
 
+            .timeplot-copyright {
+                display: none;
+            }
+ </style>
+</head>
+<body>
 Inline red dot: <img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAALGP
 C/xhBQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9YGARc5KB0XV+IA
@@ -29,15 +41,19 @@ ch9//q1uH4TLzw4d6+ErXMMcXuHWxId3KOETnnXXV6MJpcq2MLaI97CER3N0
 vr4MkhoXe0rZigAAAABJRU5ErkJggg==" alt="Red dot" />
 
 <form>
-  Number: <input type="number" /><br />
+  Weight: <input type="number" /><br />
+<!--
   Url:<input type="url" /><br />
-  Email:<input type="email" /><br />
+  Eml:<input type="email" /><br />
+-->
 
   <select id="wsel">
-    <option value="coco">Coco</option>
+     <option value="165.5">165.4</option>
  </select>
 <img src="data:image/gif;base64,R0lGODlhAQABAID%2FAMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw%3D%3D" alt="" />
 </form>
+
+<a href="weightrical.html">And here is a graph</a>
  
 </body>
 </html>

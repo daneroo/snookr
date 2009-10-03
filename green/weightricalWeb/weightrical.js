@@ -14,9 +14,9 @@ function onLoad() {
     });*/
 
     var valueGeometry = new Timeplot.DefaultValueGeometry({
-        gridColor: "#000000"
+        gridColor: "#000000",
         //min: 0,
-        //max: 100
+        //max: 175
     });
 
     var plotInfo = [
@@ -25,7 +25,7 @@ function onLoad() {
         dataSource: new Timeplot.ColumnSource(eventSource,1),
         timeGeometry: timeGeometry,
         valueGeometry: valueGeometry,
-        lineColor: "#ff00",
+        lineColor: "#00ff00",
         //fillColor: "#cc8080",
         fillColor: "#00cc00",
         showValues: true,
