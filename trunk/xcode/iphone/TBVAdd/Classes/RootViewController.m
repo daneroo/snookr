@@ -57,14 +57,6 @@
 	addController.delegate = self;
     navigationController.navigationBar.barStyle = UIBarStyleBlackOpaque; 
 	[self presentModalViewController:navigationController animated:YES];
-
-    Observation *obs = [self getLatestObservation];
-    if (obs) {
-        [addController setInitialWeight:obs.value];
-    } else {
-        [addController setInitialWeight:100000];
-    }
-    
     [addController release];
     
 }

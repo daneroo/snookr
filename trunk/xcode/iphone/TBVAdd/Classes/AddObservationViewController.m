@@ -59,6 +59,17 @@
 - (void)viewWillAppear:(BOOL)animated {
     [datePicker setDate:[NSDate date]];
 
+	// This was moved from RootViewController::popupAddObservationModal to here
+	// because the weightpicker was not yet ready so --setInitialWeight
+	Observation *obs = [delegate getLatestObservation];
+	if (obs) {
+		NSLog(@"Get Latest Obs val: %ld",obs.value);
+		[self setInitialWeight:obs.value];
+    } else {
+        [self setInitialWeight:100000];
+    }
+	
+	
     // Max Date makes UI confusing, maybe a warning (future date) would be better
     //datePicker.maximumDate = datePicker.date;
     
@@ -66,13 +77,13 @@
 }
 
 - (void)save  {
-    NSLog(@"Hello from save callback");
+    //NSLog(@"Hello from save callback");
 	[self.delegate addAndSaveObservation:[self selectedValue] withStamp:[self selectedDate]];
 	[self dismissModalViewControllerAnimated:YES];
 }
 
 - (void)cancel  {
-    NSLog(@"Hello from cancel callback");
+    //NSLog(@"Hello from cancel callback");
 	[self dismissModalViewControllerAnimated:YES];
 }
 
@@ -121,8 +132,10 @@
 }
 */
 
+
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
+    //NSLog(@"Picker titleForRow : %d comp: %d",row,component);
     if (component == 1) {
         return @".";
 	}
@@ -144,6 +157,7 @@
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
+    //NSLog(@"Picker numberOfRowsInComp: %d",component);
     switch (component) {
         case 0:
             return 400;
@@ -159,6 +173,7 @@
 
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
 {
+    //NSLog(@"Picker numberOfComps: delegate:%d instance var:%d",pickerView,weightPicker);
 	return 3;
 }
 
