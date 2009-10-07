@@ -148,12 +148,15 @@ def onepass(progress):
         return
 
     for line in fileinput.input(activeFileList,openhook=fileinput.hook_compressed):
-        #process(line)
         if (fileinput.filelineno()<=progress[fileinput.filename()].lastLineRead):
             #print "skip  %06d from:%s" % (fileinput.filelineno(),fileinput.filename())
             continue
 
+        # indicate progress (before or after actual processing ?
         progress[fileinput.filename()].lastLineRead=fileinput.filelineno()
+
+        # actually process the line
+        #process(line)
 
         if (fileinput.filelineno()%1000==0):
             pass #print "file:%s:%06d  -mod:%s" % (os.path.basename(fileinput.filename()),fileinput.filelineno(),lastModDate)
