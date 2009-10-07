@@ -123,46 +123,53 @@ class ProgressItem:
     def calcmd5(self):
         self.md5 = md5OfFileContent(self.fileName)
 
-if __name__ == "__main__":
-    print "Prefixed File Logs (can be compressed)"
-    progressPickleFileName='progress.pkl'
+progressPickleFileName='progress.pkl'
+def loadProgressFromPickle():
     progress = {} # map of file -> ProgressItem
     if (os.path.exists(progressPickleFileName)):
+        print "Reading Pickled Summary: %s" % progressPickleFileName
         pckfp = open(progressPickleFileName, 'rb')
         progress = pickle.load(pckfp)
         pckfp.close()
+    return progress;
 
-    def onepass():
-        # renew the list
-        logFileList = findPrefixedLogs(os.curdir,prefix='CC2',includeCompressed=True)
-        activeFileList = removeUnchanged(logFileList,progress)
-        if (len(activeFileList)<=0):
-            print "No files to process"
-            return
+def saveProgressToPickle(progress):
+    print "Writting Pickled Summary: %s" % progressPickleFileName
+    pckfp = open(progressPickleFileName, 'wb')
+    pickle.dump(progress, pckfp)
+    pckfp.close()
 
-        for line in fileinput.input(activeFileList,openhook=fileinput.hook_compressed):
-            #process(line)
-            if (fileinput.filelineno()<=progress[fileinput.filename()].lastLineRead):
-                #print "skip  %06d from:%s" % (fileinput.filelineno(),fileinput.filename())
-                continue
+def onepass(progress):
+    # renew the list
+    logFileList = findPrefixedLogs(os.curdir,prefix='CC2',includeCompressed=True)
+    activeFileList = removeUnchanged(logFileList,progress)
+    if (len(activeFileList)<=0):
+        print "No files to process"
+        return
 
-            progress[fileinput.filename()].lastLineRead=fileinput.filelineno()
+    for line in fileinput.input(activeFileList,openhook=fileinput.hook_compressed):
+        #process(line)
+        if (fileinput.filelineno()<=progress[fileinput.filename()].lastLineRead):
+            #print "skip  %06d from:%s" % (fileinput.filelineno(),fileinput.filename())
+            continue
 
-            if (fileinput.filelineno()%1000==0):
-                pass #print "file:%s:%06d  -mod:%s" % (os.path.basename(fileinput.filename()),fileinput.filelineno(),lastModDate)
-            #print "file:%s:%06d" % (os.path.basename(fileinput.filename()),fileinput.filelineno())
+        progress[fileinput.filename()].lastLineRead=fileinput.filelineno()
 
-        print "Processing summary:"
-        for fileName in sorted(progress.keys(),key=(lambda s: os.path.basename(s)) ):
-            print " %7d lines from %s in %s" % (progress[fileName].lastLineRead,os.path.basename(fileName),os.path.dirname(fileName))
+        if (fileinput.filelineno()%1000==0):
+            pass #print "file:%s:%06d  -mod:%s" % (os.path.basename(fileinput.filename()),fileinput.filelineno(),lastModDate)
+        #print "file:%s:%06d" % (os.path.basename(fileinput.filename()),fileinput.filelineno())
 
-        print "Writting Pickled Summary: %s" % progressPickleFileName
-        pckfp = open(progressPickleFileName, 'wb')
-        pickle.dump(progress, pckfp)
-        pckfp.close()
+    saveProgressToPickle(progress)
+    print "Processing summary:"
+    for fileName in sorted(progress.keys(),key=(lambda s: os.path.basename(s)) ):
+        print " %7d lines from %s in %s" % (progress[fileName].lastLineRead,os.path.basename(fileName),os.path.dirname(fileName))
 
+if __name__ == "__main__":
+    print "Prefixed File Logs (can be compressed)"
+
+    progress = loadProgressFromPickle() # map of file -> ProgressItem
     for n in range(1,400):
         print "Processing loop: %d" % n
-        onepass()
-        time.sleep(5.1)
+        onepass(progress)
+        time.sleep(5.0)
 
