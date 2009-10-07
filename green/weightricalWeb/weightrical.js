@@ -6,7 +6,7 @@ function onLoad() {
         gridColor: new Timeplot.Color("#000000"),
         axisLabelsPlacement: "bottom",
         //min:'2009-08-01'
-        //min:'2009-08-01'
+        min:'2009-06-01'
     });
     /*var timeGeometry = new Timeplot.MagnifyingTimeGeometry({
         gridColor: new Timeplot.Color("#000000"),
