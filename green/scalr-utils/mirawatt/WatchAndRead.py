@@ -19,6 +19,8 @@
 import os
 import fileinput
 import time
+import hashlib
+import pickle
 
 def findPrefixedLogs(path,prefix='CC',includeCompressed=False):
     """
@@ -63,67 +65,104 @@ def ffind(path, namefs=None, relative=True):
     except Exception, e: raise ScriptError(str(e))
     return(fileList)
 
+# return a copy of logFileList, which need processing according to progress
+def removeUnchanged(logFileList,progress): # Remove items which are unchanged in progress.
+    activeFileList=[];
+    for filename in  logFileList:
+        newPI = ProgressItem(filename)
+        localtimeModStr =  time.strftime('%Y-%m-%dT%H:%M:%S',time.localtime(newPI.lastMod))
+        ago = time.time()-newPI.lastMod
+        #print " checking: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName),newPI.fileSize,ago,localtimeModStr,newPI.md5)
+        oldPI=None
+        if (filename in progress):
+            oldPI=progress[filename]
+        if (not oldPI): # new file: seed progress, calc md5, appent to active file list
+            newPI.calcmd5()
+            progress[filename] = newPI
+            activeFileList.append(filename)
+            print " NEW: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName),newPI.fileSize,ago,localtimeModStr,newPI.md5)
+        elif (newPI.fileSize!=oldPI.fileSize or newPI.lastMod!=oldPI.lastMod):
+            # current file is in progress, but size/date has changed
+            # update info in progress, add to active List (calc md5)
+            # make sure we preserve le lastLineRead (high water mark)
+            newPI.calcmd5()
+            newPI.lastLineRead = oldPI.lastLineRead
+            # replace with new progress item
+            progress[filename] = newPI
+            activeFileList.append(filename)
+            print " MOD: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName),newPI.fileSize,ago,localtimeModStr,newPI.md5)
+        else:
+            #print " SKP: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(oldPI.fileName),oldPI.fileSize,ago,localtimeModStr,oldPI.md5)
+            pass
 
-def hook_compressed_seek(filename, mode):
-    ext = os.path.splitext(filename)[1]
-    if ext == '.gz':
-        import gzip
-        return gzip.open(filename, mode)
-    elif ext == '.bz2':
-        import bz2
-        return bz2.BZ2File(filename, mode)
-    else:
-        #return open(filename, mode)
-        f =  open(filename, mode)
-        f.seek(2669103-5000)
-        return f;
+    return activeFileList
+
+def md5OfFileContent(fileName): # if bz2 or gz md5 of uncompressed content
+    mode='r'
+    fp = fileinput.hook_compressed(fileName,mode)
+    md5 = hashlib.md5()
+    try:
+        while 1:
+            data = fp.read(8096) #buffer at a time
+            if not data:
+                break
+            md5.update(data)
+    finally:
+        fp.close()
+    return md5.hexdigest()
+
+class ProgressItem:
+    def __init__(self,fileName):
+        self.fileName = fileName
+        stats = os.stat(fileName)
+        self.fileSize = stats[6]
+        self.lastMod = stats[8]
+        self.md5 = 'UNSET'
+        self.lastLineRead = 0
+
+    def calcmd5(self):
+        self.md5 = md5OfFileContent(self.fileName)
 
 if __name__ == "__main__":
     print "Prefixed File Logs (can be compressed)"
-    logFileList = findPrefixedLogs(os.curdir,prefix='CC2',includeCompressed=True)
-    for fileName in  logFileList:
-        print " Will Process: %s" % fileName
-    print
+    progressPickleFileName='progress.pkl'
+    progress = {} # map of file -> ProgressItem
+    if (os.path.exists(progressPickleFileName)):
+        pckfp = open(progressPickleFileName, 'rb')
+        progress = pickle.load(pckfp)
+        pckfp.close()
 
-    progress = {} # map of absfileName,lastLineRead(not max)  later (,md5sum)
-    
     def onepass():
-        # we can maybe seek woth os.lseek(fd, pos, how) applied to fileinput.fileno
-        # fileinput.input([files[, inplace[, backup[, mode[, openhook]]]]])
-        for line in fileinput.input(logFileList,openhook=fileinput.hook_compressed):
-        #for line in fileinput.input(logFileList,openhook=hook_compressed_seek):
-            #process(line)
-            progress[fileinput.filename()]=fileinput.filelineno()
+        # renew the list
+        logFileList = findPrefixedLogs(os.curdir,prefix='CC2',includeCompressed=True)
+        activeFileList = removeUnchanged(logFileList,progress)
+        if (len(activeFileList)<=0):
+            print "No files to process"
+            return
 
-            if (fileinput.isfirstline()):
-                print "%06d Reading file:%s:%06d" % (fileinput.lineno(),os.path.basename(fileinput.filename()),fileinput.filelineno())
+        for line in fileinput.input(activeFileList,openhook=fileinput.hook_compressed):
+            #process(line)
+            if (fileinput.filelineno()<=progress[fileinput.filename()].lastLineRead):
+                #print "skip  %06d from:%s" % (fileinput.filelineno(),fileinput.filename())
+                continue
+
+            progress[fileinput.filename()].lastLineRead=fileinput.filelineno()
+
             if (fileinput.filelineno()%1000==0):
-                lastModDate='Must Be a pipe!'
-                try:
-                    stats = os.fstat(fileinput.fileno())
-                    lastModDate = gmtStr =  time.strftime('%Y-%m-%dT%H:%M:%S',time.localtime(stats[8]))
-                    print fileinput._file
-                except AttributeError:
-                    pass
-                print "%06d                 %06d mod:%s" % (fileinput.lineno(),fileinput.filelineno(),lastModDate)
+                pass #print "file:%s:%06d  -mod:%s" % (os.path.basename(fileinput.filename()),fileinput.filelineno(),lastModDate)
+            #print "file:%s:%06d" % (os.path.basename(fileinput.filename()),fileinput.filelineno())
 
         print "Processing summary:"
         for fileName in sorted(progress.keys(),key=(lambda s: os.path.basename(s)) ):
-            print " %7d lines from %s in %s" % (progress[fileName],os.path.basename(fileName),os.path.dirname(fileName))
+            print " %7d lines from %s in %s" % (progress[fileName].lastLineRead,os.path.basename(fileName),os.path.dirname(fileName))
 
-    onepass()
-#import os, itertools
-#os.stat(filename).st_mtime
-#f=open('file_to_tail.txt','rb')
-#for line in tail(f, 20):
-#    print line
-#
-#while 1:
-#    where = file.tell()
-#    line = file.readline()
-#    if not line:
-#        time.sleep(1)
-#        file.seek(where)
-#    else:
-#        print line, # already has newline
+        print "Writting Pickled Summary: %s" % progressPickleFileName
+        pckfp = open(progressPickleFileName, 'wb')
+        pickle.dump(progress, pckfp)
+        pckfp.close()
+
+    for n in range(1,400):
+        print "Processing loop: %d" % n
+        onepass()
+        time.sleep(5.1)
 
