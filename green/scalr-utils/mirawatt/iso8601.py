@@ -10,6 +10,7 @@
 import datetime
 import time # strptime not in datetime before 2.5
 import re
+import os
 
 TESTDATE='2009-10-08T01:04:53Z'
 TESTDATE2='2009-10-08T01:04:53.456Z'
@@ -46,6 +47,18 @@ def test_regexp():
 
 if __name__ == "__main__":
     print "Testing iso8601 Datetimes"
+    print "time module timezones:"
+    print "time.tzname: %s" % ('|'.join(time.tzname))
+    print "time.timezone: %s" % (time.timezone)
+    print "time.altzone: %s" % (time.altzone)
+    print "time.daylight: %s" % (time.daylight)
+    # timemodule's C implementation is based on localtime syscall
+    #print "os.environ['TZ']: %s" % (os.environ['TZ'])
+    # os.environ['TZ'] = 'US/Eastern'
+    # os.environ['TZ'] = 'EST+05EDT,M4.1.0,M10.5.0'
+    # os.environ['TZ'] = 'AEST-10AEDT-11,M10.5.0,M3.5.0'
+
+    
     print "strptime: %s" % test_strptime()
     print "  regexp: %s" % test_regexp()
     number=100000
