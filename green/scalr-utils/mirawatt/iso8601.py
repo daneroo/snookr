@@ -4,6 +4,9 @@
 #
 # let us start with speed:
 # compare strptime vs RE
+# on cantor: noop:0.4usec strptime:62usec regexp:9usec
+# on darwin: noop:0.2usec strptime:39usec regexp:7usec
+
 import datetime
 import time # strptime not in datetime before 2.5
 import re
