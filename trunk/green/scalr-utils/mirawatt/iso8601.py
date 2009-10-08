@@ -3,10 +3,11 @@
 # this is a test module for parsing/formatting iso8601 datetimes
 #
 # let us start with speed:
-# compare strptime vs RE
-# on cantor:      noop:0.4usec strptime:62usec regexp:9usec
-# on darwin:      noop:0.2usec strptime:39usec regexp:7usec
-# on miraplug001: noop:1.6usec strptime:800usec regexp:117usec
+# compare strptime vs RE vs...
+# all time in microseconds/call
+# on cantor:      noop:0.40 strptime: 62 regexp:  9 tupletoiso8601-local:
+# on darwin:      noop:0.16 strptime: 39 regexp:  7 tupletoiso8601-local: 12.26
+# on miraplug001: noop:1.60 strptime:833 regexp:121 tupletoiso8601-local:343.32
 #
 # now lets look at timezone REQUIREMENTS
 #  we will alway work with unambiguous representations
@@ -24,9 +25,9 @@ import calendar
 import re
 import os
 
-TESTDATE='2009-10-08T01:04:53Z'
+TESTDATE=    '2009-10-08T01:04:53Z'
 TESTDATEFRAC='2009-10-08T01:04:53.456Z'
-ISO_DATE_FORMAT_Z = '%Y-%m-%dT%H:%M:%SZ'
+ISO_DATE_FORMAT_Z =   '%Y-%m-%dT%H:%M:%SZ'
 ISO_DATE_FORMAT_NOZ = '%Y-%m-%dT%H:%M:%S'
 
 def test_noop():
@@ -47,17 +48,15 @@ def tuple_to_iso8601local(tuple6):
     struct_tmL = time.localtime(unix_stamp_gmt)
 
     NOZStr = time.strftime(ISO_DATE_FORMAT_NOZ, struct_tmL)
-    # this is actually slower than strftime !?
-    #tt = struct_tmL
-    #NOZStr = "%04d-%02d-%02dT%02d:%02d:%02d" % (tt.tm_year,tt.tm_mon,tt.tm_mday,tt.tm_hour,tt.tm_min,tt.tm_sec)
 
-    #localSecondsOffset = (time.timezone,time.altzone)[struct_tmL.tm_isdst] # or [8]
-    # don't reference time.altzone unless time.daylight is set.
+    # Don't reference time.altzone unless time.daylight is set.
     localSecondsOffset = time.timezone
     if (time.daylight and struct_tmL.tm_isdst):
         localSecondsOffset = time.altzone
 
-    sign = "+" if localSecondsOffset<0 else "-"
+    # localSecondsOffset's sign is reversed..
+    sign = "+" 
+    if (localSecondsOffset>0): sign = "-"
     hourOffset = int(localSecondsOffset)/3600
     minuteOffset = (int(localSecondsOffset) % 3600)/60
     return "%s%s%02d%02d" % (NOZStr,sign,hourOffset,minuteOffset)
@@ -68,14 +67,10 @@ def test_localfromstrp():
     return tuple_to_iso8601local(tuple6)
     pass
 
-def to_int(x): return int(float(x))
-
 def test_localre():
     g = test_regexp()
-    #tuple6str = (g['year'],g['month'],g['day'],g['hour'],g['minute'],g['second'])
-    #tuple6 = map(to_int,tuple6str)
+    # mapping by hand is faster than map(to_int,tuple6Str)
     tuple6 = [ int(g['year']), int(g['month']), int(g['day']), int(g['hour']), int(g['minute']), int(float(g['second'])) ]
-    #return tuple6
     return tuple_to_iso8601local(tuple6)
     pass
 
@@ -118,7 +113,7 @@ if __name__ == "__main__":
     print " local-re: %s" % test_localre()
 
     number=1000
-    repeat=2
+    repeat=1
     from timeit import Timer
     for tname in ['noop','strlen','strptime','regexp','tupletoiso8601','localfromstrp','localre']:
         t = Timer("test_%s()"%tname, "from __main__ import test_%s"%tname)
