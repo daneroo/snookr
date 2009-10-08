@@ -5,7 +5,7 @@
 # let us start with speed:
 # compare strptime vs RE vs...
 # all time in microseconds/call
-# on cantor:      noop:0.40 strptime: 62 regexp:  9 tupletoiso8601-local:
+# on cantor:      noop:0.40 strptime: 62 regexp:  9 tupletoiso8601-local: 30.39
 # on darwin:      noop:0.16 strptime: 39 regexp:  7 tupletoiso8601-local: 12.26
 # on miraplug001: noop:1.60 strptime:833 regexp:121 tupletoiso8601-local:343.32
 #
@@ -20,7 +20,7 @@
 # we can use time.localtime vs time.gmtime to do this.
 
 import datetime
-import time # strptime not in datetime before 2.5./is
+import time # strptime not in datetime before 2.5
 import calendar
 import re
 import os
