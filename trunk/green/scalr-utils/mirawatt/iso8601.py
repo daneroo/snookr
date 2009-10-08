@@ -9,6 +9,9 @@
 #  strptime: time to parse with time.strptime
 #    regexp: time to parse iso8601 with Regexp: precompiled pattern
 # tupletoiso8601-local:  datetime->stamp->local struct_tm ->strftime+offset(tm.isdst)
+# localstrp: strptime+tupletoisolocal
+#   localre: regexp+tupletoisolocal
+#
 # on cantor:      noop:0.40 strptime: 62 regexp:  9 tupletoiso8601-local: 30.39 localstrp:  96.18 localre: 54.33
 # on darwin:      noop:0.16 strptime: 39 regexp:  7 tupletoiso8601-local: 12.26 localstrp:  43.39 localre: 23.76
 # on miraplug001: noop:1.60 strptime:833 regexp:121 tupletoiso8601-local:343.32 localstrp:1103.53 localre:739.58
