@@ -22,6 +22,7 @@ def test_strlen():
     length = len(TESTDATE)
 
 def test_strptime():
+    #return datetime.datetime.strptime(TESTDATE,ISO_DATE_FORMAT_Z)
     return time.strptime(TESTDATE,ISO_DATE_FORMAT_Z)
     pass
 
