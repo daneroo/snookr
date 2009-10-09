@@ -31,6 +31,8 @@ import time # strptime not in datetime before 2.5
 import calendar
 import re
 import os
+import math
+import sys
 
 TESTDATE=    '2009-10-08T01:04:53Z'
 TESTDATEFRAC='2009-10-08T01:04:53.456Z'
@@ -41,25 +43,42 @@ class iso8601:
     """
     A class for manipulating iso 8601 datetimes
     utc: naive datetime object
+    -everything happens in the constructor or on demand
+    instance variables:
+        - utc: datetime.datetime tuple for UTC date
+        - timestamp: unix timestamp, seconds since epoch in UTC
+        - localSecondsOffset: local timezone offset in seconds
+        - local: datetime.datetime tuple for local timezone
     """
     def __init__(self,stampStr):    
-        self.utc = self.parse(stampStr)
-        self.lcl = self.local()
+        self.utc = self.parseAndSetUTC(stampStr)
+        self.setTimestamp()
+        self.setLocalAndSecondsOffset()
+        self.lcl = "ZZ"#self.getLocalStr()
 
     def __str__(self):
-        return "%s : %f : %s" % (self.utc,self.unix_stamp,self.lcl)
+        return "%s : %f : %s" % (self.utc,self.timestamp,self.lcl)
     
     # use raw strings r"..": which do not escape \'s
-    pattern = re.compile(r"(?P<year>[0-9]{4})-"
-                         r"(?P<month>[0-9]{2})-"
-                         r"(?P<day>[0-9]{2})"
-                         r"T?"
-                         r"(?P<hour>[0-9]{2}):"
-                         r"(?P<minute>[0-9]{2}):"
-                         r"(?P<second>[0-9]{2}([,.][0-9]+)?)"
-                         r"Z"
-                         )
-    def parse(self,stampStr):
+    # Date seperator is '-', it is optional,
+    #   But must match: 20080901|2008-09-01 but not 2008-0901 and not 200809-01
+    DATE_RE = (r"(?P<year>[0-9]{4})(?P<DS>(-?))"
+               r"(?P<month>[0-9]{2})(?P=DS)"
+               r"(?P<day>[0-9]{2})")
+    # Date-Time seperator is T or <space>
+    # Time seperator is ':', it is optional,
+    #   But must match: 23:45:01|234501 but not 23:4501 and not 2345:01
+    TIME_RE = (r"(T| )"
+               r"(?P<hour>[0-9]{2})(?P<TS>(:?))"
+               r"(?P<minute>[0-9]{2})(?P=TS)"
+               r"(?P<second>[0-9]{2}([,.][0-9]+)?)")
+    # TZ is required Z
+    TZ_RE = (r"(?P<tzname>(Z|"
+             r"(?P<tzhour>[+-][0-9]{2})((:?)(?P<tzmin>[0-9]{2}))?))")
+
+    pattern = re.compile(DATE_RE+TIME_RE+TZ_RE)
+
+    def parseAndSetUTC(self,stampStr):
         '''
         Parse an iso 8601 string and return a naive datetime object
         representing the UTC tuple for the passed datetime representation
@@ -75,21 +94,26 @@ class iso8601:
         else:
             return None
 
-    def local(self):
-        self.unix_stamp = calendar.timegm(self.utc.timetuple())
-        struct_tmL = time.localtime(self.unix_stamp)
-        NOZStr = time.strftime(ISO_DATE_FORMAT_NOZ, struct_tmL)
-        # Don't reference time.altzone unless time.daylight is set.
-        localSecondsOffset = time.timezone
-        if (time.daylight and struct_tmL.tm_isdst):
-            localSecondsOffset = time.altzone
+    def setTimestamp(self):
+        self.timestamp = calendar.timegm(self.utc.timetuple())
 
-        # localSecondsOffset's sign is reversed..
-        sign = "+" 
-        if (localSecondsOffset>0): sign = "-"
-        hourOffset = int(localSecondsOffset)/3600
-        minuteOffset = (int(localSecondsOffset) % 3600)/60
-        return "%s%s%02d%02d" % (NOZStr,sign,hourOffset,minuteOffset)
+    def setLocalAndSecondsOffset(self):
+        self.local_tm = time.localtime(self.timestamp)
+        # Don't reference time.altzone unless time.daylight is set.
+        # localSecondsOffset's sign is reversed w.r.t timezon/altzone
+        self.localSecondsOffset = -time.timezone
+        if (time.daylight and self.local_tm.tm_isdst):
+            self.localSecondsOffset = -time.altzone
+        self.localSecondsOffset = 16200+3600
+
+    def getLocalStr(self):
+        NOZStr = time.strftime(ISO_DATE_FORMAT_NOZ, self.local_tm)
+        # modf's return argument both carry sign of parameter
+        (hours_frac_float,hours_float) = math.modf(self.localSecondsOffset/3600.0)
+        hourOffset = int(hours_float)
+        minuteOffset = abs(int(hours_frac_float*60))
+        return "%s%+03d%02d" % (NOZStr,hourOffset,minuteOffset)
+
 
 def test_construct():
     return iso8601(TESTDATE)
@@ -157,6 +181,19 @@ def test_regexp():
         return {'error':'No Match'}
 
 if __name__ == "__main__":
+    if (False):
+        parseTest('20091008 01:04:53Z')
+        # DS:Date Separator must be  consitent
+        #parseTest('200910-08 01:04:53Z')
+        parseTest('2009-10-08 01:04:53Z')
+        parseTest('2009-10-08T01:04:53Z')
+        parseTest('2009-10-08T01:04:53+0400')
+        parseTest('2009-10-08T01:04:53+0400')
+        #parseTest('2009-10-08T01:04:53')
+        parseTest('2009-10-08T010453Z')
+        parseTest('2009-10-08T010453-0400')
+        parseTest('2009-10-08T010453-04')
+        sys.exit()
     print "Testing iso8601 Datetimes"
     print "time module timezones:"
     print "time.tzname: %s" % ('|'.join(time.tzname))
