@@ -16,7 +16,7 @@ import math
 #     parse: time to parse and construct datetime object with timezone
 # on cantor:      noop:0.40   regexp: 13  parse: 41.16
 # on darwin:      noop:0.16   regexp:  6  parse: 17.95
-# on miraplug001: noop:1.60   regexp:140  parse:818.64
+# on miraplug001: noop:1.60   regexp:140  parse:595.59
 
 
 ######## ISO 8601 Regular Expression ########################
