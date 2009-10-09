@@ -11,6 +11,15 @@ import time
 # constant for zero time offset.
 ZERO = timedelta(0)
 
+fixedOffsetCache={}
+def getFixedOffset(offset_hours, offset_minutes):
+    key = "GMT%+03d%2d" % (offset_hours,offset_minutes)
+    if (key in fixedOffsetCache):
+        return fixedOffsetCache[key]
+    newinstance = FixedOffset(offset_hours, offset_minutes)
+    fixedOffsetCache[key] = newinstance
+    return newinstance
+
 class FixedOffset(tzinfo):
     '''
     A class building tzinfo objects for fixed-offset time zones.
@@ -116,3 +125,4 @@ class LocalTimezone(tzinfo):
 UTC = FixedOffset(0,0,"UTC")
 # the default instance for local time zone.
 LocalTZ = LocalTimezone()
+
