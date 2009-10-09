@@ -6,7 +6,6 @@
 # and provide functions for casting to local and UTC timezones
 import datetime
 import time # strptime not in datetime before 2.5
-#import tzinfo # mine
 import calendar
 import re
 import os
@@ -175,52 +174,41 @@ class FixedOffset(tzinfo):
         return "<FixedOffset %r>" % self.__name
 
 
-STDOFFSET = timedelta(seconds = -time.timezone)
-# locale time zone offset
-
-# calculate local daylight saving offset if any.
-if time.daylight:
-    DSTOFFSET = timedelta(seconds = -time.altzone)
-else:
-    DSTOFFSET = STDOFFSET
-
-DSTDIFF = DSTOFFSET - STDOFFSET
-# difference between local time zone and local DST time zone
 
 class LocalTimezone(tzinfo):
-    '''
-    A class capturing the platform's idea of local time.
-    '''
+    # A class capturing the platform's idea of local time.
+    # locale time zone offset
+    STDOFFSET = timedelta(seconds = -time.timezone)
+
+    # calculate local daylight saving offset if any.
+    if time.daylight:
+        DSTOFFSET = timedelta(seconds = -time.altzone)
+    else:
+        DSTOFFSET = STDOFFSET
+
+    DSTDIFF = DSTOFFSET - STDOFFSET
+    # difference between local time zone and local DST time zone
 
     def utcoffset(self, dt):
-        '''
-        Return offset from UTC in minutes of UTC.
-        '''
+        #Return offset from UTC in minutes of UTC.
         if self._isdst(dt):
             return DSTOFFSET
         else:
             return STDOFFSET
 
     def dst(self, dt):
-        '''
-        Return daylight saving offset.
-        '''
+        #Return daylight saving offset.
         if self._isdst(dt):
             return DSTDIFF
         else:
             return ZERO
 
     def tzname(self, dt):
-        '''
-        Return the time zone name corresponding to the datetime object dt, as a
-        string.
-        '''
+        # Return the time zone name corresponding to the datetime object dt, as a string.
         return time.tzname[self._isdst(dt)]
 
     def _isdst(self, dt):
-        '''
-        Returns true if DST is active for given datetime object dt.
-        '''
+        # Returns true if DST is active for given datetime object dt.
         tt = (dt.year, dt.month, dt.day,
               dt.hour, dt.minute, dt.second,
               dt.weekday(), 0, -1)
