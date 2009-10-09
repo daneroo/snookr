@@ -6,10 +6,7 @@
 # and provide functions for casting to local and UTC timezones
 import datetime
 import time
-from datetime import timedelta, tzinfo
-import calendar
 import re
-import os
 import math
 
 # TIMING
@@ -67,7 +64,7 @@ def parse(stampStr):
 #   LocalTZ = LocalTimezone()
 
 # constant for zero time offset.
-ZERO = timedelta(0)
+ZERO = datetime.timedelta(0)
 
 fixedOffsetCache={}
 def getFixedOffset(offset_hours, offset_minutes):
@@ -78,7 +75,7 @@ def getFixedOffset(offset_hours, offset_minutes):
     fixedOffsetCache[key] = newinstance
     return newinstance
 
-class FixedOffset(tzinfo):
+class FixedOffset(datetime.tzinfo):
     '''
     A class building tzinfo objects for fixed-offset time zones.
     Note that FixedOffset(0, "UTC") is a different way to build a
@@ -91,7 +88,7 @@ class FixedOffset(tzinfo):
         The time offset should be positive for time zones east of UTC
         and negate for time zones west of UTC.
         '''
-        self.__offset = timedelta(hours=offset_hours, minutes=offset_minutes)
+        self.__offset = datetime.timedelta(hours=offset_hours, minutes=offset_minutes)
         if (not name):
             if (offset_minutes!=0):
                 name = "GMT%+03d%2d" % (offset_hours,offset_minutes)
@@ -127,15 +124,15 @@ class FixedOffset(tzinfo):
 
 
 
-class LocalTimezone(tzinfo):
+class LocalTimezone(datetime.tzinfo):
     # A class capturing the platform's idea of local time.
     # locale time zone offset
-    STDOFFSET = timedelta(seconds = -time.timezone)
+    STDOFFSET = datetime.timedelta(seconds = -time.timezone)
 
     # calculate local daylight saving offset if any.
     DSTOFFSET = STDOFFSET
     if time.daylight:
-        DSTOFFSET = timedelta(seconds = -time.altzone)
+        DSTOFFSET = datetime.timedelta(seconds = -time.altzone)
 
     DSTDIFF = DSTOFFSET - STDOFFSET
     # difference between local time zone and local DST time zone
