@@ -2,29 +2,8 @@
 #
 # this is a test module for parsing/formatting iso8601 datetimes
 #
-# let us start with speed:
-# compare strptime vs RE vs...
-# all time in microseconds/call
-#      noop: reference timing loop just f-call
-#  strptime: time to parse with time.strptime
-#    regexp: time to parse iso8601 with Regexp: precompiled pattern
-# tupletoiso8601-local:  datetime->stamp->local struct_tm ->strftime+offset(tm.isdst)
-# localstrp: strptime+tupletoisolocal
-#   localre: regexp+tupletoisolocal
-#
-# on cantor:      noop:0.40 strptime: 62 regexp:  9 tupletoiso8601-local: 30.39 localstrp:  96.18 localre: 54.33
-# on darwin:      noop:0.16 strptime: 39 regexp:  7 tupletoiso8601-local: 12.26 localstrp:  43.39 localre: 23.76
-# on miraplug001: noop:1.60 strptime:833 regexp:121 tupletoiso8601-local:343.32 localstrp:1103.53 localre:739.58
-#
-# now lets look at timezone REQUIREMENTS
-#  we will alway work with unambiguous representations
-# i.e. Fixed Offset representations UTC or -0400 or +0500
-# but we have the need for some localtime operations:
-#  i.e. aggregation: startOfDay based on localtime
-#
-#  IDEA use only naive datetime objects, or FixedOffset
-# but find normalized localtime representation
-# we can use time.localtime vs time.gmtime to do this.
+# We will build a timezone aware datetime object with FixedOffset
+# and provide functions for casting to local and UTC timezones
 import datetime
 import time # strptime not in datetime before 2.5
 import tzinfo # mine
@@ -34,7 +13,7 @@ import os
 import math
 
 TESTDATE=    '2009-10-08T01:04:53Z'
-TESTDATE=    '2009-10-08T01:04:53-0400'
+TESTDATE=    '2009-10-08T01:04:53,456-0500'
 TESTDATEFRAC='2009-10-08T01:04:53.456Z'
 ISO_DATE_FORMAT_Z =   '%Y-%m-%dT%H:%M:%SZ'
 ISO_DATE_FORMAT_NOZ = '%Y-%m-%dT%H:%M:%S'
@@ -52,11 +31,12 @@ class iso8601:
     """
     def __init__(self,stampStr):    
         self.utc = self.parse(stampStr)
-        self.setTimestamp()
-        self.setLocalAndSecondsOffset()
-        self.lcl = "ZZ"#self.getLocalStr()
+        #self.setTimestamp()
+        #self.setLocalAndSecondsOffset()
+        #self.lcl = "ZZ"#self.getLocalStr()
 
     def __str__(self):
+        return "%s" % (self.utc)
         return "%s : %f : %s" % (self.utc,self.timestamp,self.lcl)
     
     # use raw strings r"..": which do not escape \'s
@@ -87,16 +67,19 @@ class iso8601:
         match = self.isopattern.match(stampStr)
         if (match):
             g = match.groupdict()
-            print g
+            #print g
             # seconds rounded to int even thoug RE allows fractional seconds
-            tuple_date = datetime.datetime(int(g['year']), int(g['month']), int(g['day']), int(g['hour']), int(g['minute']), int(float(g['second'])))
+            # modf return frac+integer parts as floats
+            float_secs = float(g['second'].replace(',','.') ) or 0
+            (frac,secs) = math.modf( float_secs )
+            microseconds = 1000000 * frac
+            tz = tzinfo.getFixedOffset(int(g['tzhour'] or 0),int(g['tzmin'] or 0))
+            #tz = tzinfo.FixedOffset(int(g['tzhour'] or 0),int(g['tzmin'] or 0))
+
+            tuple_date = datetime.datetime(int(g['year']), int(g['month']), int(g['day']), int(g['hour']), int(g['minute']), int(secs),int(microseconds),tz)
             # TODO add offset, use timedelta...
-            tuple_date = tuple_date.replace(tzinfo=tzinfo.FixedOffset(int(g['tzhour'] or 0),int(g['tzmin'] or 0)))
-            #secondsOffset = int(g['tzhour'] or 0)*3600 + int(g['tzmin'] or 0)*60
-            #timestamp = calendar.timegm(tuple_date.timetuple())
-            #nu_tm = time.gmtime(timestamp-secondsOffset)
-            #print "%s %d %d %s" % (tuple_date,secondsOffset,timestamp,nu_tm)
-            print "%s : %s" % (tuple_date,tuple_date.tzinfo)
+            #tuple_date = tuple_date.replace(tzinfo=tz)
+            #print "%s : %s" % (tuple_date,tuple_date.tzinfo)
             return tuple_date
         else:
             return None
@@ -165,7 +148,7 @@ def test_localfromstrp():
 def test_localre():
     g = test_regexp()
     # mapping by hand is faster than map(to_int,tuple6Str)
-    tuple6 = [ int(g['year']), int(g['month']), int(g['day']), int(g['hour']), int(g['minute']), int(float(g['second'])) ]
+    tuple6 = [ int(g['year']), int(g['month']), int(g['day']), int(g['hour']), int(g['minute']), int(float(g['second'].replace(',','.'))) ]
     return tuple_to_iso8601local(tuple6)
     pass
 
@@ -222,3 +205,11 @@ if __name__ == "__main__":
         for r in results:
             print "%20s %.2f usec/pass" % (tname,(1000000 * r/number))
         
+
+    dt = iso8601(TESTDATE).utc
+    print "date %s -> %s" %(TESTDATE,dt);
+    local = dt.astimezone(tzinfo.LocalTZ)
+    print "  local -> %s" %(local);
+    gmt = dt.astimezone(tzinfo.UTC)
+    print "    gmt -> %s" %(gmt);
+
