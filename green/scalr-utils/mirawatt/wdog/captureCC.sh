@@ -8,7 +8,8 @@
 #  ./captureCC.sh /dev/ttyUSB 57600 CC1
 
 # Log output files Directory
-OUTPUTLOGDIR="/mirawatt/logs"
+#OUTPUTLOGDIR="/mirawatt/logs"
+OUTPUTLOGDIR="/home/daniel/netbeans-workspace/green/scalr-utils/mirawatt"
 # this is the name of the current logrotated file
 #OUTPUTSTAMPFORMAT="%Y%m%dT%H%M00%z" # by Minute
 #OUTPUTSTAMPFORMAT="%Y%m%dT%H0000%z" # by Hour
