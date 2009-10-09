@@ -5,18 +5,22 @@
 # We will build a timezone aware datetime object with FixedOffset
 # and provide functions for casting to local and UTC timezones
 import datetime
-import time # strptime not in datetime before 2.5
+import time
 from datetime import timedelta, tzinfo
 import calendar
 import re
 import os
 import math
 
-TESTDATE=    '2009-10-08T01:04:53Z'
-TESTDATE=    '2009-12-08T01:04:53,456-0500'
-TESTDATEFRAC='2009-10-08T01:04:53.456Z'
-ISO_DATE_FORMAT_Z =   '%Y-%m-%dT%H:%M:%SZ'
-ISO_DATE_FORMAT_NOZ = '%Y-%m-%dT%H:%M:%S'
+# TIMING
+# all time in microseconds/call
+#      noop: reference timing loop just f-call
+#    regexp: time to parse iso8601 with Regexp: precompiled pattern
+#     parse: time to parse and construct datetime object with timezone
+# on cantor:      noop:0.40   regexp: 13  parse: 41.16
+# on darwin:      noop:0.16   regexp:  6  parse: 17.95
+# on miraplug001: noop:1.60   regexp:140  parse:818.64
+
 
 ######## ISO 8601 Regular Expression ########################
 # Date seperator is '-', it is optional,
@@ -169,6 +173,12 @@ UTC = FixedOffset(0,0,"UTC")
 LocalTZ = LocalTimezone()
 
 ##################################################################################
+
+TESTDATE=    '2009-10-08T01:04:53Z'
+TESTDATE=    '2009-12-08T01:04:53,456-0500'
+TESTDATEFRAC='2009-10-08T01:04:53.456Z'
+ISO_DATE_FORMAT_Z =   '%Y-%m-%dT%H:%M:%SZ'
+ISO_DATE_FORMAT_NOZ = '%Y-%m-%dT%H:%M:%S'
 
 def test_construct():
     return parse(TESTDATE)
