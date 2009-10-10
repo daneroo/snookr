@@ -287,7 +287,6 @@ def parseFragment(stampStr, ccfragment):
     try:
         ccdom = minidom.parseString(ccfragment)
     except Exception, e:
-    #except:
         print "XML Error: %s : %s" % (stampStr, e)
         return
 
@@ -296,6 +295,12 @@ def parseFragment(stampStr, ccfragment):
     ccStampStr = stampStrNoTZ[:-8] + ccTimeStr
     ccTimeSecs = parseLocaltimeToSecs(ccStampStr)
     drift = ccTimeSecs - stampSecs
+    if (drift>43200):
+        drift=-86400+drift
+    elif (drift<-43200):
+        drift=86400+drift
+    if (abs(drift)>600):
+        print "WARNING clock drift: %f seconds " % (drift)
 
     histNodeList = ccdom.getElementsByTagName('hist')
     if (histNodeList):
