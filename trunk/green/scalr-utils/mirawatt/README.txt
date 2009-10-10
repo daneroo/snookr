@@ -26,11 +26,11 @@ Mirawatt (Sheeva) Pump
 
   TODO:
    - Remove all tabs from python sources: EVIL.
-       DETECT:
-         use <ctrl-v><tab> to insert the tab on the command line
-         grep -rl "    " `find . -name \*py`
-       FIX: replace all <tab> with 8-spaces in Netbeans.
-            then reformat ?
+     NOTE: you can run python with -t (or -tt for fatal) detection of bad space/tab mixes
+       wrote a script: fixtabs.sh: detects all tabs, makes .notab, ans .showtab files
+       the .notab file has substituted tabs for 8-spaces
+       the show tabs has subtitued tabs for '~~TABS~~' string
+
    +make randomly dying client, to test the watchdog functionality
    +test smtp notification (watchdog@mirawatt.com)
    +make summarize check arithmetic, copy to test directory
@@ -59,7 +59,7 @@ r19 | guillaume | 2009-05-08 10:45:24 -0400 (Fri, 08 May 2009) | 2 lines
 ------------
 
     UDEV: persistent naming for /dev/ttyUSB???
-CAn I add custom rule to /etc/udev/rules.d/, like those in the system wide: /lib/udev/rules.d
+Can I add custom rule to /etc/udev/rules.d/, like those in the system wide: /lib/udev/rules.d
 root@debian:/lib/udev/rules.d# udevadm info -q path -n /dev/ttyUSB0
 /devices/platform/orion-ehci.0/usb1/1-1/1-1:1.0/ttyUSB0/tty/ttyUSB0
 root@debian:/lib/udev/rules.d# udevadm info -a -p /devices/platform/orion-ehci.0/usb1/1-1/1-1:1.0/ttyUSB0/tty/ttyUSB0
