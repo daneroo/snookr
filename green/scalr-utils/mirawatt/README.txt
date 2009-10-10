@@ -25,6 +25,12 @@ Mirawatt (Sheeva) Pump
     ssh root@192.168.5.247 "tail -f /mirawatt/logs/CC*log"
 
   TODO:
+   - Remove all tabs from python sources: EVIL.
+       DETECT:
+         use <ctrl-v><tab> to insert the tab on the command line
+         grep -rl "    " `find . -name \*py`
+       FIX: replace all <tab> with 8-spaces in Netbeans.
+            then reformat ?
    +make randomly dying client, to test the watchdog functionality
    +test smtp notification (watchdog@mirawatt.com)
    +make summarize check arithmetic, copy to test directory
