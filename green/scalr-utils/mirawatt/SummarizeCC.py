@@ -347,19 +347,19 @@ def handleLine(line):
 		parseFragment(stampStr,CCStr)
 
 if __name__ == "__main__":
-        usage = 'python %s' % sys.argv[0]
-	totallines=0;
+    usage = 'python %s' % sys.argv[0]
+    totallines=0;
 	# read line by line
-        while True:
-		line = sys.stdin.readline()         # read a one-line string
-		if not line:                        # or an empty string at EOF
-			break
-		totallines+=1
+    while True:
+        line = sys.stdin.readline()         # read a one-line string
+        if not line:                        # or an empty string at EOF
+            break
+        totallines+=1
 
 		#if ((totallines % 10000) == 0):
 		#	sys.stderr.write("line # %d \n" % (totallines))
 		
-		handleLine(line)
+        handleLine(line)
 		#if (totallines>100):
 		#	break
                 # (stamp, watts,volts) = getGMTTimeWattsAndVoltsFromTedService()
