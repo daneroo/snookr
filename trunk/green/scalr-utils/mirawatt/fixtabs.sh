@@ -13,3 +13,6 @@ for f in `find . -type f -name \*.py | xargs -I ZZFILE grep -l "${TAB}" ZZFILE`;
 done
 echo 
 echo "Each of these has a .showtab, and a .notab where TABS have been replaced"
+echo "To remove them:" 
+echo "  find . -name \*.py.\*tab -exec rm {} \;"
+echo
