@@ -271,6 +271,17 @@ def doHistNode(stampStr, histNode):
         #        pass
         #        print "Ignoring sensor: %d" % sensor
 
+def warnDrift(stampSecs, stampStr, ccTimeStr):
+    ccStampStr = stampStr[:-13] + ccTimeStr
+    ccTimeSecs = parseLocaltimeToSecs(ccStampStr)
+    drift = ccTimeSecs - stampSecs
+    if (drift>43200):
+        drift=-86400+drift
+    elif (drift<-43200):
+        drift=86400+drift
+    if (abs(drift)>600):
+        print "WARNING clock drift: %f seconds @ %s" % (drift,stampStr)
+
 # stampStr has the format: 
 def parseFragment(stampStr, ccfragment):
     # date format: 2009-07-02T19:08:12-0400
@@ -292,15 +303,8 @@ def parseFragment(stampStr, ccfragment):
 
     #calculate drift
     ccTimeStr = ccdom.getElementsByTagName('time')[0].childNodes[0].nodeValue
+    warnDrift(stampSecs,stampStr,ccTimeStr)
     ccStampStr = stampStrNoTZ[:-8] + ccTimeStr
-    ccTimeSecs = parseLocaltimeToSecs(ccStampStr)
-    drift = ccTimeSecs - stampSecs
-    if (drift>43200):
-        drift=-86400+drift
-    elif (drift<-43200):
-        drift=86400+drift
-    if (abs(drift)>600):
-        print "WARNING clock drift: %f seconds @ %s" % (drift,stampStr)
 
     histNodeList = ccdom.getElementsByTagName('hist')
     if (histNodeList):
