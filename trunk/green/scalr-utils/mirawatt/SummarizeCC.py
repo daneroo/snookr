@@ -300,7 +300,7 @@ def parseFragment(stampStr, ccfragment):
     elif (drift<-43200):
         drift=86400+drift
     if (abs(drift)>600):
-        print "WARNING clock drift: %f seconds " % (drift)
+        print "WARNING clock drift: %f seconds @ %s" % (drift,stampStr)
 
     histNodeList = ccdom.getElementsByTagName('hist')
     if (histNodeList):
