@@ -38,7 +38,7 @@ TZ_RE = (r"(?P<tzname>(Z|"
 
 iso8601pattern = re.compile(DATE_RE+TIME_RE+TZ_RE)
 
-def parse(stampStr):
+def parse_iso8601(stampStr):
     '''
     Parse an iso 8601 string and return a tzinfo aware datetime object
     '''
@@ -57,23 +57,40 @@ def parse(stampStr):
         return None
 
 
+#-------- Formatting -----
+# The point here is to combine
+#   -specify seperators, Date,Time,TZ,
+#   -include/omit 'T'
+#   -special Case 'Z' for UTC (-0) offset
+ISO8601BASICFMT     = '%Y%m%dT%H%M%S%z'
+ISO8601EXTENDEDFMT  = '%Y-%m-%dT%H:%M:%S%z'
+
+def fmtBasic(dt): # basicFormating YYYYMMDDTHHMMSS+zzzz
+    return dt.strftime(ISO8601BASICFMT)
+def fmtExtended(dt): # extended Formating YYYY-MM-DD-THH:MM:SS+zzzz
+    return dt.strftime(ISO8601EXTENDEDFMT)
+def fmtBasicZ(dt): # basicFormating YYYYMMDDTHHMMSS(Z|+zzzz)
+    if (dt.tzinfo.utcoffset(dt)==ZERO):
+        ISO8601BASICFMTZ     = '%Y%m%dT%H%M%SZ' # only for UTC | +0000
+        return dt.strftime(ISO8601BASICFMTZ)
+    return dt.strftime(ISO8601BASICFMT)
+def fmtExtendedZ(dt): # extended Formating YYYY-MM-DD-THH:MM:SS(Z|+zzzz)
+    if (dt.tzinfo.utcoffset(dt)==ZERO):
+        ISO8601EXTENDEDFMTZ = '%Y-%m-%dT%H:%M:%SZ' # only for UTC | +0000
+        return dt.strftime(ISO8601EXTENDEDFMTZ)
+    return dt.strftime(ISO8601EXTENDEDFMT)
+
+#-------- TZ Conversion shortcuts
+def toLocalTZ(dt):
+    return dt.astimezone(LocalTZ)
+def toUTC(dt):
+    return dt.astimezone(UTC)
+
 #####################################################################################
 #  This section provides some datetime.tzinfo implementations.
-# Constants defined at end of this file:
-#   UTC = FixedOffset(0,0,"UTC")
-#   LocalTZ = LocalTimezone()
 
 # constant for zero time offset.
 ZERO = datetime.timedelta(0)
-
-fixedOffsetCache={}
-def getFixedOffset(offset_hours, offset_minutes):
-    key = "GMT%+03d%2d" % (offset_hours,offset_minutes)
-    if (key in fixedOffsetCache):
-        return fixedOffsetCache[key]
-    newinstance = FixedOffset(offset_hours, offset_minutes)
-    fixedOffsetCache[key] = newinstance
-    return newinstance
 
 class FixedOffset(datetime.tzinfo):
     '''
@@ -166,6 +183,15 @@ class LocalTimezone(datetime.tzinfo):
 
 # the default instance for UTC.
 UTC = FixedOffset(0,0,"UTC")
+fixedOffsetCache={}
+def getFixedOffset(offset_hours, offset_minutes=0):
+    key = "GMT%+03d%2d" % (offset_hours,offset_minutes)
+    if (key in fixedOffsetCache):
+        return fixedOffsetCache[key]
+    newinstance = FixedOffset(offset_hours, offset_minutes)
+    fixedOffsetCache[key] = newinstance
+    return newinstance
+
 # the default instance for local time zone.
 LocalTZ = LocalTimezone()
 
@@ -178,7 +204,7 @@ ISO_DATE_FORMAT_Z =   '%Y-%m-%dT%H:%M:%SZ'
 ISO_DATE_FORMAT_NOZ = '%Y-%m-%dT%H:%M:%S'
 
 def test_construct():
-    return parse(TESTDATE)
+    return parse_iso8601(TESTDATE)
 
 def test_noop():
     pass
@@ -192,31 +218,69 @@ def test_regexp():
         return {'error':'No Match'}
 
 if __name__ == "__main__":
-    if (False):
-        parseTest('20091008 01:04:53Z')
-        # DS:Date Separator must be  consitent
-        #parseTest('200910-08 01:04:53Z')
-        parseTest('2009-10-08 01:04:53Z')
-        parseTest('2009-10-08T01:04:53Z')
-        parseTest('2009-10-08T01:04:53+0400')
-        parseTest('2009-10-08T01:04:53+0400')
-        #parseTest('2009-10-08T01:04:53')
-        parseTest('2009-10-08T010453Z')
-        parseTest('2009-10-08T010453-0400')
-        parseTest('2009-10-08T010453-04')
+    '''Test cases for the isodatetime module.'''
+    import unittest
 
-    if (False):
-        print "Testing iso8601 Datetimes"
-        print "time module timezones:"
-        print "time.tzname: %s" % ('|'.join(time.tzname))
-        print "time.timezone: %s" % (time.timezone)
-        print "time.altzone: %s" % (time.altzone)
-        print "time.daylight: %s" % (time.daylight)
-        # timemodule's C implementation is based on localtime syscall
-        #print "os.environ['TZ']: %s" % (os.environ['TZ'])
-        # os.environ['TZ'] = 'US/Eastern'
-        # os.environ['TZ'] = 'EST+05EDT,M4.1.0,M10.5.0'
-        # os.environ['TZ'] = 'AEST-10AEDT-11,M10.5.0,M3.5.0'
+    PARSE_TEST_CASES = [
+                ('19660516T010203Z',          datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), "basic date and time tz=Z" ),
+                ('19660516T010203+0000',      datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), "basic date and time tz=0" ),
+                ('1966-05-16T01:02:03Z',      datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), 'extended date and time tz=Z' ),
+                ('1966-05-16T01:02:03-0400',  datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=getFixedOffset(-4)), 'extended date and time tz=-4' ),
+                ('1966-05-16T01:02:03-04:00', datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=getFixedOffset(-4)), 'extended date and time tz=-4' ),
+                # repeat with <space> Date-Time sep
+                ('19660516 010203Z',          datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), "basic date and time tz=Z noT" ),
+                ('19660516 010203+000',       datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), "basic date and time tz=0 noT" ),
+                ('1966-05-16 01:02:03Z',      datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), 'extended date and time tz=Z noT' ),
+                ('1966-05-16 01:02:03-0400',  datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=getFixedOffset(-4)), 'extended date and time tz=-4 noT' ),
+                ('1966-05-16 01:02:03-04:00', datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=getFixedOffset(-4)), 'extended date and time tz=-4 noT' ),
+                # how about some failing tests
+                ('NOT DATE AT ALL',None,'Not date at all!'),
+                ('2001-01-02',None,'Just Date should fail!'),
+                ('2001-01-02T23:45:01',None, 'Missing TZ should fail!'),
+                ('2001-0102T23:45:01', None, 'Unmatched DS:Date Seperator should fail!'),
+                ('200101-02T23:45:01', None, 'Unmatched DS:Date Seperator should fail!'),
+                ('2001-01-02T2345:01', None, 'Unmatched TS:Time Seperator should fail!'),
+                ('2001-01-02T23:4501', None, 'Unmatched TS:Time Seperator should fail!'),
+                # fractional seconds
+                ('1966-05-16T01:02:03.123Z',      datetime.datetime(1966, 5, 16,  1,  2, 3,123000, tzinfo=UTC               ), 'fractional seconds tz=Z' ),
+                ('1966-05-16T01:02:03.123-04:00', datetime.datetime(1966, 5, 16,  1,  2, 3,123000, tzinfo=getFixedOffset(-4)), 'fractional seconds tz=-4' ),
+                ('1966-05-16T01:02:03,123Z',      datetime.datetime(1966, 5, 16,  1,  2, 3,123000, tzinfo=UTC               ), 'fractional seconds w -,- tz=Z' ),
+                ('1966-05-16T01:02:03,123-04:00', datetime.datetime(1966, 5, 16,  1,  2, 3,123000, tzinfo=getFixedOffset(-4)), 'fractional seconds w -,- tz=-4' ),
+                ('1966-05-16T01:02:03.0Z',        datetime.datetime(1966, 5, 16,  1,  2, 3,0, tzinfo=UTC               ), 'fractional seconds range-0' ),
+                ('1966-05-16T01:02:03.1Z',        datetime.datetime(1966, 5, 16,  1,  2, 3,100000, tzinfo=UTC), 'fractional seconds precision-0.1' ),
+                # these two fail with 1 usec offset? 999!=1000, and 9999!=10000
+                #('1966-05-16T01:02:03.01Z',       datetime.datetime(1966, 5, 16,  1,  2, 3, 10000, tzinfo=UTC), 'fractional seconds precision-0.01' ),
+                #('1966-05-16T01:02:03.001Z',      datetime.datetime(1966, 5, 16,  1,  2, 3,  1000, tzinfo=UTC), 'fractional seconds precision-0.001' ),
+                ('1966-05-16T01:02:03.0001Z',     datetime.datetime(1966, 5, 16,  1,  2, 3,   100, tzinfo=UTC), 'fractional seconds precision-0.0001'),
+                ]
+    def create_parse_testcase(datetimestring, expectation,msg):
+        '''TestCase Factory - test case template to validate iso8601 parsing'''
+        class TestDateTime(unittest.TestCase):
+            def test_parse(self):
+                result = parse_iso8601(datetimestring)
+                self.assertEqual(result, expectation,msg)
+        return unittest.TestLoader().loadTestsFromTestCase(TestDateTime)
+
+    TZCONV_TEST_CASES = [ # test conversion to UTC and LocalTime (assume on America/Montreal Machine!
+                ('19660516T010203Z',          datetime.datetime(1966, 5, 16,  1,  2, 3, tzinfo=UTC), "basic date and time tz=Z" ),
+                ]
+
+    def create_tzconvert_testcase(datetimestring, expectation,msg):
+        '''TestCase Factory - test case template to validate iso8601 parsing'''
+        class TestDateTime(unittest.TestCase):
+            def test_parse(self):
+                result = parse_iso8601(datetimestring)
+                self.assertEqual(result, expectation,msg)
+        return unittest.TestLoader().loadTestsFromTestCase(TestDateTime)
+
+    def test_suite():
+        '''Construct a TestSuite instance for all test cases.'''
+        suite = unittest.TestSuite()
+        for datetimestring, expectation, msg in PARSE_TEST_CASES:
+            suite.addTest(create_parse_testcase(datetimestring, expectation, None))
+        return suite
+
+    #unittest.main(defaultTest='test_suite')
 
     
     print "  constr: %s" % test_construct()
@@ -231,15 +295,29 @@ if __name__ == "__main__":
             print "%20s %.2f usec/pass" % (tname,(1000000 * r/number))
         
 
-    dt = parse(TESTDATE)
+    dt = parse_iso8601(TESTDATE)
     print "date %s -> %s" %(TESTDATE,dt);
-    local = dt.astimezone(LocalTZ)
-    print "  local -> %s" %(local);
-    gmt = dt.astimezone(UTC)
+    local = toLocalTZ(dt) #== dt.astimezone(LocalTZ)
+    print "  local -> %s" %(local)
+    gmt = toUTC(dt) # == dt.astimezone(UTC)
     print "    gmt -> %s" %(gmt);
 
     # try Formatting with strftime
-    ISO8601BASIC    = '%Y%m%dT%H%M%S%z'
-    ISO8601EXTENDED = '%Y-%m-%dT%H:%M:%S%z'
-    print "reformated Basic    %s -> %s" % (local,local.strftime(ISO8601BASIC))
-    print "reformated Extended %s -> %s" % (local,local.strftime(ISO8601EXTENDED))
+    print "reformated Basic    %s -> %s" % (local,fmtBasic(local))
+    print "reformated Extended %s -> %s" % (local,fmtExtended(local))
+    print "reformated Basic    %s -> %s" % (gmt,fmtBasic(gmt))
+    print "reformated Extended %s -> %s" % (gmt,fmtExtended(gmt))
+    print "reformated BasicZ    %s -> %s" % (local,fmtBasicZ(local))
+    print "reformated ExtendedZ %s -> %s" % (local,fmtExtendedZ(local))
+    print "reformated BasicZ    %s -> %s" % (gmt,fmtBasicZ(gmt))
+    print "reformated ExtendedZ %s -> %s" % (gmt,fmtExtendedZ(gmt))
+
+
+    if (True):
+        import os
+        for tzStr in ['US/Eastern','Canada/Newfoundland']:
+            os.environ['TZ'] = tzStr
+            time.tzset()
+            for dtStr in ['2009-01-01T12:34:56Z','2009-06-01T12:34:56Z']:
+                dt = toUTC(parse_iso8601(dtStr))
+                print "%20s %s : %s -> %s" % (os.environ['TZ'],time.tzname,dt,toLocalTZ(dt))
