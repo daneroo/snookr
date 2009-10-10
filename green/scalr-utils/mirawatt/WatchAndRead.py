@@ -189,6 +189,21 @@ def handleLine(line):
     if (len(CCStr) > 0):
         parseFragment(stampStr, CCStr)
 
+def warnDrift(stamp, ccfragment):
+    matchTime = re.search("<time>(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})</time>", ccfragment)
+    if (not matchTime): return
+    ccstamp = stamp.replace(hour=int(matchTime.group('hour')),
+                            minute=int(matchTime.group('minute')),
+                            second=int(matchTime.group('second')))
+    delta = ccstamp - stamp
+    drift = delta.days * 86400 + delta.seconds #+delta.microseconds/1000000.0
+    if (drift > 43200):
+        drift = -86400 + drift
+    elif (drift < -43200):
+        drift = 86400 + drift
+    if (abs(drift) > 600):
+        print "WARNING clock drift: %f seconds @ %s" % (drift, stamp)
+
 def parseFragment(stampStr, ccfragment):
     # date format: 2009-07-02T19:08:12-0400
     isodt = iso8601.parse_iso8601(stampStr)
@@ -199,23 +214,8 @@ def parseFragment(stampStr, ccfragment):
         print "XML Error: %s : %s" % (stampStr, e)
         return
 
-    #calculate drift
-    ccTimeStr = '00:00:00' #ccdom.getElementsByTagName('time')[0].childNodes[0].nodeValue
-    matchTime = re.search("<time>(?P<time>[0-9:]{8})</time>", ccfragment)
-    if (matchTime):
-        ccTimeStr = matchTime.group('time')
-    ccStampStr = stampStr[:-13] + ccTimeStr + stampStr[-5:]
-    #print "stamp: %s cc:%s" %(isodt,ccStampStr)
-    isoCC = iso8601.parse_iso8601(ccStampStr)
-    delta = isoCC - isodt
-    drift = delta.days * 86400 + delta.seconds #+delta.microseconds/1000000.0
-    if (drift > 43200):
-        drift = -86400 + drift
-    elif (drift < -43200):
-        drift = 86400 + drift
-    if (abs(drift) > 600):
-        print "WARNING clock drift: %f seconds " % (drift)
-
+    warnDrift(isodt,ccfragment)
+    
 if __name__ == "__main__":
     print "Prefixed File Logs (can be compressed)"
 
