@@ -62,6 +62,7 @@ def parse_iso8601(stampStr):
 #   -specify seperators, Date,Time,TZ,
 #   -include/omit 'T'
 #   -special Case 'Z' for UTC (-0) offset
+#   -precision for fractional seconds
 ISO8601BASICFMT     = '%Y%m%dT%H%M%S%z'
 ISO8601EXTENDEDFMT  = '%Y-%m-%dT%H:%M:%S%z'
 
@@ -85,6 +86,14 @@ def toLocalTZ(dt):
     return dt.astimezone(LocalTZ)
 def toUTC(dt):
     return dt.astimezone(UTC)
+
+#-------- Rounding ( start of Hour,day,Month )
+def startOfHour(dt):
+    return dt.replace(minute=0,second=0,microsecond=0)
+def startOfDay(dt):
+    return dt.replace(hour=0,minute=0,second=0,microsecond=0)
+def startOfMonth(dt):
+    return dt.replace(day=1,hour=0,minute=0,second=0,microsecond=0)
 
 #####################################################################################
 #  This section provides some datetime.tzinfo implementations.
@@ -280,6 +289,7 @@ if __name__ == "__main__":
             suite.addTest(create_parse_testcase(datetimestring, expectation, None))
         return suite
 
+    # Move to end 
     #unittest.main(defaultTest='test_suite')
 
     
@@ -313,6 +323,7 @@ if __name__ == "__main__":
     print "reformated ExtendedZ %s -> %s" % (gmt,fmtExtendedZ(gmt))
 
 
+    # TODO: move tzset/unset code into LocalTimeZone(name=None) constructor
     if (True):
         import os
         for tzStr in ['US/Eastern','Canada/Newfoundland','Asia/Hong_Kong','Egypt',None]:
@@ -328,3 +339,54 @@ if __name__ == "__main__":
                 loc = dt.astimezone(newZone)
                 utcBack = toUTC(loc)
                 print "%20s %16s : %s -> %s -> %s" % (os.getenv('TZ'),time.tzname,dt,loc,utcBack)
+
+        print
+        print "Roundtrip for beginings of months UTC->Local->UTC"
+        for month in range(1,13):
+            utcStr = "2009-%02d-02T00:00:00Z" % (month)
+            dt = toLocalTZ(parse_iso8601(utcStr))
+            utcBack = toUTC(dt)
+            print "%s -> %s -> %s" % (utcStr,dt,fmtExtendedZ(utcBack))
+        print
+        print "Roundtrip for beginings of months Local->UTC->Local"
+        for month in range(1,13):
+            dt = datetime.datetime(2009,month,1,tzinfo=LocalTZ)
+            utc = toUTC(dt)
+            dtBack = toLocalTZ(utc)
+            print "%s -> %s -> %s" % (fmtExtendedZ(dt),fmtExtendedZ(utc),fmtExtendedZ(dtBack))
+
+        print
+        print "Decrement 10 days"
+        day =  datetime.datetime(2009,11,5,tzinfo=LocalTZ)
+        for decrement in range(10):
+            day = day + datetime.timedelta(-1) # -1 day
+            dt = day
+            utc = toUTC(dt)
+            dtBack = toLocalTZ(utc)
+            print "%s -> %s -> %s" % (fmtExtendedZ(dt),fmtExtendedZ(utc),fmtExtendedZ(dtBack))
+        print
+        print "Increment 10 hours' worh of 30 minute increments around dst"
+        hour =  datetime.datetime(2009,10,31,20,0,tzinfo=LocalTZ)
+        #hour =  datetime.datetime(2009,3,7,20,0,tzinfo=LocalTZ)
+        for decrement in range(20):
+            hour = hour + datetime.timedelta(minutes=30) # +1 hour
+            dt = hour
+            utc = toUTC(dt)
+            dtBack = toLocalTZ(utc)
+            print "%s -> %s -> %s" % (fmtExtendedZ(dt),fmtExtendedZ(utc),fmtExtendedZ(dtBack))
+
+    # Now start rounding tests round hour.day,month in local time
+    if (True):
+        print
+        print "Rounding > Hour, Day, Month"
+        dts = ["2009-11-01T02:30:00.123-0500","2009-03-08T03:30:00.123-0400"]
+        for dtStr in dts:
+            dt = toLocalTZ(parse_iso8601(dtStr))
+            #datetime.replace([year[, month[, day[, hour[, minute[, second[, microsecond[, tzinfo]]]]]]]])
+            #startOfHour = dt.replace(minute=0,second=0,microsecond=0)
+            #startOfDay = dt.replace(hour=0,minute=0,second=0,microsecond=0)
+            #startOfMonth = dt.replace(day=1,hour=0,minute=0,second=0,microsecond=0)
+            print "%s == %s >HH:%s >DD:%s >MM:%s" % (dtStr,fmtExtendedZ(dt),fmtExtendedZ(startOfHour(dt)),fmtExtendedZ(startOfDay(dt)),fmtExtendedZ(startOfMonth(dt)))
+
+
+    unittest.main(defaultTest='test_suite')
