@@ -144,15 +144,15 @@ class FixedOffset(datetime.tzinfo):
 class LocalTimezone(datetime.tzinfo):
     # A class capturing the platform's idea of local time.
     # locale time zone offset
-    STDOFFSET = datetime.timedelta(seconds = -time.timezone)
 
-    # calculate local daylight saving offset if any.
-    DSTOFFSET = STDOFFSET
-    if time.daylight:
-        DSTOFFSET = datetime.timedelta(seconds = -time.altzone)
-
-    DSTDIFF = DSTOFFSET - STDOFFSET
-    # difference between local time zone and local DST time zone
+    def __init__(self):
+        self.STDOFFSET = datetime.timedelta(seconds = -time.timezone)
+        # calculate local daylight saving offset if any.
+        self.DSTOFFSET = self.STDOFFSET
+        if time.daylight:
+            self.DSTOFFSET = datetime.timedelta(seconds = -time.altzone)
+        # difference between local time zone and local DST time zone
+        self.DSTDIFF = self.DSTOFFSET - self.STDOFFSET
 
     def utcoffset(self, dt):
         #Return offset from UTC in minutes of UTC.
@@ -315,9 +315,16 @@ if __name__ == "__main__":
 
     if (True):
         import os
-        for tzStr in ['US/Eastern','Canada/Newfoundland']:
-            os.environ['TZ'] = tzStr
+        for tzStr in ['US/Eastern','Canada/Newfoundland','Asia/Hong_Kong','Egypt',None]:
+            if (tzStr):
+                os.environ['TZ'] = tzStr
+            else:
+                del os.environ['TZ']
             time.tzset()
+            # Reset our global variable!
+            newZone = LocalTimezone()
             for dtStr in ['2009-01-01T12:34:56Z','2009-06-01T12:34:56Z']:
                 dt = toUTC(parse_iso8601(dtStr))
-                print "%20s %s : %s -> %s" % (os.environ['TZ'],time.tzname,dt,toLocalTZ(dt))
+                loc = dt.astimezone(newZone)
+                utcBack = toUTC(loc)
+                print "%20s %16s : %s -> %s -> %s" % (os.getenv('TZ'),time.tzname,dt,loc,utcBack)
