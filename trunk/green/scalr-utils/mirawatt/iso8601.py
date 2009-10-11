@@ -87,13 +87,18 @@ def toLocalTZ(dt):
 def toUTC(dt):
     return dt.astimezone(UTC)
 
-#-------- Rounding ( start of Hour,day,Month )
-def startOfHour(dt):
-    return dt.replace(minute=0,second=0,microsecond=0)
-def startOfDay(dt):
-    return dt.replace(hour=0,minute=0,second=0,microsecond=0)
+#-------- Rounding ( start of Month,Day,Hour,Minute,Tensec )
 def startOfMonth(dt):
     return dt.replace(day=1,hour=0,minute=0,second=0,microsecond=0)
+def startOfDay(dt):
+    return dt.replace(hour=0,minute=0,second=0,microsecond=0)
+def startOfHour(dt):
+    return dt.replace(minute=0,second=0,microsecond=0)
+def startOfMinute(dt):
+    return dt.replace(second=0,microsecond=0)
+def startOfTensec(dt):
+    tensec = int(dt.second/10)*10
+    return dt.replace(second=tensec,microsecond=0)
 
 #####################################################################################
 #  This section provides some datetime.tzinfo implementations.
