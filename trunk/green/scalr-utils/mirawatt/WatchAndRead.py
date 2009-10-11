@@ -108,7 +108,7 @@ def md5OfFileContent(fileName): # if bz2 or gz md5 of uncompressed content
     fp = fileinput.hook_compressed(fileName, mode)
 
     #md5 = hashlib.md5()
-    md5=None   
+    md5 = None
     try:
         import hashlib
         md5 = hashlib.md5()
@@ -205,8 +205,8 @@ def warnDrift(stamp, ccfragment):
     matchTime = re.search("<time>(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})</time>", ccfragment)
     if (not matchTime): return
     ccstamp = stamp.replace(hour=int(matchTime.group('hour')),
-                            minute=int(matchTime.group('minute')),
-                            second=int(matchTime.group('second')))
+        minute=int(matchTime.group('minute')),
+        second=int(matchTime.group('second')))
     delta = ccstamp - stamp
     drift = delta.days * 86400 + delta.seconds #+delta.microseconds/1000000.0
     if (drift > 43200):
@@ -219,7 +219,7 @@ def warnDrift(stamp, ccfragment):
 # could validate entire DTD, hist version,sample version
 msgintegrity = re.compile('<msg>.*</msg>')
 chwattpattern = re.compile('<(?P<ch>ch[0-9])><watts>(?P<watt>[0-9]+)</watts></(?P=ch)>')
-def extractWattsRE(stampStr,ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+def extractWattsRE(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
     ok  = msgintegrity.search(ccfragment)
     if (not ok):
         print "XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
@@ -229,14 +229,14 @@ def extractWattsRE(stampStr,ccfragment):  # return sum of watt channels - could 
     # e.g.: [('ch1', '00769'), ('ch2', '00400')]
     if (pairs):
         sumwatts = 0
-        for ch,watt in pairs:
-            sumwatts+=int(watt)
+        for ch, watt in pairs:
+            sumwatts += int(watt)
         #print "RE  %s W = sum(%s)" % (sumwatts,pairs)
         return sumwatts
     else:
         return None
 
-def extractWattsXML(stampStr,ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+def extractWattsXML(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
     try:
         ccdom = minidom.parseString(ccfragment)
         sumwatts = 0
@@ -251,33 +251,115 @@ def extractWattsXML(stampStr,ccfragment):  # return sum of watt channels - could
         print "XML Error: %s : %s" % (stampStr, e)
 
     return None
-    
-allWatts1=0
-allWatts2=0
+
+# moving averages for each scope
+averages = {
+    'month'  : {},
+    'day'    : {},
+    'hour'   : {},
+    'minute' : {},
+    'tensec' : {},
+}
+def movingAverage(stamp, value):
+    '''Accumulate averages for different scopes'''
+    # - convert stamp to LocalTime (it probably already is
+    localStamp = iso8601.toLocalTZ(stamp)
+    scopeStamps = {
+        'month'  : iso8601.startOfMonth(localStamp),
+        'day'    : iso8601.startOfDay(localStamp),
+        'hour'   : iso8601.startOfHour(localStamp),
+        'minute' : iso8601.startOfMinute(localStamp),
+        'tensec' : iso8601.startOfTensec(localStamp),
+    }
+    if (False): print "stamp:%s  local:%s Mo:%s DD:%s HH:%s MM:%s TS:%s" % (
+        stamp,localStamp,
+        scopeStamps['month'],
+        scopeStamps['day'],
+        scopeStamps['hour'],
+        scopeStamps['minute'],
+        scopeStamps['tensec'],
+        )
+    for scope in ['month','day','hour','minute','tensec']:
+        scopeStamp = scopeStamps[scope]
+        if (scopeStamp in averages[scope]):
+            averages[scope][scopeStamp][0] = averages[scope][scopeStamp][0] + value
+            averages[scope][scopeStamp][1] = averages[scope][scopeStamp][1] + 1
+        else:
+            averages[scope][scopeStamp] = [value, 1];
+
+def writeXML():
+    if (False): # combine Archived Hours/days
+        combinedHours = {}
+        for k, v in summaryHours.items():
+            combinedHours[k] = [v, 1]
+        for k, v in averageHours.items():
+            combinedHours[k] = v
+        combinedDays = {}
+        for k, v in summaryDays.items():
+            combinedDays[k] = [v, 1]
+        for k, v in averageDays.items():
+            combinedDays[k] = v
+
+    scopes = [
+        {'id':0, 'name':'Live', 'averages':averages['tensec'], 'howMany':30},
+        {'id':1, 'name':'Hour', 'averages':averages['minute'], 'howMany':60},
+        {'id':2, 'name':'Day',  'averages':averages['hour'],   'howMany':24}, #combinedHours
+        {'id':3, 'name':'Week', 'averages':averages['day'],    'howMany':7},  #combinedDays
+        {'id':4, 'name':'Month','averages':averages['day'],    'howMany':30}, #combinedDays
+    ]
+    f = open('feeds.xml', 'w')
+    print >> f, '<?xml version="1.0"?>'
+    print >> f, '<!DOCTYPE plist PUBLIC "-//iMetrical//DTD OBSFEEDS 1.0//EN" "http://www.imetrical.com/DTDs/ObservationFeeds-1.0.dtd">'
+    print >> f, '<feeds>'
+    for scope in scopes:
+        avgArray = scope['averages']
+        sortedKeys = avgArray.keys()
+        sortedKeys.sort()
+        sortedKeys.reverse()
+        scopeLastValue = avgArray[sortedKeys[0]][0] / avgArray[sortedKeys[0]][1]
+        scopeAverageAverage = [0.0, 0]
+        for d in sortedKeys[:scope['howMany']]:
+            scopeAverageAverage[0] = scopeAverageAverage[0] + avgArray[d][0]
+            scopeAverageAverage[1] = scopeAverageAverage[1] + avgArray[d][1]
+        scopeAverageValue = scopeAverageAverage[0] / scopeAverageAverage[1]
+        scopeStamp = sortedKeys[0]
+        scopeValue = scopeAverageValue
+        if (scope['id'] == 0): scopeValue = scopeLastValue
+
+        scopeStamp = iso8601.fmtExtendedZ(scopeStamp)
+        print >> f, '  <feed scopeId="%s" name="%s" stamp="%s" value="%.1f">' % (scope['id'], scope['name'], scopeStamp, scopeValue)
+        for d in sortedKeys[:scope['howMany']]:
+            obsStamp = iso8601.fmtExtendedZ(d)
+            print >> f, '    <observation stamp="%s" value="%.1f"/>' % (obsStamp, avgArray[d][0] / avgArray[d][1])
+        print >> f, '  </feed>'
+    print >> f, '</feeds>'
+    f.close()
+
 
 def parseFragment(stampStr, ccfragment):
     # date format: 2009-07-02T19:08:12-0400
-    isodt = iso8601.parse_iso8601(stampStr)
+    stamp = iso8601.parse_iso8601(stampStr)
 
-    sumwatts = extractWattsXML(stampStr,ccfragment)
-    global allWatts1
-    if (sumwatts):
-        allWatts1 += sumwatts
+    useDOM=False # or use RE...
+    if (useDOM):
+        sumwatts = extractWattsXML(stampStr,ccfragment)
+    else:
+        sumwatts = extractWattsRE(stampStr, ccfragment)
 
-    sumwatts = extractWattsRE(stampStr,ccfragment)
-    global allWatts2
     if (sumwatts):
-        allWatts2 += sumwatts
-        
-    warnDrift(isodt,ccfragment)
+        movingAverage(stamp, sumwatts)
+
+    warnDrift(stamp, ccfragment)
+
     
 if __name__ == "__main__":
     print "Prefixed File Logs (can be compressed)"
 
     progress = {} # loadProgressFromPickle() # map of file -> ProgressItem
-    for n in range(1, 2):
+    for n in range(1, 400):
         print "Processing loop: %d" % n
         onepass(progress)
+        writeXML()
+        break
         time.sleep(5.0)
-    print "Watts Grand totals: %s  == %s" % (allWatts1,allWatts2)
 
