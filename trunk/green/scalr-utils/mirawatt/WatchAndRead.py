@@ -19,11 +19,12 @@
 import time
 
 import fileinput
-import hashlib
+#import hashlib
 import iso8601
 import os
 import pickle
 import re
+import string
 from xml.dom import minidom
 
 def findPrefixedLogs(path, prefix='CC', includeCompressed=False):
@@ -103,8 +104,18 @@ def removeUnchanged(logFileList, progress): # Remove items which are unchanged i
 
 def md5OfFileContent(fileName): # if bz2 or gz md5 of uncompressed content
     mode = 'r'
+    #fp = open(fileName,mode) #fileinput.hook_compressed(fileName, mode)
     fp = fileinput.hook_compressed(fileName, mode)
-    md5 = hashlib.md5()
+
+    #md5 = hashlib.md5()
+    md5=None   
+    try:
+        import hashlib
+        md5 = hashlib.md5()
+    except:
+        import md5
+        md5 = md5.md5()
+
     try:
         while 1:
             data = fp.read(8096) #buffer at a time
@@ -151,6 +162,7 @@ def onepass(progress):
         print "No files to process"
         return
 
+    #for line in fileinput.input(activeFileList):
     for line in fileinput.input(activeFileList, openhook=fileinput.hook_compressed):
         if (fileinput.filelineno() <= progress[fileinput.filename()].lastLineRead):
             #print "skip  %06d from:%s" % (fileinput.filelineno(),fileinput.filename())
@@ -204,16 +216,59 @@ def warnDrift(stamp, ccfragment):
     if (abs(drift) > 600):
         print "WARNING clock drift: %f seconds @ %s" % (drift, stamp)
 
+# could validate entire DTD, hist version,sample version
+msgintegrity = re.compile('<msg>.*</msg>')
+chwattpattern = re.compile('<(?P<ch>ch[0-9])><watts>(?P<watt>[0-9]+)</watts></(?P=ch)>')
+def extractWattsRE(stampStr,ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+    ok  = msgintegrity.search(ccfragment)
+    if (not ok):
+        print "XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
+        return None
+    
+    pairs = chwattpattern.findall(ccfragment)
+    # e.g.: [('ch1', '00769'), ('ch2', '00400')]
+    if (pairs):
+        sumwatts = 0
+        for ch,watt in pairs:
+            sumwatts+=int(watt)
+        #print "RE  %s W = sum(%s)" % (sumwatts,pairs)
+        return sumwatts
+    else:
+        return None
+
+def extractWattsXML(stampStr,ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+    try:
+        ccdom = minidom.parseString(ccfragment)
+        sumwatts = 0
+        wattarray = []
+        for wattnode in ccdom.getElementsByTagName('watts'):
+            watt = string.atol(wattnode.childNodes[0].nodeValue)
+            wattarray.append(watt)
+            sumwatts += watt
+        #print "XML %s W = sum(%s)" % (sumwatts,wattarray)
+        return sumwatts
+    except Exception, e:
+        print "XML Error: %s : %s" % (stampStr, e)
+
+    return None
+    
+allWatts1=0
+allWatts2=0
+
 def parseFragment(stampStr, ccfragment):
     # date format: 2009-07-02T19:08:12-0400
     isodt = iso8601.parse_iso8601(stampStr)
 
-    try:
-        pass #ccdom = minidom.parseString(ccfragment)
-    except Exception, e:
-        print "XML Error: %s : %s" % (stampStr, e)
-        return
+    sumwatts = extractWattsXML(stampStr,ccfragment)
+    global allWatts1
+    if (sumwatts):
+        allWatts1 += sumwatts
 
+    sumwatts = extractWattsRE(stampStr,ccfragment)
+    global allWatts2
+    if (sumwatts):
+        allWatts2 += sumwatts
+        
     warnDrift(isodt,ccfragment)
     
 if __name__ == "__main__":
@@ -224,4 +279,5 @@ if __name__ == "__main__":
         print "Processing loop: %d" % n
         onepass(progress)
         time.sleep(5.0)
+    print "Watts Grand totals: %s  == %s" % (allWatts1,allWatts2)
 
