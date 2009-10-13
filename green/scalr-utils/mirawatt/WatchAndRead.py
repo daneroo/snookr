@@ -18,8 +18,8 @@
 
 import time
 
+import datetime
 import fileinput
-#import hashlib
 import iso8601
 import os
 import pickle
@@ -140,23 +140,26 @@ class ProgressItem:
 
 progressPickleFileName = 'progress.pkl'
 def loadProgressFromPickle():
-    progress = {} # map of file -> ProgressItem
-    if (os.path.exists(progressPickleFileName)):
-        print "Reading Pickled Summary: %s" % progressPickleFileName
-        pckfp = open(progressPickleFileName, 'rb')
-        progress = pickle.load(pckfp)
-        pckfp.close()
-    return progress;
+    try:
+        if (os.path.exists(progressPickleFileName)):
+            print "Reading Pickled Summary: %s" % progressPickleFileName
+            pckfp = open(progressPickleFileName, 'rb')
+            nuprogress,nuaverages = pickle.load(pckfp)
+            pckfp.close()
+            return (nuprogress, nuaverages)
+    except:
+        pass
+    return ({},{}) # empty progress,averages
 
-def saveProgressToPickle(progress):
+def saveProgressToPickle(saveprogress, saveaverages):
     print "Writting Pickled Summary: %s" % progressPickleFileName
     pckfp = open(progressPickleFileName, 'wb')
-    pickle.dump(progress, pckfp)
+    pickle.dump((saveprogress, saveaverages), pckfp)
     pckfp.close()
 
-def onepass(progress):
+def onepass(progress, averages):
     # renew the list
-    logFileList = findPrefixedLogs(os.curdir, prefix='CC2', includeCompressed=True)
+    logFileList = findPrefixedLogs(os.curdir, prefix='CC3', includeCompressed=True)
     activeFileList = removeUnchanged(logFileList, progress)
     if (len(activeFileList) <= 0):
         print "No files to process"
@@ -171,6 +174,9 @@ def onepass(progress):
         # indicate progress (before or after actual processing ?
         progress[fileinput.filename()].lastLineRead = fileinput.filelineno()
 
+        if (fileinput.isfirstline()):
+            truncateAverages()
+
         # actually process the line
         handleLine(line)
 
@@ -178,9 +184,13 @@ def onepass(progress):
             pass #print "file:%s:%06d  -mod:%s" % (os.path.basename(fileinput.filename()),fileinput.filelineno(),lastModDate)
         #print "file:%s:%06d" % (os.path.basename(fileinput.filename()),fileinput.filelineno())
 
-    saveProgressToPickle(progress)
+    truncateAverages()
+    writeXML()
+    saveProgressToPickle(progress,averages)
+
     print "Processing summary:"
-    for fileName in sorted(progress.keys(), key=(lambda s: os.path.basename(s))):
+    #for fileName in sorted(progress.keys(), key=(lambda s: os.path.basename(s))):
+    for fileName in sorted(activeFileList, key=(lambda s: os.path.basename(s))):
         print " %7d lines from %s in %s" % (progress[fileName].lastLineRead, os.path.basename(fileName), os.path.dirname(fileName))
 
 MARKStamp = None #'2000-01-01T00:00:00'
@@ -201,6 +211,7 @@ def handleLine(line):
     if (len(CCStr) > 0):
         parseFragment(stampStr, CCStr)
 
+lastPrintedWarning = None # stamp of last drift warning, so we can warn only every two hours (MAX)
 def warnDrift(stamp, ccfragment):
     matchTime = re.search("<time>(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})</time>", ccfragment)
     if (not matchTime): return
@@ -214,7 +225,14 @@ def warnDrift(stamp, ccfragment):
     elif (drift < -43200):
         drift = 86400 + drift
     if (abs(drift) > 600):
-        print "WARNING clock drift: %f seconds @ %s" % (drift, stamp)
+        global lastPrintedWarning
+        if (lastPrintedWarning):
+            timeSinceLastWarning = (stamp-lastPrintedWarning)
+            if (timeSinceLastWarning > datetime.timedelta(hours=2)):
+                print "WARNING clock drift: %f seconds @ %s" % (drift, stamp)
+                lastPrintedWarning = stamp
+        else:
+            lastPrintedWarning = stamp
 
 # could validate entire DTD, hist version,sample version
 msgintegrity = re.compile('<msg>.*</msg>')
@@ -253,39 +271,63 @@ def extractWattsXML(stampStr, ccfragment):  # return sum of watt channels - coul
     return None
 
 # moving averages for each scope
-averages = {
-    'month'  : {},
-    'day'    : {},
-    'hour'   : {},
-    'minute' : {},
-    'tensec' : {},
-}
+averages = {}
 def movingAverage(stamp, value):
     '''Accumulate averages for different scopes'''
     # - convert stamp to LocalTime (it probably already is
+    # ***  we can not use localstamp and reverse reliably to utc
+    #   but this does work for startOf Day/Month
+    #  so for tensec,minute,hour, use stamp : utc
+    #     for month,day use localStamp
     localStamp = iso8601.toLocalTZ(stamp)
     scopeStamps = {
-        'month'  : iso8601.startOfMonth(localStamp),
-        'day'    : iso8601.startOfDay(localStamp),
-        'hour'   : iso8601.startOfHour(localStamp),
-        'minute' : iso8601.startOfMinute(localStamp),
-        'tensec' : iso8601.startOfTensec(localStamp),
+        'month': iso8601.startOfMonth(localStamp),
+        'day': iso8601.startOfDay(localStamp),
+        'hour': iso8601.startOfHour(stamp),
+        'minute': iso8601.startOfMinute(stamp),
+        'tensec': iso8601.startOfTensec(stamp),
     }
+
+    for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
+        scopeStamps[scope]=iso8601.toUTC(scopeStamps[scope])
+
     if (False): print "stamp:%s  local:%s Mo:%s DD:%s HH:%s MM:%s TS:%s" % (
-        stamp,localStamp,
+        stamp, localStamp,
         scopeStamps['month'],
         scopeStamps['day'],
         scopeStamps['hour'],
         scopeStamps['minute'],
         scopeStamps['tensec'],
         )
-    for scope in ['month','day','hour','minute','tensec']:
+    for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
+        if (scope not in averages): averages[scope] = {}
         scopeStamp = scopeStamps[scope]
         if (scopeStamp in averages[scope]):
             averages[scope][scopeStamp][0] = averages[scope][scopeStamp][0] + value
             averages[scope][scopeStamp][1] = averages[scope][scopeStamp][1] + 1
         else:
             averages[scope][scopeStamp] = [value, 1];
+
+def truncateAverages():
+    howMany = {
+        'tensec': 90, # ~ 90*10 = 15 minutes
+        'minute': 120, # ~ 2 hrs
+        'hour': 48, # ~ 2 days
+        'day': 60, # ~ 60 days
+        'month': 84, # ~ 7 years
+    }
+    for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
+        if (scope not in averages): continue #averages[scope] = {}
+        #print "scope[%s] has length:%d truncate to %d" % (scope,len(averages[scope]),howMany[scope])
+        sortedKeys = averages[scope].keys()
+        sortedKeys.sort()
+        sortedKeys.reverse()
+        for d in sortedKeys[:howMany[scope]]:
+            pass # print "keep scope[%s][%s]" % (scope,d)
+        for d in sortedKeys[howMany[scope]:]:
+            # print "delete scope[%s][%s]" % (scope,d)
+            del averages[scope][d]
+
 
 def writeXML():
     if (False): # combine Archived Hours/days
@@ -303,9 +345,9 @@ def writeXML():
     scopes = [
         {'id':0, 'name':'Live', 'averages':averages['tensec'], 'howMany':30},
         {'id':1, 'name':'Hour', 'averages':averages['minute'], 'howMany':60},
-        {'id':2, 'name':'Day',  'averages':averages['hour'],   'howMany':24}, #combinedHours
-        {'id':3, 'name':'Week', 'averages':averages['day'],    'howMany':7},  #combinedDays
-        {'id':4, 'name':'Month','averages':averages['day'],    'howMany':30}, #combinedDays
+        {'id':2, 'name':'Day', 'averages':averages['hour'], 'howMany':24}, #combinedHours
+        {'id':3, 'name':'Week', 'averages':averages['day'], 'howMany':7}, #combinedDays
+        {'id':4, 'name':'Month', 'averages':averages['day'], 'howMany':30}, #combinedDays
     ]
     f = open('feeds.xml', 'w')
     print >> f, '<?xml version="1.0"?>'
@@ -326,10 +368,12 @@ def writeXML():
         scopeValue = scopeAverageValue
         if (scope['id'] == 0): scopeValue = scopeLastValue
 
-        scopeStamp = iso8601.fmtExtendedZ(scopeStamp)
+        #scopeStamp = iso8601.fmtExtendedZ(scopeStamp) unreliabls in localTZ
+        scopeStamp = iso8601.fmtExtendedZ(iso8601.toUTC(scopeStamp))
         print >> f, '  <feed scopeId="%s" name="%s" stamp="%s" value="%.1f">' % (scope['id'], scope['name'], scopeStamp, scopeValue)
         for d in sortedKeys[:scope['howMany']]:
-            obsStamp = iso8601.fmtExtendedZ(d)
+            #obsStamp = iso8601.fmtExtendedZ(d)
+            obsStamp = iso8601.fmtExtendedZ(iso8601.toUTC(d)) # since we only used reversible keys
             print >> f, '    <observation stamp="%s" value="%.1f"/>' % (obsStamp, avgArray[d][0] / avgArray[d][1])
         print >> f, '  </feed>'
     print >> f, '</feeds>'
@@ -338,16 +382,19 @@ def writeXML():
 
 def parseFragment(stampStr, ccfragment):
     # date format: 2009-07-02T19:08:12-0400
-    stamp = iso8601.parse_iso8601(stampStr)
+    stamp = iso8601.parse_iso8601(stampStr)  #+datetime.timedelta(days=20)
 
-    useDOM=False # or use RE...
+    useDOM = False # or use RE...
     if (useDOM):
-        sumwatts = extractWattsXML(stampStr,ccfragment)
+        sumwatts = extractWattsXML(stampStr, ccfragment)
     else:
         sumwatts = extractWattsRE(stampStr, ccfragment)
 
+    # fake offset
+    #stamp = stamp+datetime.timedelta(seconds=86400*30)
     if (sumwatts):
         movingAverage(stamp, sumwatts)
+        #truncateAverages()
 
     warnDrift(stamp, ccfragment)
 
@@ -355,11 +402,13 @@ def parseFragment(stampStr, ccfragment):
 if __name__ == "__main__":
     print "Prefixed File Logs (can be compressed)"
 
-    progress = {} # loadProgressFromPickle() # map of file -> ProgressItem
-    for n in range(1, 400):
-        print "Processing loop: %d" % n
-        onepass(progress)
-        writeXML()
-        break
-        time.sleep(5.0)
+    progress,averages = loadProgressFromPickle() # map of file -> ProgressItem
+    starttimer = time.time()
+    loopcount = 0
+    while (True):
+        looptimer = time.time()
+        loopcount += 1
+        onepass(progress, averages)
+        print "# ELAPSED -- loop:%08d %.1f seconds (%.1f total)" % (loopcount, time.time()-looptimer, time.time()-starttimer)
+        time.sleep(10.0)
 
