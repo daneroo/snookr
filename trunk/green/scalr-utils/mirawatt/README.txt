@@ -26,21 +26,15 @@ Mirawatt (Sheeva) Pump
     ssh root@192.168.5.247 "tail -f /mirawatt/logs/CC*log"
 
   TODO:
+   - history node processing in wtch and read
+   - refactor config and paths +(deployment)
+   - refactor library gmail,watcher
+   - ipc and threads instead of four processes
    + Remove all tabs from python sources: EVIL.
      NOTE: you can run python with -t (or -tt for fatal) detection of bad space/tab mixes
        wrote a script: fixtabs.sh: detects all tabs, makes .notab, ans .showtab files
        the .notab file has substituted tabs for 8-spaces
        the show tabs has subtitued tabs for '~~TABS~~' string
-   +make randomly dying client, to test the watchdog functionality
-   +test smtp notification (watchdog@mirawatt.com)
-   +make summarize check arithmetic, copy to test directory
-   +deploy sheeva:/mirawatt/wdog
-   +find /dev/ -maxdepth 1 -name ttyUSB\* -type c
-   -test watchAndRead
-   -make summarize functional
-   -summarize -> publish?
-   +refactor iso8601 and datetime manips
-   -refactor config and paths +(deployment)
 
    DEPLOYMENT:
    /mirawatt/wdog: scripts
