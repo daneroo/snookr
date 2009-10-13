@@ -19,7 +19,8 @@ Mirawatt (Sheeva) Pump
 
   RECIPES:
     #pull logs from sheeva
-    rsync  -avz --progress root@miraplug001.dnsalias.net:/mirawatt/logs/CC\*log .
+    rsync  -avz --progress root@miraplug001.dnsalias.net:/mirawatt/logs/CC2\*log .
+    rsync  -avz --progress root@miraplug002.dnsalias.net:/mirawatt/logs/CC3\*log .
     rsync  -avz --progress root@192.168.5.247:/mirawatt/logs/CC\*log .
     ssh root@192.168.5.247 "tail -f /var/log/messages /mirawatt/wdog/wdog.log /mirawatt/wdog/capture.log /mirawatt/wdog/heartbeat.log"
     ssh root@192.168.5.247 "tail -f /mirawatt/logs/CC*log"
