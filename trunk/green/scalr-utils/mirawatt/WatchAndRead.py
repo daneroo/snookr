@@ -16,10 +16,13 @@
 #  
 # so to do that can we iterate over a changing vector ?
 
+import os.path
+import sys
 import time
 
 import datetime
 import fileinput
+import getopt
 import iso8601
 import os
 import pickle
@@ -160,7 +163,7 @@ def saveProgressToPickle(saveprogress, saveaverages):
 
 def onepass(progress, averages):
     # renew the list
-    logFileList = findPrefixedLogs(os.curdir, prefix='CC3', includeCompressed=True)
+    logFileList = findPrefixedLogs(Settings.logPathRoot, prefix=Settings.logPrefix, includeCompressed=True)
     activeFileList = removeUnchanged(logFileList, progress)
     if (len(activeFileList) <= 0):
         #print "No files to process"
@@ -418,7 +421,7 @@ def historicalAverage(stamp, history):
                 if (curCount < minimumDailySamples):
                     # not enough real data: override with historical
                     averages['day'][dayOffset] = [newSum, newCount]
-                    print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'replaceObs', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                    print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset, 'replaceObs', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex)
                 elif (curCount >= newCount): # replacing a historical entry -
                     # including one that was added to after it was originally set
                     #  ic curCount<2000 above the observations after 23:00 will be added over our hostrical setting
@@ -434,7 +437,7 @@ def historicalAverage(stamp, history):
         elif (scopePrefix == 'm'):
             if (not referenceMonthKey):
                 referenceMonthKey = iso8601.startOfMonth(iso8601.toLocalTZ(stamp))
-            monthOffset = referenceMonthKey + datetime.timedelta(days=-scopeIndex*30)
+            monthOffset = referenceMonthKey + datetime.timedelta(days=-scopeIndex * 30)
             newValueWatts = scopeValue / 30 / 24 * 1000; # kWh/24h/30d -> watt
             #print "Month approx %s %11s  %f  (%s - %d mo)" % (monthOffset, 'ignoring', newValueWatts, stamp, scopeIndex)
             pass
@@ -532,9 +535,49 @@ def parseFragment(stampStr, ccfragment):
 
     warnDrift(stamp, ccfragment)
 
+
+def usage():
+    usageStr = 'python %s --logs|-l /path/root/PREFIX [--help|-h]' % sys.argv[0]
+    print usageStr
+    sys.exit(2)
+
+class SettingsClass:
+    '''Class used a s struct: see Pythom 9.7 Odds and Ends'''
+    pass
+Settings=SettingsClass()
+
+def parseArgs():
+    # parse command line options
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hl:", ["help", "logs="])
+    except getopt.error, msg:
+        print 'Error msg: %s' % msg
+        usage()
+
+    # default values
+    logPathAndPrefix = None;
+
+    for o, a in opts:
+        if o in ("-l" "--logs"):
+            logPathAndPrefix = a
+        elif o in ("-h", "--help"):
+            usage()
+        else:
+            assert False, "Unknown option: %s" % o
+
+    if (logPathAndPrefix == None):
+        usage()
+
+    # Could use os.curdir or os.path.dirname(sys.argv[0]) as default ?
+    Settings.logPathRoot = os.path.dirname(logPathAndPrefix)
+    if (Settings.logPathRoot==''):
+        print "Empty Log Path Root: (use ./PREFIX ?)"
+    Settings.logPrefix = os.path.basename(logPathAndPrefix)
+    print "# START logs root:%s/../%s*.log[.gz|bz2]" % (Settings.logPathRoot, Settings.logPrefix)
+
     
 if __name__ == "__main__":
-    print "# START arg/config summary"
+    parseArgs()
     progress, averages = loadProgressFromPickle() # map of file -> ProgressItem
     starttimer = time.time()
     loopcount = 0
