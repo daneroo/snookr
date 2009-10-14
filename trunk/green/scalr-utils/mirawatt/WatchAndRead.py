@@ -75,6 +75,7 @@ def removeUnchanged(logFileList, progress): # Remove items which are unchanged i
     activeFileList = [];
     for filename in  logFileList:
         newPI = ProgressItem(filename)
+        #localtimeModStr : not used for date comparisons, just output logging
         localtimeModStr = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(newPI.lastMod))
         ago = time.time()-newPI.lastMod
         #print " checking: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName),newPI.fileSize,ago,localtimeModStr,newPI.md5)
@@ -85,7 +86,7 @@ def removeUnchanged(logFileList, progress): # Remove items which are unchanged i
             newPI.calcmd5()
             progress[filename] = newPI
             activeFileList.append(filename)
-            print " NEW: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName), newPI.fileSize, ago, localtimeModStr, newPI.md5)
+            print "# NEW: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName), newPI.fileSize, ago, localtimeModStr, newPI.md5)
         elif (newPI.fileSize != oldPI.fileSize or newPI.lastMod != oldPI.lastMod):
             # current file is in progress, but size/date has changed
             # update info in progress, add to active List (calc md5)
@@ -95,9 +96,9 @@ def removeUnchanged(logFileList, progress): # Remove items which are unchanged i
             # replace with new progress item
             progress[filename] = newPI
             activeFileList.append(filename)
-            print " MOD: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName), newPI.fileSize, ago, localtimeModStr, newPI.md5)
+            print "# MOD: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName), newPI.fileSize, ago, localtimeModStr, newPI.md5)
         else:
-            #print " SKP: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(oldPI.fileName),oldPI.fileSize,ago,localtimeModStr,oldPI.md5)
+            #print "# SKP: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(oldPI.fileName),oldPI.fileSize,ago,localtimeModStr,oldPI.md5)
             pass
 
     return activeFileList
@@ -142,17 +143,17 @@ progressPickleFileName = 'progress.pkl'
 def loadProgressFromPickle():
     try:
         if (os.path.exists(progressPickleFileName)):
-            print "Reading Pickled Summary: %s" % progressPickleFileName
+            print "# STATE Reading persited from: %s" % progressPickleFileName
             pckfp = open(progressPickleFileName, 'rb')
-            nuprogress,nuaverages = pickle.load(pckfp)
+            nuprogress, nuaverages = pickle.load(pckfp)
             pckfp.close()
             return (nuprogress, nuaverages)
     except:
         pass
-    return ({},{}) # empty progress,averages
+    return ({}, {}) # empty progress,averages
 
 def saveProgressToPickle(saveprogress, saveaverages):
-    print "Writting Pickled Summary: %s" % progressPickleFileName
+    print "# STATE peristed to: %s" % progressPickleFileName
     pckfp = open(progressPickleFileName, 'wb')
     pickle.dump((saveprogress, saveaverages), pckfp)
     pckfp.close()
@@ -162,7 +163,7 @@ def onepass(progress, averages):
     logFileList = findPrefixedLogs(os.curdir, prefix='CC3', includeCompressed=True)
     activeFileList = removeUnchanged(logFileList, progress)
     if (len(activeFileList) <= 0):
-        print "No files to process"
+        #print "No files to process"
         return
 
     #for line in fileinput.input(activeFileList):
@@ -186,12 +187,13 @@ def onepass(progress, averages):
 
     truncateAverages()
     writeXML()
-    saveProgressToPickle(progress,averages)
+    saveProgressToPickle(progress, averages)
 
     print "Processing summary:"
+    # only print active listed logs
     #for fileName in sorted(progress.keys(), key=(lambda s: os.path.basename(s))):
     for fileName in sorted(activeFileList, key=(lambda s: os.path.basename(s))):
-        print " %7d lines from %s in %s" % (progress[fileName].lastLineRead, os.path.basename(fileName), os.path.dirname(fileName))
+        print "# PROGRESS line %5d %s in %s" % (progress[fileName].lastLineRead, os.path.basename(fileName), os.path.dirname(fileName))
 
 MARKStamp = None #'2000-01-01T00:00:00'
 MARKCheckLen = 13      # 13 for hour,16 for minute
@@ -229,7 +231,7 @@ def warnDrift(stamp, ccfragment):
         if (lastPrintedWarning):
             timeSinceLastWarning = (stamp-lastPrintedWarning)
             if (timeSinceLastWarning > datetime.timedelta(hours=2)):
-                print "WARNING clock drift: %f seconds @ %s" % (drift, stamp)
+                print "# WARNING clock drift: %f seconds @ %s" % (drift, stamp)
                 lastPrintedWarning = stamp
         else:
             lastPrintedWarning = stamp
@@ -240,9 +242,9 @@ chwattpattern = re.compile('<(?P<ch>ch[0-9])><watts>(?P<watt>[0-9]+)</watts></(?
 def extractWattsRE(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
     ok  = msgintegrity.search(ccfragment)
     if (not ok):
-        print "XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
+        print "# XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
         return None
-    
+
     pairs = chwattpattern.findall(ccfragment)
     # e.g.: [('ch1', '00769'), ('ch2', '00400')]
     if (pairs):
@@ -253,6 +255,46 @@ def extractWattsRE(stampStr, ccfragment):  # return sum of watt channels - could
         return sumwatts
     else:
         return None
+
+# <msg><hist><data><sensor>X</sensor><[hdm](YYY)>VVV</[hdm](YYY)>/data></hist></msg>
+# - inside history: repeating data elements
+# - inside data:    sensor + repeating hmd elements
+msghistpattern = re.compile('<msg>.*(?P<hist><hist>.*</hist>).*</msg>')
+datapattern = re.compile('(?P<data><data><sensor>(?P<sensorid>[0-9]+)</sensor>.*?</data>)')
+hdmdatapattern = re.compile('<(?P<scope>[hmd][0-9]+)>(?P<value>[0-9]+[.][0-9]+)</(?P=scope)>')
+def extractHistoryRE(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+    #this should be moved up and include hist|data detection
+    ok  = msgintegrity.search(ccfragment)
+    if (not ok):
+        print "# XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
+        return None
+    isHist  = msghistpattern.findall(ccfragment)
+    history = [] # tuples of (scopePrefix,scopeIndex,scopeValue)
+    if (isHist):
+        #print "History: %s : %s" % (stampStr, isHist[0])
+        # isHit[0] contains the hist element
+        dataElements = datapattern.findall(isHist[0])
+        if (not dataElements): return None
+        for data in dataElements:
+            # data[0] is the whole data element, data[1] is the sensorid
+            sensorid = int(data[1])
+            #print " Data: %s : %s" % (stampStr, data)
+            # only do sensor 0
+            if (sensorid == 0):
+                #print " Sensor 0: %s : %s" % (stampStr, data)
+                hdms = hdmdatapattern.findall(data[0])
+                for hdm in hdms:
+                    #print "   scope,value: %s : %s" % (stampStr, hmd)
+                    scopePrefix = hdm[0][:1]             # h|d|m
+                    scopeIndex = string.atoi(hdm[0][1:]) # 4 in h004 or 2 in m002
+                    scopeValue = string.atof(hdm[1]);
+                    #print "   %s: %04d -> %f" % (scopePrefix,scopeIndex,scopeValue)
+                    history.append((scopePrefix, scopeIndex, scopeValue))
+        return history
+    else:
+        return None
+
+
 
 def extractWattsXML(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
     try:
@@ -266,7 +308,7 @@ def extractWattsXML(stampStr, ccfragment):  # return sum of watt channels - coul
         #print "XML %s W = sum(%s)" % (sumwatts,wattarray)
         return sumwatts
     except Exception, e:
-        print "XML Error: %s : %s" % (stampStr, e)
+        print "# XML Error: %s : %s" % (stampStr, e)
 
     return None
 
@@ -289,7 +331,7 @@ def movingAverage(stamp, value):
     }
 
     for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
-        scopeStamps[scope]=iso8601.toUTC(scopeStamps[scope])
+        scopeStamps[scope] = iso8601.toUTC(scopeStamps[scope])
 
     if (False): print "stamp:%s  local:%s Mo:%s DD:%s HH:%s MM:%s TS:%s" % (
         stamp, localStamp,
@@ -307,6 +349,96 @@ def movingAverage(stamp, value):
             averages[scope][scopeStamp][1] = averages[scope][scopeStamp][1] + 1
         else:
             averages[scope][scopeStamp] = [value, 1];
+
+def historicalAverage(stamp, history):
+    ''' This processes historical entries
+        and potentially overwrites the observed averages.
+        we may later wish to account for drift
+
+        Special case for days: if les than
+    '''
+    if (not history): return
+    referenceHourKey = None # so we only calculate this once
+    referenceDayKey = None # so we only calculate this once
+    referenceMonthKey = None # so we only calculate this once
+    for ((scopePrefix, scopeIndex, scopeValue)) in history:
+        #print "  history %s: %04d -> %f" % (scopePrefix,scopeIndex,scopeValue)
+        if (scopePrefix == 'h'):
+            minimumHourlySamples = 100 # less than this many observations use historical
+            # round hour, index back by scope
+            # must match the key in moving averages...
+            if (not referenceHourKey):
+                referenceHourKey = iso8601.startOfHour(stamp)
+            # scopeIndex is OFF BY 3, : h004 is really the sum just calculated over the previous 2 hours
+            # i.e. sum of last two hours or startOfHour-1 and startOfHour-2
+            # we want to set this value for both hours
+            for scopeIndexCORRECTION in [2, 3]:
+                hourOffset = referenceHourKey + datetime.timedelta(hours=-scopeIndex + scopeIndexCORRECTION)
+                newValueWatts = scopeValue / 2 * 1000; # kWh/2h -> watt
+                newCount = 1000 # more than we could possibly observe every 5s==720
+                newSum = newCount * newValueWatts # so we put that into running totals
+                if (hourOffset not in averages['hour']):
+                    #print "Hour %s %11s  %f  (%s - %d+%dh)" % (hourOffset, 'setting', newValueWatts, stamp, scopeIndex, scopeIndexCORRECTION)
+                    averages['hour'][hourOffset] = [newSum, newCount]
+                else:
+                    (curSum, curCount) = averages['hour'][hourOffset]
+                    if (curCount < minimumHourlySamples):
+                        # not enough real data: override with historical
+                        averages['hour'][hourOffset] = [newSum, newCount]
+                        print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'replaceObs', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                    elif (curCount >= newCount): # replacing a historical entry -
+                        # including one that was added to after it was originally set
+                        #  ic curCount<2000 above the observations after 23:00 will be added over our hostrical setting
+                        if (newSum == curSum):
+                            averages['hour'][hourOffset] = [newSum, newCount]
+                            #print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'preserveHist', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                        else:
+                            averages['hour'][hourOffset] = [newSum, newCount]
+                            #print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'replaceHist', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                    else: # keeping observed values
+                        #print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'preserveObs', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                        pass
+        elif (scopePrefix == 'd'):
+            minimumDailySamples = 2000 # less than this many observations use historical
+            # round days, index back by scope
+            # must match the key in moving averages...
+            if (not referenceDayKey):
+                # start Of day is 23:00 in CC's history so add an hour before rounding
+                referenceDayKey = iso8601.startOfDay(iso8601.toLocalTZ(stamp) + datetime.timedelta(hours=1))
+            dayOffset = referenceDayKey + datetime.timedelta(days=-scopeIndex)
+            newValueWatts = scopeValue / 24 * 1000; # kWh/24h -> watt
+            newCount = 20000 # more than we could possibly observe every 5s==17k
+            newSum = newCount * newValueWatts # so we put that into running totals
+            #print "Day %s %11s  %f  (%s - %dd)" % (dayOffset,'is', newValueWatts, stamp, scopeIndex)
+            if (dayOffset not in averages['day']):
+                #print "Day %s %11s  %.1f  (%s - %dd)" % (dayOffset,'setting', newValueWatts, stamp, scopeIndex)
+                averages['day'][dayOffset] = [newSum, newCount]
+            else:
+                (curSum, curCount) = averages['day'][dayOffset]
+                if (curCount < minimumDailySamples):
+                    # not enough real data: override with historical
+                    averages['day'][dayOffset] = [newSum, newCount]
+                    print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'replaceObs', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                elif (curCount >= newCount): # replacing a historical entry -
+                    # including one that was added to after it was originally set
+                    #  ic curCount<2000 above the observations after 23:00 will be added over our hostrical setting
+                    if (newSum == curSum):
+                        averages['day'][dayOffset] = [newSum, newCount]
+                        #print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'preserveHist', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                    else:
+                        averages['day'][dayOffset] = [newSum, newCount]
+                        #print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'replaceHist', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                else: # keeping observed values
+                    #print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'preserveObs', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                    pass
+        elif (scopePrefix == 'm'):
+            if (not referenceMonthKey):
+                referenceMonthKey = iso8601.startOfMonth(iso8601.toLocalTZ(stamp))
+            monthOffset = referenceMonthKey + datetime.timedelta(days=-scopeIndex*30)
+            newValueWatts = scopeValue / 30 / 24 * 1000; # kWh/24h/30d -> watt
+            #print "Month approx %s %11s  %f  (%s - %d mo)" % (monthOffset, 'ignoring', newValueWatts, stamp, scopeIndex)
+            pass
+
 
 def truncateAverages():
     howMany = {
@@ -382,7 +514,7 @@ def writeXML():
 
 def parseFragment(stampStr, ccfragment):
     # date format: 2009-07-02T19:08:12-0400
-    stamp = iso8601.parse_iso8601(stampStr)  #+datetime.timedelta(days=20)
+    stamp = iso8601.parse_iso8601(stampStr) 
 
     useDOM = False # or use RE...
     if (useDOM):
@@ -390,25 +522,26 @@ def parseFragment(stampStr, ccfragment):
     else:
         sumwatts = extractWattsRE(stampStr, ccfragment)
 
-    # fake offset
-    #stamp = stamp+datetime.timedelta(seconds=86400*30)
     if (sumwatts):
         movingAverage(stamp, sumwatts)
         #truncateAverages()
+
+    # handle history
+    history = extractHistoryRE(stamp, ccfragment)
+    historicalAverage(stamp, history)
 
     warnDrift(stamp, ccfragment)
 
     
 if __name__ == "__main__":
-    print "Prefixed File Logs (can be compressed)"
-
-    progress,averages = loadProgressFromPickle() # map of file -> ProgressItem
+    print "# START arg/config summary"
+    progress, averages = loadProgressFromPickle() # map of file -> ProgressItem
     starttimer = time.time()
     loopcount = 0
     while (True):
         looptimer = time.time()
         loopcount += 1
         onepass(progress, averages)
-        print "# ELAPSED -- loop:%08d %.1f seconds (%.1f total)" % (loopcount, time.time()-looptimer, time.time()-starttimer)
+        print "# ELAPSED -- loop:%08d %.1f s. (%.1f s. total)" % (loopcount, time.time()-looptimer, time.time()-starttimer)
         time.sleep(10.0)
 
