@@ -146,12 +146,12 @@ def loadProgressFromPickle():
     try:
         if (os.path.exists(Settings.progressStateFilename)):
             print "# STATE Reading persited from: %s" % Settings.progressStateFilename
-            pckfp = open(progressPickleFileName, 'rb')
+            pckfp = open(Settings.progressStateFilename, 'rb')
             nuprogress, nuaverages = pickle.load(pckfp)
             pckfp.close()
             return (nuprogress, nuaverages)
-    except:
-        pass
+    except Exception, e:
+        print "# STATE Error reading from: %s : %s" % (Settings.progressStateFilename, e)
     return ({}, {}) # empty progress,averages
 
 def saveProgressToPickle(saveprogress, saveaverages):
