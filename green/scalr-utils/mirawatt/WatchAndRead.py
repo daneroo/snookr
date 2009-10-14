@@ -142,11 +142,10 @@ class ProgressItem:
     def calcmd5(self):
         self.md5 = md5OfFileContent(self.fileName)
 
-progressPickleFileName = 'progress.pkl'
 def loadProgressFromPickle():
     try:
-        if (os.path.exists(progressPickleFileName)):
-            print "# STATE Reading persited from: %s" % progressPickleFileName
+        if (os.path.exists(Settings.progressStateFilename)):
+            print "# STATE Reading persited from: %s" % Settings.progressStateFilename
             pckfp = open(progressPickleFileName, 'rb')
             nuprogress, nuaverages = pickle.load(pckfp)
             pckfp.close()
@@ -156,8 +155,8 @@ def loadProgressFromPickle():
     return ({}, {}) # empty progress,averages
 
 def saveProgressToPickle(saveprogress, saveaverages):
-    print "# STATE peristed to: %s" % progressPickleFileName
-    pckfp = open(progressPickleFileName, 'wb')
+    print "# STATE peristed to: %s" % Settings.progressStateFilename
+    pckfp = open(Settings.progressStateFilename, 'wb')
     pickle.dump((saveprogress, saveaverages), pckfp)
     pckfp.close()
 
@@ -192,7 +191,6 @@ def onepass(progress, averages):
     writeXML()
     saveProgressToPickle(progress, averages)
 
-    print "Processing summary:"
     # only print active listed logs
     #for fileName in sorted(progress.keys(), key=(lambda s: os.path.basename(s))):
     for fileName in sorted(activeFileList, key=(lambda s: os.path.basename(s))):
@@ -484,7 +482,7 @@ def writeXML():
         {'id':3, 'name':'Week', 'averages':averages['day'], 'howMany':7}, #combinedDays
         {'id':4, 'name':'Month', 'averages':averages['day'], 'howMany':30}, #combinedDays
     ]
-    f = open('feeds.xml', 'w')
+    f = open(Settings.outputFeedsFilename, 'w')
     print >> f, '<?xml version="1.0"?>'
     print >> f, '<!DOCTYPE plist PUBLIC "-//iMetrical//DTD OBSFEEDS 1.0//EN" "http://www.imetrical.com/DTDs/ObservationFeeds-1.0.dtd">'
     print >> f, '<feeds>'
@@ -537,27 +535,34 @@ def parseFragment(stampStr, ccfragment):
 
 
 def usage():
-    usageStr = 'python %s --logs|-l /path/root/PREFIX [--help|-h]' % sys.argv[0]
+    usageStr = '''
+    python %s --base|-b /base/dir --logs|-l [/]log/root/PREFIX [--help|-h]
+      -base dir is where the progress-state and output feed.xml files are stored
+      -if log path root is empty or relative, it is taken relative to base dir
+    ''' % sys.argv[0]
     print usageStr
     sys.exit(2)
 
 class SettingsClass:
     '''Class used a s struct: see Pythom 9.7 Odds and Ends'''
     pass
-Settings=SettingsClass()
+Settings = SettingsClass()
 
 def parseArgs():
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hl:", ["help", "logs="])
+        opts, args = getopt.getopt(sys.argv[1:], "hb:l:", ["help", "base=", "logs="])
     except getopt.error, msg:
         print 'Error msg: %s' % msg
         usage()
 
     # default values
+    Settings.baseDir = None;
     logPathAndPrefix = None;
 
     for o, a in opts:
+        if o in ("-b" "--base"):
+            Settings.baseDir = a
         if o in ("-l" "--logs"):
             logPathAndPrefix = a
         elif o in ("-h", "--help"):
@@ -565,15 +570,26 @@ def parseArgs():
         else:
             assert False, "Unknown option: %s" % o
 
+    if (Settings.baseDir == None or not os.path.isdir(Settings.baseDir)):
+        print "Base directory not found: %s (use --base /path/to/base)" % Settings.baseDir
+        usage()
     if (logPathAndPrefix == None):
+        print "Logs Root and Prefix not found (use --logs=/path/PREFIX)"
         usage()
 
-    # Could use os.curdir or os.path.dirname(sys.argv[0]) as default ?
-    Settings.logPathRoot = os.path.dirname(logPathAndPrefix)
-    if (Settings.logPathRoot==''):
-        print "Empty Log Path Root: (use ./PREFIX ?)"
+    Settings.baseDir = os.path.abspath(Settings.baseDir)
+    Settings.logPathRoot = os.path.abspath(os.path.join(Settings.baseDir, os.path.dirname(logPathAndPrefix)))
+    if (not os.path.isdir(Settings.logPathRoot)):
+        print "Log path root directory not found: %s (use --logs /path/to/logs)" % Settings.logPathRoot
+        usage()
     Settings.logPrefix = os.path.basename(logPathAndPrefix)
-    print "# START logs root:%s/../%s*.log[.gz|bz2]" % (Settings.logPathRoot, Settings.logPrefix)
+    Settings.progressStateFilename = os.path.join(Settings.baseDir,'progress-state.pkl')
+    Settings.outputFeedsFilename = os.path.join(Settings.baseDir,'feeds.xml')
+    print "# START Base dir:   %s" % (Settings.baseDir)
+    print "# START logs root:   %s/..." % (Settings.logPathRoot)
+    print "# START logs prefix: %s*.log[.gz|bz2]" % (Settings.logPrefix)
+    print "# START progress-state file: %s" % (Settings.progressStateFilename)
+    print "# START output-feeds file: %s" % (Settings.outputFeedsFilename)
 
     
 if __name__ == "__main__":
