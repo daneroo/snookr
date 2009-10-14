@@ -1,372 +1,606 @@
-# reading loop for captured log files
+# This is example code to perpetually read
+# a directory with changing logs
+#   logdir: prefix*.log
+# One of theese files is growing
+# as input to this script: use
+# while true; do echo `date +%Y-%m-%dT%H:%M:%S%z` "Content in the file" >> PFX`date +%Y%m%dT%H%M00%z`.log; sleep 2; done
+#
+#  Two parts, 
+#  -find and order candidate files
+#  -read a file (until some timeout event..)
+# The loop is
+#  find all files, for each 
+#      read each line until EOF
+#      check for new files
+#      if not more files, keep reading this one
 #  
-# accumulates history, and produces
-#  current state of same
+# so to do that can we iterate over a changing vector ?
 
+import os.path
 import sys
-import string
-import math
-import getopt
-import datetime
 import time
-import urllib 
-from xml.dom import minidom  
 
-def parseLocaltimeToSecs(stampStrNoTZ):
-	# date format: 2009-07-02T19:08:12
-	ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
-	stampSecs = time.mktime(time.strptime(stampStrNoTZ,ISO_DATE_FORMAT))
-	return stampSecs
-def formatGMTForXML(stampSecs):
-	ISO_DATE_FORMAT_XML = '%Y-%m-%dT%H:%M:%SZ'
-	gmtStr =  time.strftime(ISO_DATE_FORMAT_XML,time.gmtime(stampSecs))
-	return gmtStr
+import datetime
+import fileinput
+import getopt
+import iso8601
+import os
+import pickle
+import re
+import string
+from xml.dom import minidom
 
-def formatLocal(stampSecs):
-	ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
-	gmtStr =  time.strftime(ISO_DATE_FORMAT,time.localtime(stampSecs))
-	return gmtStr
+def findPrefixedLogs(path, prefix='CC', includeCompressed=False):
+    """
+    Finds files (recursively) in the directory tree starting at 'path'
+    who's basenames start with prefix
+    and who's siffix is .log (or.og.bz2 if includeCOmpressed is True)
 
-def roundTensec(stampStr):
-	# round to tensec
-	tensecStamp = stampStr[:18]+'0'
-	tensecSecs = parseLocaltimeToSecs(tensecStamp)
-	tensecStamp = formatLocal(tensecSecs)
-	#print "%s <-- Tensec  %s" % ( tensecStamp,stampStr )
-	return tensecStamp
+    The returnd filepaths are sorted by basename
 
-def roundMinute(stampStr):
-	# round to minute
-	minuteStamp = stampStr[:16]+':00'
-	minuteSecs = parseLocaltimeToSecs(minuteStamp)
-	minuteStamp = formatLocal(minuteSecs)
-	#print "%s <-- Minute  %s" % ( minuteStamp,stampStr )
-	return minuteStamp
+    Returns a sequence of paths for files found.
+    """
+    matcherList = [(lambda s: os.path.basename(s).startswith(prefix))]
+    if includeCompressed:
+        matcherList.append((lambda s: s.endswith('.log') or s.endswith('.log.bz2') or s.endswith('.log.gz')))
+    else:
+        matcherList.append((lambda s: s.endswith('.log')))
 
-def roundHour(stampStr,deltaHours):
-	# round hours, index back by scope
-	hourStamp = stampStr[:13]+':00:00'
-	hourSecs = parseLocaltimeToSecs(hourStamp)
-	hourStampOffsetByDelta = formatLocal(hourSecs+deltaHours*3600)
-	#print "%s <-- Hour  %s  %05d" % ( hourStampOffsetByDelta,hourStamp, deltaHours )
-	return hourStampOffsetByDelta
+    fileList = ffind(path, namefs=matcherList, relative=False)
+    fileList.sort(key=(lambda s: os.path.basename(s)))
+    return fileList
 
-def roundDay(stampStr,deltaDays,secondsOffset):
-	# NOT DST Safe
-	# add second offset and round again
-	stampSecsPreSecondOffset = parseLocaltimeToSecs(stampStr[:19])
-	stampStrOffsetBySeconds = formatLocal(stampSecsPreSecondOffset+secondsOffset)
+# From: http://muharem.wordpress.com/2007/05/18/python-find-files-and-search-inside-them-find-grep/
+class ScriptError(Exception): pass
+def ffind(path, namefs=None, relative=True):
+    """
+    Finds files in the directory tree starting at 'path' (filtered by the
+    functions in the optional 'namefs' sequence); if the 'relative'
+    flag is not set, the result sequence will contain absolute paths.
 
-	# round hours, index back by scope
-	#dayStamp = stampStr[:11]+'00:00:00'
-	dayStamp = stampStrOffsetBySeconds[:11]+'00:00:00'
-	daySecs = parseLocaltimeToSecs(dayStamp)
+    Returns a sequence of paths for files found.
+    """
+    if not os.access(path, os.R_OK):
+        raise ScriptError("cannot access path: '%s'" % path)
 
-	
-	# now do the deltaDays
-	dayStampOffsetByDelta = formatLocal(daySecs+deltaDays*24*3600)
-	#print "%s <-- Day  %s  %05d" % ( dayStampOffsetByDelta,dayStamp, deltaDays )
-	return dayStampOffsetByDelta
+    fileList = [] # result list
+    try:
+        for dir, subdirs, files in os.walk(path):
+            fileList.extend('%s%s%s' % (dir, os.sep, f) for f in files)
+        if not relative: fileList = map(os.path.abspath, fileList)
+        if namefs: 
+            for ff in namefs: fileList = filter(ff, fileList)
+    except Exception, e: raise ScriptError(str(e))
+    return(fileList)
 
-averageTensecs = {}
-def averageForTensecs(stampStr, scopeValue ):
-	tensecStamp = roundTensec(stampStr)
-	if (tensecStamp in averageTensecs):
-		averageTensecs[tensecStamp][0]=averageTensecs[tensecStamp][0]+scopeValue
-		averageTensecs[tensecStamp][1]=averageTensecs[tensecStamp][1]+1
-	else:
-		averageTensecs[tensecStamp]=[scopeValue,1];
+# return a copy of logFileList, which need processing according to progress
+def removeUnchanged(logFileList, progress): # Remove items which are unchanged in progress.
+    activeFileList = [];
+    for filename in  logFileList:
+        newPI = ProgressItem(filename)
+        #localtimeModStr : not used for date comparisons, just output logging
+        localtimeModStr = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(newPI.lastMod))
+        ago = time.time()-newPI.lastMod
+        #print " checking: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName),newPI.fileSize,ago,localtimeModStr,newPI.md5)
+        oldPI = None
+        if (filename in progress):
+            oldPI = progress[filename]
+        if (not oldPI): # new file: seed progress, calc md5, appent to active file list
+            newPI.calcmd5()
+            progress[filename] = newPI
+            activeFileList.append(filename)
+            print "# NEW: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName), newPI.fileSize, ago, localtimeModStr, newPI.md5)
+        elif (newPI.fileSize != oldPI.fileSize or newPI.lastMod != oldPI.lastMod):
+            # current file is in progress, but size/date has changed
+            # update info in progress, add to active List (calc md5)
+            # make sure we preserve le lastLineRead (high water mark)
+            newPI.calcmd5()
+            newPI.lastLineRead = oldPI.lastLineRead
+            # replace with new progress item
+            progress[filename] = newPI
+            activeFileList.append(filename)
+            print "# MOD: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(newPI.fileName), newPI.fileSize, ago, localtimeModStr, newPI.md5)
+        else:
+            #print "# SKP: %s  len:%08d ago:%ds. mod:%s md5:%s" % (os.path.basename(oldPI.fileName),oldPI.fileSize,ago,localtimeModStr,oldPI.md5)
+            pass
 
-def showTensecs():
-	print "-=-=-=-=-= Average Tensecs (%d)" % len(averageTensecs)
-	howManyToShow=30
-	sortedKeys = averageTensecs.keys()
-	sortedKeys.sort()
-	for d in sortedKeys[-howManyToShow:]:
-		print "Tensec Average: %s  %f    (%f, %d)" % (d, averageTensecs[d][0]/averageTensecs[d][1],averageTensecs[d][0],averageTensecs[d][1])
+    return activeFileList
 
-averageMinutes = {}
-def averageForMinutes(stampStr, scopeValue ):
-	minuteStamp = roundMinute(stampStr)
-	if (minuteStamp in averageMinutes):
-		averageMinutes[minuteStamp][0]=averageMinutes[minuteStamp][0]+scopeValue
-		averageMinutes[minuteStamp][1]=averageMinutes[minuteStamp][1]+1
-	else:
-		averageMinutes[minuteStamp]=[scopeValue,1];
+def md5OfFileContent(fileName): # if bz2 or gz md5 of uncompressed content
+    mode = 'r'
+    #fp = open(fileName,mode) #fileinput.hook_compressed(fileName, mode)
+    fp = fileinput.hook_compressed(fileName, mode)
 
-def showMinutes():
-	print "-=-=-=-=-= Average Minutes (%d)" % len(averageMinutes)
-	howManyToShow=60
-	sortedKeys = averageMinutes.keys()
-	sortedKeys.sort()
-	for d in sortedKeys[-howManyToShow:]:
-		print "Minute Average: %s  %f    (%f, %d)" % (d, averageMinutes[d][0]/averageMinutes[d][1],averageMinutes[d][0],averageMinutes[d][1])
+    #md5 = hashlib.md5()
+    md5 = None
+    try:
+        import hashlib
+        md5 = hashlib.md5()
+    except:
+        import md5
+        md5 = md5.md5()
 
-summaryHours = {}
-def accumulateHours(stampStr, scopeIndex, scopeValue ):
-	# round hours, index back by scope
-	# scopeIndex is OFF BY 4 : h004 is really the sum just calculated
-	# i.e. sum of last two hours
-	scopeIndexCORRECTION=4
-	hourStampOffsetByIndex = roundHour(stampStr,-scopeIndex+scopeIndexCORRECTION)
-	newValue = scopeValue/2*1000; # kWh/2h -> watt
-	if (hourStampOffsetByIndex in summaryHours):
-		oldValue = summaryHours[hourStampOffsetByIndex]
-		if (oldValue!=newValue):
-			print "Hour %s replacing %f with %f" % (hourStampOffsetByIndex,summaryHours[hourStampOffsetByIndex],newValue)
-	summaryHours[hourStampOffsetByIndex]=newValue;
+    try:
+        while 1:
+            data = fp.read(8096) #buffer at a time
+            if not data:
+                break
+            md5.update(data)
+    finally:
+        fp.close()
+    return md5.hexdigest()
 
-averageHours = {}
-def averageForHours(stampStr, scopeValue ):
-	hourStamp = roundHour(stampStr,0)
-	if (hourStamp in averageHours):
-		averageHours[hourStamp][0]=averageHours[hourStamp][0]+scopeValue
-		averageHours[hourStamp][1]=averageHours[hourStamp][1]+1
-	else:
-		averageHours[hourStamp]=[scopeValue,1];
+class ProgressItem:
+    def __init__(self, fileName):
+        self.fileName = fileName
+        stats = os.stat(fileName)
+        self.fileSize = stats[6]
+        self.lastMod = stats[8]
+        self.md5 = 'UNSET'
+        self.lastLineRead = 0
 
-def showHours():
-	print "-=-=-=-=-= Average Hours"
-	sortedKeys = averageHours.keys()
-	sortedKeys.sort()
-	for h in sortedKeys:
-		print "Hour Average: %s  %f    (%f, %d)" % (h, averageHours[h][0]/averageHours[h][1],averageHours[h][0],averageHours[h][1])
-	print "-=-=-=-=-= Summary Hours"
-	sortedKeys = summaryHours.keys()
-	sortedKeys.sort()
-	for hh in sortedKeys:
-		h1 = roundHour(hh,-2)
-		h2 = roundHour(hh,-1)
-		v1=0
-		v2=0
-		avg=0
-		errPercent=0
-		if ((h1 in averageHours) and (h2 in averageHours)):
-			v1 = averageHours[h1][0]/averageHours[h1][1];
-			v2 = averageHours[h2][0]/averageHours[h2][1];
-			avg=(v1+v2)/2.0
-			errPercent = (avg-summaryHours[hh])/avg*100
-		print "Hour Summary: %s  %8.2f  avg: %8.2f [%5.2f %%]= (%8.2f +%8.2f)/2 [%s,%s]" % (hh, summaryHours[hh],avg,errPercent,v1,v2,h1,h2)
-		#print "CSV Hour Summary, %s,  %8.2f,   %8.2f" % (hh, summaryHours[hh],avg)
+    def calcmd5(self):
+        self.md5 = md5OfFileContent(self.fileName)
 
-summaryDays = {}
-def accumulateDays(stampStr, scopeIndex, scopeValue ):
-	# round days, index back by scope
-	dayStampOffsetByIndex = roundDay(stampStr,-scopeIndex,3600)
-	newValue = scopeValue/24*1000; # kWh/24h -> watt
-	if (dayStampOffsetByIndex in summaryDays):
-		oldValue = summaryDays[dayStampOffsetByIndex]
-		if (oldValue!=newValue):
-			print "Day %s replacing  %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
-		#else:
-		#	print "Day %s preserving %f was %f (%s - %dd)" % (dayStampOffsetByIndex,newValue,oldValue,stampStr,scopeIndex)
-	#else:
-		#print "Day %s setting    %f        (%s - %dd)" % (dayStampOffsetByIndex,newValue,stampStr,scopeIndex)
-	summaryDays[dayStampOffsetByIndex]=newValue;
+def loadProgressFromPickle():
+    try:
+        if (os.path.exists(Settings.progressStateFilename)):
+            print "# STATE Reading persited from: %s" % Settings.progressStateFilename
+            pckfp = open(progressPickleFileName, 'rb')
+            nuprogress, nuaverages = pickle.load(pckfp)
+            pckfp.close()
+            return (nuprogress, nuaverages)
+    except:
+        pass
+    return ({}, {}) # empty progress,averages
 
-averageDays = {}
-def averageForDays(stampStr, scopeValue ):
-	dayStamp = roundDay(stampStr,0,0)
-	if (dayStamp in averageDays):
-		averageDays[dayStamp][0]=averageDays[dayStamp][0]+scopeValue
-		averageDays[dayStamp][1]=averageDays[dayStamp][1]+1
-	else:
-		averageDays[dayStamp]=[scopeValue,1];
+def saveProgressToPickle(saveprogress, saveaverages):
+    print "# STATE peristed to: %s" % Settings.progressStateFilename
+    pckfp = open(Settings.progressStateFilename, 'wb')
+    pickle.dump((saveprogress, saveaverages), pckfp)
+    pckfp.close()
 
-def showDays():
-	print "-=-=-=-=-= Average Days"
-	sortedKeys = averageDays.keys()
-	sortedKeys.sort()
-	for d in sortedKeys:
-		print "Day Average: %s  %f    (%f, %d)" % (d, averageDays[d][0]/averageDays[d][1],averageDays[d][0],averageDays[d][1])
-	print "-=-=-=-=-= Summary Days"
-	sortedKeys = summaryDays.keys()
-	sortedKeys.sort()
-	for dd in sortedKeys:
-		d1 = roundHour(dd,0)
-		avg=0
-		errPercent=0
-		if (d1 in averageDays):
-			avg = averageDays[d1][0]/averageDays[d1][1];
-			errPercent = (avg-summaryDays[dd])/avg*100
-		print "Day Summary: %s  %8.2f  avg: %8.2f [%5.2f %%]" % (dd, summaryDays[dd],avg,errPercent)
-		#print "CSV Day Summary, %s,  %8.2f,   %8.2f" % (hh, summaryDays[hh],avg)
+def onepass(progress, averages):
+    # renew the list
+    logFileList = findPrefixedLogs(Settings.logPathRoot, prefix=Settings.logPrefix, includeCompressed=True)
+    activeFileList = removeUnchanged(logFileList, progress)
+    if (len(activeFileList) <= 0):
+        #print "No files to process"
+        return
 
-def writeXML():
-	combinedHours = {} 
-	for k, v in summaryHours.items():
-		combinedHours[k]=[v,1]
-	for k, v in averageHours.items():
-		combinedHours[k]=v
-	combinedDays = {} 
-	for k, v in summaryDays.items():
-		combinedDays[k]=[v,1]
-	for k, v in averageDays.items():
-		combinedDays[k]=v
-	scopes=[
-		{'id':0, 'name':'Live',  'averages':averageTensecs, 'howMany':30},
-		{'id':1, 'name':'Hour',  'averages':averageMinutes, 'howMany':60},
-		{'id':2, 'name':'Day',   'averages':combinedHours,  'howMany':24},
-		{'id':3, 'name':'Week',  'averages':combinedDays,   'howMany':7},
-		{'id':4, 'name':'Month', 'averages':combinedDays,   'howMany':30},
-	]
-	f = open('/mirawatt/feeds.xml', 'w')
-	print >>f,'<?xml version="1.0"?>'
-	print >>f,'<!DOCTYPE plist PUBLIC "-//iMetrical//DTD OBSFEEDS 1.0//EN" "http://www.imetrical.com/DTDs/ObservationFeeds-1.0.dtd">'
-	print >>f,'<feeds>'
-	for scope in scopes:
-		avgArray = scope['averages']
-		sortedKeys = avgArray.keys()
-		sortedKeys.sort()
-		sortedKeys.reverse()
-		scopeLastValue = avgArray[sortedKeys[0]][0]/avgArray[sortedKeys[0]][1]
-		scopeAverageAverage = [0.0,0]
-		for d in sortedKeys[:scope['howMany']]:
-			scopeAverageAverage[0]=scopeAverageAverage[0]+avgArray[d][0]
-			scopeAverageAverage[1]=scopeAverageAverage[1]+avgArray[d][1]
-		scopeAverageValue=scopeAverageAverage[0]/scopeAverageAverage[1]
-		scopeStamp=sortedKeys[0]
-		scopeValue = scopeAverageValue
-		if (scope['id']==0): scopeValue=scopeLastValue
+    #for line in fileinput.input(activeFileList):
+    for line in fileinput.input(activeFileList, openhook=fileinput.hook_compressed):
+        if (fileinput.filelineno() <= progress[fileinput.filename()].lastLineRead):
+            #print "skip  %06d from:%s" % (fileinput.filelineno(),fileinput.filename())
+            continue
 
-		scopeStamp=formatGMTForXML(parseLocaltimeToSecs(scopeStamp))
-		print >>f,'  <feed scopeId="%s" name="%s" stamp="%s" value="%.1f">' % (scope['id'],scope['name'],scopeStamp,scopeValue)
-		for d in sortedKeys[:scope['howMany']]:
-			obsStamp=formatGMTForXML(parseLocaltimeToSecs(d))
-			print >>f,'    <observation stamp="%s-400" value="%.1f"/>' % (obsStamp, avgArray[d][0]/avgArray[d][1])
-		print >>f,'  </feed>'
-	print >>f,'</feeds>'
-	f.close()
+        # indicate progress (before or after actual processing ?
+        progress[fileinput.filename()].lastLineRead = fileinput.filelineno()
 
+        if (fileinput.isfirstline()):
+            truncateAverages()
 
-def doHistNode(stampStr,histNode):
-	# msg/hist/data/sensor(0)/../[h|d]???
-	# for all data nodes
-	# find first sensor child, only handle sensor0
-	#  handle all it's (h|d|m)XXX siblings
-	for dataNode in histNode.getElementsByTagName('data'):
-		sensor = string.atol(dataNode.getElementsByTagName('sensor')[0].childNodes[0].nodeValue)
-		#print "Found sensor: %d" % sensor
-		if (sensor==0):
-			#print "Handling sensor: %d" % sensor
-			for hdm in dataNode.childNodes:
-				#print "tag: %s" % hdm.tagName
-				if ("sensor"==hdm.tagName):
-					continue
-				scopePrefix=hdm.tagName[:1]             # h|d|m
-				scopeIndex=string.atoi(hdm.tagName[1:]) # 4 in h004 or 2 in m002
-				scopeValue=string.atof(hdm.childNodes[0].nodeValue);
-				if ("h"==scopePrefix):
-					#print "%s Hour  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
-					accumulateHours(stampStr, scopeIndex, scopeValue )
-				if ("d"==scopePrefix):
-					#print "%s Day  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
-					accumulateDays(stampStr, scopeIndex, scopeValue )
-				if ("m"==scopePrefix):
-					print "%s Month  %05d %10.5f" % ( stampStr, scopeIndex, scopeValue )
-					#summaryMonth(stampStr, scopeIndex, scopeValue )
-		#else:
-		#	pass
-		#	print "Ignoring sensor: %d" % sensor
+        # actually process the line
+        handleLine(line)
 
-# stampStr has the format: 
-def parseFragment(stampStr,ccfragment):
-	# date format: 2009-07-02T19:08:12-0400
-	# remove the utcoffset in string
-	stampStrNoTZ = stampStr[:-5]
-	# reformat utcofset from -0400 to -04:00
-	UTCOffset = "%s:%s" % (stampStr[-5:-2],stampStr[-2:])
-	# gmtStampStrExpr = "CONVERT_TZ('%s','America/Montreal','GMT')"%(stampStrNoTZ)
-	gmtStampStrExpr = "CONVERT_TZ('%s','%s','GMT') " % ( stampStrNoTZ,UTCOffset)
-	# we also need actual value for csv.
-	stampSecs = parseLocaltimeToSecs(stampStrNoTZ)
-	gmtStr=formatGMTForXML(stampSecs)
+        if (fileinput.filelineno() % 1000 == 0):
+            pass #print "file:%s:%06d  -mod:%s" % (os.path.basename(fileinput.filename()),fileinput.filelineno(),lastModDate)
+        #print "file:%s:%06d" % (os.path.basename(fileinput.filename()),fileinput.filelineno())
 
-	try:
-		ccdom = minidom.parseString(ccfragment)
-	except Exception, e:
-	#except:
-		print "XML Error: %s : %s" % (stampStr,e)
-		return
+    truncateAverages()
+    writeXML()
+    saveProgressToPickle(progress, averages)
 
-	#calculate drift
-	ccTimeStr = ccdom.getElementsByTagName('time')[0].childNodes[0].nodeValue
-	ccStampStr = stampStrNoTZ[:-8]+ccTimeStr
-	ccTimeSecs = parseLocaltimeToSecs(ccStampStr)
-	drift = ccTimeSecs - stampSecs
-
-	histNodeList = ccdom.getElementsByTagName('hist')
-	if (histNodeList):
-		# confirm only one history Node ?
-		#print "Detected History T: %s Drift: %f" % (stampStr,drift)
-		doHistNode(stampStr,histNodeList[0])
-		# use CC's time
-		#doHistNode(ccStampStr,histNodeList[0])
-		return
-
-	sensor = string.atol(ccdom.getElementsByTagName('sensor')[0].childNodes[0].nodeValue)
-	sensorID = string.atol(ccdom.getElementsByTagName('id')[0].childNodes[0].nodeValue)
-	#print "D=%f T=%s S=%d frag=%s" % (drift,ccTimeStr,sensor,ccfragment)
-	sumwatts=0
-	wattarray = []
-	for wattnode in ccdom.getElementsByTagName('watts'):
-		watt = string.atol(wattnode.childNodes[0].nodeValue)
-		#print watt
-		wattarray.append(watt)
-		sumwatts += watt
-	#print "T=%s S=%d watts=%d walen:%d" % (ccTimeStr,sensor,sumwatts,len(wattarray))
-	#sql = "INSERT IGNORE INTO cc_native (stamp, watt, sensorid, ch1watt, ch2watt, drift) VALUES (%s,'%d','%s', '%d','%d','%d');" % (gmtStampStrExpr,sumwatts,sensorID,wattarray[0],wattarray[1],drift)
-	#print sql
-	#csv = ','.join([gmtStr,str(sumwatts),str(sensorID),str(wattarray[0]),str(wattarray[1]),str(drift)])
-	#print csv
-	averageForHours(stampStr, sumwatts )
-	averageForDays(stampStr, sumwatts )
-	averageForMinutes(stampStr, sumwatts )
-	averageForTensecs(stampStr, sumwatts )
-	# use CC's time
-	#averageForHours(ccStampStr, sumwatts )
-	#averageForDays(ccStampStr, sumwatts )
+    # only print active listed logs
+    #for fileName in sorted(progress.keys(), key=(lambda s: os.path.basename(s))):
+    for fileName in sorted(activeFileList, key=(lambda s: os.path.basename(s))):
+        print "# PROGRESS line %5d %s in %s" % (progress[fileName].lastLineRead, os.path.basename(fileName), os.path.dirname(fileName))
 
 MARKStamp = None #'2000-01-01T00:00:00'
 MARKCheckLen = 13      # 13 for hour,16 for minute
-
 def handleLine(line):
-	if (line[:4]=="<!--"):
-		return
-	stampStr = line[:24]
-	CCStr = line[25:-1] # to remove the newline ?
-	# omit empty lines
+    if (line[:4] == "<!--"):
+        return
+    stampStr = line[:24]
+    CCStr = line[25:-1] # to remove the newline ?
+    # omit empty lines
 
-	# Mark the logs as the stampStr advances.
-	global MARKStamp
-	if (stampStr[:MARKCheckLen]!=MARKStamp):
-		print "# MARK -- %s" % stampStr
-	MARKStamp=stampStr[:MARKCheckLen]
+    # Mark the logs as the stampStr advances.
+    global MARKStamp
+    if (stampStr[:MARKCheckLen] != MARKStamp):
+        print "# MARK -- %s" % stampStr
+    MARKStamp = stampStr[:MARKCheckLen]
 
-	if (len(CCStr)>0):
-		parseFragment(stampStr,CCStr)
+    if (len(CCStr) > 0):
+        parseFragment(stampStr, CCStr)
 
+lastPrintedWarning = None # stamp of last drift warning, so we can warn only every two hours (MAX)
+def warnDrift(stamp, ccfragment):
+    matchTime = re.search("<time>(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})</time>", ccfragment)
+    if (not matchTime): return
+    ccstamp = stamp.replace(hour=int(matchTime.group('hour')),
+        minute=int(matchTime.group('minute')),
+        second=int(matchTime.group('second')))
+    delta = ccstamp - stamp
+    drift = delta.days * 86400 + delta.seconds #+delta.microseconds/1000000.0
+    if (drift > 43200):
+        drift = -86400 + drift
+    elif (drift < -43200):
+        drift = 86400 + drift
+    if (abs(drift) > 600):
+        global lastPrintedWarning
+        if (lastPrintedWarning):
+            timeSinceLastWarning = (stamp-lastPrintedWarning)
+            if (timeSinceLastWarning > datetime.timedelta(hours=2)):
+                print "# WARNING clock drift: %f seconds @ %s" % (drift, stamp)
+                lastPrintedWarning = stamp
+        else:
+            lastPrintedWarning = stamp
+
+# could validate entire DTD, hist version,sample version
+msgintegrity = re.compile('<msg>.*</msg>')
+chwattpattern = re.compile('<(?P<ch>ch[0-9])><watts>(?P<watt>[0-9]+)</watts></(?P=ch)>')
+def extractWattsRE(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+    ok  = msgintegrity.search(ccfragment)
+    if (not ok):
+        print "# XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
+        return None
+
+    pairs = chwattpattern.findall(ccfragment)
+    # e.g.: [('ch1', '00769'), ('ch2', '00400')]
+    if (pairs):
+        sumwatts = 0
+        for ch, watt in pairs:
+            sumwatts += int(watt)
+        #print "RE  %s W = sum(%s)" % (sumwatts,pairs)
+        return sumwatts
+    else:
+        return None
+
+# <msg><hist><data><sensor>X</sensor><[hdm](YYY)>VVV</[hdm](YYY)>/data></hist></msg>
+# - inside history: repeating data elements
+# - inside data:    sensor + repeating hmd elements
+msghistpattern = re.compile('<msg>.*(?P<hist><hist>.*</hist>).*</msg>')
+datapattern = re.compile('(?P<data><data><sensor>(?P<sensorid>[0-9]+)</sensor>.*?</data>)')
+hdmdatapattern = re.compile('<(?P<scope>[hmd][0-9]+)>(?P<value>[0-9]+[.][0-9]+)</(?P=scope)>')
+def extractHistoryRE(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+    #this should be moved up and include hist|data detection
+    ok  = msgintegrity.search(ccfragment)
+    if (not ok):
+        print "# XML Error: %s : %s" % (stampStr, 'RE: Incomplete fragment')
+        return None
+    isHist  = msghistpattern.findall(ccfragment)
+    history = [] # tuples of (scopePrefix,scopeIndex,scopeValue)
+    if (isHist):
+        #print "History: %s : %s" % (stampStr, isHist[0])
+        # isHit[0] contains the hist element
+        dataElements = datapattern.findall(isHist[0])
+        if (not dataElements): return None
+        for data in dataElements:
+            # data[0] is the whole data element, data[1] is the sensorid
+            sensorid = int(data[1])
+            #print " Data: %s : %s" % (stampStr, data)
+            # only do sensor 0
+            if (sensorid == 0):
+                #print " Sensor 0: %s : %s" % (stampStr, data)
+                hdms = hdmdatapattern.findall(data[0])
+                for hdm in hdms:
+                    #print "   scope,value: %s : %s" % (stampStr, hmd)
+                    scopePrefix = hdm[0][:1]             # h|d|m
+                    scopeIndex = string.atoi(hdm[0][1:]) # 4 in h004 or 2 in m002
+                    scopeValue = string.atof(hdm[1]);
+                    #print "   %s: %04d -> %f" % (scopePrefix,scopeIndex,scopeValue)
+                    history.append((scopePrefix, scopeIndex, scopeValue))
+        return history
+    else:
+        return None
+
+
+
+def extractWattsXML(stampStr, ccfragment):  # return sum of watt channels - could be 1,2,3 channels
+    try:
+        ccdom = minidom.parseString(ccfragment)
+        sumwatts = 0
+        wattarray = []
+        for wattnode in ccdom.getElementsByTagName('watts'):
+            watt = string.atol(wattnode.childNodes[0].nodeValue)
+            wattarray.append(watt)
+            sumwatts += watt
+        #print "XML %s W = sum(%s)" % (sumwatts,wattarray)
+        return sumwatts
+    except Exception, e:
+        print "# XML Error: %s : %s" % (stampStr, e)
+
+    return None
+
+# moving averages for each scope
+averages = {}
+def movingAverage(stamp, value):
+    '''Accumulate averages for different scopes'''
+    # - convert stamp to LocalTime (it probably already is
+    # ***  we can not use localstamp and reverse reliably to utc
+    #   but this does work for startOf Day/Month
+    #  so for tensec,minute,hour, use stamp : utc
+    #     for month,day use localStamp
+    localStamp = iso8601.toLocalTZ(stamp)
+    scopeStamps = {
+        'month': iso8601.startOfMonth(localStamp),
+        'day': iso8601.startOfDay(localStamp),
+        'hour': iso8601.startOfHour(stamp),
+        'minute': iso8601.startOfMinute(stamp),
+        'tensec': iso8601.startOfTensec(stamp),
+    }
+
+    for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
+        scopeStamps[scope] = iso8601.toUTC(scopeStamps[scope])
+
+    if (False): print "stamp:%s  local:%s Mo:%s DD:%s HH:%s MM:%s TS:%s" % (
+        stamp, localStamp,
+        scopeStamps['month'],
+        scopeStamps['day'],
+        scopeStamps['hour'],
+        scopeStamps['minute'],
+        scopeStamps['tensec'],
+        )
+    for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
+        if (scope not in averages): averages[scope] = {}
+        scopeStamp = scopeStamps[scope]
+        if (scopeStamp in averages[scope]):
+            averages[scope][scopeStamp][0] = averages[scope][scopeStamp][0] + value
+            averages[scope][scopeStamp][1] = averages[scope][scopeStamp][1] + 1
+        else:
+            averages[scope][scopeStamp] = [value, 1];
+
+def historicalAverage(stamp, history):
+    ''' This processes historical entries
+        and potentially overwrites the observed averages.
+        we may later wish to account for drift
+
+        Special case for days: if les than
+    '''
+    if (not history): return
+    referenceHourKey = None # so we only calculate this once
+    referenceDayKey = None # so we only calculate this once
+    referenceMonthKey = None # so we only calculate this once
+    for ((scopePrefix, scopeIndex, scopeValue)) in history:
+        #print "  history %s: %04d -> %f" % (scopePrefix,scopeIndex,scopeValue)
+        if (scopePrefix == 'h'):
+            minimumHourlySamples = 100 # less than this many observations use historical
+            # round hour, index back by scope
+            # must match the key in moving averages...
+            if (not referenceHourKey):
+                referenceHourKey = iso8601.startOfHour(stamp)
+            # scopeIndex is OFF BY 3, : h004 is really the sum just calculated over the previous 2 hours
+            # i.e. sum of last two hours or startOfHour-1 and startOfHour-2
+            # we want to set this value for both hours
+            for scopeIndexCORRECTION in [2, 3]:
+                hourOffset = referenceHourKey + datetime.timedelta(hours=-scopeIndex + scopeIndexCORRECTION)
+                newValueWatts = scopeValue / 2 * 1000; # kWh/2h -> watt
+                newCount = 1000 # more than we could possibly observe every 5s==720
+                newSum = newCount * newValueWatts # so we put that into running totals
+                if (hourOffset not in averages['hour']):
+                    #print "Hour %s %11s  %f  (%s - %d+%dh)" % (hourOffset, 'setting', newValueWatts, stamp, scopeIndex, scopeIndexCORRECTION)
+                    averages['hour'][hourOffset] = [newSum, newCount]
+                else:
+                    (curSum, curCount) = averages['hour'][hourOffset]
+                    if (curCount < minimumHourlySamples):
+                        # not enough real data: override with historical
+                        averages['hour'][hourOffset] = [newSum, newCount]
+                        print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'replaceObs', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                    elif (curCount >= newCount): # replacing a historical entry -
+                        # including one that was added to after it was originally set
+                        #  ic curCount<2000 above the observations after 23:00 will be added over our hostrical setting
+                        if (newSum == curSum):
+                            averages['hour'][hourOffset] = [newSum, newCount]
+                            #print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'preserveHist', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                        else:
+                            averages['hour'][hourOffset] = [newSum, newCount]
+                            #print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'replaceHist', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                    else: # keeping observed values
+                        #print "Hour %s %11s  %.1f  was %.1f (%d) (%s - %d+%dh)" % (hourOffset, 'preserveObs', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex, scopeIndexCORRECTION)
+                        pass
+        elif (scopePrefix == 'd'):
+            minimumDailySamples = 2000 # less than this many observations use historical
+            # round days, index back by scope
+            # must match the key in moving averages...
+            if (not referenceDayKey):
+                # start Of day is 23:00 in CC's history so add an hour before rounding
+                referenceDayKey = iso8601.startOfDay(iso8601.toLocalTZ(stamp) + datetime.timedelta(hours=1))
+            dayOffset = referenceDayKey + datetime.timedelta(days=-scopeIndex)
+            newValueWatts = scopeValue / 24 * 1000; # kWh/24h -> watt
+            newCount = 20000 # more than we could possibly observe every 5s==17k
+            newSum = newCount * newValueWatts # so we put that into running totals
+            #print "Day %s %11s  %f  (%s - %dd)" % (dayOffset,'is', newValueWatts, stamp, scopeIndex)
+            if (dayOffset not in averages['day']):
+                #print "Day %s %11s  %.1f  (%s - %dd)" % (dayOffset,'setting', newValueWatts, stamp, scopeIndex)
+                averages['day'][dayOffset] = [newSum, newCount]
+            else:
+                (curSum, curCount) = averages['day'][dayOffset]
+                if (curCount < minimumDailySamples):
+                    # not enough real data: override with historical
+                    averages['day'][dayOffset] = [newSum, newCount]
+                    print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset, 'replaceObs', newValueWatts, curSum / curCount, curCount, stamp, scopeIndex)
+                elif (curCount >= newCount): # replacing a historical entry -
+                    # including one that was added to after it was originally set
+                    #  ic curCount<2000 above the observations after 23:00 will be added over our hostrical setting
+                    if (newSum == curSum):
+                        averages['day'][dayOffset] = [newSum, newCount]
+                        #print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'preserveHist', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                    else:
+                        averages['day'][dayOffset] = [newSum, newCount]
+                        #print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'replaceHist', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                else: # keeping observed values
+                    #print "Day %s %11s  %.1f  was %.1f (%d) (%s - %dd)" % (dayOffset,'preserveObs', newValueWatts,curSum/curCount,curCount,stamp, scopeIndex)
+                    pass
+        elif (scopePrefix == 'm'):
+            if (not referenceMonthKey):
+                referenceMonthKey = iso8601.startOfMonth(iso8601.toLocalTZ(stamp))
+            monthOffset = referenceMonthKey + datetime.timedelta(days=-scopeIndex * 30)
+            newValueWatts = scopeValue / 30 / 24 * 1000; # kWh/24h/30d -> watt
+            #print "Month approx %s %11s  %f  (%s - %d mo)" % (monthOffset, 'ignoring', newValueWatts, stamp, scopeIndex)
+            pass
+
+
+def truncateAverages():
+    howMany = {
+        'tensec': 90, # ~ 90*10 = 15 minutes
+        'minute': 120, # ~ 2 hrs
+        'hour': 48, # ~ 2 days
+        'day': 60, # ~ 60 days
+        'month': 84, # ~ 7 years
+    }
+    for scope in ['month', 'day', 'hour', 'minute', 'tensec']:
+        if (scope not in averages): continue #averages[scope] = {}
+        #print "scope[%s] has length:%d truncate to %d" % (scope,len(averages[scope]),howMany[scope])
+        sortedKeys = averages[scope].keys()
+        sortedKeys.sort()
+        sortedKeys.reverse()
+        for d in sortedKeys[:howMany[scope]]:
+            pass # print "keep scope[%s][%s]" % (scope,d)
+        for d in sortedKeys[howMany[scope]:]:
+            # print "delete scope[%s][%s]" % (scope,d)
+            del averages[scope][d]
+
+
+def writeXML():
+    if (False): # combine Archived Hours/days
+        combinedHours = {}
+        for k, v in summaryHours.items():
+            combinedHours[k] = [v, 1]
+        for k, v in averageHours.items():
+            combinedHours[k] = v
+        combinedDays = {}
+        for k, v in summaryDays.items():
+            combinedDays[k] = [v, 1]
+        for k, v in averageDays.items():
+            combinedDays[k] = v
+
+    scopes = [
+        {'id':0, 'name':'Live', 'averages':averages['tensec'], 'howMany':30},
+        {'id':1, 'name':'Hour', 'averages':averages['minute'], 'howMany':60},
+        {'id':2, 'name':'Day', 'averages':averages['hour'], 'howMany':24}, #combinedHours
+        {'id':3, 'name':'Week', 'averages':averages['day'], 'howMany':7}, #combinedDays
+        {'id':4, 'name':'Month', 'averages':averages['day'], 'howMany':30}, #combinedDays
+    ]
+    f = open(Settings.outputFeedsFilename, 'w')
+    print >> f, '<?xml version="1.0"?>'
+    print >> f, '<!DOCTYPE plist PUBLIC "-//iMetrical//DTD OBSFEEDS 1.0//EN" "http://www.imetrical.com/DTDs/ObservationFeeds-1.0.dtd">'
+    print >> f, '<feeds>'
+    for scope in scopes:
+        avgArray = scope['averages']
+        sortedKeys = avgArray.keys()
+        sortedKeys.sort()
+        sortedKeys.reverse()
+        scopeLastValue = avgArray[sortedKeys[0]][0] / avgArray[sortedKeys[0]][1]
+        scopeAverageAverage = [0.0, 0]
+        for d in sortedKeys[:scope['howMany']]:
+            scopeAverageAverage[0] = scopeAverageAverage[0] + avgArray[d][0]
+            scopeAverageAverage[1] = scopeAverageAverage[1] + avgArray[d][1]
+        scopeAverageValue = scopeAverageAverage[0] / scopeAverageAverage[1]
+        scopeStamp = sortedKeys[0]
+        scopeValue = scopeAverageValue
+        if (scope['id'] == 0): scopeValue = scopeLastValue
+
+        #scopeStamp = iso8601.fmtExtendedZ(scopeStamp) unreliabls in localTZ
+        scopeStamp = iso8601.fmtExtendedZ(iso8601.toUTC(scopeStamp))
+        print >> f, '  <feed scopeId="%s" name="%s" stamp="%s" value="%.1f">' % (scope['id'], scope['name'], scopeStamp, scopeValue)
+        for d in sortedKeys[:scope['howMany']]:
+            #obsStamp = iso8601.fmtExtendedZ(d)
+            obsStamp = iso8601.fmtExtendedZ(iso8601.toUTC(d)) # since we only used reversible keys
+            print >> f, '    <observation stamp="%s" value="%.1f"/>' % (obsStamp, avgArray[d][0] / avgArray[d][1])
+        print >> f, '  </feed>'
+    print >> f, '</feeds>'
+    f.close()
+
+
+def parseFragment(stampStr, ccfragment):
+    # date format: 2009-07-02T19:08:12-0400
+    stamp = iso8601.parse_iso8601(stampStr) 
+
+    useDOM = False # or use RE...
+    if (useDOM):
+        sumwatts = extractWattsXML(stampStr, ccfragment)
+    else:
+        sumwatts = extractWattsRE(stampStr, ccfragment)
+
+    if (sumwatts):
+        movingAverage(stamp, sumwatts)
+        #truncateAverages()
+
+    # handle history
+    history = extractHistoryRE(stamp, ccfragment)
+    historicalAverage(stamp, history)
+
+    warnDrift(stamp, ccfragment)
+
+
+def usage():
+    usageStr = '''
+    python %s --base|-b /base/dir --logs|-l [/]log/root/PREFIX [--help|-h]
+      -base dir is where the progress-state and output feed.xml files are stored
+      -if log path root is empty or relative, it is taken relative to base dir
+    ''' % sys.argv[0]
+    print usageStr
+    sys.exit(2)
+
+class SettingsClass:
+    '''Class used a s struct: see Pythom 9.7 Odds and Ends'''
+    pass
+Settings = SettingsClass()
+
+def parseArgs():
+    # parse command line options
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hb:l:", ["help", "base=", "logs="])
+    except getopt.error, msg:
+        print 'Error msg: %s' % msg
+        usage()
+
+    # default values
+    Settings.baseDir = None;
+    logPathAndPrefix = None;
+
+    for o, a in opts:
+        if o in ("-b" "--base"):
+            Settings.baseDir = a
+        if o in ("-l" "--logs"):
+            logPathAndPrefix = a
+        elif o in ("-h", "--help"):
+            usage()
+        else:
+            assert False, "Unknown option: %s" % o
+
+    if (Settings.baseDir == None or not os.path.isdir(Settings.baseDir)):
+        print "Base directory not found: %s (use --base /path/to/base)" % Settings.baseDir
+        usage()
+    if (logPathAndPrefix == None):
+        print "Logs Root and Prefix not found (use --logs=/path/PREFIX)"
+        usage()
+
+    Settings.baseDir = os.path.abspath(Settings.baseDir)
+    Settings.logPathRoot = os.path.abspath(os.path.join(Settings.baseDir, os.path.dirname(logPathAndPrefix)))
+    if (not os.path.isdir(Settings.logPathRoot)):
+        print "Log path root directory not found: %s (use --logs /path/to/logs)" % Settings.logPathRoot
+        usage()
+    Settings.logPrefix = os.path.basename(logPathAndPrefix)
+    Settings.progressStateFilename = os.path.join(Settings.baseDir,'progress-state.pkl')
+    Settings.outputFeedsFilename = os.path.join(Settings.baseDir,'feeds.xml')
+    print "# START Base dir:   %s" % (Settings.baseDir)
+    print "# START logs root:   %s/..." % (Settings.logPathRoot)
+    print "# START logs prefix: %s*.log[.gz|bz2]" % (Settings.logPrefix)
+    print "# START progress-state file: %s" % (Settings.progressStateFilename)
+    print "# START output-feeds file: %s" % (Settings.outputFeedsFilename)
+
+    
 if __name__ == "__main__":
-        usage = 'python %s' % sys.argv[0]
-	totallines=0;
-	# read line by line
-        while True:
-		line = sys.stdin.readline()         # read a one-line string
-		if not line:                        # or an empty string at EOF
-			break
-		totallines+=1
+    parseArgs()
+    progress, averages = loadProgressFromPickle() # map of file -> ProgressItem
+    starttimer = time.time()
+    loopcount = 0
+    while (True):
+        looptimer = time.time()
+        loopcount += 1
+        onepass(progress, averages)
+        print "# ELAPSED -- loop:%08d %.1f s. (%.1f s. total)" % (loopcount, time.time()-looptimer, time.time()-starttimer)
+        time.sleep(10.0)
 
-		#if ((totallines % 10000) == 0):
-		#	sys.stderr.write("line # %d \n" % (totallines))
-		
-		handleLine(line)
-		#if (totallines>100):
-		#	break
-                # (stamp, watts,volts) = getGMTTimeWattsAndVoltsFromTedService()
-
-sys.stderr.write("Done; counted %d lines\n" % (totallines))
-#showHours()
-#showDays()
-#showMinutes()
-#showTensecs()
-writeXML()
