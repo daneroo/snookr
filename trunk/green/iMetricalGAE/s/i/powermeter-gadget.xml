@@ -6,7 +6,9 @@
     <Require feature="views"/>
     <Require feature="setprefs"/>
     <Require feature="settitle"/>
+<!--
     <Require feature="locked-domain"/>
+-->
     <OAuth>
       <Service name="google">
         <Access url="https://www.google.com/accounts/OAuthGetAccessToken" method="GET"/>
@@ -542,7 +544,7 @@ P.handleStatsResponse_=function(a,b){this.hideStatus_();this.reporter_.log(xu,a)
 this.isStatsInitialized=i}this.updateDisplay_()}catch(e){this.reporter_.log(yu,e);this.reporter_.showError(zu)}b&&b()}else{this.reporter_.log(Au,a.responseCode);this.reporter_.log(Bu,a.errors);this.reporter_.showError(zu)}la(this.contentDiv_,Cu+this.viewType_);this.adjustSize();yk(this.adjustSize,250,this);yk(this.adjustSize,500,this);yk(this.adjustSize,1000,this);yk(this.adjustSize,2000,this);yk(this.adjustSize,4000,this)};
 P.handleResize=function(){var a=Uf(o);a[x]!=this.lastKnownSize_[x]&&this.adjustSize();this.lastKnownSize_=a};var Du="report_container";P.adjustSize=function(){var a=this.chart_.adjustSize();this.ratingScale_.adjustSize();this.budgetGauge_.adjustSize();if(a>0)ma(this.controlTable_[F],a-this.chart_.LEFT_MARGIN-this.chart_.RIGHT_MARGIN);a=this.containerDiv_[Xb]||0;var b=Y(Du)[Xb]+60;if(a<b)a=b;if(a<30)a=30;l.window.adjustHeight(a)};P.exitDocument=function(){xs.superClass_.exitDocument[I](this);this.eventHandler_.removeAll()};Hn||(Hn=new Gn);o.location.href[D]("Debug=true")!=-1&&Hn.setCapturing(i);var Eu="nonce",Fu="UA-4426461-2";
 function Gu(){
-   alert('coco');
+   //alert('coco');
    (new Gn).setCapturing(i);
    var a=new l.Prefs(As);
    l[Ga].getCurrentView().getName();
