@@ -1,0 +1,443 @@
+<!doctype html>
+<html>
+    <!--  manifest="mirawatt-iphone.manifest" -->
+    <head>
+        <meta charset="UTF-8" />
+        <title>Mirawatt &tau;&epsilon;&delta;</title>
+        <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=2.3, user-scalable=0;"/>
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>-->
+
+        <style type="text/css" media="screen">@import "jqtouch/jqtouch.min.css";</style>
+        <style type="text/css" media="screen">@import "themes/jqt/theme.min.css";</style>
+        <script src="jqtouch/jquery.1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
+        <script type="text/javascript" src="jquery.timer.js"></script>
+        <script type="text/javascript" src="mirawatt-1.0.js"></script>
+        <script type="text/javascript" src="fetchted5k.js"></script>
+        <script type="text/javascript" src="charturl.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            vizLoaded = false;
+            //google.setOnLoadCallback(function(){vizLoaded=true});
+            function preventTouchMove(event) {
+                // Prevent scrolling on this element
+                event.preventDefault();
+            }
+            url = makeURLs('http://192.168.5.238');
+            proxyurl = makeProxyURLs(url)
+
+            // getting ready to inject from settings..
+            feedURLBase="/feeds";
+            feedURL= feedURLBase+"?owner=daniel";
+            var prefs = null;
+            try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
+            var getRefreshIntervalMS = function() {
+                var refreshInterval = 15;
+                if (prefs) refreshInterval = prefs.getString("refreshInterval");
+                if (refreshInterval<2) refreshInterval=2;
+                return refreshInterval*1000; // every n seconds
+            };
+
+            function triggerRedrawToFixChartVizBug(){
+                $('#blinking-light-to-fix-chat-bug').toggle();
+            }
+
+            function settingsUserChanged(userSelect){
+                return;
+                var username = (userSelect.options[userSelect.selectedIndex].value);
+                setUsername(username);
+            }
+            function selectNextUser(){
+                var cu = $('#feedname').val();
+                var nu = 'daniel';
+                if (cu=='daniel'){
+                    nu='jean';
+                } else if (cu=='jean'){
+                    nu='louis';
+                }
+                setUsername(nu);
+            }
+            function setUsername(username){
+                feedURL= feedURLBase+"?owner="+username;
+                $('#username').html(username);
+                $('#feedname').val(username);
+                // expire the fetchAndMap loop immediately!
+                lastFetched=null;
+            }
+
+            var feedsRef; // keep a reference to the feeds array
+            var currentFeed=2;
+            var animCanRun=false;
+            var imIsIPhone=true;
+            function myInjector(feeds) {
+                flashInjector();
+                feedsRef = feeds;
+                standardInjector(feeds);
+                if (animCanRun) {
+                    currentFeed= (currentFeed+1)%6;
+                }
+                selectChart(currentFeed);
+                // decay overlaid text
+                $(".im-chart-text").css({opacity:""});
+                $(".im-chart-text").animate({
+                    opacity: 0.2
+                }, 3000 );
+
+            }
+            function selectChart(whichOne){
+                whichOne = (whichOne+6)%6;
+                // 0 -> 5*-320, 1 -> 4*-320,..   // 5 -> 0
+                leftPos = ''+(-320*(5-whichOne))+'px';
+                $('#error').html('which:'+whichOne+' left:'+leftPos);
+                if(imIsIPhone) {
+                    $('#chart-wide').css({left:leftPos});
+                } else {
+                    $('#chart-wide').animate({left:leftPos},500);
+                }
+                currentFeed= (whichOne+feedsRef.length)%feedsRef.length;
+                feed = feedsRef[currentFeed];
+                drawAChart(currentFeed);
+            }
+
+            var startLoad=new Date()
+            function drawAChart() {
+                /*simple googleviz only
+                if (vizLoaded) {
+                    drawChart(feed);
+                }*/
+                var elapsed = new Date().getTime()-startLoad.getTime();
+                if (vizLoaded && elapsed>30000){
+                    drawChart(feed);
+                    setTimeout('triggerRedrawToFixChartVizBug()',200);
+                } else {
+                    var unitsForFeedName={
+                        'Live' :  iMUnits.w,
+                        'Hour' :  iMUnits.kw,
+                        'Day'  :   iMUnits.kwhd,
+                        'Week' :  iMUnits.kwhd,
+                        'Month':  iMUnits.kwhd,
+                        'Year' :  iMUnits.kwhd
+                    };
+                    //addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
+                    $(".im-chart-text").css({opacity:0.2});
+
+                    // this is the injection code: run ONE now
+                    var darkOptions={};// all defaults
+                    var lightOptions={
+                        width:320,
+                        height:180,
+                        bgColor:'ffffff00',
+                        penColors:["3b5998","7f93bc"],
+                        textColor:'222222'
+                    };
+                    var options = darkOptions;
+                    //$('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
+                    // to redraw the text
+                    standardInjector(feedsRef);
+                    //return;
+                    for (s=0;s<6;s++){
+                        feedName = feedsRef[s].name;
+                        // set img src
+                        //$('#chart  .im-feed-'+feedName+'  .im-chart-img').attr('src',chartURL(feedsRef[s],darkOptions));
+                        //  set img/div bacground
+                        $('#chart  .im-feed-'+feedName+'  .im-chart-img').css('background-image',"url('"+chartURL(feedsRef[s],darkOptions)+"')");
+                    }
+                }
+            }
+
+
+            $.jQTouch({
+                icon: 'mirawattIPhoneIcon-57x57.png',
+                addGlossToIcon: true,
+                startupScreen: 'mirawattIPhoneStartup-320-460.png',
+                statusBar: 'black',
+                // fixed: no: will do my own meta viewport
+                fixedViewport: false,
+                preloadImages: [
+                    'themes/jqt/img/chevron_white.png',
+                    'themes/jqt/img/bg_row_select.gif',
+                    'themes/jqt/img/back_button.png',
+                    'themes/jqt/img/back_button_clicked.png',
+                    'themes/jqt/img/button_clicked.png',
+                    'themes/jqt/img/grayButton.png',
+                    'themes/jqt/img/whiteButton.png',
+                    'themes/jqt/img/loading.gif'
+                ]
+            });
+
+            // Some sample Javascript functions:
+            $(function(){
+                iM18nLang='en';
+                parentID='#chart-wide';
+                addChartImg(parentID,'Year',  iMUnits.kwhd );
+                addChartImg(parentID,'Month', iMUnits.kwhd );
+                addChartImg(parentID,'Week',  iMUnits.kwhd );
+                addChartImg(parentID,'Day',   iMUnits.kwhd );
+                addChartImg(parentID,'Hour',  iMUnits.kw   );
+                addChartImg(parentID,'Live',  iMUnits.w    );
+                $('#chart-wide  .im-chart-img').css('background-image','url(./themes/jqt/img/loading.gif)');
+
+                //if not on iphone : use click; don't use both...'
+                if(!((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
+                    imIsIPhone=false;
+                }
+                if(!imIsIPhone) { // not an iThing');
+                    $('#chart').click(function(){
+                        selectChart(currentFeed-1);
+                    });
+                    $('#username').click(function(){
+                        selectNextUser();
+                    });
+                } else { // iphone section
+                    // Show a swipe event on swipe test
+                    $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
+                        $('#status').html('swipe: ' + data.direction);
+                        var delta=0;
+                        if ('left'==data.direction){
+                            delta=-1;
+                        }
+                        if ('right'==data.direction){
+                            delta=+1;
+                        }
+                        selectChart(currentFeed+delta);
+                    });
+                    $('#chart').addTouchHandlers().bind('tap', function(evt, data){
+                        selectChart(currentFeed-1);
+                    });
+                    $('#username').addTouchHandlers().bind('tap', function(evt, data){
+                        selectNextUser();
+                    });
+                }
+
+
+                // Orientation callback event
+                $('body').bind('turn', function(e, data){
+                    $('#home-toolbar, #home-ul').toggle('profile'==data.orientation);
+                    //$('#status').html('Orientation: ' + data.orientation);
+                })
+
+                // fetching timer
+                lastFetched = null;
+                //startAnimNow(getRefreshIntervalMS(), function (timer) {
+                startAnimNow(500, function (timer) {
+                    // spin this more often but verify expiry !
+                    var elapsed = 100000;
+                    if (lastFetched!=null){
+                        elapsed = new Date().getTime()-lastFetched.getTime();
+                    }
+                    //$('#status').html("elapsed: "+elapsed);
+                    if (elapsed>getRefreshIntervalMS()){
+                        ted5kfetchAndMapFeeds(proxyurl,myInjector);
+                        lastFetched = new Date();
+                    }
+                });
+                // fix googleviz-safari-mobile...redraw bug
+                startAnimNow(1000, function (timer) {
+                    triggerRedrawToFixChartVizBug();
+                });
+            });
+        </script>
+        <style type="text/css" media="screen">
+            body.fullscreen #home .info {
+                display: none;
+            }
+            #about {
+                padding: 50px 10px 40px;
+                text-shadow: rgba(255, 255, 255, 0.3) 0px -1px 0;
+                font-size: 13px;
+                text-align: center;
+                background: #161618;
+            }
+            #about p {
+                margin-bottom: 8px;
+            }
+            #about a {
+                color: #fff;
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+            /* override color in settings panel controls : too dark */
+            #settings ul li input[type="text"], #settings  ul li input[type="password"], #settings ul li textarea,
+            #settings ul li select, #settings ul li input[type="checkbox"],
+            #settings ul li input[type="radio"],
+            #settings ul li {
+                color:white;
+            }
+            /* grid alignment.. */
+            .im-feed-units {
+                /*margin-left: 33px;*/
+                color: #999999;
+                /*width:20px;*/
+
+            }
+            .im-v-w, .im-v-kw, .im-v-kwhd {
+                color: #55ff00;
+            }
+            #status {
+                color:gray;
+                /*text-align:center;*/
+                margin-left:20px;
+            }
+            #username {
+                color:gray;
+                text-align:right;
+                float: right;
+            }
+            #error {
+                display:none;
+                color:red;
+            }
+            .im-flash {
+                color:red;
+            }
+            /* override ul li style */
+            ul li { /* p: t r b l */
+                padding: 2px 10px 2px 10px;
+            }
+            #chart {
+                /*background-color: blue;*/
+                height: 180px;
+            }
+            .im-chart /*> .im-chart-img*/ {
+                height: 180px;
+                width:320px;
+                /*border:1px gray dashed;
+                background-color:red;*/
+            }
+            .im-chart-img {
+                height: 180px;
+                width: 320px;
+                /*border: 0px solid gray;*/
+                /* this is how we set the image:
+                background-image:url('./themes/jqt/img/loading.gif');
+                background-image:url('chart......');
+                */
+                background-position:center center;
+                background-repeat:no-repeat;
+            }
+            .im-chart-text {
+                font-weight:bold;
+                font-size:300%;
+                color:#cccccc;
+                position:relative;
+                top:-120px;
+                text-align:center;
+            }
+            .im-chart-text .im-v-w,.im-chart-text .im-v-kw,.im-chart-text .im-v-kwhd{
+                /* override the general rule for color of watt values*/
+                color: #44cc00; /* (cccccc instead of 55ff00)/2*/
+                /*text-shadow: rgba(85,255,0,.5) 0 2px -2px;*/
+            }
+            .im-chart-text .im-feed-name{
+                display:none;
+            }
+            .im-chart-text .im-feed-name,.im-chart-text .im-feed-units{
+                font-size:50%;
+                vertical-align:middle;
+            }
+            /* try to get that sligin thing going */
+            div.im-chart {
+                float:left;
+            }
+            #chart {
+                overflow:hidden;
+                width: 320px;
+            }
+            #chart-wide {
+                position: relative;
+                left: -960px; /* -960px; */
+                width: 1920px;
+                /* clipr:ect (top, right, bottom, left)*/
+                /*clip:rect(0px,320px,200px,0px);*/
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="home" ontouchmove="preventTouchMove(event)">
+            <div id="home-toolbar" class="toolbar">
+                <a class="button leftButton flip" id="infoButton" href="#about">About</a>
+                <h1>Mirawatt &tau;&epsilon;&delta;</h1>
+                <a class="button slideup" id="infoButton" href="#settings">Settings</a>
+            </div>
+            <div>
+                <div id="chart"><div id="chart-wide"></div></div>
+                <!--<div id="swipeme">Swipe me!</div>-->
+                <div id="error" ></div>
+            </div>
+            <ul id="home-ul">
+                <li class="im-feed-Live" onclick="selectChart(0)"><a href="#"><span class="im-feed-name">Live</span></a><small class="counter"><span class="im-v-w">0000</span> <span class="im-feed-units">W</span></small></li>
+                <li class="im-feed-Hour" onclick="selectChart(1)"><a href="#"><span class="im-feed-name">Hour</span></a><small class="counter"><span class="im-v-kw">0.00</span> <span class="im-feed-units">kW</span></small></li>
+                <li class="im-feed-Day" onclick="selectChart(2)"><a href="#"><span class="im-feed-name">Day</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Week" onclick="selectChart(3)"><a href="#"><span class="im-feed-name">Week</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Month" onclick="selectChart(4)"><a href="#"><span class="im-feed-name">Month</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+                <li class="im-feed-Year" onclick="selectChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
+            </ul>
+            <div id="username">daniel</div>
+            <div id="status"></div>
+            <!-- empty div for triggering redraw (toggle()) -->
+            <div id="blinking-light-to-fix-chat-bug"></div>
+            <!--
+            <ul class="individual">
+                <li><a>Settings</a></li>
+                <li>Info</li>
+            </ul>
+            -->
+            <div class="info">
+                <p>Add this page to your home screen to view the custom icon, startup screen, and full screen mode.</p>
+            </div>
+        </div>
+
+        <div id="about">
+            <p><img src="mirawattIPhoneAbout-200x200.png" /></p>
+            <p>Save Energy Now</p>
+            <p><em>IPhone Web Version 1.0 &beta;</em></p>
+
+            <p><br /><br /><a href="#" class="grayButton goback">Close</a></p>
+        </div>
+
+
+        <div id="settings">
+            <div class="toolbar">
+                <h1>Settings</h1>
+                <a href="#" class="back">Back</a>
+            </div>
+            <form>
+                <h2>Account</h2>
+                <ul class="edit">
+                    <li><input type="text" name="username" placeholder="User Name" id="username" /></li>
+                    <li><input type="password" name="password" value="nonefornow" id="password" /></li>
+                    <li>Remember Me<span class="toggle"><input id="rememberme" name="rememberme" type="checkbox" /></span></li>
+                </ul>
+                <h2>Feed</h2>
+                <ul class="edit">
+                    <li><select onchange="settingsUserChanged(this)" id="feedname" name="feedname"><optgroup label="My Account">
+                                <option value ="daniel">Daniel Lauzon</option>
+                            </optgroup>
+                            <optgroup label="Friends">
+                                <option value ="jean">Jean DesRosiers</option>
+                                <option value ="louis">Louis Veilleux</option>
+                    </optgroup></select></li>
+                </ul>
+                <h2>Look 'n Feel</h2>
+                <ul class="edit">
+                    <li><select id="refreshrate" name="refreshrate">
+                            <option value ="10">Fetch feed every 10 sec</option>
+                            <option value ="30">Fetch feed every 30 sec</option>
+                            <option value ="60">Fetch feed every 1 min</option>
+                    </select></li>
+                    <li><select id="chartmethod" name="chartmethod">
+                            <option value ="chartapi">Google Chart (Network)</option>
+                            <option value ="googleviz">Google Viz</option>
+                    </select></li>
+                </ul>
+                <!--
+                <ul class="individual">
+                    <li><a href="#" onclick="confirmSettings()">OK</a></li>
+                    <li><a href="#" onclick="cancelSettings()">Cancel</a></li>
+                </ul>
+                -->
+            </form>
+        </div>
+    </body>
+</html>
