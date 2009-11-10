@@ -31,7 +31,7 @@
             var prefs = null;
             try { prefs = new _IG_Prefs(__MODULE_ID__); } catch(err) {}
             var getRefreshIntervalMS = function() {
-                var refreshInterval = 15;
+                var refreshInterval = 10;
                 if (prefs) refreshInterval = prefs.getString("refreshInterval");
                 if (refreshInterval<2) refreshInterval=2;
                 return refreshInterval*1000; // every n seconds
@@ -71,7 +71,7 @@
             function myInjector(feeds) {
                 flashInjector();
                 feedsRef = feeds;
-                standardInjector(feeds);
+                //standardInjector(feeds);
                 if (animCanRun) {
                     currentFeed= (currentFeed+1)%6;
                 }
@@ -87,7 +87,7 @@
                 whichOne = (whichOne+6)%6;
                 // 0 -> 5*-320, 1 -> 4*-320,..   // 5 -> 0
                 leftPos = ''+(-320*(5-whichOne))+'px';
-                $('#error').html('which:'+whichOne+' left:'+leftPos);
+                //$('#error').html('which:'+whichOne+' left:'+leftPos);
                 if(imIsIPhone) {
                     $('#chart-wide').css({left:leftPos});
                 } else {
@@ -109,6 +109,7 @@
                     drawChart(feed);
                     setTimeout('triggerRedrawToFixChartVizBug()',200);
                 } else {
+/*
                     var unitsForFeedName={
                         'Live' :  iMUnits.w,
                         'Hour' :  iMUnits.kw,
@@ -132,7 +133,7 @@
                     var options = darkOptions;
                     //$('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
                     // to redraw the text
-                    standardInjector(feedsRef);
+                    //NOT standardInjector(feedsRef);
                     //return;
                     for (s=0;s<6;s++){
                         feedName = feedsRef[s].name;
@@ -141,6 +142,7 @@
                         //  set img/div bacground
                         $('#chart  .im-feed-'+feedName+'  .im-chart-img').css('background-image',"url('"+chartURL(feedsRef[s],darkOptions)+"')");
                     }
+*/
                 }
             }
 
@@ -284,7 +286,7 @@
                 float: right;
             }
             #error {
-                display:none;
+                ZZdisplay:none;
                 color:red;
             }
             .im-flash {

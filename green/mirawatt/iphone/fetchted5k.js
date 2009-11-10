@@ -1,5 +1,4 @@
 
-var globalFeedQueue = [];
 var now=new Date();var ago=new Date(); ago.setTime(Number(now)-3600);
 var noobs = [
 {
@@ -48,54 +47,9 @@ var hiddenFeeds = [
     observations:noobs
 }
 ];
-function ted5kfetchAndMapFeeds(proxyurlmap,feedsCallback){
-    fetchTed(proxyurlmap);
-    while(globalFeedQueue.length>0) {
-        var feed = globalFeedQueue.shift()
-        var fIndex=0;
-        switch (feed.name){
-            case "SECOND":
-                feed.name='Live';
-                fIndex=0;
-                break;
-            case "MINUTE":
-                feed.name='Hour';
-                fIndex=1;
-                break;
-            case "HOUR":
-                feed.name='Day';
-                fIndex=2;
-                break;
-            case "DAY":
-                feed.name='Month';
-                fIndex=4;
-                break;
-            case "MONTH":
-                feed.name='Year';
-                fIndex=5;
-                break;
-        }
-        hiddenFeeds[fIndex]=feed;
-        if (fIndex==4){ //Month -> copy slice to week
-            weekCopy = {
-                name:'Week',
-                stamp:feed.stamp,
-                value:feed.value, // recalc average below
-                observations:feed.observations.slice(0,7)
-                };
-            if (weekCopy.observations.length>0){
-                var avg=0;
-                for (i=0;i<weekCopy.observations.length;i++){
-                    avg+=weekCopy.observations[i].value;
-                }
-                weekCopy.value=avg/weekCopy.observations.length;
-
-            }
-            hiddenFeeds[3]=weekCopy;
-        }
-    }
-    //alert('after fetchTed: '+feeds.length)
-    $('#error').html('after fetchTed: '+hiddenFeeds.length);
+function ted5kfetchAndMapFeeds(proxyurlmap,feedsCallback,elapsed){
+    fetchTed(proxyurlmap,elapsed);
+    //$('#error').html('after fetchTed: '+hiddenFeeds.length);
     if (hiddenFeeds.length>0 && feedsCallback){
         feedsCallback(hiddenFeeds);
     }
@@ -113,7 +67,7 @@ function ted5kfetchAndMapFeeds(proxyurlmap,feedsCallback){
 function makeURLs(baseURL){
     var urlmap={
         'live':  baseURL+'/api/LiveData.xml',
-        'second':baseURL+'/history/secondhistory.xml?INDEX=0&MTU=0&COUNT=11',
+        'second':baseURL+'/history/secondhistory.xml?INDEX=0&MTU=0&COUNT=61',
         'minute':baseURL+'/history/minutehistory.xml?INDEX=0&MTU=0&COUNT=61',
         'hour':  baseURL+'/history/hourlyhistory.xml?INDEX=0&MTU=0&COUNT=25',
         'day':   baseURL+'/history/dailyhistory.xml?INDEX=0&MTU=0&COUNT=32',
@@ -131,14 +85,28 @@ function makeProxyURLs(urlmap){
     return proxyurlmap;
 }
 
+var lastLongFetched = null;
 function fetchTed(proxyurl){
     // each scop should have it's length/expiry...'
-    fetchDOM(proxyurl['live'],tedLiveCallBack,errorHandler)
+    //fetchDOM(proxyurl['live'],tedLiveCallBack,errorHandler)
     var scopes = ['second','minute','hour','day','month'];
+    var elapsed = 100000;
+    if (lastLongFetched!=null){
+        elapsed = new Date().getTime()-lastLongFetched.getTime();
+    }
+    //$('#error').html('elapsed: '+elapsed);
     for (i in scopes){
-        var scope = scopes[i]
+        var scope = scopes[i];
+        if (elapsed<30000 && scope!='second') {
+            //$('#error').html('skipped elapsed: '+elapsed);
+            continue;
+        }
         var scopeTag = scope.toUpperCase();
         fetchDOM(proxyurl[scope],tedHistoryCallBack(scopeTag),errorHandler)
+        if (scope!='second'){
+            lastLongFetched = new Date();
+            //$('#error').html('long elapsed: '+elapsed);
+        }
     }
 }
 
@@ -197,8 +165,61 @@ tedHistoryCallBack = function(scopeTag){ // SECOND,MINUTE,HOUR,DAY,MONTH
             feed.value = average/feed.observations.length;
             feed.stamp = feed.observations[0].stamp;
         }
-        //alert('Setting globalFeedMap for '+feed.name);
-        globalFeedQueue.push(feed);
+
+        var fIndex=0;
+        switch (feed.name){
+            case "SECOND":
+                feed.name='Live';
+                fIndex=0;
+                break;
+            case "MINUTE":
+                feed.name='Hour';
+                fIndex=1;
+                break;
+            case "HOUR":
+                feed.name='Day';
+                fIndex=2;
+                break;
+            case "DAY":
+                feed.name='Month';
+                fIndex=4;
+                break;
+            case "MONTH":
+                feed.name='Year';
+                fIndex=5;
+                break;
+        }
+        if (fIndex==4){ //Month -> copy slice to week
+            var weekCopy = {
+                name:'Week',
+                stamp:feed.stamp,
+                value:feed.value, // recalc average below
+                observations:feed.observations.slice(0,7)
+            };
+            if (weekCopy.observations.length>0){
+                var avg=0;
+                for (i=0;i<weekCopy.observations.length;i++){
+                    avg+=weekCopy.observations[i].value;
+                }
+                weekCopy.value=avg/weekCopy.observations.length;
+
+            }
+            hiddenFeeds[3]=weekCopy;
+            tedInjectorForOneFeed(weekCopy);
+        }
+        if (fIndex==5){ //Year - compareobs==0
+            feed.compareobs = [];
+            for (i in feed.observations) feed.compareobs.push(500);
+
+            // actually why don;t we replace with static feed...
+            feed=staticYearFeed;
+        // or even better append...
+
+        }
+        hiddenFeeds[fIndex]=feed;
+        tedInjectorForOneFeed(feed);
+
+
         var htmllist = '<h4>'+feed.name+' History ('+feed.stamp.getYMDHMS()+' | '+feed.value+')</h4><ul>';
         for (var i=0;i<feed.observations.length;i++){
             var o = feed.observations[i];
@@ -209,6 +230,14 @@ tedHistoryCallBack = function(scopeTag){ // SECOND,MINUTE,HOUR,DAY,MONTH
         $('#ted-'+scopeId).html(htmllist)
     }
     return callback;
+}
+
+function tedInjectorForOneFeed(feed){
+    //$('#error').html('got: '+f.name);
+    standardInjectorForOneFeed(feed);
+    var darkOptions={};// all defaults
+    $('#chart  .im-feed-'+feed.name+'  .im-chart-img').css('background-image',"url('"+chartURL(feed,darkOptions)+"')");
+
 }
 // 11/09/2009 14:55:00
 Date.prototype.setTED5kDate = function (string) {

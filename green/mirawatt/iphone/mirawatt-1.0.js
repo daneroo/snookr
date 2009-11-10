@@ -438,28 +438,7 @@ function flashInjector() { // visual simulation of fetch
 function standardInjector(feeds) {
     for (var i = 0; i < feeds.length; i++) {
         var f = feeds[i];
-        var W = Math.round(f.value);
-        var kW = Math.round((f.value/1000)*100)/100.0;
-        var kWhPerDay = Math.round((f.value*24.0/1000)*10)/10.0;
-
-        $('.im-feed-'+f.name+' .im-v-w').html(""+W);
-        $('.im-feed-'+f.name+' .im-v-kw').html(""+kW);
-        $('.im-feed-'+f.name+' .im-v-kwhd').html(""+kWhPerDay);
-        var targetW = 1666.0; //40/24*1000Ê
-        // percent to .1
-        var percent = Math.round(((f.value / targetW) - 1) * 1000)/10.0;
-        $('.im-feed-'+f.name+' .im-v-percent').html(""+percent+"%");
-        if (percent<0) {
-            $('.im-feed-'+f.name+' .im-v-overunder').html(getI18n("under target"));
-            $('.im-feed-'+f.name+' .im-v-overunder').css({
-                'color' : 'green'
-            });
-        } else {
-            $('.im-feed-'+f.name+' .im-v-overunder').html(getI18n("over target"));
-            $('.im-feed-'+f.name+' .im-v-overunder').css({
-                'color' : 'red'
-            });
-        }
+        standardInjectorForOneFeed(f);
     }
     var latency = 0;
     try {
@@ -470,7 +449,30 @@ function standardInjector(feeds) {
     $('#status').html(""+(new Date().getYMDHMS())+"  ("+latency+"s.)");
 // latency test reveals &dum=stamp necessary
 //$('#status').html(""+(feeds[0].stamp.getYMDHMS())+"<br>"+(new Date().getYMDHMS())+"<br>  (delay: "+latency+"s.)");
+}
+function standardInjectorForOneFeed(f) {
+    var W = Math.round(f.value);
+    var kW = Math.round((f.value/1000)*100)/100.0;
+    var kWhPerDay = Math.round((f.value*24.0/1000)*10)/10.0;
 
+    $('.im-feed-'+f.name+' .im-v-w').html(""+W);
+    $('.im-feed-'+f.name+' .im-v-kw').html(""+kW);
+    $('.im-feed-'+f.name+' .im-v-kwhd').html(""+kWhPerDay);
+    var targetW = 1666.0; //40/24*1000Ê
+    // percent to .1
+    var percent = Math.round(((f.value / targetW) - 1) * 1000)/10.0;
+    $('.im-feed-'+f.name+' .im-v-percent').html(""+percent+"%");
+    if (percent<0) {
+        $('.im-feed-'+f.name+' .im-v-overunder').html(getI18n("under target"));
+        $('.im-feed-'+f.name+' .im-v-overunder').css({
+            'color' : 'green'
+        });
+    } else {
+        $('.im-feed-'+f.name+' .im-v-overunder').html(getI18n("over target"));
+        $('.im-feed-'+f.name+' .im-v-overunder').css({
+            'color' : 'red'
+        });
+    }
 }
 function fetchAndMapFeeds(feedurl,feedsCallback,errorCallback) {
     feedsCallback = feedsCallback || standardInjector;
@@ -853,6 +855,10 @@ var hydroData = [
 {
     stampStr: '2009-09-01T05:00:00Z'	,
     value: 	1123.2000
+},
+{
+    stampStr: '2009-10-01T05:00:00Z'	,
+    value: 	1427.2581
 }
 
 ];
@@ -919,7 +925,12 @@ var tedData = [
 {
     stampStr: '2009-09-01T05:00:00Z'	,
     value: 	1123.2000
+},
+{
+    stampStr: '2009-10-01T05:00:00Z'	,
+    value: 	1427.2581
 }
+
 
 ];
 tedData.reverse();
