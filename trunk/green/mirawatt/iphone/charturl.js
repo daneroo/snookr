@@ -49,8 +49,8 @@ function chartURL(feed,options){
             chartType=LineChartType;
             timeFormat = function(stamp){
                 //return ""+stamp.getHMS()
-                if (stamp.getSeconds()!=0) return "";
-                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())
+                if (stamp.getSeconds()%30!=0) return "";
+                return ""+pad(stamp.getHours())+":"+pad(stamp.getMinutes())+":"+pad(stamp.getSeconds())
             };
             isBarChart=false;
             //units = "Watts";
