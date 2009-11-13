@@ -5,4 +5,4 @@ to update
 
 cd /Users/daniel/Documents/NetBeansProjects/green/mirawatt/iphone
  - or equivalent -
-rsync -av --progress ./ mirawatt@axial.mirawatt.com:httpdocs/com/mirawatt/ted/
+rsync -av --progress --exclude .svn ./ mirawatt@axial.mirawatt.com:httpdocs/com/mirawatt/ted/
