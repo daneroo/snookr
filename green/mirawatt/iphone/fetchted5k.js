@@ -97,7 +97,7 @@ function fetchTed(proxyurl){
     //$('#error').html('elapsed: '+elapsed);
     for (i in scopes){
         var scope = scopes[i];
-        if (elapsed<30000 && scope!='second') {
+        if (elapsed<60000 && scope!='second') {
             //$('#error').html('skipped elapsed: '+elapsed);
             continue;
         }
