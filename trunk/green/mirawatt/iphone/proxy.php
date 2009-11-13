@@ -35,7 +35,7 @@ if ($_POST['url']) {
 // Don't return HTTP headers. Do return the contents of the call
 curl_setopt($session, CURLOPT_HEADER, ($headers == "true") ? true : false);
 
-curl_setopt($session, CURLOPT_FOLLOWLOCATION, true); 
+//curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
 //curl_setopt($ch, CURLOPT_TIMEOUT, 4); 
 curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
 
