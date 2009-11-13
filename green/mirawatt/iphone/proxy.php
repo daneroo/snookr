@@ -13,6 +13,11 @@ $headers = ($_POST['headers']) ? $_POST['headers'] : $_GET['headers'];
 $mimeType =($_POST['mimeType']) ? $_POST['mimeType'] : $_GET['mimeType'];
 
 
+/*if (strpos($url,"dl.sologlobe.com") ) {
+    $ip = gethostbyname("dl.sologlobe.com");
+    $url = str_replace("dl.sologlobe.com", $ip, $url);
+}*/
+
 //Start the Curl session
 $session = curl_init($url);
 
