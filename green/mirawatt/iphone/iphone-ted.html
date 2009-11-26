@@ -36,30 +36,7 @@
             };
 
             function triggerRedrawToFixChartVizBug(){
-                $('#blinking-light-to-fix-chat-bug').toggle();
-            }
-
-            function settingsUserChanged(userSelect){
-                return;
-                var username = (userSelect.options[userSelect.selectedIndex].value);
-                setUsername(username);
-            }
-            function selectNextUser(){
-                var cu = $('#feedname').val();
-                var nu = 'daniel';
-                if (cu=='daniel'){
-                    nu='jean';
-                } else if (cu=='jean'){
-                    nu='louis';
-                }
-                setUsername(nu);
-            }
-            function setUsername(username){
-                feedURL= feedURLBase+"?owner="+username;
-                $('#username').html(username);
-                $('#feedname').val(username);
-                // expire the fetchAndMap loop immediately!
-                lastFetched=null;
+                $('#blinking-light-to-fix-chart-bug').toggle();
             }
 
             var feedsRef; // keep a reference to the feeds array
@@ -93,57 +70,8 @@
                 }
                 currentFeed= (whichOne+feedsRef.length)%feedsRef.length;
                 feed = feedsRef[currentFeed];
-                drawAChart(currentFeed);
+                triggerRedrawToFixChartVizBug();
             }
-
-            var startLoad=new Date()
-            function drawAChart() {
-                /*simple googleviz only
-                if (vizLoaded) {
-                    drawChart(feed);
-                }*/
-                var elapsed = new Date().getTime()-startLoad.getTime();
-                if (vizLoaded && elapsed>30000){
-                    drawChart(feed);
-                    setTimeout('triggerRedrawToFixChartVizBug()',200);
-                } else {
-/*
-                    var unitsForFeedName={
-                        'Live' :  iMUnits.w,
-                        'Hour' :  iMUnits.kw,
-                        'Day'  :   iMUnits.kwhd,
-                        'Week' :  iMUnits.kwhd,
-                        'Month':  iMUnits.kwhd,
-                        'Year' :  iMUnits.kwhd
-                    };
-                    //addChartImg("#chart",feed.name,  unitsForFeedName[feed.name]);
-                    $(".im-chart-text").css({opacity:0.2});
-
-                    // this is the injection code: run ONE now
-                    var darkOptions={};// all defaults
-                    var lightOptions={
-                        width:320,
-                        height:180,
-                        bgColor:'ffffff00',
-                        penColors:["3b5998","7f93bc"],
-                        textColor:'222222'
-                    };
-                    var options = darkOptions;
-                    //$('#chart  .im-feed-'+feed.name+' .im-chart-img').attr('src',chartURL(feed,options));
-                    // to redraw the text
-                    //NOT standardInjector(feedsRef);
-                    //return;
-                    for (s=0;s<6;s++){
-                        feedName = feedsRef[s].name;
-                        // set img src
-                        //$('#chart  .im-feed-'+feedName+'  .im-chart-img').attr('src',chartURL(feedsRef[s],darkOptions));
-                        //  set img/div bacground
-                        $('#chart  .im-feed-'+feedName+'  .im-chart-img').css('background-image',"url('"+chartURL(feedsRef[s],darkOptions)+"')");
-                    }
-*/
-                }
-            }
-
 
             $.jQTouch({
                 icon: 'mirawattIPhoneIcon-57x57.png',
@@ -184,13 +112,10 @@
                     $('#chart').click(function(){
                         selectChart(currentFeed-1);
                     });
-                    $('#username').click(function(){
-                        selectNextUser();
-                    });
                 } else { // iphone section
                     // Show a swipe event on swipe test
                     $('#chart').addTouchHandlers().bind('swipe', function(evt, data){
-                        $('#status').html('swipe: ' + data.direction);
+                        //$('#status').html('swipe: ' + data.direction);
                         var delta=0;
                         if ('left'==data.direction){
                             delta=-1;
@@ -202,9 +127,6 @@
                     });
                     $('#chart').addTouchHandlers().bind('tap', function(evt, data){
                         selectChart(currentFeed-1);
-                    });
-                    $('#username').addTouchHandlers().bind('tap', function(evt, data){
-                        selectNextUser();
                     });
                 }
 
@@ -375,8 +297,8 @@
             </ul>
             <div id="username">daniel</div>
             <div id="status"></div>
-            <!-- empty div for triggering redraw (toggle()) -->
-            <div id="blinking-light-to-fix-chat-bug"></div>
+            <!-- non-empty div for triggering redraw (toggle()) -->
+            <div id="blinking-light-to-fix-chart-bug" style="position:absolute; top:40px; left:10px; color:#000000;">.</div>
             <div class="info">
                 <p>Add this page to your home screen to view the custom icon, startup screen, and full screen mode.</p>
             </div>
@@ -397,6 +319,11 @@
                 <a href="#" class="back">Back</a>
             </div>
             <form>
+                <h2>Gateway IP address</h2>
+                <ul class="edit">
+                    <li><input type="text" name="gwipaddr" placeholder="192.168.1.238" id="gwipaddr" /></li>
+                </ul>
+                <!--
                 <h2>Account</h2>
                 <ul class="edit">
                     <li><input type="text" name="username" placeholder="User Name" id="username" /></li>
@@ -413,6 +340,7 @@
                                 <option value ="louis">Louis Veilleux</option>
                     </optgroup></select></li>
                 </ul>
+                -->
                 <h2>Look 'n Feel</h2>
                 <ul class="edit">
                     <li><select id="refreshrate" name="refreshrate">
@@ -420,10 +348,11 @@
                             <option value ="30">Fetch feed every 30 sec</option>
                             <option value ="60">Fetch feed every 1 min</option>
                     </select></li>
+                    <!--
                     <li><select id="chartmethod" name="chartmethod">
                             <option value ="chartapi">Google Chart (Network)</option>
                             <option value ="googleviz">Google Viz</option>
-                    </select></li>
+                    </select></li>-->
                 </ul>
                 <!--
                 <ul class="individual">
