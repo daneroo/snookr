@@ -26,8 +26,7 @@
             <div id="catnav">
                 <div id="toprss"></div> <!-- Closes toprss -->
                 <ul id="nav">
-                    <li><a href="http://ted.mirawatt.com/">Home</a></li>
-                    <li><a href="http://ted.mirawatt.com/">Simulation</a></li>
+                    <li><a href="http://ted.mirawatt.com/">Mirawatt - for TED 5000</a></li>
                 </ul>
             </div> <!-- Closes catnav -->
 
@@ -36,15 +35,30 @@
             <div id="main">
                 <div id="contentwrapper">
                     <div class="topPost">
-                        <h2 class="topTitle"><a href="http://ted.mirawatt.com/">Mirawatt - for TED</a></h2>
+                        <h2 class="topTitle"><a href="http://ted.mirawatt.com/">Mirawatt - for TED 5000</a></h2>
 
                         <div class="topContent">
-                            <p>Intructions: to add this an iPhoe web app, </p>
+                            <div style="width:400px">
+                            <p>Intructions: to add this an iPhone web app, </p>
                             <ul>
-                                <li>Navigate to http://ted.mirawatt.com/</li>
-                            </ul>
+                                <li>From your iphone, start the web browser (Safari)</li>
+                                <li>Navigate to this page <a href="http://ted.mirawatt.com/">http://ted.mirawatt.com/</a></li>
+                                <li>Add the web page as an app using the <b>+</b> button at the bottom of the Safari screen
+                                  <img src="safariAddApp.png" width="160px">
+                                  which will install the app on your <i>Home Screen</i> with this icon:<br />
+                                  <img src="mirawattIPhoneIcon-57x57.png">
 
-                            <div style="position:relative; margin-left:400px; margin-top:-240px; width:300px;">
+                                </li>
+                            </ul>
+                            </div>
+                        </div> <!-- close topContent -->
+
+                        <div class="cleared"></div>
+                    </div> <!-- Closes topPost -->
+                </div> <!-- Closes contentwrapper-->
+            </div><!-- Closes Main -->
+        </div><!-- Closes wrapper -->
+                            <div style="position:absolute; left:420px; top:40px; width:300px;">
                             <div style="width:408px; height:740px; background-image:url('mirawattIPhone-bg-for-320x460.png'); background-repeat:none; background-position:0 0; padding:0px; margin:0px; ">
                             <div style="padding-left:45px;padding-top:157px;">
                             <div style="width:320px; height:460px; overflow:hidden;">
@@ -58,12 +72,5 @@
                             </div>
                             </div>
 
-                        </div> <!-- close topContent -->
-
-                        <div class="cleared"></div>
-                    </div> <!-- Closes topPost -->
-                </div> <!-- Closes contentwrapper-->
-            </div><!-- Closes Main -->
-        </div><!-- Closes wrapper -->
     </body>
 </html>
