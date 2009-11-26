@@ -52,6 +52,10 @@
                                 <li>Enjoy the app.</li>
                                 <li>A swipe gesture on the graph (left of right) will change the view from Hour, Month, to Year etc...</li>
                             </ul>
+                            <p><i>Note:</i> The simulation on the right has been tested on Firefox,Chrome and Safari.
+                            It does not work with Internet Explorer.
+                            </p>
+
                             </div>
                         </div> <!-- close topContent -->
 
