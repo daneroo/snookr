@@ -40,9 +40,9 @@ function chartURL(feed,options){
     var units = "?";
     var multiplier=1.0;
     var yAxisQuant=1.0;
-    const LineChartType='lc';
-    const BarChartGroupedType='bvg';
-    const BarChartStackedType='bvs';
+    var LineChartType='lc';
+    var BarChartGroupedType='bvg';
+    var BarChartStackedType='bvs';
     var chartType=null;
     switch (feed.name){
         case "Live":
