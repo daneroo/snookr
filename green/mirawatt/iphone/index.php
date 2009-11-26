@@ -44,10 +44,10 @@
                                 <li>From your iphone, start the web browser (Safari)</li>
                                 <li>Navigate to this page <a href="http://ted.mirawatt.com/">http://ted.mirawatt.com/</a></li>
                                 <li>Add the web page as an app using the <b>+</b> button at the bottom of the Safari screen
-                                  <img src="safariAddApp.png" width="160px">
-                                  which will install the app on your <i>Home Screen</i> with this icon:<br />
+                                  <br /><img src="safariAddApp.png" width="160px">
+                                </li>
+                                <li>This will install the app on your <i>Home Screen</i> with this icon:<br />
                                   <img src="mirawattIPhoneIcon-57x57.png">
-
                                 </li>
                             </ul>
                             </div>
@@ -71,6 +71,16 @@
                             </div>
                             </div>
                             </div>
+<!-- Google analytics -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-11796368-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
 
-    </body>
+</body>
 </html>
