@@ -49,6 +49,8 @@
                                 <li>This will install the app on your <i>Home Screen</i> with this icon:<br />
                                   <img src="mirawattIPhoneIcon-57x57.png">
                                 </li>
+                                <li>Enjoy the app.</li>
+                                <li>A swipe gesture on the graph (left of right) will change the view from Hour, Month, to Year etc...</li>
                             </ul>
                             </div>
                         </div> <!-- close topContent -->
