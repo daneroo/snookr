@@ -55,16 +55,8 @@
                             <p><i>Note:</i> The simulation on the right has been tested on Firefox,Chrome and Safari.
                             It does not work with Internet Explorer.
                             </p>
-
-                            </div>
-                        </div> <!-- close topContent -->
-
-                        <div class="cleared"></div>
-                    </div> <!-- Closes topPost -->
-                </div> <!-- Closes contentwrapper-->
-            </div><!-- Closes Main -->
-        </div><!-- Closes wrapper -->
-                            <div style="position:absolute; left:420px; top:40px; width:300px;">
+                            </div><!-- 400 width box -->
+			    <div style="position:relative; margin-left:450px; margin-top:-450px; width:300px;">
                             <div style="width:408px; height:740px; background-image:url('mirawattIPhone-bg-for-320x460.png'); background-repeat:none; background-position:0 0; padding:0px; margin:0px; ">
                             <div style="padding-left:45px;padding-top:157px;">
                             <div style="width:320px; height:460px; overflow:hidden;">
@@ -77,6 +69,14 @@
                             </div>
                             </div>
                             </div>
+                        </div> <!-- close topContent -->
+
+                        <div class="cleared"></div>
+                    </div> <!-- Closes topPost -->
+                </div> <!-- Closes contentwrapper-->
+            </div><!-- Closes Main -->
+        </div><!-- Closes wrapper -->
+
 <!-- Google analytics -->
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
