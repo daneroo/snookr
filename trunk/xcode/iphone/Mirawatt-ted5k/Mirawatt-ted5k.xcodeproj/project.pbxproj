@@ -15,6 +15,7 @@
 		2899E5220DE3E06400AC0155 /* Mirawatt_ted5kViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* Mirawatt_ted5kViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* Mirawatt_ted5kViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* Mirawatt_ted5kViewController.m */; };
+		6590710C10E147EA00A3E0BB /* html in Resources */ = {isa = PBXBuildFile; fileRef = 659070C110E147EA00A3E0BB /* html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		28D7ACF70DDB3853001CB0EB /* Mirawatt_ted5kViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Mirawatt_ted5kViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Mirawatt_ted5k_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mirawatt_ted5k_Prefix.pch; sourceTree = "<group>"; };
+		659070C110E147EA00A3E0BB /* html */ = {isa = PBXFileReference; lastKnownFileType = folder; path = html; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Mirawatt_ted5k-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Mirawatt_ted5k-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -90,6 +92,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				659070C110E147EA00A3E0BB /* html */,
 				2899E5210DE3E06400AC0155 /* Mirawatt_ted5kViewController.xib */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Mirawatt_ted5k-Info.plist */,
@@ -151,6 +154,7 @@
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* Mirawatt_ted5kViewController.xib in Resources */,
+				6590710C10E147EA00A3E0BB /* html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

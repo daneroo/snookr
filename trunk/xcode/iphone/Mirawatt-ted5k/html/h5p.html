@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <script language="JavaScript" type="text/javascript"><!--
+            function restoreValues() {
+                if (typeof(sessionStorage) == 'undefined' || typeof(localStorage) == 'undefined') {
+                    alert('local and session storage not supported by this browser.');
+                }
+                document.getElementById('myfield1').value = sessionStorage.myfield1 ? sessionStorage.myfield1 : "";
+                document.getElementById('myfield2').value = localStorage.getItem('myfield2') ? localStorage.getItem('myfield2') : "";
+                // Save changes if the user leaves the page.
+                window.onbeforeunload = function () {
+                    return saveChanges();
+                };
+            }
+            function clearAll() {
+                sessionStorage.clear();
+                localStorage.clear();
+                restoreValues();
+            }
+            function setValue(value) {
+                if (value == 'myfield1') {
+                    sessionStorage.setItem(value, document.getElementById(value).value);
+                } else {
+                    localStorage.setItem(value, document.getElementById(value).value);
+                }
+            }
+            function saveChanges() {
+                setValue('myfield1');
+                setValue('myfield2');
+                return NULL;
+            }
+            function clearValue(value) {
+                if (value == 'myfield1') {
+                    sessionStorage.removeItem(value);
+                } else {
+                    localStorage.removeItem(value);
+                }
+                document.getElementById(value).value = '';
+            }
+            --></script>
+    </head>
+    <body onload='restoreValues()'>
+        <p>Field 1 is stored in session storage, field 2 in local storage.  Both should be retrieved on a page reload, but field 1 should not be retrieved if you close the window and reopen it.</p>
+        <p>
+            <input id='myfield1' onchange='setValue("myfield1")'>Field 1</input><br />
+            <input id='myfield2' onchange='setValue("myfield2")'>Field 2</input>
+        </p>
+        <p><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAALGP
+C/xhBQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9YGARc5KB0XV+IA
+AAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAF1J
+REFUGNO9zL0NglAAxPEfdLTs4BZM4DIO4C7OwQg2JoQ9LE1exdlYvBBeZ7jq
+ch9//q1uH4TLzw4d6+ErXMMcXuHWxId3KOETnnXXV6MJpcq2MLaI97CER3N0
+vr4MkhoXe0rZigAAAABJRU5ErkJggg==" alt="Red dot" />
+</p>
+        <p>
+            <a href='#' onclick='clearValue("myfield1")'>clear value 1</a><br />
+            <a href='#' onclick='clearValue("myfield2")'>clear value 2</a><br />
+            <a href='#' onclick='clearAll()'>clear all</a><br />
+        </p>
+    </body>
+</html>
