@@ -53,8 +53,8 @@
 	// 2) use the content in the html: <body style="background-color: transparent">
 	// 3) opaque property set to NO
 	//
-	webView.opaque = YES;
-	webView.backgroundColor = [UIColor clearColor];
+	webView.opaque = NO;
+	webView.backgroundColor = [UIColor blackColor];
 	
 	NSURL *baseURL = nil;
 	baseURL = [NSURL URLWithString: [NSString stringWithFormat:@"file:/%@//html//",imagePath]];
