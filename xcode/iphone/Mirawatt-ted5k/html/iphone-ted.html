@@ -20,7 +20,8 @@
                 // Prevent scrolling on this element
                 event.preventDefault();
             }
-            directurl = makeURLs('http://192.168.5.238');
+            //directurl = makeURLs('http://192.168.5.238');
+            directurl = makeURLs('http://dl.sologlobe.com:8765');
             //url = makeURLs('http://dl.sologlobe.com:8765');
             //proxyurl = makeProxyURLs(url);
 			
@@ -45,7 +46,7 @@
             }
 			function GWIPAddrChanged(){
                 var nuipaddr = (document.getElementById('gwipaddr').value);
-                alert("IP: "+nuipaddr);
+                //alert("IP: "+nuipaddr);
 				localStorage.setItem("gwipaddr",nuipaddr);
             }
 
@@ -311,7 +312,8 @@
                 <!--<li class="im-feed-Year" onclick="selectChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>-->
             </ul>
             <div id="status">status</div>
-            <div id="error" >error</div>
+            <div id="error" >&nbsp;</div>
+			
             <!-- non-empty div for triggering redraw (toggle()) -->
             <div id="blinking-light-to-fix-chart-bug" style="position:absolute; top:40px; left:10px; color:#000000;">.</div>
             <!--<div class="info">
