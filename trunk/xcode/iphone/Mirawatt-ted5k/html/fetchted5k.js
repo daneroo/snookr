@@ -108,6 +108,13 @@ function fetchTed(proxyurl){
             //$('#error').html('long elapsed: '+elapsed);
         }
     }
+	var latency = 0;
+    try {
+        latency = (new Date().getTime()) - (hiddenFeeds[0].stamp.getTime());
+    } catch (err) {}
+    latency = Math.round(latency/100)/10;	
+    $('#status').html(""+(new Date().getYMDHMS())+" &nbsp;&nbsp; ("+latency+"s.)");
+	
 }
 
 function errorHandler(message){
@@ -117,6 +124,7 @@ function errorHandler(message){
 /*
  *<Power><Total>..<PowerNow>901</PowerNow><PowerHour>1202</PowerHour><PowerTDY>21951</PowerTDY><PowerMTD>158109</PowerMTD>
  */
+/*
 tedLiveCallBack = function(xmlDoc){
     var powerNode = xmlDoc.getElementsByTagName("Power");
     var totalPowerNode = powerNode.item(0).getElementsByTagName("Total");
@@ -126,7 +134,7 @@ tedLiveCallBack = function(xmlDoc){
     var mtd = totalPowerNode.item(0).getElementsByTagName("PowerMTD").item(0).childNodes[0].nodeValue;
     $('#ted-Live').html("Power Now | Hour | TDY | MTD : "+now+" | "+hour+" | "+today+" | "+mtd);
 }
-
+*/
 // These DTD's are similar, at lest with respect to DATE,POWER nodes.
 //<SECOND><MTU>0</MTU><DATE>11/07/2009 16:23:02</DATE><POWER>1608</POWER><COST>12</COST><VOLTAGE>1215</VOLTAGE></SECOND>
 //<MINUTE><MTU>0</MTU><DATE>11/09/2009 14:32:00</DATE><POWER>818</POWER><COST>6</COST><VOLTAGE>1211</VOLTAGE></MINUTE>
