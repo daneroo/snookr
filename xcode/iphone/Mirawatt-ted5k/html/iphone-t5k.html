@@ -20,7 +20,8 @@
                 // Prevent scrolling on this element
                 event.preventDefault();
             }
-            directurl = makeURLs('http://192.168.5.238');
+			
+            //directurl = makeURLs('http://192.168.5.238');
             //directurl = makeURLs('http://dl.sologlobe.com:8765');
             //url = makeURLs('http://dl.sologlobe.com:8765');
             //proxyurl = makeProxyURLs(url);
@@ -39,15 +40,19 @@
             };
 			
 			
-			function RestoreGWIPAddr(){
-				var storedipaddr = localStorage.getItem('gwipaddr') ? localStorage.getItem('gwipaddr') : "UNSET";
+			function restoreGWIPAddr(){
+				var storedipaddr = localStorage.getItem('gwipaddr') ? localStorage.getItem('gwipaddr') : "";
 			    document.getElementById('gwipaddr').value = storedipaddr;
-                //alert("restored IP: "+storedipaddr);
+                //alert("restored IP: "+storedipaddr);	
+				directurl = makeURLs('http://'+storedipaddr);	
             }
 			function GWIPAddrChanged(){
                 var nuipaddr = (document.getElementById('gwipaddr').value);
                 //alert("IP: "+nuipaddr);
 				localStorage.setItem("gwipaddr",nuipaddr);
+				restoreGWIPAddr();
+				lastFetched = null;
+				$('#testPower').html("0000");
             }
 
             function triggerRedrawToFixChartVizBug(){
@@ -58,6 +63,9 @@
             var currentFeed=2;
             var animCanRun=false;
             var imIsIPhone=true;
+            // fetching timer
+            var lastFetched = null;
+
             function myInjector(feeds) {
                 flashInjector();
                 feedsRef = feeds;
@@ -152,11 +160,11 @@
                     //$('#status').html('Orientation: ' + data.orientation);
                 })
 
-				RestoreGWIPAddr();
-
-                // fetching timer
-                lastFetched = null;
-                //startAnimNow(getRefreshIntervalMS(), function (timer) {
+				restoreGWIPAddr();
+				if (''==document.getElementById('gwipaddr').value) {
+					$('#settingsButton').click();
+				}
+				
                 startAnimNow(500, function (timer) {
                     // spin this more often but verify expiry !
                     var elapsed = 100000;
@@ -296,9 +304,9 @@
     <body>
         <div id="home" ontouchmove="preventTouchMove(event)">
             <div id="home-toolbar" class="toolbar">
-                <a class="button leftButton flip" id="infoButton" href="#about">About</a>
+                <a class="button leftButton flip" id="aboutButton" href="#about">About</a>
                 <h1>Mirawatt T5K</h1>
-                <a class="button slideup" id="infoButton" href="#settings">Settings</a>
+                <a class="button slideup" id="settingsButton" href="#settings">Settings</a>
             </div>
             <div>
                 <div id="chart"><div id="chart-wide"></div></div>
@@ -311,8 +319,8 @@
                 <li class="im-feed-Month" onclick="selectChart(4)"><a href="#"><span class="im-feed-name">Month</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>
                 <!--<li class="im-feed-Year" onclick="selectChart(5)"><a href="#"><span class="im-feed-name">Year</span></a><small class="counter"><span class="im-v-kwhd">00.0</span> <span class="im-feed-units">kWh/d</span></small></li>-->
             </ul>
-            <div id="status">status</div>
             <div id="error" >&nbsp;</div>
+            <div id="status">status</div>
 			
             <!-- non-empty div for triggering redraw (toggle()) -->
             <div id="blinking-light-to-fix-chart-bug" style="position:absolute; top:40px; left:10px; color:#000000;">.</div>
@@ -323,8 +331,9 @@
 
         <div id="about">
             <p><img src="mirawattIPhoneAbout-200x200.png" /></p>
-            <p>Save Energy Now</p>
-            <p><em>IPhone Web Version 1.0 &beta;</em></p>
+			<p>for the TED 5000 Gateway</p>
+            <p><em>IPhone Version 1.0</em></p>
+            <p>Save Energy Now !</p>
 
             <p><br /><br /><a href="#" class="grayButton goback">Close</a></p>
         </div>
@@ -336,10 +345,16 @@
                 <a href="#" class="back">Back</a>
             </div>
             <form>
-                <h2>Gateway IP address</h2>
+                <h2>TED-5000 IP address</h2>
                 <ul class="edit">
-                    <li><input type="text" name="gwipaddr" placeholder="192.168.1.238" id="gwipaddr" onchange="GWIPAddrChanged(this)"/></li>
+                    <li><input type="text" name="gwipaddr" placeholder="192.168.1.123:80" id="gwipaddr" onchange="GWIPAddrChanged(this)"/></li>
                 </ul>
+				<ul style="margin-left:60px; width:200px;"><li class="im-feed-Live"><a href="#"><span class="im-feed-name">Live Test</span></a><small class="counter"><span id="testPower" class="im-v-w">0000</span> <span class="im-feed-units">W</span></small></li></ul>
+				<div>Enter the address of the TED 5000 gateway.<br /><br />
+				 This is the same address you use to connect to Footprints with your web browser.<br/>
+				 (see TED 5000 documentation for further information)<br />
+				 You may optionaly specify a port number using a colon (:) as a separator.
+				 </div>
                 <!--
                 <h2>Account</h2>
                 <ul class="edit">
@@ -357,7 +372,6 @@
                                 <option value ="louis">Louis Veilleux</option>
                     </optgroup></select></li>
                 </ul>
-                -->
                 <h2>Refresh</h2>
                 <ul class="edit">
                     <li><select id="refreshrate" name="refreshrate">
@@ -365,12 +379,8 @@
                             <option value ="30">Fetch feed every 30 sec</option>
                             <option value ="60">Fetch feed every 1 min</option>
                     </select></li>
-                    <!--
-                    <li><select id="chartmethod" name="chartmethod">
-                            <option value ="chartapi">Google Chart (Network)</option>
-                            <option value ="googleviz">Google Viz</option>
-                    </select></li>-->
                 </ul>
+                -->
                 <!--
                 <ul class="individual">
                     <li><a href="#" onclick="confirmSettings()">OK</a></li>
