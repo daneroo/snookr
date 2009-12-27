@@ -34,7 +34,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	//NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-cache" ofType:@"html"];
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-ted" ofType:@"html" inDirectory:@"html"];
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-t5k" ofType:@"html" inDirectory:@"html"];
 	//NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-ted" ofType:@"html"];
 	NSFileHandle *readHandle = [NSFileHandle fileHandleForReadingAtPath:path];
 	
