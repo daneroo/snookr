@@ -85,6 +85,11 @@ function makeProxyURLs(urlmap){
     return proxyurlmap;
 }
 
+function t5kerrorHandler(message){
+    //$('#error').html(message);
+    $('#error').html('Check Settings');
+}
+
 var lastLongFetched = null;
 function fetchTed(proxyurl){
     // each scop should have it's length/expiry...'
@@ -102,7 +107,7 @@ function fetchTed(proxyurl){
             continue;
         }
         var scopeTag = scope.toUpperCase();
-        fetchDOM(proxyurl[scope],tedHistoryCallBack(scopeTag),errorHandler)
+        fetchDOM(proxyurl[scope],tedHistoryCallBack(scopeTag),t5kerrorHandler)
         if (scope!='second'){
             lastLongFetched = new Date();
             //$('#error').html('long elapsed: '+elapsed);
@@ -115,10 +120,6 @@ function fetchTed(proxyurl){
     latency = Math.round(latency/100)/10;	
     $('#status').html(""+(new Date().getYMDHMS())+" &nbsp;&nbsp; ("+latency+"s.)");
 	
-}
-
-function errorHandler(message){
-    $('#error').html(message);
 }
 
 /*
