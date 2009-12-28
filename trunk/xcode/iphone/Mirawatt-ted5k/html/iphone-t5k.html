@@ -82,7 +82,9 @@
 
             }
             function selectChart(whichOne){
-                whichOne = (whichOne+6)%6;
+				//remove Year (5) from rotation
+                //whichOne = (whichOne+6)%6;
+                whichOne = (whichOne+5)%5;
                 // 0 -> 5*-320, 1 -> 4*-320,..   // 5 -> 0
                 leftPos = ''+(-320*(5-whichOne))+'px';
                 //$('#error').html('which:'+whichOne+' left:'+leftPos);
