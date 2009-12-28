@@ -54,7 +54,7 @@
 	// 3) opaque property set to NO
 	//
 	webView.opaque = NO;
-	webView.backgroundColor = [UIColor blackColor];
+	webView.backgroundColor = [UIColor clearColor];
 	
 	NSURL *baseURL = nil;
 	baseURL = [NSURL URLWithString: [NSString stringWithFormat:@"file:/%@//html//",imagePath]];

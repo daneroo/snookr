@@ -18,6 +18,7 @@
 		6528701810E14ED70059BE7E /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6528701710E14ED70059BE7E /* Icon.png */; };
 		6590710C10E147EA00A3E0BB /* html in Resources */ = {isa = PBXBuildFile; fileRef = 659070C110E147EA00A3E0BB /* html */; };
 		65B8CB6310E1FF620036D699 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 65B8CB6210E1FF620036D699 /* Default.png */; };
+		65D2004D10E979D300031D83 /* Splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 65D2004C10E979D300031D83 /* Splash.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		6528701710E14ED70059BE7E /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		659070C110E147EA00A3E0BB /* html */ = {isa = PBXFileReference; lastKnownFileType = folder; path = html; sourceTree = "<group>"; };
 		65B8CB6210E1FF620036D699 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		65D2004C10E979D300031D83 /* Splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Splash.png; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Mirawatt_ted5k-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Mirawatt_ted5k-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,6 +98,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				65D2004C10E979D300031D83 /* Splash.png */,
 				65B8CB6210E1FF620036D699 /* Default.png */,
 				6528701710E14ED70059BE7E /* Icon.png */,
 				659070C110E147EA00A3E0BB /* html */,
@@ -163,6 +166,7 @@
 				6590710C10E147EA00A3E0BB /* html in Resources */,
 				6528701810E14ED70059BE7E /* Icon.png in Resources */,
 				65B8CB6310E1FF620036D699 /* Default.png in Resources */,
+				65D2004D10E979D300031D83 /* Splash.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
