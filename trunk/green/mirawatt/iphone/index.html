@@ -5,9 +5,14 @@
         <title>Mirawatt - for TED5000</title>
         <link rel="stylesheet" href="mirawatt-wp-style.css" type="text/css" media="screen">
         <script type="text/javascript" charset="utf-8">
-            if((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))) {
-                window.location = "iphone-ted.html";
+            var curShot=0;
+            screenshots = ["0-Day-crop.jpg","1-Hour-crop.jpg","2-Month-crop.jpg"];
+            function rotateShots(){
+                curShot= (curShot+1)%3;
+                document.getElementById("screenshot").src = screenshots[curShot];
             }
+            setInterval ( "rotateShots()", 10000 );
+
         </script>
         <style type="text/css" media="screen">
         </style>
@@ -66,7 +71,7 @@
                                     <div style="padding-left:45px;padding-top:150px;">
                                         <div style="width:320px; height:480px; overflow:hidden;">
                                             <!-- height to accomodate info section on chrome... scroll=no has no effect --><br />
-                                            <img id="screenshot" src="1-Hour-crop.jpg" style="padding:0px; margin:0px;" />
+                                            <img id="screenshot" onclick="rotateShots()" src="0-Day-crop.jpg" style="padding:0px; margin:0px;" />
                                         </div>
                                     </div>
                                 </div>
