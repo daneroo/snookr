@@ -13,9 +13,12 @@
 	NSMutableArray *trackedRequests;
 }
 
-- (void)trackRequest:(NSURLRequest *)aRequest;
-
 @property (nonatomic, retain) IBOutlet UIWebView *webView;
+
+- (void)trackRequest:(NSURLRequest *)aRequest;
+- (void)navigateAwwayIfConfirmed;
+- (void) loadPageFromPath: (NSString *) pageRelativePath;
+	
 
 @end
 

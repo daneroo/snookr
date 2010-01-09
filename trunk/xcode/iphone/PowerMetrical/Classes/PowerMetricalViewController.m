@@ -53,12 +53,42 @@
 	 */
 	
 	
-	if (YES){
+	[self navigateAwwayIfConfirmed];
+	if (NO){
 		NSString *pageRelativePath = @"html/iphone-powermetrical.html";
 		[self loadPageFromPath: pageRelativePath];
 	}
 }
 
+BOOL alerted=NO;
+- (void)navigateAwwayIfConfirmed {
+	if (alerted) return;
+	alerted=YES;
+		
+	UIAlertView *confirmAlert = [[UIAlertView alloc]
+							  initWithTitle:@"Question?"
+							  message:@"This is the message"
+							  delegate:self
+							  cancelButtonTitle:@"Cancel"
+							  otherButtonTitles:@"OK", nil];
+	
+	[confirmAlert show];
+	[confirmAlert autorelease];
+}
+
+- (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+	// the user clicked one of the OK/Cancel buttons
+	NSLog(@"buttonIndex %d", buttonIndex);
+	if (buttonIndex == 0) {
+		NSLog(@"cancel");
+	} else {
+		NSLog(@"ok");
+		if (YES){
+			NSString *pageRelativePath = @"html/iphone-powermetrical.html";
+			[self loadPageFromPath: pageRelativePath];
+		}
+	}
+}
 - (void) loadPageFromURL: (NSString *) pageURL  {
 	NSURL *igURL = [NSURL URLWithString:pageURL];
 	NSURLRequest *requestObj = [NSURLRequest requestWithURL:igURL];
