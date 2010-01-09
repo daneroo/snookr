@@ -50,36 +50,7 @@ NSMutableData *receivedData = NULL;
 			//NSString* bodyStr = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSASCIIStringEncoding];
 			//NSLog(@"  body:    %@",bodyStr);
 			//[bodyStr release];
-
-			
-			// Not deep enough.
-			//NSURLRequest *requestCopy = [request copy];
-
-			NSString *pageRelativePath = @"html/iphone-powermetrical.html";
-			[viewController loadPageFromPath: pageRelativePath];
-			
-			/*
-			NSMutableURLRequest *requestCopy = [NSMutableURLRequest requestWithURL:[[request URL] copy]
-														 cachePolicy:[request cachePolicy]
-													 timeoutInterval:[request timeoutInterval]];
-			[requestCopy setHTTPMethod:[request HTTPMethod]];
-			[requestCopy setMainDocumentURL:[request mainDocumentURL]];
-			[requestCopy setAllHTTPHeaderFields:[NSMutableDictionary dictionaryWithDictionary:[request allHTTPHeaderFields]]];
-			[requestCopy setHTTPBody:[NSData dataWithData:[request HTTPBody]]];
-			[[requestCopy allHTTPHeaderFields] setValue:@"IGNORE" forKey:@"IGONRE"];
-			
-			//[ignoreSet addObject:requestCopy];
-
-			NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:requestCopy delegate:self];
-			if (theConnection) {
-				// Create the NSMutableData that will hold
-				// the received data
-				// receivedData is declared as a method instance elsewhere
-				receivedData=[[NSMutableData data] retain];
-			} else {
-				// inform the user that the download could not be made
-			}
-			*/
+			[viewController trackRequest:request];
 		}
 	}
 	

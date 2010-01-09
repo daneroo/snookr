@@ -10,7 +10,10 @@
 
 @interface PowerMetricalViewController : UIViewController {
 	UIWebView *webView;
+	NSMutableArray *trackedRequests;
 }
+
+- (void)trackRequest:(NSURLRequest *)aRequest;
 
 @property (nonatomic, retain) IBOutlet UIWebView *webView;
 
