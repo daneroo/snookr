@@ -111,11 +111,27 @@ function renderEditor(contest,divselector){
     var stepsElt = $('<div class="steps"></div>');
     for (var s=0;s<contest.steps.length;s++ ){
         var step = contest.steps[s];
-        var stepElt = $('<div class="step"/>');
+        var stepElt = $('<div class="step brother"/>');
         // step title in a h4
-        stepElt.append($('<h4/>').append('<a href="#" >Step '+(s+1)+'</a>'));
+        stepElt.append($('<h4 />').append('<a href="#" >Step '+(s+1)+'</a>'));
         //html += '<h4><a href="#">Step '+(s+1)+'</a></h4>';
+
+        var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
+        var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
+        var ctrlElt = $('<span class=accordioncontrol></span>');
+        ctrlElt.append(upArrowElt);
+        ctrlElt.append(downArrowElt);
+        upArrowElt.click(function(){
+            EkoMoveInDOM($(this),-1);
+            return false;
+        });
+        downArrowElt.click(function(){
+            EkoMoveInDOM($(this),1);
+            return false;
+        });
+
         var contentElt = $('<div/>')
+        .append(ctrlElt)
         .append($('<span>Step Intro Text: </span><br>'))
         .append($('<textarea cols="40" rows="5" name="myname" />').text(step.intro))
         for (var f=0;f<step.fields.length;f++ ){
@@ -242,14 +258,17 @@ function EkoMoveInDOM(element,direction) {
     direction = direction || 1;
     msg='direction: '+direction;
     msg+=' | '+$(element).nodeName;
-    var ll = element.parents();
+
+    // climb the searching for the sibling which is us.
     var measbrother;
+    var ll = element.parents();
     for (i=0;i<ll.length;i++){
         msg+=' | '+ll[i].nodeName+ '-'+$(ll[i]).hasClass('brother');
         if ($(ll[i]).hasClass('brother')) {
             measbrother = ll[i];
         }
     }
+    // find my position in the list of siblings - for affecting the array
     var position=0;
     for (p = measbrother; $(p).prev('.brother').length>0; p = $(p).prev('.brother')) {
         position+=1;
@@ -261,19 +280,16 @@ function EkoMoveInDOM(element,direction) {
     } else if (direction<0){
         prevsibling = ($(measbrother).prev('.brother'))[0];
         if (prevsibling) $(prevsibling).before(measbrother);
-
     }
-    //$('li.item-a').parentsUntil('.level-1')
-    //$(this).find('i').children().each(function() {
-    //alert($(this).nodeName);
-    //}
     $('#status').html(msg);
 
 }
+
 function EkoActionIcon(iconClass) {
     // calls EkoIconWrapper...
     return EkoIconWrapper('',iconClass,'eko-action-icon');
 }
+
 function EkoButton(label,iconClass) {
     // calls EkoIconWrapper...
     label = label || "Add";
