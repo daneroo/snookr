@@ -19,7 +19,7 @@ and open the template in the editor.
         <script type="text/javascript" src="ekolib-1.0.0.js"></script>
         <script type="text/javascript">
             $(function(){
-                boundarray = [
+                var boundarray = [
                     {"name":"gr-french","label":""},
                     {"name":"gr-english","label":"English"},
                     {"name":"gr-child","label":""},
@@ -27,6 +27,13 @@ and open the template in the editor.
                     {"name":"gr-green","label":"Enviro"},
                     {"name":"gr-techsavy","label":"Techie"},
                 ];
+                var addGSLBtn = EkoButton('Add GSL').click(function() {
+                    var nuentry = {"name":"gr-new","label":"Nu Label"};
+                    boundarray.push(nuentry);
+                    $('#choice-editor').append(EkoGroupSelectAndLabel(nuentry));
+                    return false;
+                });
+                $('#choice-editor').append($('<p />').append(addGSLBtn));
                 for (var z=0;z<boundarray.length;z++){
                     $('#choice-editor').append(EkoGroupSelectAndLabel(boundarray[z]));
                 }
@@ -113,6 +120,10 @@ and open the template in the editor.
             .eko-btn {padding: .4em 1em .4em 20px;text-decoration: none; position: relative;}
             .eko-btn span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
 
+            /* For arrows and such */
+            .eko-action-icon {padding: 0 0 0 1.5em;text-decoration: none; position: relative;}
+            .eko-action-icon span.ui-icon {margin: 0 0 0 0;position: absolute;left: .1em;top: 50%;margin-top: -8px;}
+
             /*ul#icons {margin: 0; padding: 0;}
             ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left;  list-style: none;}
             ul#icons span.ui-icon {float: left; margin: 0 4px;}
@@ -129,6 +140,8 @@ and open the template in the editor.
     </head>
     <body>
         <h1>Choice Editor</h1>
+        <pre id="status">status</pre>
+
         <div id="choice-editor"></div>
 
 
@@ -158,6 +171,5 @@ and open the template in the editor.
 
         <div id="maniproot">Dom Manip root</div>
 
-        <div id="status">status</div>
     </body>
 </html>

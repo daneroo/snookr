@@ -197,7 +197,11 @@ function EkoGroupSelectAndLabel(bounddata){
             grLabelElt.css('color','gray');
         }
     }
-    var jsonElt=$('<pre style="display:inline"></pre>');
+
+    var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
+    var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
+
+    var jsonElt=$('<pre style="display:inline; margin-left:20px;"></pre>');
     jsonElt.text($.toJSON(bounddata));
     grSelElt.change(function(){
         //alert($.toJSON($("option:selected", this)));
@@ -213,22 +217,76 @@ function EkoGroupSelectAndLabel(bounddata){
         grLabelElt.css('color','');
         grSelElt.change();
     //alert('name changed to: '+label)
-    })
+    });
+    upArrowElt.click(function(){
+        EkoMoveInDOM($(this),-1);
+    });
+    downArrowElt.click(function(){
+        EkoMoveInDOM($(this),1);
+    });
+    
+
     var combined=$('<div></div>');
     combined.append(grSelElt);
     combined.append(grLabelElt);
+    combined.append(upArrowElt);
+    combined.append(downArrowElt);
     combined.append(jsonElt);
     adjustDefaultLabel();
-    //grSelElt.change();
+    combined.addClass('brother');
     return combined;
 }
-function EkoButton(label,iconclass) {
+
+function EkoMoveInDOM(element,direction) {
+    if (element==undefined) return
+    direction = direction || 1;
+    msg='direction: '+direction;
+    msg+=' | '+$(element).nodeName;
+    var ll = element.parents();
+    var measbrother;
+    for (i=0;i<ll.length;i++){
+        msg+=' | '+ll[i].nodeName+ '-'+$(ll[i]).hasClass('brother');
+        if ($(ll[i]).hasClass('brother')) {
+            measbrother = ll[i];
+        }
+    }
+    var position=0;
+    for (p = measbrother; $(p).prev('.brother').length>0; p = $(p).prev('.brother')) {
+        position+=1;
+    }
+    msg = 'position: '+position + ' '+ msg
+    if (direction>0){
+        nextsibling = ($(measbrother).next('.brother'))[0];
+        if (nextsibling) $(nextsibling).after(measbrother);
+    } else if (direction<0){
+        prevsibling = ($(measbrother).prev('.brother'))[0];
+        if (prevsibling) $(prevsibling).before(measbrother);
+
+    }
+    //$('li.item-a').parentsUntil('.level-1')
+    //$(this).find('i').children().each(function() {
+    //alert($(this).nodeName);
+    //}
+    $('#status').html(msg);
+
+}
+function EkoActionIcon(iconClass) {
+    // calls EkoIconWrapper...
+    return EkoIconWrapper('',iconClass,'eko-action-icon');
+}
+function EkoButton(label,iconClass) {
+    // calls EkoIconWrapper...
+    label = label || "Add";
+    return EkoIconWrapper(label,iconClass,'eko-btn');
+}
+function EkoIconWrapper(label,iconClass,cssClass) {
     /* return a new element for insertion into DOM
      * icon class : e.g. ui-icon-plus, ui-icon-arrowthick-1-n, etc
+     * cssClass: eko-btn, eko-action-icon (arrown,..)
      */
-    label = label || "Add";
-    iconclass = iconclass || "ui-icon-plus";
-    var btnElt = $('<a href="#" class="eko-btn ui-state-default ui-corner-all"><span class="ui-icon ui-icon-plus"></span>'+label+'</a>');
+    iconClass = iconClass || "ui-icon-plus";
+    cssClass = cssClass || "eko-btn";
+    var btnElt = $('<a href="#" class="'+cssClass+' ui-state-default ui-corner-all"><span class="ui-icon '+iconClass+'"></span>'+label+'</a>');
     btnElt.hover(function() {
         $(this).addClass('ui-state-hover');
     },function() {
