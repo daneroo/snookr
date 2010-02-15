@@ -119,9 +119,12 @@ function renderEditor(contest,divselector){
 
         var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
         var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
+        var deleteRowElt=EkoActionIcon('ui-icon-closethick');
+
         var ctrlElt = $('<span class=accordioncontrol></span>');
         ctrlElt.append(upArrowElt);
         ctrlElt.append(downArrowElt);
+        ctrlElt.append(deleteRowElt);
         upArrowElt.click(function(){
             EkoMoveInDOM($(this),-1);
             //renderEditor(contest,divselector);
@@ -131,6 +134,11 @@ function renderEditor(contest,divselector){
             EkoMoveInDOM($(this),1);
             //renderEditor(contest,divselector);
             return false;
+        });
+        deleteRowElt.click(function(){
+            alert('delete row');
+            return false;
+        //EkoMoveInDOM($(this),1);
         });
 
         var contentElt = $('<div/>')
@@ -143,6 +151,9 @@ function renderEditor(contest,divselector){
                 .text('Field '+(s+1)+'.'+(f+1)+': '+field.type+' : '+field.subtype+' : '+field.label+' : '+field.validation)
                 );
         }
+        var choicegrpelt = EkoMakeGSLGroup();
+        contentElt.append(choicegrpelt);
+
         stepElt.append(contentElt);
         stepsElt.append(stepElt);
     }
@@ -175,7 +186,56 @@ function renderEditor(contest,divselector){
     });
 
 }
+function EkoMakeGSLGroup(){
+    var boundarray = [
+    {
+        "name":"gr-french",
+        "label":""
+    },
 
+    {
+        "name":"gr-english",
+        "label":"English"
+    },
+
+    {
+        "name":"gr-child",
+        "label":""
+    },
+
+    {
+        "name":"gr-adult",
+        "label":""
+    },
+
+    {
+        "name":"gr-green",
+        "label":"Enviro"
+    },
+
+    {
+        "name":"gr-techsavy",
+        "label":"Techie"
+    },
+    ];
+    var choiceditorgroupelt = $('<div class="choiceeditorgroup"></div')
+    choiceditorgroupelt.data('parentarray', boundarray);
+    var addGSLBtn = EkoButton('Add GSL').click(function() {
+        var nuentry = {
+            "name":"gr-new",
+            "label":"Nu Label"
+        };
+        boundarray.push(nuentry);
+        choiceditorgroupelt.append(EkoGroupSelectAndLabel(nuentry));
+        return false;
+    });
+    choiceditorgroupelt.append($('<p />').append(addGSLBtn));
+    var parentarray = choiceditorgroupelt.data('parentarray');
+    for (var z=0;z<parentarray.length;z++){
+        choiceditorgroupelt.append(EkoGroupSelectAndLabel(parentarray[z]));
+    }
+    return choiceditorgroupelt;
+}
 function EkoGroupSelect(selname){
     //eko.groups = [
     // {name:"gr-french", label:"Francais"},
@@ -219,6 +279,7 @@ function EkoGroupSelectAndLabel(bounddata){
 
     var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
     var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
+    var deleteRowElt=EkoActionIcon('ui-icon-closethick');
 
     var jsonElt=$('<pre style="display:inline; margin-left:20px;"></pre>');
     jsonElt.text($.toJSON(bounddata));
@@ -239,10 +300,18 @@ function EkoGroupSelectAndLabel(bounddata){
     });
     upArrowElt.click(function(){
         EkoMoveInDOM($(this),-1);
+        return false;
     });
     downArrowElt.click(function(){
         EkoMoveInDOM($(this),1);
+        return false;
     });
+    deleteRowElt.click(function(){
+        alert('delete row');
+        return false;
+    //EkoMoveInDOM($(this),1);
+    });
+    
     
 
     var combined=$('<div></div>');
@@ -250,6 +319,7 @@ function EkoGroupSelectAndLabel(bounddata){
     combined.append(grLabelElt);
     combined.append(upArrowElt);
     combined.append(downArrowElt);
+    combined.append(deleteRowElt);
     combined.append(jsonElt);
     adjustDefaultLabel();
     combined.addClass('brother');
@@ -270,6 +340,7 @@ function EkoMoveInDOM(element,direction) {
         msg+=' | '+ll[i].nodeName+ '-'+$(ll[i]).hasClass('brother');
         if ($(ll[i]).hasClass('brother')) {
             measbrother = ll[i];
+            break;
         }
     }
 
