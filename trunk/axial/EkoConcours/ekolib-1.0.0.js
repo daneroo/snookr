@@ -127,18 +127,15 @@ function renderEditor(contest,divselector){
         ctrlElt.append(deleteRowElt);
         upArrowElt.click(function(){
             EkoMoveInDOM($(this),-1);
-            //renderEditor(contest,divselector);
             return false;
         });
         downArrowElt.click(function(){
             EkoMoveInDOM($(this),1);
-            //renderEditor(contest,divselector);
             return false;
         });
         deleteRowElt.click(function(){
-            alert('delete row');
+            EkoRemoveInDOM($(this));
             return false;
-        //EkoMoveInDOM($(this),1);
         });
 
         var contentElt = $('<div/>')
@@ -307,9 +304,8 @@ function EkoGroupSelectAndLabel(bounddata){
         return false;
     });
     deleteRowElt.click(function(){
-        alert('delete row');
+        EkoRemoveInDOM($(this),1);
         return false;
-    //EkoMoveInDOM($(this),1);
     });
     
     
@@ -326,10 +322,54 @@ function EkoGroupSelectAndLabel(bounddata){
     return combined;
 }
 
+function EkoRemoveInDOM(element) {
+    if (element==undefined) return
+    msg='delete: ';
+    msg+=' | '+$(element).nodeName;
+    msg+='\n';
+    // climb the searching for the sibling which is us.
+    var measbrother;
+    var ll = element.parents();
+    for (i=0;i<ll.length;i++){
+        msg+=' | '+ll[i].nodeName+ '-'+$(ll[i]).hasClass('brother');
+        if ($(ll[i]).hasClass('brother')) {
+            measbrother = ll[i];
+            break;
+        }
+    }
+
+    // find my position in the list of siblings - for affecting the array
+    var position=0;
+    for (p = measbrother; $(p).prev('.brother').length>0; p = $(p).prev('.brother')) {
+        position+=1;
+    }
+    msg = 'position: '+position + ' '+ msg
+
+    // find the parent holding the bound parentarray.
+    // traverse same ll = element.parents as above...
+    msg+='\n';
+    for (i=0;i<ll.length;i++){
+        if ($(ll[i]).data('parentarray')){
+            var bounddata = $(ll[i]).data('parentarray');
+            EkoRemoveInArray(bounddata,position);
+            msg+=' arrayJSON:  [ '+$.toJSON(bounddata)+']';
+            break;
+        }
+    }
+
+    // make sure not las entry: has one sibling, before or after...
+    nextsibling = ($(measbrother).next('.brother'))[0];
+    prevsibling = ($(measbrother).prev('.brother'))[0];
+    if (nextsibling || prevsibling){
+        $(measbrother).remove();
+    }
+    $('#status').html(msg);
+
+}
 function EkoMoveInDOM(element,direction) {
     if (element==undefined) return
     direction = direction || 1;
-    msg='direction: '+direction;
+    msg='move direction: '+direction;
     msg+=' | '+$(element).nodeName;
     msg+='\n';
 
@@ -373,6 +413,10 @@ function EkoMoveInDOM(element,direction) {
     $('#status').html(msg);
 }
 
+function EkoRemoveInArray(anarray,position){
+    anarray.splice(position,1);
+}
+
 function EkoMoveInArray(anarray,direction,position){
     //alert('dir:'+direction+' position:'+position);
     if (direction>0){
@@ -389,6 +433,7 @@ function EkoMoveInArray(anarray,direction,position){
         }
     }
 }
+
 function EkoActionIcon(iconClass) {
     // calls EkoIconWrapper...
     return EkoIconWrapper('',iconClass,'eko-action-icon');
