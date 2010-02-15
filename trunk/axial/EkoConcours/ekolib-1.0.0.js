@@ -124,10 +124,12 @@ function renderEditor(contest,divselector){
         ctrlElt.append(downArrowElt);
         upArrowElt.click(function(){
             EkoMoveInDOM($(this),-1);
+            //renderEditor(contest,divselector);
             return false;
         });
         downArrowElt.click(function(){
             EkoMoveInDOM($(this),1);
+            //renderEditor(contest,divselector);
             return false;
         });
 
