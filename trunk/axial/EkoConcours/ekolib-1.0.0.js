@@ -109,6 +109,7 @@ function renderEditor(contest,divselector){
     contestheader.append($('<span></span>').text(contest.name));
 
     var stepsElt = $('<div class="steps"></div>');
+    stepsElt.data('parentarray',contest.steps);
     for (var s=0;s<contest.steps.length;s++ ){
         var step = contest.steps[s];
         var stepElt = $('<div class="step brother"/>');
@@ -258,6 +259,7 @@ function EkoMoveInDOM(element,direction) {
     direction = direction || 1;
     msg='direction: '+direction;
     msg+=' | '+$(element).nodeName;
+    msg+='\n';
 
     // climb the searching for the sibling which is us.
     var measbrother;
@@ -268,12 +270,26 @@ function EkoMoveInDOM(element,direction) {
             measbrother = ll[i];
         }
     }
+
     // find my position in the list of siblings - for affecting the array
     var position=0;
     for (p = measbrother; $(p).prev('.brother').length>0; p = $(p).prev('.brother')) {
         position+=1;
     }
     msg = 'position: '+position + ' '+ msg
+
+    // find the parent holding the bound parentarray.
+    // traverse same ll = element.parents as above...
+    msg+='\n';
+    for (i=0;i<ll.length;i++){
+        if ($(ll[i]).data('parentarray')){
+            var bounddata = $(ll[i]).data('parentarray');
+            EkoMoveInArray(bounddata,direction,position);
+            msg+=' arrayJSON:  [ '+$.toJSON(bounddata)+']';
+            break;
+        }
+    }
+
     if (direction>0){
         nextsibling = ($(measbrother).next('.brother'))[0];
         if (nextsibling) $(nextsibling).after(measbrother);
@@ -282,9 +298,24 @@ function EkoMoveInDOM(element,direction) {
         if (prevsibling) $(prevsibling).before(measbrother);
     }
     $('#status').html(msg);
-
 }
 
+function EkoMoveInArray(anarray,direction,position){
+    //alert('dir:'+direction+' position:'+position);
+    if (direction>0){
+        if (position<anarray.length-1) {
+            var tmp1 = anarray[position+1];
+            anarray[position+1] = anarray[position];
+            anarray[position] = tmp1;
+        }
+    } else if (direction<0){
+        if (position>0) {
+            var tmp2 = anarray[position-1];
+            anarray[position-1] = anarray[position];
+            anarray[position] = tmp2;
+        }
+    }
+}
 function EkoActionIcon(iconClass) {
     // calls EkoIconWrapper...
     return EkoIconWrapper('',iconClass,'eko-action-icon');
