@@ -19,27 +19,6 @@ and open the template in the editor.
         <script type="text/javascript" src="ekolib-1.0.0.js"></script>
         <script type="text/javascript">
             $(function(){
-                var boundarray = [
-                    {"name":"gr-french","label":""},
-                    {"name":"gr-english","label":"English"},
-                    {"name":"gr-child","label":""},
-                    {"name":"gr-adult","label":""},
-                    {"name":"gr-green","label":"Enviro"},
-                    {"name":"gr-techsavy","label":"Techie"},
-                ];
-                $('#choice-editor').data('parentarray', boundarray)
-                var addGSLBtn = EkoButton('Add GSL').click(function() {
-                    var nuentry = {"name":"gr-new","label":"Nu Label"};
-                    boundarray.push(nuentry);
-                    $('#choice-editor').append(EkoGroupSelectAndLabel(nuentry));
-                    return false;
-                });
-                $('#choice-editor').append($('<p />').append(addGSLBtn));
-                var parentarray = $('#choice-editor').data('parentarray');
-                for (var z=0;z<parentarray.length;z++){
-                    $('#choice-editor').append(EkoGroupSelectAndLabel(parentarray[z]));
-                }
-                
                 $('#tabs').tabs({
                     show: function(event, ui) {
                         // the new tab being shown is
@@ -143,11 +122,8 @@ and open the template in the editor.
 
     </head>
     <body>
-        <h1>Choice Editor</h1>
+        <h1>Status</h1>
         <pre id="status">status</pre>
-
-        <div id="choice-editor"></div>
-
 
         <h1>Editeur de concours</h1>
         <a id="rerender" href="#">Re-render</a>
