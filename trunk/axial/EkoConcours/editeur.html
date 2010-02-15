@@ -27,6 +27,7 @@ and open the template in the editor.
                     {"name":"gr-green","label":"Enviro"},
                     {"name":"gr-techsavy","label":"Techie"},
                 ];
+                $('#choice-editor').data('parentarray', boundarray)
                 var addGSLBtn = EkoButton('Add GSL').click(function() {
                     var nuentry = {"name":"gr-new","label":"Nu Label"};
                     boundarray.push(nuentry);
@@ -34,9 +35,11 @@ and open the template in the editor.
                     return false;
                 });
                 $('#choice-editor').append($('<p />').append(addGSLBtn));
-                for (var z=0;z<boundarray.length;z++){
-                    $('#choice-editor').append(EkoGroupSelectAndLabel(boundarray[z]));
+                var parentarray = $('#choice-editor').data('parentarray');
+                for (var z=0;z<parentarray.length;z++){
+                    $('#choice-editor').append(EkoGroupSelectAndLabel(parentarray[z]));
                 }
+                
                 $('#tabs').tabs({
                     show: function(event, ui) {
                         // the new tab being shown is
@@ -135,6 +138,7 @@ and open the template in the editor.
 
             #inplacefield {padding:10px;border:solid yellow;}
             #inplacefield.editing {border:solid red;}
+            .accordioncontrol {float:right;}
         </style>
 
     </head>
