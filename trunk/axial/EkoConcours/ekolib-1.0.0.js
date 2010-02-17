@@ -22,6 +22,11 @@ var contest1 = {
             "subtype":"shorttext",
             "label":"Occupation",
             "validation":"None"
+        },{
+            "type":"CHOICE",
+            "subtype":"radio",
+            "label":"Groups",
+            "validation":"None"
         }]
     },{
         "intro":"Texte Intro Etape 2",
@@ -40,6 +45,11 @@ var contest1 = {
             "subtype":"shorttext",
             "label":"Occupation",
             "validation":"None"
+        },{
+            "type":"CHOICE",
+            "subtype":"check",
+            "label":"Select Many",
+            "validation":"None"
         }]
     }]
 };
@@ -54,11 +64,12 @@ eko.contest.FieldTypes = { // and subtypes
     },
     TAG : {
         shorttext:"Short Text",
-        longtext:"Long Text"
+        longtext:"Long Text",
+        hiddentext:"Injected Field"
     },
     CHOICE : {
         dropdown:"Drop Down (1)",
-        radio:"Radio Buttons",
+        radio:"Radio Buttons (1)",
         check:"CheckBoxes (mult)"
     }
 };
@@ -138,10 +149,12 @@ function renderEditor(contest,divselector){
             return false;
         });
 
+        var introTextAreaElt = EkoMakeBoundTextArea(step,'intro');
+        
         var contentElt = $('<div/>')
         .append(ctrlElt)
         .append($('<span>Step Intro Text: </span><br>'))
-        .append($('<textarea cols="40" rows="5" name="myname" />').text(step.intro))
+        .append(introTextAreaElt)
         for (var f=0;f<step.fields.length;f++ ){
             var field = step.fields[f];
             contentElt.append($('<div/>')
@@ -151,19 +164,45 @@ function renderEditor(contest,divselector){
         var choicegrpelt = EkoMakeGSLGroup();
         contentElt.append(choicegrpelt);
 
+        var addFieldCtrlElt = $('<div class="fieldcontrol" />');
+        var addFieldEKOBtn = EkoButton('EKO Field');
+        var addFieldTAGBtn = EkoButton('TAG Field');
+        var addFieldCHOICEBtn = EkoButton('Choice Field');
+        addFieldCtrlElt.append(addFieldEKOBtn);
+        addFieldCtrlElt.append(addFieldTAGBtn);
+        addFieldCtrlElt.append(addFieldCHOICEBtn);
+        addFieldEKOBtn.click(function(){
+            alert('add EKO');
+            return false;
+        });
+        addFieldTAGBtn.click(function(){
+            alert('add TAG');
+            return false;
+        });
+        addFieldCHOICEBtn.click(function(){
+            alert('add CHOICE');
+            return false;
+        });
+        contentElt.append(addFieldCtrlElt);
+
+
         stepElt.append(contentElt);
         stepsElt.append(stepElt);
     }
     //var addStepBtn = $('<a href="#" class="eko-btn ui-state-default ui-corner-all"><span class="ui-icon ui-icon-plus"></span>Step</a>');
     var addStepBtn = EkoButton('Add Step');
     addStepBtn.click(function(){
-        //alert('Would add step');
         contest.steps.push({
             "intro":"Texte Intro Etape "+(contest.steps.length+1),
             "fields":[{
                 "type":"EKO",
                 "subtype":"prenom",
                 "label":"Prénom",
+                "validation":"None"
+            },{
+                "type":"CHOICE",
+                "subtype":"check",
+                "label":"Select Many",
                 "validation":"None"
             }]
         });
@@ -187,7 +226,17 @@ function renderEditor(contest,divselector){
         accordionOpts['clearStyle'] = true;
     }
     stepsElt.accordion(accordionOpts);
+}
 
+function EkoMakeBoundTextArea(boundDict,propertyName){
+    var introTextAreaElt = $('<textarea cols="40" rows="5"/>');
+    introTextAreaElt.text(boundDict[propertyName]);
+    introTextAreaElt.change(function(){
+        var propertyVal = $(this).attr("value");
+        boundDict[propertyName]=propertyVal;
+    //alert('boundDict['+propertyName+']='+propertyVal);
+    });
+    return introTextAreaElt;
 }
 function EkoMakeGSLGroup(){
     var boundarray = [
@@ -302,7 +351,6 @@ function EkoGroupSelectAndLabel(bounddata){
         bounddata.label=label;
         grLabelElt.css('color','');
         grSelElt.change();
-    //alert('name changed to: '+label)
     });
     upArrowElt.click(function(){
         EkoMoveInDOM($(this),-1);
