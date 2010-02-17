@@ -360,13 +360,16 @@ function EkoRemoveInDOM(element) {
     for (i=0;i<ll.length;i++){
         if ($(ll[i]).data('parentarray')){
             var bounddata = $(ll[i]).data('parentarray');
-            EkoRemoveInArray(bounddata,position);
+            // make sure not last entry: has length >1
+            if(bounddata.length>1){
+                EkoRemoveInArray(bounddata,position);
+            }
             msg+=' arrayJSON:  [ '+$.toJSON(bounddata)+']';
             break;
         }
     }
 
-    // make sure not las entry: has one sibling, before or after...
+    // make sure not last entry: has one sibling, before or after...
     nextsibling = ($(measbrother).next('.brother'))[0];
     prevsibling = ($(measbrother).prev('.brother'))[0];
     if (nextsibling || prevsibling){
