@@ -121,7 +121,7 @@ function renderEditor(contest,divselector){
         var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
         var deleteRowElt=EkoActionIcon('ui-icon-closethick');
 
-        var ctrlElt = $('<span class=accordioncontrol></span>');
+        var ctrlElt = $('<span class=accordioncontrol>Step: </span>');
         ctrlElt.append(upArrowElt);
         ctrlElt.append(downArrowElt);
         ctrlElt.append(deleteRowElt);
@@ -155,7 +155,7 @@ function renderEditor(contest,divselector){
         stepsElt.append(stepElt);
     }
     //var addStepBtn = $('<a href="#" class="eko-btn ui-state-default ui-corner-all"><span class="ui-icon ui-icon-plus"></span>Step</a>');
-    var addStepBtn = EkoButton('Step');
+    var addStepBtn = EkoButton('Add Step');
     addStepBtn.click(function(){
         //alert('Would add step');
         contest.steps.push({
@@ -215,23 +215,26 @@ function EkoMakeGSLGroup(){
         "label":"Techie"
     },
     ];
-    var choiceditorgroupelt = $('<div class="choiceeditorgroup"></div')
-    choiceditorgroupelt.data('parentarray', boundarray);
-    var addGSLBtn = EkoButton('Add GSL').click(function() {
+    var choiceditorelt = $('<div class="choiceeditor"></div')
+    choiceditorelt.data('parentarray', boundarray);
+
+    var choiceditorlistelt = $('<div class="choiceeditorlist"></div')
+    var addGSLBtn = EkoButton('Add Choice').click(function() {
         var nuentry = {
             "name":"gr-new",
             "label":"Nu Label"
         };
         boundarray.push(nuentry);
-        choiceditorgroupelt.append(EkoGroupSelectAndLabel(nuentry));
+        choiceditorlistelt.append(EkoGroupSelectAndLabel(nuentry));
         return false;
     });
-    choiceditorgroupelt.append($('<p />').append(addGSLBtn));
-    var parentarray = choiceditorgroupelt.data('parentarray');
+    choiceditorelt.append(choiceditorlistelt);
+    choiceditorelt.append($('<p />').append(addGSLBtn));
+    var parentarray = choiceditorelt.data('parentarray');
     for (var z=0;z<parentarray.length;z++){
-        choiceditorgroupelt.append(EkoGroupSelectAndLabel(parentarray[z]));
+        choiceditorlistelt.append(EkoGroupSelectAndLabel(parentarray[z]));
     }
-    return choiceditorgroupelt;
+    return choiceditorelt;
 }
 function EkoGroupSelect(selname){
     //eko.groups = [
