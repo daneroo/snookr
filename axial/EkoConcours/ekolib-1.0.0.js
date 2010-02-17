@@ -177,10 +177,16 @@ function renderEditor(contest,divselector){
     rCtx.append($('<p />').append(addStepBtn));
 
     // call accordion affter adding, fixes content heights...
-    stepsElt.accordion({ 
-        /*fillSpace:true,*/
-        header: "h4"
-    });
+    var accordionOpts = {
+        'header': "h4"
+    };
+    if (!$.browser.msie){
+        // haven't looked at fillSpace'
+        /* clearStyle,!autoHeight works, but breaks IE */
+        accordionOpts['autoHeight'] = false;
+        accordionOpts['clearStyle'] = true;
+    }
+    stepsElt.accordion(accordionOpts);
 
 }
 function EkoMakeGSLGroup(){
