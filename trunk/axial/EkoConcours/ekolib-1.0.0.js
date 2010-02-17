@@ -94,7 +94,7 @@ eko.groups = [
 {
     name:"gr-bio",
     label:"Bio"
-},
+}
 ];
 
 
