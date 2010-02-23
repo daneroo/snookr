@@ -11,22 +11,56 @@ var contest1 = {
             "type":"EKO",
             "subtype":"prenom",
             "label":"Prénom",
-            "validation":"None"
+            "validation":"none",
+            "options": []
         },{
             "type":"EKO",
             "subtype":"nom",
             "label":"Nom",
-            "validation":"None"
+            "validation":"none",
+            "options": []
         },{
             "type":"TAG",
             "subtype":"shorttext",
             "label":"Occupation",
-            "validation":"None"
+            "validation":"none",
+            "options": []
         },{
             "type":"CHOICE",
             "subtype":"radio",
             "label":"Groups",
-            "validation":"None"
+            "validation":"none",
+            "options": [
+            {
+                "name":"gr-french",
+                "label":""
+            },
+
+            {
+                "name":"gr-english",
+                "label":"English"
+            },
+
+            {
+                "name":"gr-child",
+                "label":""
+            },
+
+            {
+                "name":"gr-adult",
+                "label":""
+            },
+
+            {
+                "name":"gr-green",
+                "label":"Enviro"
+            },
+
+            {
+                "name":"gr-techsavy",
+                "label":"Techie"
+            }
+            ]
         }]
     },{
         "intro":"Texte Intro Etape 2",
@@ -34,22 +68,36 @@ var contest1 = {
             "type":"EKO",
             "subtype":"prenom",
             "label":"Prénom",
-            "validation":"None"
+            "validation":"none",
+            "options": []
         },{
             "type":"EKO",
             "subtype":"nom",
             "label":"Nom",
-            "validation":"None"
+            "validation":"none",
+            "options": []
         },{
             "type":"TAG",
             "subtype":"shorttext",
             "label":"Occupation",
-            "validation":"None"
+            "validation":"none",
+            "options": []
         },{
             "type":"CHOICE",
             "subtype":"check",
             "label":"Select Many",
-            "validation":"None"
+            "validation":"none",
+            "options": [
+            {
+                "name":"gr-french",
+                "label":""
+            },
+
+            {
+                "name":"gr-english",
+                "label":"English"
+            }
+            ]
         }]
     }]
 };
@@ -57,21 +105,48 @@ var contest1 = {
 // namespace
 var eko={}; eko.contest={};
 eko.contest.FieldTypes = { // and subtypes
-    EKO : {
-        prenom: "Prenom",
-        nom:"Nom",
-        couriel:"Couriel"
+    EKO : [
+    {
+        name:"prenom",
+        label:"Prénom"
     },
-    TAG : {
-        shorttext:"Short Text",
-        longtext:"Long Text",
-        hiddentext:"Injected Field"
+    {
+        name:"nom",
+        label:"Nom"
     },
-    CHOICE : {
-        dropdown:"Drop Down (1)",
-        radio:"Radio Buttons (1)",
-        check:"CheckBoxes (mult)"
+    {
+        name:"couriel",
+        label:"Couriel"
     }
+    ],
+    TAG : [
+    {
+        name:"shorttext",
+        label:"Short Text"
+    },
+    {
+        name:"longtext",
+        label:"Long Text"
+    },
+    {
+        name:"hiddentext",
+        label:"Injected Field"
+    }
+    ],
+    CHOICE : [
+    {
+        name:"dropdown",
+        label:"Drop Down (1)"
+    },
+    {
+        name:"radio",
+        label:"Radio Buttons (1)"
+    },
+    {
+        name:"check",
+        label:"CheckBoxes (mult)"
+    }
+    ]
 };
 eko.groups = [
 {
@@ -105,6 +180,17 @@ eko.groups = [
 {
     name:"gr-bio",
     label:"Bio"
+}
+];
+
+eko.validation = [
+{
+    name:"none",
+    label:"None"
+},
+{
+    name:"required",
+    label:"Required"
 }
 ];
 
@@ -150,41 +236,20 @@ function renderEditor(contest,divselector){
         });
 
         var introTextAreaElt = EkoMakeBoundTextArea(step,'intro');
+        //var introTextAreaElt = EkoMakeBoundTextInput(step,'intro');
         
         var contentElt = $('<div/>')
         .append(ctrlElt)
         .append($('<span>Step Intro Text: </span><br>'))
         .append(introTextAreaElt)
-        for (var f=0;f<step.fields.length;f++ ){
-            var field = step.fields[f];
-            contentElt.append($('<div/>')
-                .text('Field '+(s+1)+'.'+(f+1)+': '+field.type+' : '+field.subtype+' : '+field.label+' : '+field.validation)
-                );
-        }
-        var choicegrpelt = EkoMakeGSLGroup();
-        contentElt.append(choicegrpelt);
 
-        var addFieldCtrlElt = $('<div class="fieldcontrol" />');
-        var addFieldEKOBtn = EkoButton('EKO Field');
-        var addFieldTAGBtn = EkoButton('TAG Field');
-        var addFieldCHOICEBtn = EkoButton('Choice Field');
-        addFieldCtrlElt.append(addFieldEKOBtn);
-        addFieldCtrlElt.append(addFieldTAGBtn);
-        addFieldCtrlElt.append(addFieldCHOICEBtn);
-        addFieldEKOBtn.click(function(){
-            alert('add EKO');
-            return false;
-        });
-        addFieldTAGBtn.click(function(){
-            alert('add TAG');
-            return false;
-        });
-        addFieldCHOICEBtn.click(function(){
-            alert('add CHOICE');
-            return false;
-        });
-        contentElt.append(addFieldCtrlElt);
+        // REMOVE:
+        // var choicegrpelt = EkoMakeGSLGroup();
+        //contentElt.append(choicegrpelt);
 
+        var fieldsEditorElt = EkoMakeFieldsEditorGroup(step.fields);
+            
+        contentElt.append(fieldsEditorElt)
 
         stepElt.append(contentElt);
         stepsElt.append(stepElt);
@@ -196,14 +261,26 @@ function renderEditor(contest,divselector){
             "intro":"Texte Intro Etape "+(contest.steps.length+1),
             "fields":[{
                 "type":"EKO",
-                "subtype":"prenom",
-                "label":"Prénom",
-                "validation":"None"
+                "subtype":"couriel",
+                "label":"E-Mail",
+                "validation":"none",
+                "options": []
             },{
                 "type":"CHOICE",
                 "subtype":"check",
-                "label":"Select Many",
-                "validation":"None"
+                "label":"Select Some",
+                "validation":"none",
+                "options": [
+                {
+                    "name":"gr-french",
+                    "label":""
+                },
+
+                {
+                    "name":"gr-english",
+                    "label":"English"
+                }
+                ]
             }]
         });
         renderEditor(contest,divselector);
@@ -238,38 +315,59 @@ function EkoMakeBoundTextArea(boundDict,propertyName){
     });
     return introTextAreaElt;
 }
-function EkoMakeGSLGroup(){
-    var boundarray = [
-    {
-        "name":"gr-french",
-        "label":""
-    },
+function EkoMakeBoundTextInput(boundDict,propertyName){
+    var textInputElt = $('<input type="text" value=""/>');
+    textInputElt.attr("value",boundDict[propertyName]);
+    textInputElt.change(function(){
+        var propertyVal = $(this).attr("value");
+        boundDict[propertyName]=propertyVal;
+    //alert('boundDict['+propertyName+']='+propertyVal);
+    });
+    return textInputElt;
+}
 
-    {
-        "name":"gr-english",
-        "label":"English"
-    },
+// A hidden field can't really change...'
+function EkoMakeBoundHiddenInput(boundDict,propertyName){
+    var textInputElt = $('<input type="hidden" value=""/>');
+    textInputElt.attr("value",boundDict[propertyName]);
+    textInputElt.change(function(){
+        var propertyVal = $(this).attr("value");
+        boundDict[propertyName]=propertyVal;
+    //alert('boundDict['+propertyName+']='+propertyVal);
+    });
+    return textInputElt;
+}
 
-    {
-        "name":"gr-child",
-        "label":""
-    },
+function EkoMakeBoundSelect(options,boundDict,propertyName){
+    // options = [{name:blablabla},{name:blablabla}]
+    // or
+    // could optionally have some labelled
+    //  [{name:'blabla'},{name:'blibli',label:'Bli bli'},{name:'bloblo'}]
+    var selElt = $('<select></select>');
+    // for styling: field-propertyname
+    var cssClass = 'field-'+propertyName;
+    selElt.addClass(cssClass);
+    for (var g=0; g<options.length; g++) {
+        var gr = options[g];
+        var optElt = $('<option value="'+gr.name+'">'+gr.name+'</option>');
+        if (gr.label) {
+            optElt.text(gr.label)
+        }
+        if (gr.name==boundDict[propertyName]){
+            optElt.attr('selected', 'selected');
+        }
+        selElt.append(optElt);
+    }
+    // Now bind it....
+    selElt.change(function(){
+        var propertyVal = $("option:selected", this).val();
+        boundDict[propertyName]=propertyVal;
+    });
 
-    {
-        "name":"gr-adult",
-        "label":""
-    },
+    return selElt;
+}
 
-    {
-        "name":"gr-green",
-        "label":"Enviro"
-    },
-
-    {
-        "name":"gr-techsavy",
-        "label":"Techie"
-    },
-    ];
+function EkoMakeGSLGroup(boundarray){
     var choiceditorelt = $('<div class="choiceeditor"></div')
     choiceditorelt.data('parentarray', boundarray);
 
@@ -285,11 +383,83 @@ function EkoMakeGSLGroup(){
     });
     choiceditorelt.append(choiceditorlistelt);
     choiceditorelt.append($('<p />').append(addGSLBtn));
+    //alert($.toJSON(boundarray));
     var parentarray = choiceditorelt.data('parentarray');
     for (var z=0;z<parentarray.length;z++){
         choiceditorlistelt.append(EkoGroupSelectAndLabel(parentarray[z]));
     }
     return choiceditorelt;
+}
+
+function EkoMakeFieldsEditorGroup(boundarray){
+    var fieldeditorelt = $('<div class="fieldeditor"></div')
+
+    var fieldsElt = $('<div class="fields"></div>');
+    fieldsElt.data('parentarray',boundarray);
+    for (var f=0;f<boundarray.length;f++ ){
+        var field = boundarray[f];
+        var fieldElt = EkoFieldBase(field);
+        fieldsElt.append(fieldElt);
+    }
+
+    fieldeditorelt.append(fieldsElt)
+
+    var addFieldCtrlElt = $('<div class="fieldcontrol" />');
+    var addFieldEKOBtn = EkoButton('EKO Field');
+    var addFieldTAGBtn = EkoButton('TAG Field');
+    var addFieldCHOICEBtn = EkoButton('Choice Field');
+
+    addFieldCtrlElt.append(addFieldEKOBtn);
+    addFieldCtrlElt.append(addFieldTAGBtn);
+    addFieldCtrlElt.append(addFieldCHOICEBtn);
+    addFieldEKOBtn.click(function(){
+        var nuentry = {
+            "type":"EKO",
+            "subtype":"nom",
+            "label":"Nom",
+            "validation":"none",
+            "options": []
+        };
+        boundarray.push(nuentry);
+        fieldsElt.append(EkoFieldBase(nuentry));
+        return false;
+    });
+    addFieldTAGBtn.click(function(){
+        var nuentry = {
+            "type":"TAG",
+            "subtype":"shorttext",
+            "label":"Nu Label",
+            "validation":"none",
+            "options": []
+        };
+        boundarray.push(nuentry);
+        fieldsElt.append(EkoFieldBase(nuentry));
+        return false;
+    });
+    addFieldCHOICEBtn.click(function(){
+        var nuentry = {
+            "type":"CHOICE",
+            "subtype":"dropdown",
+            "label":"Nu Label",
+            "validation":"none",
+            "options": [
+            {
+                "name":"gr-french",
+                "label":""
+            },
+
+            {
+                "name":"gr-english",
+                "label":"English"
+            }
+            ]
+        };
+        boundarray.push(nuentry);
+        fieldsElt.append(EkoFieldBase(nuentry));
+        return false;
+    });
+    fieldeditorelt.append(addFieldCtrlElt);
+    return fieldeditorelt;
 }
 function EkoGroupSelect(selname){
     //eko.groups = [
@@ -315,6 +485,83 @@ function EkoGroupDefaultLabel(name){
     }
     return "Label";
 }
+
+function EkoFieldBase(bounddict){
+    // bound parts, for diferent fied type, with a hidden for type
+    // drop down for choice, etc.
+    bounddict = bounddict || {
+        "type":"EKO",
+        "subtype":"nom",
+        "label":"Nom",
+        "validation":"none"
+    };
+    var typeLabelElt=$('<div class="fieldtypelabel">'+bounddict.type+':</div>');
+    //typeLabelElt.text(bounddict.type+':');
+
+    // subtype elt
+    var subtypeSelElt = EkoMakeBoundSelect(eko.contest.FieldTypes[bounddict.type],bounddict,'subtype');
+
+    // label elt
+    var labelInputElt=EkoMakeBoundTextInput(bounddict,'label');
+    var validationSelElt = EkoMakeBoundSelect(eko.validation,bounddict,'validation');
+    
+    var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
+    var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
+    var deleteRowElt=EkoActionIcon('ui-icon-closethick');
+
+
+    // not here...
+    var choicegrpelt;
+    if (bounddict.type=='CHOICE'){
+        choicegrpelt = EkoMakeGSLGroup(bounddict.options);
+    }
+
+
+    // Temporary....
+    // hapens to be the <select/> element directly...
+    var jsonElt=$('<pre class="jsondbg"></pre>');
+    jsonElt.text($.toJSON(bounddict));
+    subtypeSelElt.change(function(){
+        jsonElt.text($.toJSON(bounddict));
+    });
+    labelInputElt.change(function(){
+        jsonElt.text($.toJSON(bounddict));
+    });
+    validationSelElt.change(function(){
+        jsonElt.text($.toJSON(bounddict));
+    });
+
+    upArrowElt.click(function(){
+        EkoMoveInDOM($(this),-1);
+        return false;
+    });
+    downArrowElt.click(function(){
+        EkoMoveInDOM($(this),1);
+        return false;
+    });
+    deleteRowElt.click(function(){
+        EkoRemoveInDOM($(this),1);
+        return false;
+    });
+
+
+    var combined=$('<div class="field"/>');
+    combined.append(typeLabelElt);
+    combined.append(subtypeSelElt);
+    combined.append(labelInputElt);
+    combined.append(validationSelElt);
+    
+    combined.append(upArrowElt);
+    combined.append(downArrowElt);
+    combined.append(deleteRowElt);
+    // debug off
+    //combined.append(jsonElt);
+    //may be null:
+    combined.append(choicegrpelt);
+    combined.addClass('brother');
+    return combined;
+
+}
 function EkoGroupSelectAndLabel(bounddata){
     bounddata = bounddata || {
         name:'gr-french',
@@ -336,7 +583,8 @@ function EkoGroupSelectAndLabel(bounddata){
     var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
     var deleteRowElt=EkoActionIcon('ui-icon-closethick');
 
-    var jsonElt=$('<pre style="display:inline; margin-left:20px;"></pre>');
+    var jsonElt=$('<pre class="jsondbg"></pre>');
+
     jsonElt.text($.toJSON(bounddata));
     grSelElt.change(function(){
         //alert($.toJSON($("option:selected", this)));
@@ -373,7 +621,8 @@ function EkoGroupSelectAndLabel(bounddata){
     combined.append(upArrowElt);
     combined.append(downArrowElt);
     combined.append(deleteRowElt);
-    combined.append(jsonElt);
+    // debug off
+    //combined.append(jsonElt);
     adjustDefaultLabel();
     combined.addClass('brother');
     return combined;
