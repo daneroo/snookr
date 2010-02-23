@@ -5,7 +5,7 @@
 
 /*
 Just to isolate the rendering code
-*/
+ */
 
 //$('#tabs').tabs({
 
@@ -22,10 +22,11 @@ function renderPreview(divselector,contest){
 }
 function EkoMakePreview(contest){
 
-    var contestElt = $('<div class="contest"/>');
+    var contestElt = $('<div class="contest preview"/>');
     // make some tabs for the steps
-    var contestheader = $('<h3><i>Contest: </i></h3>');
-    contestheader.append($('<span></span>').text(contest.name));
+    var contestheaderElt = $('<h3><i>Contest: </i></h3>');
+    contestheaderElt.append($('<span></span>').text(contest.name));
+    contestElt.append(contestheaderElt);
 
     var tabsElt = $('<ul ></ul>');
     var stepsElt = $('<div class="steps"></div>');
@@ -42,7 +43,30 @@ function EkoMakePreview(contest){
         tabsElt.append(tabElt);
 
         var stepElt = $('<div id="'+tabId+'" class="step"/>');
-        stepElt.text("Content of step: "+(s+1))
+
+        var introElt = $('<div class="intro"/>');
+        introElt.text(step.intro);
+        stepElt.append(introElt);
+
+        //each field
+        var fieldsElt = $('<ul class="fields"/>');
+        //for in step.fields:
+        for (var f=0;f<step.fields.length;f++ ){
+            var field = step.fields[f];
+            //var fieldElt = EkoFieldBase(field);
+            var fieldElt = $('<div/>');
+            //fieldElt.text($.toJSON(field));
+            var labelElt = $('<span class="fieldLabel"/>');
+            labelElt.text(field.label);
+            //var inputElt = $('<input type="text" value=""></input>');
+            //inputElt.attr("value","initial value");
+            var inputElt = EkoMakeInput(field);
+
+            fieldElt.append($('<div class="field">').append(labelElt).append(inputElt));
+            fieldsElt.append(fieldElt);
+        }
+        stepElt.append(fieldsElt);
+
         stepsElt.append(stepElt);
     }
 
@@ -51,4 +75,42 @@ function EkoMakePreview(contest){
 
     contestElt.append(stepsElt);
     return contestElt;
+}
+
+function EkoMakeInput(field){
+    if (field.type=='EKO') {
+        var inputElt = $('<input class="field-shorttext" type="text" value=""></input>');
+        return inputElt;
+    } else if (field.type=='TAG') {
+        if (field.subtype=='shorttext') {
+            var inputElt = $('<input class="field-shorttext" type="text" value=""></input>');
+            return inputElt;
+        } else if (field.subtype=='longtext') {
+            var inputElt = $('<textarea class="field-longtext"/>');
+            return inputElt;
+        } else if (field.subtype=='hidden') {
+            var inputElt = $('<input class="field-shorttext" type="hidden" value=""></input>');
+            return inputElt;
+        }
+    } else if (field.type=='CHOICE') {
+        if (field.subtype=='dropdown') {
+        } else if (field.subtype=='radio') {
+        } else if (field.subtype=='check') {
+    }
+
+    }
+    var selElt = $('<select class="field-dropdown"></select>');
+    for (var g=0; g<field.options.length; g++) {
+        var gr = field.options[g];
+        var optElt = $('<option value="'+gr.name+'">'+gr.name+'</option>');
+        if (gr.label) {
+            optElt.text(gr.label);
+        } else {
+            //optElt.text('Dflt4: '+gr.name);
+            optElt.text(EkoGroupDefaultLabel(gr.name));
+        }
+        selElt.append(optElt);
+    }
+    return selElt;
+
 }
