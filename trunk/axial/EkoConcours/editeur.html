@@ -45,59 +45,12 @@ and open the template in the editor.
                     return false;
                 });
 
-                var inplacefielddata={
-                    "type":"EKO",
-                    "subtype":"nom",
-                    "label":"Nom",
-                    "validation":"None"
-                };
-
-                $('#inplacefield').data('fielddata',inplacefielddata).click(function() {
-                    var field = $(this).data('fielddata');
-                    if ($(this).hasClass('editing')){
-                        $(this).removeClass('editing');
-                        var html='Field : '+field.type+' : '+field.subtype+' : '+field.label+' : '+field.validation+'<br>';
-                        $(this).html(html);
-                    } else {
-                        $(this).addClass('editing');
-                        var html='Editing Field : '+field.type+' : '+field.subtype+' : '+field.label+' : '+field.validation+' ';
-                        html+='[<a href="#">OK</a>] [<a href="#">CANCEL</a>]'
-                        $(this).html(html);
-                    }
-                    $('#fieldjson').html('<pre>'+$.toJSON(field)+'</pre>');
-                    return false;
-                });
-                $('#inplacefield').click().click();
-
-                // Cloning experiments
-                var goid=1000;
-                var thingtemplate = $('<div class="someclass">SOMECONTENTTPL</div>');
-                thingtemplate.hover(function() {
-                    $(this).css("color","red");
-                    $('#status').html($(this).data('oid'));
-                }, function() {
-                    $(this).css("color",null);
-                });
-
-                function cloneOne(){
-                    //var cl = $('#hiddenelements .someclass').clone(true);
-                    var cl = thingtemplate.clone(true);
-                    cl.data('oid', goid++);
-                    cl.appendTo('#maniproot');
-                }
-
-                var clnBtn = EkoButton('Clone').click(function() {
-                    cloneOne();
-                    return false;
-                });
-                $('#cloneOneBtn').append($('<p />').append(clnBtn));
-
-
             });
         </script>
         <style type="text/css">
             /*demo page css*/
-            body{ font: 80% "Trebuchet MS", sans-serif; margin: 50px;}
+            body{ font: 80% "Trebuchet MS", sans-serif; marginNOT: 50px;}
+            h1 {font-size:150%;}
             .demoHeaders { margin-top: 2em; }
             .eko-btn { height:20px; padding: .4em 1em .4em 20px;text-decoration: none; position: relative; text-decoration:none;}
             .eko-btn span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
@@ -115,8 +68,6 @@ and open the template in the editor.
             /* so fillSpace works on accordion..
             .steps { height:200px;}*/
 
-            #inplacefield {padding:10px;border:solid yellow;}
-            #inplacefield.editing {border:solid red;}
             .accordioncontrol {float:right;}
             .choiceeditor {margin-left:4em; font-size:80%;}
             .fieldcontrol {margin-left:2em; font-size:80%; margin-top:25px;}
@@ -130,12 +81,7 @@ and open the template in the editor.
 
     </head>
     <body>
-        <h1>Status</h1>
-        <pre id="status">status</pre>
-
         <h1>Editeur de concours</h1>
-        <a id="rerender" href="#">Re-render</a>
-
         <div id="tabs">
             <ul>
                 <li><a href="#tabs-1">Editor</a></li>
@@ -148,16 +94,10 @@ and open the template in the editor.
             <div id="tabs-2">This is a preview of the form</div>
             <div id="tabs-3"><div id="eko-contest-json"></div></div>
         </div>
+        <a id="rerender" href="#">Re-render</a>
 
-        <h1>In-place Field Editor</h1>
-        <p>This div is bound to a javascript object representing a field.</p>
-        <div id="inplacefield">INPLACE EDITOR</div>
-        <div>Field JSON:<div id="fieldjson"></div></div>
-
-        <h1>DOM manipulation</h1>
-        <div id="cloneOneBtn"></div>
-
-        <div id="maniproot">Dom Manip root</div>
+        <h1>Status</h1>
+        <pre id="status">status</pre>
 
         <!-- Test css for icons with/without text...
         <h1>Explorer icon tests</h1>
