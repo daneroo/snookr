@@ -27,8 +27,8 @@ var contest1 = {
             "options": []
         },{
             "type":"CHOICE",
-            "subtype":"radio",
-            "label":"Groups",
+            "subtype":"check",
+            "label":"Check Any",
             "validation":"none",
             "options": [
             {
@@ -84,8 +84,8 @@ var contest1 = {
             "options": []
         },{
             "type":"CHOICE",
-            "subtype":"check",
-            "label":"Select Many",
+            "subtype":"radio",
+            "label":"Select One",
             "validation":"none",
             "options": [
             {
@@ -267,8 +267,8 @@ function renderEditor(contest,divselector){
                 "options": []
             },{
                 "type":"CHOICE",
-                "subtype":"check",
-                "label":"Select Some",
+                "subtype":"radio",
+                "label":"Select One",
                 "validation":"none",
                 "options": [
                 {
