@@ -16,6 +16,7 @@ function getOid(){
 }
 
 function renderPreview(divselector,contest){
+    // replaces
     $(divselector).html('');
     $(divselector).append(EkoMakePreview(contest1));
     $(divselector+' .steps').tabs();
@@ -67,6 +68,31 @@ function EkoMakePreview(contest){
         }
         stepElt.append(fieldsElt);
 
+        // calback generator
+        function genGoto(stepsElt,stepidx){
+            return function(){
+                // handles negatives, and wraparound....
+                var ss = (stepidx+2*contest.steps.length)%contest.steps.length;
+                stepsElt.tabs('select',ss);
+            }
+        }
+
+        if (s>0){
+            var prvBtn = EkoButton('Prev Step');
+            prvBtn.click(genGoto(stepsElt,s-1));
+            stepElt.append(prvBtn);
+        }
+        if (s<(contest.steps.length-1)){
+            var nxtBtn = EkoButton('Next Step');
+            nxtBtn.click(genGoto(stepsElt,s+1));
+            stepElt.append(nxtBtn);
+        } else if (s==(contest.steps.length-1)) {
+            var postBtn = EkoButton('Submit');
+            postBtn.click(function(){
+                    $('#status').html('The Form would have posted..');
+                });
+            stepElt.append(postBtn);
+        }
         stepsElt.append(stepElt);
     }
 
@@ -94,23 +120,55 @@ function EkoMakeInput(field){
         }
     } else if (field.type=='CHOICE') {
         if (field.subtype=='dropdown') {
+            var selElt = $('<select class="field-dropdown"></select>');
+            for (var g=0; g<field.options.length; g++) {
+                var gr = field.options[g];
+                var optElt = $('<option value="'+gr.name+'">'+gr.name+'</option>');
+                if (gr.label) {
+                    optElt.text(gr.label);
+                } else {
+                    //optElt.text('Dflt4: '+gr.name);
+                    optElt.text(EkoGroupDefaultLabel(gr.name));
+                }
+                selElt.append(optElt);
+            }
+            return selElt;
         } else if (field.subtype=='radio') {
+            var grpId = 'radiogroup-'+getOid();
+            var radioGrpElt = $('<div class="field-radio-group"></div>');
+            for (var g=0; g<field.options.length; g++) {
+                var gr = field.options[g];
+                var lbl = gr.name;
+                if (gr.label) {
+                    lbl=gr.label;
+                } else {
+                    //optElt.text('Dflt4: '+gr.name);
+                    lbl=EkoGroupDefaultLabel(gr.name);
+                }
+                var checked = '';
+                if (g==0) (checked='checked="checked"');
+                var radioElt = $('<span><input type="radio" class="field-radio" '+checked+' name="'+grpId+'" value="'+gr.name+'" /> '+lbl+'</span>');
+                radioGrpElt.append(radioElt);
+            }
+            return radioGrpElt;
         } else if (field.subtype=='check') {
-    }
+            var grpId2 = 'checkgroup-'+getOid();
+            var checkGrpElt = $('<div class="field-check-group"></div>');
+            for (var g2=0; g2<field.options.length; g2++) {
+                var gr2 = field.options[g2];
+                var lbl2 = gr2.name;
+                if (gr2.label) {
+                    lbl2=gr2.label;
+                } else {
+                    //optElt.text('Dflt4: '+gr.name);
+                    lbl2=EkoGroupDefaultLabel(gr2.name);
+                }
+                var checkElt = $('<span><input type="checkbox" class="field-check" name="'+grpId2+'" value="'+gr2.name+'" /> '+lbl2+'</span>');
+                checkGrpElt.append(checkElt);
+            }
+            return checkGrpElt;
+        }
 
     }
-    var selElt = $('<select class="field-dropdown"></select>');
-    for (var g=0; g<field.options.length; g++) {
-        var gr = field.options[g];
-        var optElt = $('<option value="'+gr.name+'">'+gr.name+'</option>');
-        if (gr.label) {
-            optElt.text(gr.label);
-        } else {
-            //optElt.text('Dflt4: '+gr.name);
-            optElt.text(EkoGroupDefaultLabel(gr.name));
-        }
-        selElt.append(optElt);
-    }
-    return selElt;
 
 }
