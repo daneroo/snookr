@@ -232,55 +232,26 @@ function renderEditor(contest,divselector){
     stepsElt.data('parentarray',contest.steps);
     for (var s=0;s<contest.steps.length;s++ ){
         var step = contest.steps[s];
-        var stepElt = $('<div class="step brother"/>');
-        // step title in a h4
-        stepElt.append($('<h4 />').append('<a href="#" >Step '+(s+1)+'</a>'));
-        //html += '<h4><a href="#">Step '+(s+1)+'</a></h4>';
-
-        var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
-        var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
-        var deleteRowElt=EkoActionIcon('ui-icon-closethick');
-
-        var ctrlElt = $('<span class=accordioncontrol>Step: </span>');
-        ctrlElt.append(upArrowElt);
-        ctrlElt.append(downArrowElt);
-        ctrlElt.append(deleteRowElt);
-        upArrowElt.click(function(){
-            EkoMoveInDOM($(this),-1);
-            return false;
-        });
-        downArrowElt.click(function(){
-            EkoMoveInDOM($(this),1);
-            return false;
-        });
-        deleteRowElt.click(function(){
-            EkoRemoveInDOM($(this));
-            return false;
-        });
-
-        var introTextAreaElt = EkoMakeBoundTextArea(step,'intro');
-        //var introTextAreaElt = EkoMakeBoundTextInput(step,'intro');
-        
-        var contentElt = $('<div/>')
-        .append(ctrlElt)
-        .append($('<span>Step Intro Text: </span><br>'))
-        .append(introTextAreaElt)
-
-        // REMOVE:
-        // var choicegrpelt = EkoMakeGSLGroup();
-        //contentElt.append(choicegrpelt);
-
-        var fieldsEditorElt = EkoMakeFieldsEditorGroup(step.fields);
-            
-        contentElt.append(fieldsEditorElt)
-
-        stepElt.append(contentElt);
+        var stepElt = EkoMakeStep(step,s);
         stepsElt.append(stepElt);
     }
+
+    var accordionOpts = {
+        'header': "h4",
+        'active':0,
+        'collapsible':true
+    };
+    if (!$.browser.msie){
+        // haven't looked at fillSpace'
+        /* clearStyle,!autoHeight works, but breaks IE */
+        accordionOpts['autoHeight'] = false;
+        accordionOpts['clearStyle'] = true;
+    }
+
     //var addStepBtn = $('<a href="#" class="eko-btn ui-state-default ui-corner-all"><span class="ui-icon ui-icon-plus"></span>Step</a>');
     var addStepBtn = EkoButton('Add Step');
     addStepBtn.click(function(){
-        contest.steps.push({
+        var nuentry = {
             "intro":"Texte Intro Etape "+(contest.steps.length+1),
             "fields":[{
                 "type":"EKO",
@@ -305,8 +276,14 @@ function renderEditor(contest,divselector){
                 }
                 ]
             }]
-        });
-        renderEditor(contest,divselector);
+        };
+        contest.steps.push(nuentry);
+        var stepElt = EkoMakeStep(nuentry,contest.steps.length-1);
+        stepsElt.append(stepElt);
+        stepsElt.accordion('destroy');
+        accordionOpts.active=contest.steps.length-1;
+        stepsElt.accordion(accordionOpts);
+        //stepsElt.accordion('activate',contest.steps.length-1);
         return false;
     });
 
@@ -316,18 +293,49 @@ function renderEditor(contest,divselector){
     rCtx.append($('<p />').append(addStepBtn));
 
     // call accordion affter adding, fixes content heights...
-    var accordionOpts = {
-        'header': "h4"
-    };
-    if (!$.browser.msie){
-        // haven't looked at fillSpace'
-        /* clearStyle,!autoHeight works, but breaks IE */
-        accordionOpts['autoHeight'] = false;
-        accordionOpts['clearStyle'] = true;
-    }
     stepsElt.accordion(accordionOpts);
 }
 
+function EkoMakeStep(step,s){
+    var stepElt = $('<div class="step brother"/>');
+    stepElt.append($('<h4 />').append('<a href="#" >Step '+(s+1)+'</a>'));
+
+    var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
+    var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
+    var deleteRowElt=EkoActionIcon('ui-icon-closethick');
+
+    var ctrlElt = $('<span class=accordioncontrol>Step: </span>');
+    ctrlElt.append(upArrowElt);
+    ctrlElt.append(downArrowElt);
+    ctrlElt.append(deleteRowElt);
+    upArrowElt.click(function(){
+        EkoMoveInDOM($(this),-1);
+        return false;
+    });
+    downArrowElt.click(function(){
+        EkoMoveInDOM($(this),1);
+        return false;
+    });
+    deleteRowElt.click(function(){
+        EkoRemoveInDOM($(this));
+        return false;
+    });
+
+    var introTextAreaElt = EkoMakeBoundTextArea(step,'intro');
+
+    var contentElt = $('<div/>')
+    .append(ctrlElt)
+    .append($('<span>Step Intro Text: </span><br>'))
+    .append(introTextAreaElt)
+
+    var fieldsEditorElt = EkoMakeFieldsEditorGroup(step.fields);
+
+    contentElt.append(fieldsEditorElt)
+
+    stepElt.append(contentElt);
+    return stepElt;
+
+}
 function EkoMakeBoundTextArea(boundDict,propertyName){
     var introTextAreaElt = $('<textarea cols="40" rows="5"/>');
     introTextAreaElt.text(boundDict[propertyName]);
