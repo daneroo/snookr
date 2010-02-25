@@ -4,10 +4,15 @@
  */
 
 /*
-Just to isolate the rendering code
+ * Just to isolate the rendering code
+ * Navigation through the step panels accumulates a response object, and a validation state
+ *
+ * response = [
+ *   { '1.1:EKO:nom:Nom':'Lauzon'},
+ *   { '1.2:TAG:shorttext:Occupation':'Menuisier'}
+ * ];
+ *
  */
-
-//$('#tabs').tabs({
 
 var globalPreviewOid=222;
 function getOid(){
@@ -21,8 +26,10 @@ function renderPreview(divselector,contest){
     $(divselector).append(EkoMakePreview(contest1));
     $(divselector+' .steps').tabs();
 }
-function EkoMakePreview(contest){
 
+// Fatory of DOM Elements
+function EkoMakePreview(contest){
+    var response = {}; // map of key/value objects:
     var contestElt = $('<div class="contest preview"/>');
     // make some tabs for the steps
     var contestheaderElt = $('<h3><i>Contest: </i></h3>');
@@ -35,7 +42,6 @@ function EkoMakePreview(contest){
     for (var s=0;s<contest.steps.length;s++ ){
         var step = contest.steps[s];
 
-        //				<li><a href="#tabs-1">First</a></li>
         var tabId = 'tab-'+getOid();
         var lnkElt = $('<a/>');
         lnkElt.attr('href', '#'+tabId);
@@ -54,16 +60,16 @@ function EkoMakePreview(contest){
         //for in step.fields:
         for (var f=0;f<step.fields.length;f++ ){
             var field = step.fields[f];
-            //var fieldElt = EkoFieldBase(field);
+            // this is how we mangle the stet/field/type info into a key
+            var fieldResponseKey = ''+s+'.'+f+':'+field.type+':'+field.subtype+':'+field.label;
+            response[fieldResponseKey]=null;
             var fieldElt = $('<div/>');
-            //fieldElt.text($.toJSON(field));
             var labelElt = $('<span class="fieldLabel"/>');
             labelElt.text(field.label);
-            //var inputElt = $('<input type="text" value=""></input>');
-            //inputElt.attr("value","initial value");
-            var inputElt = EkoMakeInput(field);
+            var inputElt = EkoMakeInput(field,response,fieldResponseKey);
 
             fieldElt.append($('<div class="field">').append(labelElt).append(inputElt));
+
             fieldsElt.append(fieldElt);
         }
         stepElt.append(fieldsElt);
@@ -73,6 +79,9 @@ function EkoMakePreview(contest){
             return function(){
                 // handles negatives, and wraparound....
                 var ss = (stepidx+2*contest.steps.length)%contest.steps.length;
+                var previouslySelected = stepsElt.tabs('option', 'selected');
+                showResponse(response,'Step');
+                // if valid
                 stepsElt.tabs('select',ss);
             }
         }
@@ -89,8 +98,8 @@ function EkoMakePreview(contest){
         } else if (s==(contest.steps.length-1)) {
             var postBtn = EkoButton('Submit');
             postBtn.click(function(){
-                    $('#status').html('The Form would have posted..');
-                });
+                showResponse(response,'Form');
+            });
             stepElt.append(postBtn);
         }
         stepsElt.append(stepElt);
@@ -102,22 +111,37 @@ function EkoMakePreview(contest){
     contestElt.append(stepsElt);
     return contestElt;
 }
+function showResponse(boundDict,scope){
+    var jsonText = $.toJSON(boundDict);
+    jsonText = jsonText.replace(/,/g,',<br />');
+    $('#previewpost').html('The '+scope+' updated: <div>'+jsonText+'</div>');
+}
 
-function EkoMakeInput(field){
+function EkoMakeInput(field,boundDict,propertyName){
+    var onchangeTextcallback=function(){
+        var propertyVal = $(this).attr("value");
+        boundDict[propertyName]=propertyVal;
+        showResponse(boundDict,'Field');
+    };
     if (field.type=='EKO') {
         var inputElt = $('<input class="field-shorttext" type="text" value=""></input>');
+        inputElt.change(onchangeTextcallback);
         return inputElt;
     } else if (field.type=='TAG') {
         if (field.subtype=='shorttext') {
             var inputElt = $('<input class="field-shorttext" type="text" value=""></input>');
+            inputElt.change(onchangeTextcallback);
             return inputElt;
         } else if (field.subtype=='longtext') {
             var inputElt = $('<textarea class="field-longtext"/>');
+            inputElt.change(onchangeTextcallback);
             return inputElt;
         } else if (field.subtype=='hidden') {
             var inputElt = $('<input class="field-shorttext" type="hidden" value=""></input>');
+            inputElt.change(onchangeTextcallback);
             return inputElt;
         }
+
     } else if (field.type=='CHOICE') {
         if (field.subtype=='dropdown') {
             var selElt = $('<select class="field-dropdown"></select>');
@@ -132,10 +156,22 @@ function EkoMakeInput(field){
                 }
                 selElt.append(optElt);
             }
+            selElt.change(function(){
+                var propertyVal = $("option:selected", this).val();
+                boundDict[propertyName]=propertyVal;
+                showResponse(boundDict,'DD Field');
+            });
+
             return selElt;
         } else if (field.subtype=='radio') {
             var grpId = 'radiogroup-'+getOid();
             var radioGrpElt = $('<div class="field-radio-group"></div>');
+            var onchangeRadioCallback = function(){
+                //var propertyVal = $(this).attr("value");
+                var propertyVal = radioGrpElt.find('input:radio:checked').val();
+                boundDict[propertyName]=propertyVal;
+                showResponse(boundDict,'Radio Field');
+            };
             for (var g=0; g<field.options.length; g++) {
                 var gr = field.options[g];
                 var lbl = gr.name;
@@ -148,12 +184,25 @@ function EkoMakeInput(field){
                 var checked = '';
                 if (g==0) (checked='checked="checked"');
                 var radioElt = $('<span><input type="radio" class="field-radio" '+checked+' name="'+grpId+'" value="'+gr.name+'" /> '+lbl+'</span>');
+                radioElt.find('input:check').change(onchangeRadioCallback);
                 radioGrpElt.append(radioElt);
             }
+            radioGrpElt
             return radioGrpElt;
         } else if (field.subtype=='check') {
             var grpId2 = 'checkgroup-'+getOid();
             var checkGrpElt = $('<div class="field-check-group"></div>');
+            var onchangeCheckCallback = function(){
+                //var propertyVal = $(this).attr("value");
+                //var propertyVal = checkGrpElt.find('input:checkbox:checked').val();
+                var propertyVal=[];
+                checkGrpElt.find('input:checkbox:checked').each(function() {
+                    propertyVal.push($(this).val());
+                });
+
+                boundDict[propertyName]=propertyVal;
+                showResponse(boundDict,'Check Field');
+            };
             for (var g2=0; g2<field.options.length; g2++) {
                 var gr2 = field.options[g2];
                 var lbl2 = gr2.name;
@@ -164,6 +213,7 @@ function EkoMakeInput(field){
                     lbl2=EkoGroupDefaultLabel(gr2.name);
                 }
                 var checkElt = $('<span><input type="checkbox" class="field-check" name="'+grpId2+'" value="'+gr2.name+'" /> '+lbl2+'</span>');
+                checkElt.find('input:checkbox').change(onchangeCheckCallback);
                 checkGrpElt.append(checkElt);
             }
             return checkGrpElt;

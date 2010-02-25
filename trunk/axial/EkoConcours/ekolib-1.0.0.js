@@ -26,6 +26,12 @@ var contest1 = {
             "validation":"none",
             "options": []
         },{
+            "type":"TAG",
+            "subtype":"longtext",
+            "label":"Commentaire",
+            "validation":"none",
+            "options": []
+        },{
             "type":"CHOICE",
             "subtype":"check",
             "label":"Check Any",
@@ -61,7 +67,24 @@ var contest1 = {
                 "label":"Techie"
             }
             ]
+        },{
+            "type":"CHOICE",
+            "subtype":"dropdown",
+            "label":"Select One",
+            "validation":"none",
+            "options": [
+            {
+                "name":"gr-child",
+                "label":""
+            },
+
+            {
+                "name":"gr-adult",
+                "label":""
+            }
+            ]
         }]
+
     },{
         "intro":"Texte Intro Etape 2",
         "fields":[{
@@ -311,7 +334,6 @@ function EkoMakeBoundTextArea(boundDict,propertyName){
     introTextAreaElt.change(function(){
         var propertyVal = $(this).attr("value");
         boundDict[propertyName]=propertyVal;
-    //alert('boundDict['+propertyName+']='+propertyVal);
     });
     return introTextAreaElt;
 }
@@ -321,7 +343,6 @@ function EkoMakeBoundTextInput(boundDict,propertyName){
     textInputElt.change(function(){
         var propertyVal = $(this).attr("value");
         boundDict[propertyName]=propertyVal;
-    //alert('boundDict['+propertyName+']='+propertyVal);
     });
     return textInputElt;
 }
