@@ -62,7 +62,6 @@ function EkoMakePreview(contest){
             var field = step.fields[f];
             // this is how we mangle the stet/field/type info into a key
             var fieldResponseKey = ''+s+'.'+f+':'+field.type+':'+field.subtype+':'+field.label;
-            response[fieldResponseKey]=null;
             var fieldElt = $('<div/>');
             var labelElt = $('<span class="fieldLabel"/>');
             labelElt.text(field.label);
@@ -123,6 +122,10 @@ function EkoMakeInput(field,boundDict,propertyName){
         boundDict[propertyName]=propertyVal;
         showResponse(boundDict,'Field');
     };
+    // initial value for response array
+    // aka: response[fieldResponseKey]=null;
+    boundDict[propertyName]=null;
+
     if (field.type=='EKO') {
         var inputElt = $('<input class="field-shorttext" type="text" value=""></input>');
         inputElt.change(onchangeTextcallback);
@@ -154,6 +157,10 @@ function EkoMakeInput(field,boundDict,propertyName){
                     //optElt.text('Dflt4: '+gr.name);
                     optElt.text(EkoGroupDefaultLabel(gr.name));
                 }
+                if (g==0) {
+                    // override default initial  value in response
+                    boundDict[propertyName]=gr.name;
+                }
                 selElt.append(optElt);
             }
             selElt.change(function(){
@@ -161,7 +168,6 @@ function EkoMakeInput(field,boundDict,propertyName){
                 boundDict[propertyName]=propertyVal;
                 showResponse(boundDict,'DD Field');
             });
-
             return selElt;
         } else if (field.subtype=='radio') {
             var grpId = 'radiogroup-'+getOid();
@@ -182,12 +188,16 @@ function EkoMakeInput(field,boundDict,propertyName){
                     lbl=EkoGroupDefaultLabel(gr.name);
                 }
                 var checked = '';
-                if (g==0) (checked='checked="checked"');
+                if (g==0) {
+                    checked='checked="checked"';
+                    // override default initial  value in response
+                    boundDict[propertyName]=gr.name;
+                }
                 var radioElt = $('<span><input type="radio" class="field-radio" '+checked+' name="'+grpId+'" value="'+gr.name+'" /> '+lbl+'</span>');
-                radioElt.find('input:check').change(onchangeRadioCallback);
+                radioElt.find('input:radio').change(onchangeRadioCallback);
                 radioGrpElt.append(radioElt);
             }
-            radioGrpElt
+            radioGrpElt.find('input:radio').change(); // trigger a fisr change.
             return radioGrpElt;
         } else if (field.subtype=='check') {
             var grpId2 = 'checkgroup-'+getOid();
@@ -216,6 +226,8 @@ function EkoMakeInput(field,boundDict,propertyName){
                 checkElt.find('input:checkbox').change(onchangeCheckCallback);
                 checkGrpElt.append(checkElt);
             }
+            // override default initial  value in response
+            boundDict[propertyName]=[];
             return checkGrpElt;
         }
 
