@@ -11,7 +11,7 @@ var contest1 = {
             "type":"EKO",
             "subtype":"prenom",
             "label":"Prénom",
-            "validation":"none",
+            "validation":"required",
             "options": []
         },{
             "type":"EKO",
@@ -88,6 +88,12 @@ var contest1 = {
     },{
         "intro":"Texte Intro Etape 2",
         "fields":[{
+            "type":"EKO",
+            "subtype":"couriel",
+            "label":"E-Mail",
+            "validation":"required",
+            "options": []
+        },{
             "type":"EKO",
             "subtype":"prenom",
             "label":"Prénom",
@@ -257,7 +263,7 @@ function renderEditor(contest,divselector){
                 "type":"EKO",
                 "subtype":"couriel",
                 "label":"E-Mail",
-                "validation":"none",
+                "validation":"required",
                 "options": []
             },{
                 "type":"CHOICE",

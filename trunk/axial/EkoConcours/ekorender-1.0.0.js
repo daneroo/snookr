@@ -12,6 +12,14 @@
  *   { '1.2:TAG:shorttext:Occupation':'Menuisier'}
  * ];
  *
+ * validation:
+ *    includes only none, and require for now, they are both single-field client-side validations
+ * Spec: we want to provide visual feedback of validation on Step navigation,
+ *   also preventing navigation, if not validated.
+ *   --Preventing Navigation on ivalid might require hooking in to the tabs events
+ *   we will only do the next/previous/post, (actually previous should aways be fine.)
+ *  So validation needs the 'Step' concept.
+ *  the basic field validation, should indicate success/failure, and errorcode/message on failure
  */
 
 var globalPreviewOid=222;
@@ -26,6 +34,19 @@ function renderPreview(divselector,contest){
     $(divselector).append(EkoMakePreview(contest1));
     $(divselector+' .steps').tabs();
 }
+
+eko.validators = {
+    'none': function(value){
+        return [true,'OK'];
+    },
+    'required': function(value){
+        if (isEmpty(value)){
+            return [false,'This field is required'];
+        }
+        return [true,'OK'];
+    }
+
+};
 
 // Fatory of DOM Elements
 function EkoMakePreview(contest){
@@ -55,6 +76,7 @@ function EkoMakePreview(contest){
         introElt.text(step.intro);
         stepElt.append(introElt);
 
+        var validatorsForStep = []; // accumulate field validators
         //each field
         var fieldsElt = $('<ul class="fields"/>');
         //for in step.fields:
@@ -65,34 +87,44 @@ function EkoMakePreview(contest){
             var fieldElt = $('<div/>');
             var labelElt = $('<span class="fieldLabel"/>');
             labelElt.text(field.label);
-            var inputElt = EkoMakeInput(field,response,fieldResponseKey);
+            var validatorElt = $('<span class="validatorLabel"/>');
+            var validationCB = eko.validators[field.validation];
+            var validatorForField = validatorGenerator(validationCB,response,fieldResponseKey,validatorElt);
+            var inputElt = EkoMakeInput(field,response,fieldResponseKey,validatorForField);
+            validatorsForStep.push(validatorForField);
 
-            fieldElt.append($('<div class="field">').append(labelElt).append(inputElt));
+            fieldElt.append($('<div class="field">').append(labelElt).append(inputElt).append(validatorElt));
 
             fieldsElt.append(fieldElt);
         }
         stepElt.append(fieldsElt);
 
         // calback generator
-        function genGoto(stepsElt,stepidx){
+        function genGoto(stepsElt,stepidx,validatorsForStep){
             return function(){
                 // handles negatives, and wraparound....
                 var ss = (stepidx+2*contest.steps.length)%contest.steps.length;
                 var previouslySelected = stepsElt.tabs('option', 'selected');
                 showResponse(response,'Step');
                 // if valid
-                stepsElt.tabs('select',ss);
+                var okstep = true;
+                for (var v=0;v<validatorsForStep.length;v++){
+                    var okfield = validatorsForStep[v]();
+                    if (!okfield) okstep=false;
+                }
+                //alert('step ok?: '+okstep+' validators: '+validatorsForStep.length);
+                if (okstep) stepsElt.tabs('select',ss);
             }
         }
 
         if (s>0){
             var prvBtn = EkoButton('Prev Step');
-            prvBtn.click(genGoto(stepsElt,s-1));
+            prvBtn.click(genGoto(stepsElt,s-1,validatorsForStep));
             stepElt.append(prvBtn);
         }
         if (s<(contest.steps.length-1)){
             var nxtBtn = EkoButton('Next Step');
-            nxtBtn.click(genGoto(stepsElt,s+1));
+            nxtBtn.click(genGoto(stepsElt,s+1,validatorsForStep));
             stepElt.append(nxtBtn);
         } else if (s==(contest.steps.length-1)) {
             var postBtn = EkoButton('Submit');
@@ -116,11 +148,33 @@ function showResponse(boundDict,scope){
     $('#previewpost').html('The '+scope+' updated: <div>'+jsonText+'</div>');
 }
 
-function EkoMakeInput(field,boundDict,propertyName){
+function validatorGenerator(validationCB,response,fieldResponseKey,validatorElt) {
+    var validatorForField = function (){
+        //alert('field: '+fieldResponseKey);
+        if (validationCB) {
+            var propertyVal = response[fieldResponseKey];
+            var returnCode = validationCB(propertyVal);
+            // make error text conditional on !valid
+            if (!returnCode[0]) validatorElt.text(returnCode[1]);
+            return returnCode[0];
+        }
+        return true;
+    }
+    return validatorForField;
+}
+
+function EkoMakeInput(field,boundDict,propertyName,validatorFeedbackCallback){
+    // protect against bad/null callback param by wrapping it up
+    var validatorFBCB = function() {
+        if (!validatorFeedbackCallback) return;
+        if (typeof(validatorFeedbackCallback)!='function') return;
+        validatorFeedbackCallback();
+    }
     var onchangeTextcallback=function(){
         var propertyVal = $(this).attr("value");
         boundDict[propertyName]=propertyVal;
         showResponse(boundDict,'Field');
+        validatorFBCB();
     };
     // initial value for response array
     // aka: response[fieldResponseKey]=null;
@@ -167,6 +221,7 @@ function EkoMakeInput(field,boundDict,propertyName){
                 var propertyVal = $("option:selected", this).val();
                 boundDict[propertyName]=propertyVal;
                 showResponse(boundDict,'DD Field');
+                validatorFBCB();
             });
             return selElt;
         } else if (field.subtype=='radio') {
@@ -177,6 +232,7 @@ function EkoMakeInput(field,boundDict,propertyName){
                 var propertyVal = radioGrpElt.find('input:radio:checked').val();
                 boundDict[propertyName]=propertyVal;
                 showResponse(boundDict,'Radio Field');
+                validatorFBCB();
             };
             for (var g=0; g<field.options.length; g++) {
                 var gr = field.options[g];
@@ -212,6 +268,7 @@ function EkoMakeInput(field,boundDict,propertyName){
 
                 boundDict[propertyName]=propertyVal;
                 showResponse(boundDict,'Check Field');
+                validatorFBCB();
             };
             for (var g2=0; g2<field.options.length; g2++) {
                 var gr2 = field.options[g2];
@@ -230,7 +287,48 @@ function EkoMakeInput(field,boundDict,propertyName){
             boundDict[propertyName]=[];
             return checkGrpElt;
         }
-
     }
-
 }
+
+// Removes leading whitespaces
+function LTrim( value ) {
+    if (!value) return value;
+    var re = /\s*((\S+\s*)*)/;
+    return value.replace(re, "$1");
+}
+
+// Removes ending whitespaces
+function RTrim( value ) {
+    if (!value) return value;
+    var re = /((\s*\S+)*)\s*/;
+    return value.replace(re, "$1");
+}
+
+// Removes leading and ending whitespaces
+function trim( value ) {
+    return LTrim(RTrim(value));
+}
+
+function isEmpty( value ) {
+    if (!value) return true;
+    if (trim(String(value)).length==0) return true;
+    return false;
+}
+
+function testTrimAndEmpty(){
+    var str='OK'
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='  leading'
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='trailing   '
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='  both '
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='   '
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str=''
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str=null
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+}
+
