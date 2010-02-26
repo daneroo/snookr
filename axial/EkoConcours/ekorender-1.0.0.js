@@ -128,6 +128,8 @@ function EkoMakePreview(contest){
             stepElt.append(nxtBtn);
         } else if (s==(contest.steps.length-1)) {
             var postBtn = EkoButton('Submit');
+            // temporary to get validation
+            postBtn.click(genGoto(stepsElt,s,validatorsForStep));
             postBtn.click(function(){
                 showResponse(response,'Form');
             });
