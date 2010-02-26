@@ -157,7 +157,12 @@ function validatorGenerator(validationCB,response,fieldResponseKey,validatorElt)
             var propertyVal = response[fieldResponseKey];
             var returnCode = validationCB(propertyVal);
             // make error text conditional on !valid
-            if (!returnCode[0]) validatorElt.text(returnCode[1]);
+            if (!returnCode[0]) {
+              validatorElt.text(returnCode[1]);  
+            } else {
+                // clear the text
+                validatorElt.text('');
+            }
             return returnCode[0];
         }
         return true;
