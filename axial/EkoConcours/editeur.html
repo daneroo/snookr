@@ -19,6 +19,21 @@
         <script type="text/javascript" src="ekolib-render-1.0.0.js" charset="UTF8"></script>
         <script type="text/javascript">
             $(function(){
+
+                /* This works to load a contest, using $.evalJSON
+                 * causes not-well formed error when loading a local file
+                 */
+                $.ajax({
+                    url: 'eko-groups.json',
+                    //data: data,
+                    dataType: 'html', // html,xml,json,jsonp
+                    success: function(data) {
+                        var loadedGroups = $.evalJSON(data);
+                        //alert(loadedContest.name);
+                        eko.groups = loadedGroups.groups;
+                    }
+                });
+
                 $('#tabs').tabs({
                     show: function(event, ui) {
                         // the new tab being shown is
@@ -45,13 +60,21 @@
                     renderJSON(contest1,'#eko-contest-json');
                     return false;
                 });
-/*
-                $.get('contest2.json', function(data) {
-                    //alert('Load was performed.: '+data);
-                    var coco = $.evalJSON(data);
-                    alert(coco.name);
+
+                /* This works to load a contest, using $.evalJSON
+                 * causes not-well formed error when loading a local file
+                $.ajax({
+                    url: 'contest2.json',
+                    //data: data,
+                    dataType: 'html', // html,xml,json,jsonp
+                    success: function(data) {
+                        var loadedContest = $.evalJSON(data);
+                        //alert(loadedContest.name);
+                        contest1 = loadedContest;
+                    }
                 });
-*/
+                 */
+
             });
         </script>
         <style type="text/css">
