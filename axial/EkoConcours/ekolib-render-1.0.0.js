@@ -22,31 +22,12 @@
  *  the basic field validation, should indicate success/failure, and errorcode/message on failure
  */
 
-var globalPreviewOid=222;
-function getOid(){
-    globalPreviewOid+=1;
-    return globalPreviewOid;
-}
-
 function renderPreview(divselector,contest){
     // replaces
     $(divselector).html('');
     $(divselector).append(EkoMakePreview(contest1));
     $(divselector+' .steps').tabs();
 }
-
-eko.validators = {
-    'none': function(value){
-        return [true,'OK'];
-    },
-    'required': function(value){
-        if (isEmpty(value)){
-            return [false,'This field is required'];
-        }
-        return [true,'OK'];
-    }
-
-};
 
 // Fatory of DOM Elements
 function EkoMakePreview(contest){
@@ -295,47 +276,5 @@ function EkoMakeInput(field,boundDict,propertyName,validatorFeedbackCallback){
             return checkGrpElt;
         }
     }
-}
-
-// Removes leading whitespaces
-function LTrim( value ) {
-    if (!value) return value;
-    var re = /\s*((\S+\s*)*)/;
-    return value.replace(re, "$1");
-}
-
-// Removes ending whitespaces
-function RTrim( value ) {
-    if (!value) return value;
-    var re = /((\s*\S+)*)\s*/;
-    return value.replace(re, "$1");
-}
-
-// Removes leading and ending whitespaces
-function trim( value ) {
-    return LTrim(RTrim(value));
-}
-
-function isEmpty( value ) {
-    if (!value) return true;
-    if (trim(String(value)).length==0) return true;
-    return false;
-}
-
-function testTrimAndEmpty(){
-    var str='OK'
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
-    str='  leading'
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
-    str='trailing   '
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
-    str='  both '
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
-    str='   '
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
-    str=''
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
-    str=null
-    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
 }
 
