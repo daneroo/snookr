@@ -7,7 +7,14 @@ function renderEditor(contest,divselector){
     var rCtx = $(divselector);
 
     var contestheader = $('<h3><i>Contest: </i></h3>');
-    contestheader.append($('<span></span>').text(contest.name));
+    //contestheader.append($('<span></span>').text(contest.name));
+    var inputElt = $('<input class="field-shorttext" size="35" type="text" value=""></input>');
+    inputElt.attr("value",contest.name);
+    inputElt.change(function(){
+        var propertyVal = $(this).attr("value");
+        contest['name']=propertyVal;
+    });
+    contestheader.append(inputElt);
 
     var stepsElt = $('<div class="steps"></div>');
     stepsElt.data('parentarray',contest.steps);
