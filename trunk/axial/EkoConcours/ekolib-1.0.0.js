@@ -1,347 +1,33 @@
 /* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * This contains common code for editor and renderer
+ *   dependancy of includes is as follows:
+ *   This file must not depend on any others.
+ *   TODO:
+ *    - ekolib-1.0.0.js
+ *    - ekolib-constants-1.0.0.js
+ *    - ekolib-data-1.0.0.js
+ *    - ekolib-editor-1.0.0.js
+ *    - ekolib-render-1.0.0.js
  */
 
-var contest1 = {
-    "name":"Win a Free VisualStudio '05 Copy!",
-    "steps":[{
-        "intro":"Texte Intro Etape 1",
-        "fields":[{
-            "type":"EKO",
-            "subtype":"prenom",
-            "label":"Prénom",
-            "validation":"required",
-            "options": []
-        },{
-            "type":"EKO",
-            "subtype":"nom",
-            "label":"Nom",
-            "validation":"none",
-            "options": []
-        },{
-            "type":"TAG",
-            "subtype":"shorttext",
-            "label":"Occupation",
-            "validation":"none",
-            "options": []
-        },{
-            "type":"TAG",
-            "subtype":"longtext",
-            "label":"Commentaire",
-            "validation":"none",
-            "options": []
-        },{
-            "type":"CHOICE",
-            "subtype":"check",
-            "label":"Check Any",
-            "validation":"none",
-            "options": [
-            {
-                "name":"gr-french",
-                "label":""
-            },
-
-            {
-                "name":"gr-english",
-                "label":"English"
-            },
-
-            {
-                "name":"gr-child",
-                "label":""
-            },
-
-            {
-                "name":"gr-adult",
-                "label":""
-            },
-
-            {
-                "name":"gr-green",
-                "label":"Enviro"
-            },
-
-            {
-                "name":"gr-techsavy",
-                "label":"Techie"
-            }
-            ]
-        },{
-            "type":"CHOICE",
-            "subtype":"dropdown",
-            "label":"Select One",
-            "validation":"none",
-            "options": [
-            {
-                "name":"gr-child",
-                "label":""
-            },
-
-            {
-                "name":"gr-adult",
-                "label":""
-            }
-            ]
-        }]
-
-    },{
-        "intro":"Texte Intro Etape 2",
-        "fields":[{
-            "type":"EKO",
-            "subtype":"couriel",
-            "label":"E-Mail",
-            "validation":"required",
-            "options": []
-        },{
-            "type":"EKO",
-            "subtype":"prenom",
-            "label":"Prénom",
-            "validation":"none",
-            "options": []
-        },{
-            "type":"EKO",
-            "subtype":"nom",
-            "label":"Nom",
-            "validation":"none",
-            "options": []
-        },{
-            "type":"TAG",
-            "subtype":"shorttext",
-            "label":"Occupation",
-            "validation":"none",
-            "options": []
-        },{
-            "type":"CHOICE",
-            "subtype":"radio",
-            "label":"Select One",
-            "validation":"none",
-            "options": [
-            {
-                "name":"gr-french",
-                "label":""
-            },
-
-            {
-                "name":"gr-english",
-                "label":"English"
-            }
-            ]
-        }]
-    }]
-};
 
 // namespace
-var eko={}; eko.contest={};
-eko.contest.FieldTypes = { // and subtypes
-    EKO : [
-    {
-        name:"prenom",
-        label:"Prénom"
-    },
-    {
-        name:"nom",
-        label:"Nom"
-    },
-    {
-        name:"couriel",
-        label:"Couriel"
-    }
-    ],
-    TAG : [
-    {
-        name:"shorttext",
-        label:"Short Text"
-    },
-    {
-        name:"longtext",
-        label:"Long Text"
-    },
-    {
-        name:"hiddentext",
-        label:"Injected Field"
-    }
-    ],
-    CHOICE : [
-    {
-        name:"dropdown",
-        label:"Drop Down (1)"
-    },
-    {
-        name:"radio",
-        label:"Radio Buttons (1)"
-    },
-    {
-        name:"check",
-        label:"CheckBoxes (mult)"
-    }
-    ]
-};
-eko.groups = [
-{
-    name:"gr-french",
-    label:"Francais"
-},
-{
-    name:"gr-english",
-    label:"Anglais"
-},
-{
-    name:"gr-child",
-    label:"Enfant"
-},
-{
-    name:"gr-teen",
-    label:"Adolescent"
-},
-{
-    name:"gr-adult",
-    label:"Adulte"
-},
-{
-    name:"gr-green",
-    label:"Vert"
-},
-{
-    name:"gr-techsavy",
-    label:"Techno"
-},
-{
-    name:"gr-bio",
-    label:"Bio"
-}
-];
+var eko={};
+eko.contest={};
 
-eko.validation = [
-{
-    name:"none",
-    label:"None"
-},
-{
-    name:"required",
-    label:"Required"
-}
-];
 
+var globalPreviewOid=222;
+function getOid(){
+    globalPreviewOid+=1;
+    return globalPreviewOid;
+}
 
 function renderJSON(contest,divselector){
-    $(divselector).html('JSON: <textarea cols="80" rows="25" name="myname">'+$.toJSON(contest)+'</textarea>');
+    $(divselector).html('JSON: <textarea cols="80" rows="25">'+$.toJSON(contest)+'</textarea>');
 }
 
-function renderEditor(contest,divselector){
-    var rCtx = $(divselector);
 
-    var contestheader = $('<h3><i>Contest: </i></h3>');
-    contestheader.append($('<span></span>').text(contest.name));
 
-    var stepsElt = $('<div class="steps"></div>');
-    stepsElt.data('parentarray',contest.steps);
-    for (var s=0;s<contest.steps.length;s++ ){
-        var step = contest.steps[s];
-        var stepElt = EkoMakeStep(step,s);
-        stepsElt.append(stepElt);
-    }
-
-    var accordionOpts = {
-        'header': "h4",
-        'active':0,
-        'collapsible':true
-    };
-    if (!$.browser.msie){
-        // haven't looked at fillSpace'
-        /* clearStyle,!autoHeight works, but breaks IE */
-        accordionOpts['autoHeight'] = false;
-        accordionOpts['clearStyle'] = true;
-    }
-
-    //var addStepBtn = $('<a href="#" class="eko-btn ui-state-default ui-corner-all"><span class="ui-icon ui-icon-plus"></span>Step</a>');
-    var addStepBtn = EkoButton('Add Step');
-    addStepBtn.click(function(){
-        var nuentry = {
-            "intro":"Texte Intro Etape "+(contest.steps.length+1),
-            "fields":[{
-                "type":"EKO",
-                "subtype":"couriel",
-                "label":"E-Mail",
-                "validation":"required",
-                "options": []
-            },{
-                "type":"CHOICE",
-                "subtype":"radio",
-                "label":"Select One",
-                "validation":"none",
-                "options": [
-                {
-                    "name":"gr-french",
-                    "label":""
-                },
-
-                {
-                    "name":"gr-english",
-                    "label":"English"
-                }
-                ]
-            }]
-        };
-        contest.steps.push(nuentry);
-        var stepElt = EkoMakeStep(nuentry,contest.steps.length-1);
-        stepsElt.append(stepElt);
-        stepsElt.accordion('destroy');
-        accordionOpts.active=contest.steps.length-1;
-        stepsElt.accordion(accordionOpts);
-        //stepsElt.accordion('activate',contest.steps.length-1);
-        return false;
-    });
-
-    rCtx.empty();
-    rCtx.append(contestheader);
-    rCtx.append(stepsElt);
-    rCtx.append($('<p />').append(addStepBtn));
-
-    // call accordion affter adding, fixes content heights...
-    stepsElt.accordion(accordionOpts);
-}
-
-function EkoMakeStep(step,s){
-    var stepElt = $('<div class="step brother"/>');
-    stepElt.append($('<h4 />').append('<a href="#" >Step '+(s+1)+'</a>'));
-
-    var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
-    var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
-    var deleteRowElt=EkoActionIcon('ui-icon-closethick');
-
-    var ctrlElt = $('<span class=accordioncontrol>Step: </span>');
-    ctrlElt.append(upArrowElt);
-    ctrlElt.append(downArrowElt);
-    ctrlElt.append(deleteRowElt);
-    upArrowElt.click(function(){
-        EkoMoveInDOM($(this),-1);
-        return false;
-    });
-    downArrowElt.click(function(){
-        EkoMoveInDOM($(this),1);
-        return false;
-    });
-    deleteRowElt.click(function(){
-        EkoRemoveInDOM($(this));
-        return false;
-    });
-
-    var introTextAreaElt = EkoMakeBoundTextArea(step,'intro');
-
-    var contentElt = $('<div/>')
-    .append(ctrlElt)
-    .append($('<span>Step Intro Text: </span><br>'))
-    .append(introTextAreaElt)
-
-    var fieldsEditorElt = EkoMakeFieldsEditorGroup(step.fields);
-
-    contentElt.append(fieldsEditorElt)
-
-    stepElt.append(contentElt);
-    return stepElt;
-
-}
 function EkoMakeBoundTextArea(boundDict,propertyName){
     var introTextAreaElt = $('<textarea cols="40" rows="5"/>');
     introTextAreaElt.text(boundDict[propertyName]);
@@ -402,266 +88,8 @@ function EkoMakeBoundSelect(options,boundDict,propertyName){
     return selElt;
 }
 
-function EkoMakeGSLGroup(boundarray){
-    var choiceditorelt = $('<div class="choiceeditor"></div')
-    choiceditorelt.data('parentarray', boundarray);
-
-    var choiceditorlistelt = $('<div class="choiceeditorlist"></div')
-    var addGSLBtn = EkoButton('Add Choice').click(function() {
-        var nuentry = {
-            "name":"gr-new",
-            "label":"Nu Label"
-        };
-        boundarray.push(nuentry);
-        choiceditorlistelt.append(EkoGroupSelectAndLabel(nuentry));
-        return false;
-    });
-    choiceditorelt.append(choiceditorlistelt);
-    choiceditorelt.append($('<p />').append(addGSLBtn));
-    //alert($.toJSON(boundarray));
-    var parentarray = choiceditorelt.data('parentarray');
-    for (var z=0;z<parentarray.length;z++){
-        choiceditorlistelt.append(EkoGroupSelectAndLabel(parentarray[z]));
-    }
-    return choiceditorelt;
-}
-
-function EkoMakeFieldsEditorGroup(boundarray){
-    var fieldeditorelt = $('<div class="fieldeditor"></div')
-
-    var fieldsElt = $('<div class="fields"></div>');
-    fieldsElt.data('parentarray',boundarray);
-    for (var f=0;f<boundarray.length;f++ ){
-        var field = boundarray[f];
-        var fieldElt = EkoFieldBase(field);
-        fieldsElt.append(fieldElt);
-    }
-
-    fieldeditorelt.append(fieldsElt)
-
-    var addFieldCtrlElt = $('<div class="fieldcontrol" />');
-    var addFieldEKOBtn = EkoButton('EKO Field');
-    var addFieldTAGBtn = EkoButton('TAG Field');
-    var addFieldCHOICEBtn = EkoButton('Choice Field');
-
-    addFieldCtrlElt.append(addFieldEKOBtn);
-    addFieldCtrlElt.append(addFieldTAGBtn);
-    addFieldCtrlElt.append(addFieldCHOICEBtn);
-    addFieldEKOBtn.click(function(){
-        var nuentry = {
-            "type":"EKO",
-            "subtype":"nom",
-            "label":"Nom",
-            "validation":"none",
-            "options": []
-        };
-        boundarray.push(nuentry);
-        fieldsElt.append(EkoFieldBase(nuentry));
-        return false;
-    });
-    addFieldTAGBtn.click(function(){
-        var nuentry = {
-            "type":"TAG",
-            "subtype":"shorttext",
-            "label":"Nu Label",
-            "validation":"none",
-            "options": []
-        };
-        boundarray.push(nuentry);
-        fieldsElt.append(EkoFieldBase(nuentry));
-        return false;
-    });
-    addFieldCHOICEBtn.click(function(){
-        var nuentry = {
-            "type":"CHOICE",
-            "subtype":"dropdown",
-            "label":"Nu Label",
-            "validation":"none",
-            "options": [
-            {
-                "name":"gr-french",
-                "label":""
-            },
-
-            {
-                "name":"gr-english",
-                "label":"English"
-            }
-            ]
-        };
-        boundarray.push(nuentry);
-        fieldsElt.append(EkoFieldBase(nuentry));
-        return false;
-    });
-    fieldeditorelt.append(addFieldCtrlElt);
-    return fieldeditorelt;
-}
-function EkoGroupSelect(selname){
-    //eko.groups = [
-    // {name:"gr-french", label:"Francais"},
-    var selElt = $('<select></select>');
-    for (var g=0; g<eko.groups.length; g++) {
-        var gr = eko.groups[g];
-        var optElt = $('<option value="'+gr.name+'">'+gr.name+'</option>');
-        if (gr.name==selname){
-            optElt.attr('selected', 'selected');
-        }
-        selElt.append(optElt);
-    }
-    return selElt;
-}
-
-function EkoGroupDefaultLabel(name){
-    for (var g=0; g<eko.groups.length; g++) {
-        var gr = eko.groups[g];
-        if (name==gr.name){
-            return gr.label;
-        }
-    }
-    return "Label";
-}
-
-function EkoFieldBase(bounddict){
-    // bound parts, for diferent fied type, with a hidden for type
-    // drop down for choice, etc.
-    bounddict = bounddict || {
-        "type":"EKO",
-        "subtype":"nom",
-        "label":"Nom",
-        "validation":"none"
-    };
-    var typeLabelElt=$('<div class="fieldtypelabel">'+bounddict.type+':</div>');
-    //typeLabelElt.text(bounddict.type+':');
-
-    // subtype elt
-    var subtypeSelElt = EkoMakeBoundSelect(eko.contest.FieldTypes[bounddict.type],bounddict,'subtype');
-
-    // label elt
-    var labelInputElt=EkoMakeBoundTextInput(bounddict,'label');
-    var validationSelElt = EkoMakeBoundSelect(eko.validation,bounddict,'validation');
-    
-    var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
-    var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
-    var deleteRowElt=EkoActionIcon('ui-icon-closethick');
 
 
-    // not here...
-    var choicegrpelt;
-    if (bounddict.type=='CHOICE'){
-        choicegrpelt = EkoMakeGSLGroup(bounddict.options);
-    }
-
-
-    // Temporary....
-    // hapens to be the <select/> element directly...
-    var jsonElt=$('<pre class="jsondbg"></pre>');
-    jsonElt.text($.toJSON(bounddict));
-    subtypeSelElt.change(function(){
-        jsonElt.text($.toJSON(bounddict));
-    });
-    labelInputElt.change(function(){
-        jsonElt.text($.toJSON(bounddict));
-    });
-    validationSelElt.change(function(){
-        jsonElt.text($.toJSON(bounddict));
-    });
-
-    upArrowElt.click(function(){
-        EkoMoveInDOM($(this),-1);
-        return false;
-    });
-    downArrowElt.click(function(){
-        EkoMoveInDOM($(this),1);
-        return false;
-    });
-    deleteRowElt.click(function(){
-        EkoRemoveInDOM($(this),1);
-        return false;
-    });
-
-
-    var combined=$('<div class="field"/>');
-    combined.append(typeLabelElt);
-    combined.append(subtypeSelElt);
-    combined.append(labelInputElt);
-    combined.append(validationSelElt);
-    
-    combined.append(upArrowElt);
-    combined.append(downArrowElt);
-    combined.append(deleteRowElt);
-    // debug off
-    //combined.append(jsonElt);
-    //may be null:
-    combined.append(choicegrpelt);
-    combined.addClass('brother');
-    return combined;
-
-}
-function EkoGroupSelectAndLabel(bounddata){
-    bounddata = bounddata || {
-        name:'gr-french',
-        label:''
-    };
-    var grSelElt = EkoGroupSelect(bounddata.name);
-    var grLabelElt=$('<input type="text" value=""></input>');
-    grLabelElt.attr("value",bounddata.label);
-    grLabelElt.css('margin-left','10px');
-    var adjustDefaultLabel = function(){
-        var defname=EkoGroupDefaultLabel(bounddata.name);
-        if (bounddata.label==''){
-            grLabelElt.attr("value",defname);
-            grLabelElt.css('color','gray');
-        }
-    }
-
-    var upArrowElt=EkoActionIcon('ui-icon-arrowthick-1-n');
-    var downArrowElt=EkoActionIcon('ui-icon-arrowthick-1-s');
-    var deleteRowElt=EkoActionIcon('ui-icon-closethick');
-
-    var jsonElt=$('<pre class="jsondbg"></pre>');
-
-    jsonElt.text($.toJSON(bounddata));
-    grSelElt.change(function(){
-        //alert($.toJSON($("option:selected", this)));
-        var name = $("option:selected", this).val();
-        bounddata.name = name;
-        adjustDefaultLabel();
-        jsonElt.text($.toJSON(bounddata));
-    });
-    grLabelElt.change(function(){
-        var label = $(this).attr("value");
-        // save
-        bounddata.label=label;
-        grLabelElt.css('color','');
-        grSelElt.change();
-    });
-    upArrowElt.click(function(){
-        EkoMoveInDOM($(this),-1);
-        return false;
-    });
-    downArrowElt.click(function(){
-        EkoMoveInDOM($(this),1);
-        return false;
-    });
-    deleteRowElt.click(function(){
-        EkoRemoveInDOM($(this),1);
-        return false;
-    });
-    
-    
-
-    var combined=$('<div></div>');
-    combined.append(grSelElt);
-    combined.append(grLabelElt);
-    combined.append(upArrowElt);
-    combined.append(downArrowElt);
-    combined.append(deleteRowElt);
-    // debug off
-    //combined.append(jsonElt);
-    adjustDefaultLabel();
-    combined.addClass('brother');
-    return combined;
-}
 
 function EkoRemoveInDOM(element) {
     if (element==undefined) return
@@ -803,3 +231,47 @@ function EkoIconWrapper(label,iconClass,cssClass) {
     })
     return btnElt;
 }
+
+
+// Removes leading whitespaces
+function LTrim( value ) {
+    if (!value) return value;
+    var re = /\s*((\S+\s*)*)/;
+    return value.replace(re, "$1");
+}
+
+// Removes ending whitespaces
+function RTrim( value ) {
+    if (!value) return value;
+    var re = /((\s*\S+)*)\s*/;
+    return value.replace(re, "$1");
+}
+
+// Removes leading and ending whitespaces
+function trim( value ) {
+    return LTrim(RTrim(value));
+}
+
+function isEmpty( value ) {
+    if (!value) return true;
+    if (trim(String(value)).length==0) return true;
+    return false;
+}
+
+function testTrimAndEmpty(){
+    var str='OK'
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='  leading'
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='trailing   '
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='  both '
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str='   '
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str=''
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+    str=null
+    alert('str=|'+str+'| trm=|'+trim(str)+'| isEmtpy:'+isEmpty(str))
+}
+
