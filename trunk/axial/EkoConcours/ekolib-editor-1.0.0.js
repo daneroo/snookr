@@ -233,16 +233,6 @@ function EkoGroupSelect(selname){
     return selElt;
 }
 
-function EkoGroupDefaultLabel(name){
-    for (var g=0; g<eko.groups.length; g++) {
-        var gr = eko.groups[g];
-        if (name==gr.name){
-            return gr.label;
-        }
-    }
-    return "Label";
-}
-
 function EkoFieldBase(bounddict){
     // bound parts, for diferent fied type, with a hidden for type
     // drop down for choice, etc.

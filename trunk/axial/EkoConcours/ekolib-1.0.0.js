@@ -27,6 +27,15 @@ function renderJSON(contest,divselector){
 }
 
 
+function EkoGroupDefaultLabel(name){
+    for (var g=0; g<eko.groups.length; g++) {
+        var gr = eko.groups[g];
+        if (name==gr.name){
+            return gr.label;
+        }
+    }
+    return "Label";
+}
 
 function EkoMakeBoundTextArea(boundDict,propertyName){
     var introTextAreaElt = $('<textarea cols="40" rows="5"/>');
