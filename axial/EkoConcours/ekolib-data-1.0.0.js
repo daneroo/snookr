@@ -1,6 +1,6 @@
 /* 
  * This contains seed data for testing
- *  -- requires ekolib-constants
+ *  -- requires ekolib-constants (or it should)
  */
 
 
