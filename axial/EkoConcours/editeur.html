@@ -45,12 +45,13 @@
                     renderJSON(contest1,'#eko-contest-json');
                     return false;
                 });
-
+/*
                 $.get('contest2.json', function(data) {
-                    $('.result').html(data);
-                    alert('Load was performed.');
+                    //alert('Load was performed.: '+data);
+                    var coco = $.evalJSON(data);
+                    alert(coco.name);
                 });
-
+*/
             });
         </script>
         <style type="text/css">
