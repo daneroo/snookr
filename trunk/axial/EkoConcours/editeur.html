@@ -27,6 +27,7 @@
                     url: 'eko-groups.json',
                     //data: data,
                     dataType: 'html', // html,xml,json,jsonp
+                    async: false,
                     success: function(data) {
                         var loadedGroups = $.evalJSON(data);
                         //alert(loadedContest.name);
@@ -67,6 +68,7 @@
                     url: 'contest2.json',
                     //data: data,
                     dataType: 'html', // html,xml,json,jsonp
+                    async: false,
                     success: function(data) {
                         var loadedContest = $.evalJSON(data);
                         //alert(loadedContest.name);
