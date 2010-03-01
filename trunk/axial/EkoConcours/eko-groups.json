@@ -1,0 +1,41 @@
+{
+    'groups' : [
+
+    {
+        'name':"gr-french",
+        'label':"Francais"
+    },
+    {
+        'name':"gr-english",
+        'label':"Anglais"
+    },
+    {
+        'name':"gr-child",
+        'label':"Enfant"
+    },
+    {
+        'name':"gr-teen",
+        'label':"Adolescent"
+    },
+    {
+        'name':"gr-adult",
+        'label':"Adulte"
+    },
+    {
+        'name':"gr-green",
+        'label':"Vert"
+    },
+    {
+        'name':"gr-techsavy",
+        'label':"Techno"
+    },
+    {
+        'name':"gr-bio",
+        'label':"Bio"
+    },
+    {
+        'name':"gr-dyn",
+        'label':"Dynamique"
+    }        
+    ]
+}
