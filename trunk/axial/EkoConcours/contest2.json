@@ -1,26 +1,25 @@
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 {
-    "name":"Contest 1",
+    "name":"Contest 2",
     "steps":[{
         "intro":"Texte Intro Etape 1",
         "fields":[{
             "type":"EKO",
             "subtype":"prenom",
             "label":"Prénom",
-            "validation":"None"
+            "validation":"None",
+            "options": []
         },{
             "type":"EKO",
             "subtype":"nom",
             "label":"Nom",
-            "validation":"None"
+            "validation":"None",
+            "options": []
         },{
             "type":"TAG",
             "subtype":"shorttext",
             "label":"Occupation",
-            "validation":"None"
+            "validation":"None",
+            "options": []
         }]
     }]
 }
