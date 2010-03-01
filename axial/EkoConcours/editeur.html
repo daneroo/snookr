@@ -46,6 +46,11 @@
                     return false;
                 });
 
+                $.get('contest2.json', function(data) {
+                    $('.result').html(data);
+                    alert('Load was performed.');
+                });
+
             });
         </script>
         <style type="text/css">
@@ -105,6 +110,7 @@
         <h1>Status</h1>
         <pre id="status">status</pre>
         <div id="previewpost">preview post</div>
+        <div id="result">result...</div>
 
         <!-- Test css for icons with/without text...
         <h1>Explorer icon tests</h1>
