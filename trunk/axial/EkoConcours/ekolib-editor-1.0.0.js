@@ -231,7 +231,7 @@ function EkoGroupSelect(selname){
     var selElt = $('<select></select>');
     for (var g=0; g<eko.groups.length; g++) {
         var gr = eko.groups[g];
-        var optElt = $('<option value="'+gr.name+'">'+gr.name+'</option>');
+        var optElt = $('<option value="'+gr.name+'">'+EkoGroupDefaultLabel(gr.name)+'</option>');
         if (gr.name==selname){
             optElt.attr('selected', 'selected');
         }
