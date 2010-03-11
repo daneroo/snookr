@@ -14,8 +14,8 @@ and open the template in the editor.
         <script type="text/javascript">
             //<![CDATA[
 
-            $(function()
-            {
+            var htmlString;
+            $(function() {
                 var config = {
                     ZZtoolbar:
                         [
@@ -27,8 +27,27 @@ and open the template in the editor.
                 // Initialize the editor.
                 // Callback function can be passed and executed after full instance creation.
                 $('.jquery_ckeditor').ckeditor(config);
-                $('#seteroo').click(function(){
-                    $( '.jquery_ckeditor' ).val( 'my new content '+new Date() );
+                $('#setBtn').click(function(){
+                    //$( '.jquery_ckeditor' ).val( 'my new content '+new Date() );
+                    $.ajax({
+                        url: 'gabarit1.html',
+                        //data: data,
+                        dataType: 'html', // html,xml,json,jsonp
+                        async: false,
+                        success: function(data) {
+                            htmlString = data;
+                            $( '.jquery_ckeditor' ).val( htmlString );
+                            $( '#preview' ).html( htmlString );
+                        }
+                    });
+                });
+                $('#replaceBtn').click(function(){
+                    $( '#preview' ).find('ekko-placeholder').each(function(index){
+                        var aType = $(this).attr('type');
+                        var anId = $(this).attr('id');
+                        var aName = $(this).attr('name');
+                        $(this).text('['+aType+':'+anId+':'+aName+']');
+                    });
                 });
             });
             //]]>
@@ -40,7 +59,8 @@ and open the template in the editor.
             CKEditor Sample
         </h1>
         <!-- This <div> holds alert messages to be display in the sample page. -->
-        <div><a id="seteroo"href="#">Set some content</a></div>
+        <div><a id="setBtn" href="#">Set some content</a></div>
+        <div><a id="replaceBtn"href="#">Replace tags</a></div>
         <div id="alerts">
             <noscript>
                 <p>
@@ -58,8 +78,7 @@ and open the template in the editor.
 
             <textarea class="jquery_ckeditor" cols="80" id="editor1" name="editor1" rows="10">&lt;p&gt;This is some &lt;strong&gt;sample text&lt;/strong&gt;. You are using &lt;a href="http://ckeditor.com/"&gt;CKEditor&lt;/a&gt;.&lt;/p&gt;</textarea>
         </p>
-        <p>
-            <input type="submit" value="Submit" />
-        </p>
+
+        <div id="preview"></div>
     </body>
 </html>
