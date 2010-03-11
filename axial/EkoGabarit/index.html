@@ -4,11 +4,62 @@ and open the template in the editor.
 -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-    <title></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  </head>
-  <body>
-    TODO write content
-  </body>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+        <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript" src="js/ckeditor/adapters/jquery.js"></script>
+        <link href="gabarit.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript">
+            //<![CDATA[
+
+            $(function()
+            {
+                var config = {
+                    ZZtoolbar:
+                        [
+                        ['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
+                        ['UIColor']
+                    ]
+                };
+
+                // Initialize the editor.
+                // Callback function can be passed and executed after full instance creation.
+                $('.jquery_ckeditor').ckeditor(config);
+                $('#seteroo').click(function(){
+                    $( '.jquery_ckeditor' ).val( 'my new content '+new Date() );
+                });
+            });
+            //]]>
+        </script>
+
+    </head>
+    <body>
+        <h1>
+            CKEditor Sample
+        </h1>
+        <!-- This <div> holds alert messages to be display in the sample page. -->
+        <div><a id="seteroo"href="#">Set some content</a></div>
+        <div id="alerts">
+            <noscript>
+                <p>
+                    <strong>CKEditor requires JavaScript to run</strong>. In a browser with no JavaScript
+                    support, like yours, you should still see the contents (HTML data) and you should
+                    be able to edit it normally, without a rich editor interface.
+                </p>
+            </noscript>
+        </div>
+        <!-- This <fieldset> holds the HTML that you will usually find in your
+         pages. -->
+        <p>
+            <label for="editor1">
+            Editor 1:</label><br />
+
+            <textarea class="jquery_ckeditor" cols="80" id="editor1" name="editor1" rows="10">&lt;p&gt;This is some &lt;strong&gt;sample text&lt;/strong&gt;. You are using &lt;a href="http://ckeditor.com/"&gt;CKEditor&lt;/a&gt;.&lt;/p&gt;</textarea>
+        </p>
+        <p>
+            <input type="submit" value="Submit" />
+        </p>
+    </body>
 </html>
