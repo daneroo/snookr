@@ -29,3 +29,8 @@ root {
     border: solid gray;
     padding:10px;
 }
+
+#topSpace {
+    width: 600px;
+}
+
