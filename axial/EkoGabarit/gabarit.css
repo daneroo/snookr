@@ -17,12 +17,12 @@ root {
 
 
 .editable {
-    border: solid #FFFFE0; /* light yellow */
-    border: solid green; /* light yellow */
+    background-color: #FFFFE0; /* light yellow */
 }
 
 .editablehover {
-    border: 2px solid red;
+    background-color: yellow; /* light yellow */
+    border: solid red;
 }
 
 #previewWrapper {
