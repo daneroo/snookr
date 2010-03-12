@@ -21,8 +21,8 @@ root {
 }
 
 .editablehover {
-    background-color: yellow; /* light yellow */
-    border: solid red;
+    background-color: yellow !important; /* light yellow */
+    color:purple !important;
 }
 
 #previewWrapper {
