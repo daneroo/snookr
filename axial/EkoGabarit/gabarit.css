@@ -15,3 +15,16 @@ root {
     display: block;
 }
 
+
+.editable {
+    border: solid #FFFFE0; /* light yellow */
+    border: solid green; /* light yellow */
+}
+
+.editablehover {
+    border: 2px solid red;
+}
+
+#previewWrapper {
+    border: solid red;
+}
