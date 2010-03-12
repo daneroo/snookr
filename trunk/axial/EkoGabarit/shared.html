@@ -40,10 +40,13 @@ and open the template in the editor.
                 var dlg_height = ck_editor_height+dlg_height_padding;
                 var dialogElt = $('<div><a class="save" href="#">save</a></div>').append(ckElt);
                 $('#editordiv').append(dialogElt);
-                dialogElt.resizable().draggable();
+                //dialogElt.resizable().draggable();
+                dialogElt.hide();
                 dialogElt.find('.save').click(function(event, ui) {
                     if(currentEditingElt){
                         currentEditingElt.html(ckElt.val());
+                        currentEditingElt.show();
+                        dialogElt.hide();
                     }
                     return false;
                 });
@@ -107,7 +110,9 @@ and open the template in the editor.
                         $(this).dblclick(function(){
                             currentEditingElt = $(this);
                             ckElt.val( currentEditingElt.html() );
-                            dialogElt.dialog('open');
+                            currentEditingElt.hide();
+                            dialogElt.insertAfter(currentEditingElt);
+                            dialogElt.show();
                         });
                     });
                 });
