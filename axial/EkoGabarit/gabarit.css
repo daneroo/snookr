@@ -26,5 +26,6 @@ root {
 }
 
 #previewWrapper {
-    border: solid red;
+    border: solid gray;
+    padding:10px;
 }
