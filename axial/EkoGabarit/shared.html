@@ -39,7 +39,7 @@ and open the template in the editor.
                 var dlg_height_padding = 134; //depends on toolbar choices...
                 var dlg_height = ck_editor_height+dlg_height_padding;
                 var dialogElt = $('<div><a class="save" href="#">save</a></div>').append(ckElt);
-                $('#editor').append(dialogElt);
+                $('#editordiv').append(dialogElt);
                 dialogElt.resizable().draggable();
                 dialogElt.find('.save').click(function(event, ui) {
                     if(currentEditingElt){
@@ -47,6 +47,7 @@ and open the template in the editor.
                     }
                     return false;
                 });
+                $('#topSpace').resizable().draggable();
 
                 var ck_config = {
                     toolbar:'Basic',
@@ -147,7 +148,7 @@ and open the template in the editor.
             </noscript>
         </div>
         <div id="topSpace"></div>
-        <div id="editor"></div>
+        <div id="editordiv"></div>
         <div id="previewWrapper">
             <div id="preview">Preview du Contenu</div>
         </div>
