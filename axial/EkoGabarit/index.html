@@ -75,7 +75,7 @@ and open the template in the editor.
                 // Callback function can be passed and executed after full instance creation.
                 var ckeditor = null;
                 var ck_initCallback = function(){
-                    ckeditor = $('.jquery_ckeditor').ckeditorGet();
+                    ckeditor = ckElt.ckeditorGet();
                 }
                 $('.dlg_ckeditor').ckeditor(ck_initCallback,ck_config);
 
@@ -94,6 +94,14 @@ and open the template in the editor.
                         }
                     });
                 });
+
+                var currentEditingElt=null;
+                var dlgCloseHandler = function(event, ui) {
+                    //alert('editor is dirty: '+ckeditor.cjeckDirty());
+                    currentEditingElt.html(ckElt.val());
+                };
+                dialogElt.bind('dialogclose', dlgCloseHandler);
+
                 $('#injectBtn').click(function(){
                     $( '#preview' ).find('ekko-placeholder').each(function(index){
                         $(this).addClass("editable");
@@ -104,7 +112,8 @@ and open the template in the editor.
                             $(this).removeClass("editablehover");
                         });
                         $(this).dblclick(function(){
-                            ckElt.val( $(this).html() );
+                            currentEditingElt = $(this);
+                            ckElt.val( currentEditingElt.html() );
                             dialogElt.dialog('open');
                         });
                     });
