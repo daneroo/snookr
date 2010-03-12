@@ -31,6 +31,9 @@ root {
 }
 
 #topSpace {
-    width: 600px;
+    width: 400px;
 }
 
+#editordiv {
+    width: 300px;
+}
