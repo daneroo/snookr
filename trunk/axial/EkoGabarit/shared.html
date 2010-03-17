@@ -25,44 +25,54 @@ and open the template in the editor.
         <script type="text/javascript">
             //<![CDATA[
 
+            // scope so dialog can see us
+            var currentEditingElt=null;
+            var ckElt = null
+            var dialogElt = null;
+
+            var ekoSaveCallback = function(editor) {
+                if(currentEditingElt){
+                    //alert(editor.getData());
+                    currentEditingElt.html(ckElt.val());
+                    currentEditingElt.show();
+                    dialogElt.hide();
+                } else {
+                    alert('no cirrent Elt');
+                }
+            };
 
             var htmlString;
             $(function() {
 
-                var ckElt = $('<textarea class="dlg_ckeditor" cols="80" id="editor1" name="editor1" rows="10">CONTENT</textarea>');
+                ckElt = $('<textarea class="dlg_ckeditor" cols="80" id="editor1" name="editor1" rows="10">CONTENT</textarea>');
 
                 // height 100% is hard to acheive...
                 //var ck_editor_height='100%'; //500;
                 //var dlg_height = 600;//ck_editor_height+dlg_height_padding;
 
-                var ck_editor_height=200;
+                var ck_editor_height=300;
                 var dlg_height_padding = 134; //depends on toolbar choices...
                 var dlg_height = ck_editor_height+dlg_height_padding;
-                var dialogElt = $('<div><a class="save" href="#">save</a></div>').append(ckElt);
+                dialogElt = $('<div style="position:absolute;">').append(ckElt);
                 $('#editordiv').append(dialogElt);
-                //dialogElt.resizable().draggable();
+                dialogElt.resizable().draggable();
                 dialogElt.hide();
-                dialogElt.find('.save').click(function(event, ui) {
-                    if(currentEditingElt){
-                        currentEditingElt.html(ckElt.val());
-                        currentEditingElt.show();
-                        dialogElt.hide();
-                    }
-                    return false;
-                });
-                $('#topSpace').resizable().draggable();
+                //$('#topSpace').resizable().draggable();
 
                 var ck_config = {
-                    toolbar:'Basic',
-                    ZZtoolbar:
-                        [
+                    BSCtoolbar:'Basic',
+                    toolbar: [
+                        [ 'ekosave','NewPage','Preview' ,'-', 'Bold', 'Italic' ]
+                    ],
+                    extraPlugins:'ekosave',
+                    ZZtoolbar: [
                         ['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
                         ['UIColor']
                     ],
                     resize_enabled : false,
                     height: ck_editor_height,
                     sharedSpaces :	{
-                        top : 'topSpace'
+                        ZZtop : 'topSpace'
                     }
                 };
 
@@ -90,7 +100,8 @@ and open the template in the editor.
                     });
                 });
 
-                var currentEditingElt=null;
+                //var currentEditingElt=null;
+
                 /*var dlgCloseHandler = function(event, ui) {
                     //alert('editor is dirty: '+ckeditor.cjeckDirty());
                     currentEditingElt.html(ckElt.val());
@@ -109,10 +120,30 @@ and open the template in the editor.
                         });
                         $(this).dblclick(function(){
                             currentEditingElt = $(this);
+                            var celtoff = currentEditingElt.offset();
+                            //alert('pos: '+$.toJSON(celtoff)+' '+currentEditingElt.width()+'x'+currentEditingElt.height());
+
                             ckElt.val( currentEditingElt.html() );
-                            currentEditingElt.hide();
-                            dialogElt.insertAfter(currentEditingElt);
+                            //currentEditingElt.hide();
+                            //dialogElt.insertAfter(currentEditingElt);
                             dialogElt.show();
+                            var dialogEltOffset = dialogElt.offset()
+                            var contentEltOffset = dialogElt.find('.cke_contents').offset();
+                            var compensate = {
+                                left : dialogEltOffset.left-contentEltOffset.left,
+                                top: dialogEltOffset.top-contentEltOffset.top
+                            };
+                            dialogElt.animate({
+                                'left':celtoff.left+compensate.left,
+                                'top':celtoff.top+compensate.top
+                            });
+                            //dialogElt.offset({
+                            //    'left':celtoff.left,
+                            //    'top':celtoff.top
+                            //});
+                            //$('#topSpace').offset({top:100,left:100});
+                            //$('#topSpace').animate({'left' : "+=50px"});
+
                         });
                     });
                 });
@@ -129,6 +160,9 @@ and open the template in the editor.
                 $('#openBtn').click(function() {
                     dialogElt.dialog('open');
                 });
+
+                $('#setBtn').click();
+                $('#injectBtn').click();
             });
             //]]>
         </script>
@@ -152,10 +186,10 @@ and open the template in the editor.
                 </p>
             </noscript>
         </div>
-        <div id="topSpace"></div>
-        <div id="editordiv"></div>
         <div id="previewWrapper">
             <div id="preview">Preview du Contenu</div>
         </div>
+        <!--<div id="topSpace"></div>-->
+        <div id="editordiv"></div>
     </body>
 </html>
