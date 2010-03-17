@@ -121,29 +121,29 @@ and open the template in the editor.
                         $(this).dblclick(function(){
                             currentEditingElt = $(this);
                             var celtoff = currentEditingElt.offset();
+                            var celtwidth = currentEditingElt.width();
                             //alert('pos: '+$.toJSON(celtoff)+' '+currentEditingElt.width()+'x'+currentEditingElt.height());
 
                             ckElt.val( currentEditingElt.html() );
                             //currentEditingElt.hide();
                             //dialogElt.insertAfter(currentEditingElt);
                             dialogElt.show();
-                            var dialogEltOffset = dialogElt.offset()
-                            var contentEltOffset = dialogElt.find('.cke_contents').offset();
+                            var dialogEltOffset = dialogElt.offset();
+                            var contentElt = dialogElt.find('.cke_contents');
+                            var contentEltOffset = contentElt.offset();
                             var compensate = {
                                 left : dialogEltOffset.left-contentEltOffset.left,
-                                top: dialogEltOffset.top-contentEltOffset.top
+                                top: dialogEltOffset.top-contentEltOffset.top,
+                                width: dialogElt.width()-contentElt.width()
                             };
-                            dialogElt.animate({
+                            $('#status').text('w:'+celtwidth+' -> '+$.toJSON(compensate));
+                            dialogElt.css({
                                 'left':celtoff.left+compensate.left,
                                 'top':celtoff.top+compensate.top
                             });
-                            //dialogElt.offset({
-                            //    'left':celtoff.left,
-                            //    'top':celtoff.top
-                            //});
-                            //$('#topSpace').offset({top:100,left:100});
-                            //$('#topSpace').animate({'left' : "+=50px"});
-
+                            var nuwidth = celtwidth+compensate.width;
+                            if (nuwidth<200) nuwidth=200;
+                            dialogElt.width(nuwidth);
                         });
                     });
                 });
@@ -186,6 +186,7 @@ and open the template in the editor.
                 </p>
             </noscript>
         </div>
+        <div id="status"></div>
         <div id="previewWrapper">
             <div id="preview">Preview du Contenu</div>
         </div>
