@@ -21,30 +21,33 @@ and open the template in the editor.
 
         <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
         <script type="text/javascript" src="js/ckeditor/adapters/jquery.js"></script>
+
+        <script type="text/javascript" src="ekolib-gabarit-1.0.0.js"></script>
+
         <link href="gabarit.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
             //<![CDATA[
 
             // scope so dialog can see us
-            var currentEditingElt=null;
-            var ckElt = null
-            var dialogElt = null;
 
             var ekoSaveCallback = function(editor) {
-                if(currentEditingElt){
+                var ekoG = editor.ekoGabarit;
+                if(!ekoG) return;
+                if(ekoG.currentEditingElt){
                     //alert(editor.getData());
-                    currentEditingElt.html(ckElt.val());
-                    currentEditingElt.show();
-                    dialogElt.hide();
+                    ekoG.currentEditingElt.html(ekoG.ckElt.val());
+                    ekoG.currentEditingElt.show();
+                    ekoG.dialogElt.hide();
+                    //alert($.toJSON(ekoG));
                 } else {
                     alert('no cirrent Elt');
                 }
             };
 
-            var htmlString;
             $(function() {
+                var ekoG = new EkoGabarit('#preview');
 
-                ckElt = $('<textarea class="dlg_ckeditor" cols="80" id="editor1" name="editor1" rows="10">CONTENT</textarea>');
+                ekoG.ckElt = $('<textarea class="dlg_ckeditor" cols="80" id="editor1" name="editor1" rows="10">CONTENT</textarea>');
 
                 // height 100% is hard to acheive...
                 //var ck_editor_height='100%'; //500;
@@ -53,10 +56,10 @@ and open the template in the editor.
                 var ck_editor_height=300;
                 var dlg_height_padding = 134; //depends on toolbar choices...
                 var dlg_height = ck_editor_height+dlg_height_padding;
-                dialogElt = $('<div style="position:absolute;">').append(ckElt);
-                $('#editordiv').append(dialogElt);
-                dialogElt.resizable().draggable();
-                dialogElt.hide();
+                ekoG.dialogElt = $('<div style="position:absolute;">').append(ekoG.ckElt);
+                $('#editordiv').append(ekoG.dialogElt);
+                ekoG.dialogElt.resizable().draggable();
+                ekoG.dialogElt.hide();
                 //$('#topSpace').resizable().draggable();
 
                 var ck_config = {
@@ -76,77 +79,15 @@ and open the template in the editor.
                     }
                 };
 
-                // Initialize the editor.
-                // Callback function can be passed and executed after full instance creation.
-                var ckeditor = null;
-                var ck_initCallback = function(){
-                    ckeditor = ckElt.ckeditorGet();
-                }
-                $('.dlg_ckeditor').ckeditor(ck_initCallback,ck_config);
-
                 // callbacks
                 $('#setBtn').click(function(){
-                    //$( '.jquery_ckeditor' ).val( 'my new content '+new Date() );
-                    $.ajax({
-                        url: 'gabarit1.html',
-                        //data: data,
-                        dataType: 'html', // html,xml,json,jsonp
-                        async: false,
-                        success: function(data) {
-                            htmlString = data;
-                            //ckElt.val( htmlString );
-                            $( '#preview' ).html( htmlString );
-                        }
-                    });
+                    ekoG.load('gabarit1.html');
                 });
-
-                //var currentEditingElt=null;
-
-                /*var dlgCloseHandler = function(event, ui) {
-                    //alert('editor is dirty: '+ckeditor.cjeckDirty());
-                    currentEditingElt.html(ckElt.val());
-                };
-                dialogElt.bind('dialogclose', dlgCloseHandler);
-                 */
-
                 $('#injectBtn').click(function(){
-                    $( '#preview' ).find('ekko-placeholder').each(function(index){
-                        $(this).addClass("editable");
-                        $(this).hover(  function () {
-                            $(this).addClass("editablehover");
-                        },
-                        function () {
-                            $(this).removeClass("editablehover");
-                        });
-                        $(this).dblclick(function(){
-                            currentEditingElt = $(this);
-                            var celtoff = currentEditingElt.offset();
-                            var celtwidth = currentEditingElt.width();
-                            //alert('pos: '+$.toJSON(celtoff)+' '+currentEditingElt.width()+'x'+currentEditingElt.height());
-
-                            ckElt.val( currentEditingElt.html() );
-                            //currentEditingElt.hide();
-                            //dialogElt.insertAfter(currentEditingElt);
-                            dialogElt.show();
-                            var dialogEltOffset = dialogElt.offset();
-                            var contentElt = dialogElt.find('.cke_contents');
-                            var contentEltOffset = contentElt.offset();
-                            var compensate = {
-                                left : dialogEltOffset.left-contentEltOffset.left,
-                                top: dialogEltOffset.top-contentEltOffset.top,
-                                width: dialogElt.width()-contentElt.width()
-                            };
-                            $('#status').text('w:'+celtwidth+' -> '+$.toJSON(compensate));
-                            dialogElt.css({
-                                'left':celtoff.left+compensate.left,
-                                'top':celtoff.top+compensate.top
-                            });
-                            var nuwidth = celtwidth+compensate.width;
-                            if (nuwidth<200) nuwidth=200;
-                            dialogElt.width(nuwidth);
-                        });
-                    });
+                    ekoG.inject();
                 });
+
+
                 $('#replaceBtn').click(function(){
                     $( '#preview' ).find('ekko-placeholder').each(function(index){
                         var aType = $(this).attr('type');
@@ -157,12 +98,18 @@ and open the template in the editor.
                 });
 
 
-                $('#openBtn').click(function() {
-                    dialogElt.dialog('open');
-                });
+                ekoG.load('gabarit1.html');
+                ekoG.inject();
 
-                $('#setBtn').click();
-                $('#injectBtn').click();
+                // Initialize the editor.
+                // Callback function can be passed and executed after full instance creation.
+                var ckeditor = null;
+                var ck_initCallback = function(){
+                    ckeditor = ekoG.ckElt.ckeditorGet();
+                    ckeditor.ekoGabarit = ekoG;
+                }
+                $('.dlg_ckeditor').ckeditor(ck_initCallback,ck_config);
+
             });
             //]]>
         </script>
@@ -175,7 +122,6 @@ and open the template in the editor.
         <div><a id="setBtn" href="#">Set some content</a></div>
         <div><a id="injectBtn"href="#">Inject Behaviour</a></div>
         <div><a id="replaceBtn"href="#">Replace tags</a></div>
-        <div><a id="openBtn"href="#">Open Dialog</a></div>
         <!-- This <div> holds alert messages to be display in the sample page. -->
         <div id="alerts">
             <noscript>
