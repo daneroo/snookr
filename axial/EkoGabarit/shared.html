@@ -34,16 +34,12 @@ and open the template in the editor.
 
                 // height 100% is hard to acheive...
                 //var ck_editor_height='100%'; //500;
-                //var dlg_height = 600;//ck_editor_height+dlg_height_padding;
 
                 var ck_editor_height=300;
-                var dlg_height_padding = 134; //depends on toolbar choices...
-                var dlg_height = ck_editor_height+dlg_height_padding;
                 ekoG.dialogElt = $('<div style="position:absolute;">').append(ekoG.ckElt);
                 $('#editordiv').append(ekoG.dialogElt);
                 ekoG.dialogElt.resizable().draggable();
                 ekoG.dialogElt.hide();
-                //$('#topSpace').resizable().draggable();
 
                 var ck_config = {
                     BSCtoolbar:'Basic',
@@ -56,10 +52,7 @@ and open the template in the editor.
                         ['UIColor']
                     ],
                     resize_enabled : false,
-                    height: ck_editor_height,
-                    sharedSpaces :	{
-                        ZZtop : 'topSpace'
-                    }
+                    height: ck_editor_height
                 };
 
                 // callbacks
