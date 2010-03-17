@@ -22,9 +22,11 @@
             // not sure what this does.
             editor.updateElement();
             //alert('called axialsave');
-            if (ekoSaveCallback) {
-                ekoSaveCallback(editor);
-            }
+
+            var ekoG = editor.ekoGabarit;
+            if(!ekoG) return;
+            if(!ekoG.save) return;
+            ekoG.save();
         }
     };
 
