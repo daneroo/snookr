@@ -27,23 +27,6 @@ and open the template in the editor.
         <link href="gabarit.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
             //<![CDATA[
-
-            // scope so dialog can see us
-
-            var ekoSaveCallback = function(editor) {
-                var ekoG = editor.ekoGabarit;
-                if(!ekoG) return;
-                if(ekoG.currentEditingElt){
-                    //alert(editor.getData());
-                    ekoG.currentEditingElt.html(ekoG.ckElt.val());
-                    ekoG.currentEditingElt.show();
-                    ekoG.dialogElt.hide();
-                    //alert($.toJSON(ekoG));
-                } else {
-                    alert('no cirrent Elt');
-                }
-            };
-
             $(function() {
                 var ekoG = new EkoGabarit('#preview');
 

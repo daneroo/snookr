@@ -16,6 +16,16 @@ EkoGabarit.prototype = {
     render: function(){
 
     },
+    save: function(){
+        var ekoG=this;
+        if(ekoG.currentEditingElt){
+            //alert(editor.getData());
+            ekoG.currentEditingElt.html(ekoG.ckElt.val());
+            ekoG.currentEditingElt.show();
+            ekoG.dialogElt.hide();
+        }
+        // add an ajax/update hook here...
+    },
     inject:function(){
         var ekoG = this; // alias for this in callbacks!
 
@@ -70,7 +80,7 @@ EkoGabarit.prototype = {
             }
         });
     },
-    getOid: function(){ // can be used for class-wide (static) counter       
+    getOid: function(){ // can be used for class-wide (static) counter
         return this.gabaritOid;
     },
     setOid: function(){
