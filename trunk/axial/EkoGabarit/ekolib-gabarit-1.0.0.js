@@ -6,7 +6,10 @@
 EkoGabarit.prototype = {
     gabaritOid:111, // set in contructor through setOidas a field, prototype is also the global counter.
     previewJQ : null,
+    // Theese are the three jQ element hooks.
     currentEditingElt:null,
+    dialogElt:null,
+    ckElt:null,
     debugelt:null,
     debug:function(message){
         if (this.debugelt) {
