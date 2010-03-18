@@ -128,6 +128,8 @@ EkoGabarit.prototype = {
                 $(this).editable(jEditableSubmitCallback, {
                     //indicator : '<img src="images/indicator.gif">',
                     indicator : 'Saving...',
+                    width: 300,
+                    height:'2.5em',
                     type      : 'text',
                     event : 'dblclick',
                     cancel    : 'Cancel',
