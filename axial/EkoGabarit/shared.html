@@ -29,31 +29,7 @@ and open the template in the editor.
             //<![CDATA[
             $(function() {
                 var ekoG = new EkoGabarit('#preview');
-
-                ekoG.ckElt = $('<textarea class="dlg_ckeditor" cols="80" id="editor1" name="editor1" rows="10">CONTENT</textarea>');
-
-                // height 100% is hard to acheive...
-                //var ck_editor_height='100%'; //500;
-
-                var ck_editor_height=300;
-                ekoG.dialogElt = $('<div style="position:absolute;">').append(ekoG.ckElt);
-                $('#editordiv').append(ekoG.dialogElt);
-                ekoG.dialogElt.resizable().draggable();
-                ekoG.dialogElt.hide();
-
-                var ck_config = {
-                    BSCtoolbar:'Basic',
-                    toolbar: [
-                        [ 'ekosave','NewPage','Preview' ,'-', 'Bold', 'Italic' ]
-                    ],
-                    extraPlugins:'ekosave',
-                    ZZtoolbar: [
-                        ['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
-                        ['UIColor']
-                    ],
-                    resize_enabled : false,
-                    height: ck_editor_height
-                };
+                ekoG.render('#editordiv');
 
                 // callbacks
                 $('#setBtn').click(function(){
@@ -61,6 +37,9 @@ and open the template in the editor.
                 });
                 $('#injectBtn').click(function(){
                     ekoG.inject();
+                });
+                $('#openBtn').click(function(){
+                    ekoG.confirmElt.dialog('open');
                 });
 
 
@@ -77,16 +56,18 @@ and open the template in the editor.
                 ekoG.load('gabarit1.html');
                 ekoG.inject();
 
-                // Initialize the editor.
-                // Callback function can be passed and executed after full instance creation.
-                var ckeditor = null;
-                var ck_initCallback = function(){
-                    ckeditor = ekoG.ckElt.ckeditorGet();
-                    ckeditor.ekoGabarit = ekoG;
-                }
-                $('.dlg_ckeditor').ckeditor(ck_initCallback,ck_config);
+                ekoG.debugelt = $('#status');
 
+                $.timer(500,function(){
+                    if (!ekoG.currentEditingElt){
+                        ekoG.debug('Not Editing');
+                    } else {
+                        var CMP = ekoG.isDirty();
+                        ekoG.debug('Dirty (Needs Saving): '+CMP);
+                    }
+                });
             });
+
             //]]>
         </script>
 
@@ -98,7 +79,8 @@ and open the template in the editor.
         <div>
             <a id="setBtn" href="#">Set some content</a> |
             <a id="injectBtn"href="#">Inject Behaviour</a> |
-            <a id="replaceBtn"href="#">Replace tags</a>
+            <a id="replaceBtn"href="#">Replace tags</a> |
+            <a id="openBtn"href="#">Modal Dialog</a>
         </div>
         <!-- This <div> holds alert messages to be display in the sample page. -->
         <div id="alerts">
@@ -116,5 +98,7 @@ and open the template in the editor.
         </div>
         <!--<div id="topSpace"></div>-->
         <div id="editordiv"></div>
+
+
     </body>
 </html>
