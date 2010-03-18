@@ -19,7 +19,10 @@ EkoGabarit.prototype = {
     },
     render: function (divselector){
         var ekoG = this; // alias for this in callbacks!
-        this.dialogElt = $('<div style="position:absolute;">');
+        this.dialogElt = $('<div></div>');
+        this.dialogElt.css('position', 'absolute');
+
+        this.dialogElt.addClass('eko-editor-dialog');
         var closeBtnElt=EkoActionIcon('ui-icon-closethick');
         closeBtnElt.addClass('eko-editor-closebtn');
         closeBtnElt.click(function(){
@@ -61,7 +64,7 @@ EkoGabarit.prototype = {
         var ck_config = {
             BSCtoolbar:'Basic',
             toolbar: [
-            ['ekodiscard', 'ekosave','Preview' ,'-', 'Bold', 'Italic' ]
+            ['ekodiscard', 'ekosave','Preview','Source', ,'-', 'Bold', 'Italic' ]
             ],
             extraPlugins:'ekosave,ekodiscard',
             ZZtoolbar: [
@@ -149,8 +152,6 @@ EkoGabarit.prototype = {
                 if (nuwidth<200) nuwidth=200;
                 ekoG.dialogElt.width(nuwidth);
 
-                ekoG.ckeditor.resetDirty();
-                ekoG.debug('XXX:'+$.toJSON(ekoG.ckeditor.checkDirty()));
             });
         });
     },
