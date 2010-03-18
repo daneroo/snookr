@@ -17,6 +17,7 @@ and open the template in the editor.
         <script type="text/javascript" src="js/jquery.json-2.2.min.js"></script>
         <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
         <script type="text/javascript" src="js/jquery.timer.js"></script>
+        <script type="text/javascript" src="js/jquery.jeditable.mini.js"></script>
         <script type="text/javascript" src="js/sha1-min.js"></script>
 
         <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
@@ -51,7 +52,7 @@ and open the template in the editor.
 
                 ekoG.load('gabarit1.html');
                 ekoG.inject();
-                
+
                 ekoG.debugelt = $('#status');
                 $.timer(5000,function(){
                     if (!ekoG.currentEditingElt){
@@ -62,6 +63,7 @@ and open the template in the editor.
                     }
                 });
             });
+
 
             //]]>
         </script>
@@ -78,7 +80,7 @@ and open the template in the editor.
                 margin-right:0px;
                 margin-top:0px;
             }
-            
+
             .eko-btn { height:20px; padding: .4em 1em .4em 20px;text-decoration: none; position: relative; text-decoration:none;}
             .eko-btn span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
 
@@ -95,7 +97,7 @@ and open the template in the editor.
         <div>
             <a id="setBtn" href="#">Set some content</a> |
             <a id="injectBtn"href="#">Inject Behaviour</a> |
-            <a id="replaceBtn"href="#">Replace tags</a> 
+            <a id="replaceBtn"href="#">Replace tags</a>
         </div>
         <!-- This <div> holds alert messages to be display in the sample page. -->
         <div id="alerts">

@@ -116,43 +116,66 @@ EkoGabarit.prototype = {
         var ekoG = this; // alias for this in callbacks!
 
         this.previewJQ.find('ekko-placeholder').each(function(index){
-            $(this).addClass("editable");
-            $(this).hover(  function () {
-                $(this).addClass("editablehover");
-            },
-            function () {
-                $(this).removeClass("editablehover");
-            });
-            $(this).dblclick(function(){
-                //ekoG.debug($.toJSON(ekoG.ckeditor.checkDirty()));
-                if (ekoG.isDirty()){
-                    ekoG.confirmElt.dialog('open');
-                    return;
-                }
-                ekoG.currentEditingElt = $(this);
-                var celtoff = ekoG.currentEditingElt.offset();
-                var celtwidth = ekoG.currentEditingElt.width();
-
-                ekoG.ckElt.val( ekoG.currentEditingElt.html() );
-                ekoG.dialogElt.show();
-                var dialogEltOffset = ekoG.dialogElt.offset();
-                var contentElt = ekoG.dialogElt.find('.cke_contents');
-                var contentEltOffset = contentElt.offset();
-                var compensate = {
-                    left : dialogEltOffset.left-contentEltOffset.left,
-                    top: dialogEltOffset.top-contentEltOffset.top,
-                    width: ekoG.dialogElt.width()-contentElt.width()
+            var type = $(this).attr('type') || 'none';
+            if ('text'==type){
+                var jEditableSubmitCallback = function(value,settings){
+                    //console.log(this);
+                    //console.log(value);
+                    //console.log(settings);
+                    return(value);
                 };
-                //$('#status').text('w:'+celtwidth+' -> '+$.toJSON(compensate));
-                ekoG.dialogElt.css({
-                    'left':celtoff.left+compensate.left,
-                    'top':celtoff.top+compensate.top
-                });
-                var nuwidth = celtwidth+compensate.width;
-                if (nuwidth<200) nuwidth=200;
-                ekoG.dialogElt.width(nuwidth);
 
-            });
+                $(this).editable(jEditableSubmitCallback, {
+                    //indicator : '<img src="images/indicator.gif">',
+                    indicator : 'Saving...',
+                    type      : 'text',
+                    event : 'dblclick',
+                    cancel    : 'Cancel',
+                    submit    : 'OK',
+                    tooltip   : 'Click to edit...'
+                });
+            } else if ('html'==type) {
+                $(this).addClass("editable");
+                $(this).hover(  function () {
+                    $(this).addClass("editablehover");
+                },
+                function () {
+                    $(this).removeClass("editablehover");
+                });
+                $(this).dblclick(function(){
+                    //ekoG.debug($.toJSON(ekoG.ckeditor.checkDirty()));
+                    if (ekoG.isDirty()){
+                        ekoG.confirmElt.dialog('open');
+                        return;
+                    }
+                    ekoG.currentEditingElt = $(this);
+                    var celtoff = ekoG.currentEditingElt.offset();
+                    var celtwidth = ekoG.currentEditingElt.width();
+
+                    ekoG.ckElt.val( ekoG.currentEditingElt.html() );
+                    ekoG.dialogElt.show();
+                    var dialogEltOffset = ekoG.dialogElt.offset();
+                    var contentElt = ekoG.dialogElt.find('.cke_contents');
+                    var contentEltOffset = contentElt.offset();
+                    var compensate = {
+                        left : dialogEltOffset.left-contentEltOffset.left,
+                        top: dialogEltOffset.top-contentEltOffset.top,
+                        width: ekoG.dialogElt.width()-contentElt.width()
+                    };
+                    //$('#status').text('w:'+celtwidth+' -> '+$.toJSON(compensate));
+                    ekoG.dialogElt.css({
+                        'left':celtoff.left+compensate.left,
+                        'top':celtoff.top+compensate.top
+                    });
+                    var nuwidth = celtwidth+compensate.width;
+                    if (nuwidth<200) nuwidth=200;
+                    ekoG.dialogElt.width(nuwidth);
+
+                });
+            } else {
+                console.log(this);
+                console.log('eko-tag not in (text|html)');
+            }
         });
     },
     load: function(gabaritURL){
