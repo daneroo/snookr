@@ -51,10 +51,9 @@ and open the template in the editor.
 
                 ekoG.load('gabarit1.html');
                 ekoG.inject();
-
+                
                 ekoG.debugelt = $('#status');
-
-                $.timer(500,function(){
+                $.timer(5000,function(){
                     if (!ekoG.currentEditingElt){
                         ekoG.debug('Not Editing');
                     } else {
@@ -66,6 +65,23 @@ and open the template in the editor.
 
             //]]>
         </script>
+        <style type="text/css">
+            /*demo page css*/
+            body{ font: 80% "Trebuchet MS", sans-serif; margin: 20px;}
+            h1 {font-size:150%;}
+            .eko-btn { height:20px; padding: .4em 1em .4em 20px;text-decoration: none; position: relative; text-decoration:none;}
+            .eko-btn span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+
+            /* For arrows and such */
+            .eko-action-icon {width:16px; height:20px; padding: 0 0 0 20px;text-decoration: none; position: relative; text-decoration:none;}
+            .eko-action-icon span.ui-icon {margin: 0 0 0 0;position: absolute;left: .1em;top: 50%;margin-top: -8px;}
+            .eko-editor-closebtn {
+                float:right;
+                padding: 0 0 0 4px !important;
+                margin-right:0px;
+                margin-top:0px;
+            }
+        </style>
 
     </head>
     <body>

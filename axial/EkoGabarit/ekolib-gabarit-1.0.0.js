@@ -6,10 +6,10 @@
 EkoGabarit.prototype = {
     gabaritOid:111, // set in contructor through setOidas a field, prototype is also the global counter.
     previewJQ : null,
-    // Theese are the three jQ element hooks.
-    currentEditingElt:null,
-    dialogElt:null,
-    ckElt:null,    // j\the jQ Object that the CKEditor was replaced into
+    // Theese are the four jQ element hooks.
+    currentEditingElt:null, // maintains state (which div is being edited!
+    dialogElt:null,  // jQ element which is resizeable draggable
+    ckElt:null,    // the jQ Object that the CKEditor was replaced into
     ckeditor:null, // the CKEditor object itself
     debugelt:null,
     debug:function(message){
@@ -18,15 +18,24 @@ EkoGabarit.prototype = {
         }
     },
     render: function (divselector){
+        var ekoG = this; // alias for this in callbacks!
+        this.dialogElt = $('<div style="position:absolute;">');
+        var closeBtnElt=EkoActionIcon('ui-icon-closethick');
+        closeBtnElt.addClass('eko-editor-closebtn');
+        closeBtnElt.click(function(){
+            ekoG.discardWithDialog();
+        });
+        this.dialogElt.append(closeBtnElt);
+
         this.ckElt = $('<textarea class="dlg_ckeditor" cols="80" id="editor1" name="editor1" rows="10">CONTENT</textarea>');
-        this.dialogElt = $('<div style="position:absolute;">').append(this.ckElt);
+        this.dialogElt.append(this.ckElt);
         $(divselector).append(this.dialogElt);
+
         this.dialogElt.resizable().draggable();
         this.dialogElt.hide();
 
         this.confirmElt = $('<div id="dialog-confirm" title="Save changes ?">You have unsaved edits in this text!</div>');
         $(divselector).append(this.confirmElt);
-        var ekoG = this; // alias for this in callbacks!
         this.confirmElt.dialog({
             resizable: false,
             //height:180,
@@ -168,13 +177,39 @@ EkoGabarit.prototype = {
     genOid: function(){ // static methid! can be used for class-wide (static) counter
         EkoGabarit.prototype.gabaritOid+=1;
         return EkoGabarit.prototype.gabaritOid;
-        }
-        };
+    }
+};
 
 
-        function EkoGabarit(previewSelector) {
-        this.setOid();
-        this.previewJQ = $(previewSelector);
+function EkoGabarit(previewSelector) {
+    this.setOid();
+    this.previewJQ = $(previewSelector);
 }
 
+/* Theese were stolen from EkoCOncours ekolib-1.0.0.js */
+function EkoActionIcon(iconClass) {
+    // calls EkoIconWrapper...
+    return EkoIconWrapper('',iconClass,'eko-action-icon');
+}
+
+function EkoButton(label,iconClass) {
+    // calls EkoIconWrapper...
+    label = label || "Add";
+    return EkoIconWrapper(label,iconClass,'eko-btn');
+}
+function EkoIconWrapper(label,iconClass,cssClass) {
+    /* return a new element for insertion into DOM
+     * icon class : e.g. ui-icon-plus, ui-icon-arrowthick-1-n, etc
+     * cssClass: eko-btn, eko-action-icon (arrown,..)
+     */
+    iconClass = iconClass || "ui-icon-plus";
+    cssClass = cssClass || "eko-btn";
+    var btnElt = $('<a href="#" class="'+cssClass+' ui-state-default ui-corner-all"><span class="ui-icon '+iconClass+'"></span>'+label+'</a>');
+    btnElt.hover(function() {
+        $(this).addClass('ui-state-hover');
+    },function() {
+        $(this).removeClass('ui-state-hover');
+    })
+    return btnElt;
+}
 
