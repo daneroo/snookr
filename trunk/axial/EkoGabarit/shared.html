@@ -38,10 +38,6 @@ and open the template in the editor.
                 $('#injectBtn').click(function(){
                     ekoG.inject();
                 });
-                $('#openBtn').click(function(){
-                    ekoG.confirmElt.dialog('open');
-                });
-
 
                 $('#replaceBtn').click(function(){
                     $( '#preview' ).find('ekko-placeholder').each(function(index){
@@ -79,8 +75,7 @@ and open the template in the editor.
         <div>
             <a id="setBtn" href="#">Set some content</a> |
             <a id="injectBtn"href="#">Inject Behaviour</a> |
-            <a id="replaceBtn"href="#">Replace tags</a> |
-            <a id="openBtn"href="#">Modal Dialog</a>
+            <a id="replaceBtn"href="#">Replace tags</a> 
         </div>
         <!-- This <div> holds alert messages to be display in the sample page. -->
         <div id="alerts">
