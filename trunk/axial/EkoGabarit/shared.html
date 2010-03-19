@@ -28,6 +28,7 @@ and open the template in the editor.
         <link href="gabarit.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
             //<![CDATA[
+            var watchG=null;
             $(function() {
                 var ekoG = new EkoGabarit('#preview');
                 ekoG.render('#editordiv');
@@ -53,14 +54,19 @@ and open the template in the editor.
                 ekoG.load('gabarit1.html');
                 ekoG.inject();
 
-                $.timer(5000,function(){
-                    if (!ekoG.currentEditingElt){
-                        debug('Not Editing');
-                    } else {
-                        var CMP = ekoG.isDirty();
-                        debug('Dirty (Needs Saving): '+CMP);
-                    }
-                });
+                var dirtyDebug=false;
+                if (dirtyDebug){
+                    $.timer(5000,function(){
+                        if (!ekoG.currentEditingElt){
+                            debug('Not Editing');
+                        } else {
+                            var CMP = ekoG.isDirty();
+                            debug('Dirty (Needs Saving): '+CMP);
+                        }
+                    });
+                }
+
+                watchG = ekoG;
             });
 
 
