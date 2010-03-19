@@ -3,6 +3,12 @@
  * avec un editeur riche (CKEditor)
  */
 
+function debug(message){
+    if (window.console && window.console.firebug){
+        console.log(message);
+    }
+}
+
 EkoGabarit.prototype = {
     gabaritOid:111, // set in contructor through setOidas a field, prototype is also the global counter.
     previewJQ : null,
@@ -11,11 +17,6 @@ EkoGabarit.prototype = {
     dialogElt:null,  // jQ element which is resizeable draggable
     ckElt:null,    // the jQ Object that the CKEditor was replaced into
     ckeditor:null, // the CKEditor object itself
-    debug:function(message){
-        if (console){
-            console.log(message);
-        }
-    },
     render: function (divselector){
         var ekoG = this; // alias for this in callbacks!
         this.dialogElt = $('<div></div>');
@@ -85,8 +86,8 @@ EkoGabarit.prototype = {
     save: function(){
         var ekoG = this; // alias for this in callbacks!
         if(ekoG.currentEditingElt){
-            console.log('CK:Saving to eko-placehoder:');
-            console.log(ekoG.currentEditingElt);
+            debug('CK:Saving to eko-placehoder:');
+            debug(ekoG.currentEditingElt);
             ekoG.currentEditingElt.html(ekoG.ckElt.val());
             ekoG.currentEditingElt = null;
             ekoG.dialogElt.hide();
@@ -117,16 +118,12 @@ EkoGabarit.prototype = {
         var ekoG = this; // alias for this in callbacks!
 
         this.previewJQ.find('ekko-placeholder').each(function(index){
-            if (console) {
-                console.log(this);
-            }
+            debug(this);
             var type = $(this).attr('type') || 'none';
             if ('text'==type){
                 var jEditableSubmitCallback = function(value,settings){
-                    if (console){
-                        console.log('JE:Saving to eko-placehoder:');
-                        console.log(this);
-                    }
+                    debug('JE:Saving to eko-placehoder:');
+                    debug(this);
                     return(value);
                 };
 
@@ -150,7 +147,7 @@ EkoGabarit.prototype = {
                     $(this).removeClass("editablehover");
                 });
                 $(this).dblclick(function(){
-                    //ekoG.debug($.toJSON(ekoG.ckeditor.checkDirty()));
+                    //debug($.toJSON(ekoG.ckeditor.checkDirty()));
                     if (ekoG.isDirty()){
                         ekoG.confirmElt.dialog('open');
                         return;
@@ -169,7 +166,7 @@ EkoGabarit.prototype = {
                         top: dialogEltOffset.top-contentEltOffset.top,
                         width: ekoG.dialogElt.width()-contentElt.width()
                     };
-                    //ekoG.debug('w:'+celtwidth+' -> '+$.toJSON(compensate));
+                    //debug('w:'+celtwidth+' -> '+$.toJSON(compensate));
                     ekoG.dialogElt.css({
                         'left':celtoff.left+compensate.left,
                         'top':celtoff.top+compensate.top
@@ -180,10 +177,8 @@ EkoGabarit.prototype = {
 
                 });
             } else {
-                if (console){
-                    console.log(this);
-                    console.log('eko-tag not in (text|html)');
-                }
+                debug(this);
+                debug('eko-tag not in (text|html)');
             }
         });
     },

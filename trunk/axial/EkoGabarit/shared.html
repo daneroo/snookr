@@ -55,10 +55,10 @@ and open the template in the editor.
 
                 $.timer(5000,function(){
                     if (!ekoG.currentEditingElt){
-                        ekoG.debug('Not Editing');
+                        debug('Not Editing');
                     } else {
                         var CMP = ekoG.isDirty();
-                        ekoG.debug('Dirty (Needs Saving): '+CMP);
+                        debug('Dirty (Needs Saving): '+CMP);
                     }
                 });
             });
