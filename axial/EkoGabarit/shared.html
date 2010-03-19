@@ -33,23 +33,30 @@ and open the template in the editor.
                 var ekoG = new EkoGabarit('#preview');
                 ekoG.render('#editordiv');
 
-                // callbacks
-                $('#setBtn').click(function(){
-                    ekoG.load('gabarit1.html');
+                var urls = ['gabarit1.html','gabarit2.html','gabarit3.html','gabarit4.html','gabarit5.html'];
+                var selElt = $('<select></select>');
+                for (var u=0; u<urls.length; u++) {
+                    var url = urls[u];
+                    var optElt = $('<option value="'+url+'">'+url+'</option>');
+                    selElt.append(optElt);
+                }
+                selElt.change(function(){
+                    var propertyVal = $("option:selected", this).val();
+                    debug('selected: '+propertyVal);
                 });
-
-/*
-                $('#replaceBtn').click(function(){
-                    $( '#preview' ).find('ekko-placeholder').each(function(index){
-                        var aType = $(this).attr('type');
-                        var anId = $(this).attr('id');
-                        var aName = $(this).attr('name');
-                        $(this).text('['+aType+':'+anId+':'+aName+']');
-                    });
+                var loadBtn = $('<a href="#" style="color:black;">Load</a>');
+                loadBtn.click(function(){
+                    //ekoG.load('gabarit1.html');
+                    var url = $("option:selected", selElt).val();
+                    debug('would load: '+url);
+                    ekoG.load(url);
                 });
-                */
+                $('#lifecycle').append(selElt);
+                loadBtn.css('margin-left', '10px');
+                $('#lifecycle').append(loadBtn);
 
-                ekoG.load('gabarit1.html');
+                loadBtn.click();
+                //ekoG.load('gabarit1.html');
 
                 var dirtyDebug=false;
                 if (dirtyDebug){
@@ -93,15 +100,10 @@ and open the template in the editor.
 
     </head>
     <body>
-        <h1>
+        <h1 style="color:black;">
             Editeur avec Gabarit
         </h1>
         <div id="lifecycle">
-            <a id="setBtn" href="#">Set some content</a>
-            <!--
-            <a id="injectBtn"href="#">Inject Behaviour</a> |
-            <a id="replaceBtn"href="#">Replace tags</a>
-            -->
         </div>
         <!-- This <div> holds alert messages to be display in the sample page. -->
         <div id="alerts">
