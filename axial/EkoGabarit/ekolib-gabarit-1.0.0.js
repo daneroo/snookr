@@ -10,13 +10,28 @@ function debug(message){
 }
 
 EkoGabarit.prototype = {
-    gabaritOid:111, // set in contructor through setOidas a field, prototype is also the global counter.
-    previewJQ : null,
-    // Theese are the four jQ element hooks.
+    gabaritOid:121, // set in contructor through setOidas a field, prototype is also the global counter.
+    previewJQ : null, // the jQ Object into which the preview is rendered
+    valueDict: {}, // this is the JS Object literal into which replaced values are stored.
+    // Theese are the four jQ/CK element hooks.
     currentEditingElt:null, // maintains state (which div is being edited!
     dialogElt:null,  // jQ element which is resizeable draggable
     ckElt:null,    // the jQ Object that the CKEditor was replaced into
     ckeditor:null, // the CKEditor object itself
+    saveValue: function(key,value){ // Save to valueDict: (on save from different placeholders)
+        // track dirtyness for saving (JSON) back to server.
+        var dirty=true;
+        if (this.valueDict ) {
+            dirty = value != this.valueDict[key];
+        }
+
+        this.valueDict[key] = value;
+
+        if (value.length && value.length>23) {
+            value = value.substring(0,20)+'...';
+        }
+        debug('Save ('+(dirty?'':'not ')+'dirty) ['+key+']='+value);
+    },
     render: function (divselector){
         var ekoG = this; // alias for this in callbacks!
         this.dialogElt = $('<div></div>');
@@ -88,8 +103,11 @@ EkoGabarit.prototype = {
         if(ekoG.currentEditingElt){
             debug('CK:Saving to eko-placehoder:');
             debug(ekoG.currentEditingElt);
-            ekoG.currentEditingElt.html(ekoG.ckElt.val());
-            ekoG.currentEditingElt = null;
+            var key = ekoG.currentEditingElt.attr('id');
+            var value = ekoG.ckElt.val();
+            ekoG.saveValue(key,value);
+            ekoG.currentEditingElt.html(value);
+            ekoG.currentEditingElt = null; // not editing state
             ekoG.dialogElt.hide();
         }
     // add an ajax/update hook here...
@@ -120,10 +138,15 @@ EkoGabarit.prototype = {
         this.previewJQ.find('ekko-placeholder').each(function(index){
             debug(this);
             var type = $(this).attr('type') || 'none';
+            var key = $(this).attr('id') || 'none';
             if ('text'==type){
+                // populate dict with initial value
+                ekoG.saveValue(key,$(this).text());
+
                 var jEditableSubmitCallback = function(value,settings){
                     debug('JE:Saving to eko-placehoder:');
                     debug(this);
+                    ekoG.saveValue(key,value);
                     return(value);
                 };
 
@@ -139,6 +162,9 @@ EkoGabarit.prototype = {
                     tooltip   : 'Double Click to edit...'
                 });
             } else if ('html'==type) {
+                // populate dict with initial value
+                ekoG.saveValue(key,$(this).html());
+
                 $(this).addClass("editable");
                 $(this).hover(  function () {
                     $(this).addClass("editablehover");
@@ -177,6 +203,8 @@ EkoGabarit.prototype = {
 
                 });
             } else {
+                // populate dict with initial value
+                ekoG.saveValue(key,'unknown value for type: '+type);
                 debug(this);
                 debug('eko-tag not in (text|html)');
             }
@@ -205,11 +233,11 @@ EkoGabarit.prototype = {
     genOid: function(){ // static methid! can be used for class-wide (static) counter
         EkoGabarit.prototype.gabaritOid+=1;
         return EkoGabarit.prototype.gabaritOid;
-    }
-};
+        }
+        };
 
 
-function EkoGabarit(previewSelector) {
+        function EkoGabarit(previewSelector) {
     this.setOid();
     this.previewJQ = $(previewSelector);
 }
