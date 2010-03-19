@@ -11,10 +11,9 @@ EkoGabarit.prototype = {
     dialogElt:null,  // jQ element which is resizeable draggable
     ckElt:null,    // the jQ Object that the CKEditor was replaced into
     ckeditor:null, // the CKEditor object itself
-    debugelt:null,
     debug:function(message){
-        if (this.debugelt) {
-            $(this.debugelt).text('DBG:'+' '+message);
+        if (console){
+            console.log(message);
         }
     },
     render: function (divselector){
@@ -164,7 +163,7 @@ EkoGabarit.prototype = {
                         top: dialogEltOffset.top-contentEltOffset.top,
                         width: ekoG.dialogElt.width()-contentElt.width()
                     };
-                    //$('#status').text('w:'+celtwidth+' -> '+$.toJSON(compensate));
+                    //ekoG.debug('w:'+celtwidth+' -> '+$.toJSON(compensate));
                     ekoG.dialogElt.css({
                         'left':celtoff.left+compensate.left,
                         'top':celtoff.top+compensate.top
