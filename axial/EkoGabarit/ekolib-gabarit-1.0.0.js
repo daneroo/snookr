@@ -85,6 +85,8 @@ EkoGabarit.prototype = {
     save: function(){
         var ekoG = this; // alias for this in callbacks!
         if(ekoG.currentEditingElt){
+            console.log('CK:Saving to eko-placehoder:');
+            console.log(ekoG.currentEditingElt);
             ekoG.currentEditingElt.html(ekoG.ckElt.val());
             ekoG.currentEditingElt = null;
             ekoG.dialogElt.hide();
@@ -115,12 +117,12 @@ EkoGabarit.prototype = {
         var ekoG = this; // alias for this in callbacks!
 
         this.previewJQ.find('ekko-placeholder').each(function(index){
+            console.log(this);
             var type = $(this).attr('type') || 'none';
             if ('text'==type){
                 var jEditableSubmitCallback = function(value,settings){
-                    //console.log(this);
-                    //console.log(value);
-                    //console.log(settings);
+                    console.log('JE:Saving to eko-placehoder:');
+                    console.log(this);
                     return(value);
                 };
 
@@ -133,7 +135,7 @@ EkoGabarit.prototype = {
                     event : 'dblclick',
                     cancel    : 'Cancel',
                     submit    : 'OK',
-                    tooltip   : 'Click to edit...'
+                    tooltip   : 'Double Click to edit...'
                 });
             } else if ('html'==type) {
                 $(this).addClass("editable");
