@@ -37,10 +37,8 @@ and open the template in the editor.
                 $('#setBtn').click(function(){
                     ekoG.load('gabarit1.html');
                 });
-                $('#injectBtn').click(function(){
-                    ekoG.inject();
-                });
 
+/*
                 $('#replaceBtn').click(function(){
                     $( '#preview' ).find('ekko-placeholder').each(function(index){
                         var aType = $(this).attr('type');
@@ -49,10 +47,9 @@ and open the template in the editor.
                         $(this).text('['+aType+':'+anId+':'+aName+']');
                     });
                 });
-
+                */
 
                 ekoG.load('gabarit1.html');
-                ekoG.inject();
 
                 var dirtyDebug=false;
                 if (dirtyDebug){
@@ -99,10 +96,12 @@ and open the template in the editor.
         <h1>
             Editeur avec Gabarit
         </h1>
-        <div>
-            <a id="setBtn" href="#">Set some content</a> |
+        <div id="lifecycle">
+            <a id="setBtn" href="#">Set some content</a>
+            <!--
             <a id="injectBtn"href="#">Inject Behaviour</a> |
             <a id="replaceBtn"href="#">Replace tags</a>
+            -->
         </div>
         <!-- This <div> holds alert messages to be display in the sample page. -->
         <div id="alerts">
