@@ -117,12 +117,16 @@ EkoGabarit.prototype = {
         var ekoG = this; // alias for this in callbacks!
 
         this.previewJQ.find('ekko-placeholder').each(function(index){
-            console.log(this);
+            if (console) {
+                console.log(this);
+            }
             var type = $(this).attr('type') || 'none';
             if ('text'==type){
                 var jEditableSubmitCallback = function(value,settings){
-                    console.log('JE:Saving to eko-placehoder:');
-                    console.log(this);
+                    if (console){
+                        console.log('JE:Saving to eko-placehoder:');
+                        console.log(this);
+                    }
                     return(value);
                 };
 
@@ -176,8 +180,10 @@ EkoGabarit.prototype = {
 
                 });
             } else {
-                console.log(this);
-                console.log('eko-tag not in (text|html)');
+                if (console){
+                    console.log(this);
+                    console.log('eko-tag not in (text|html)');
+                }
             }
         });
     },
