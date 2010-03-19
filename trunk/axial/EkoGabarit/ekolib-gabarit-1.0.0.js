@@ -18,6 +18,13 @@ EkoGabarit.prototype = {
     dialogElt:null,  // jQ element which is resizeable draggable
     ckElt:null,    // the jQ Object that the CKEditor was replaced into
     ckeditor:null, // the CKEditor object itself
+    clearValues: function(){
+        var prevEntries = 0;
+        for(var key in this.valueDict){prevEntries++;}
+
+        debug('Clearing value dict: '+prevEntries+' previous entries');
+        this.valueDict = {};
+    },
     saveValue: function(key,value){ // Save to valueDict: (on save from different placeholders)
         // track dirtyness for saving (JSON) back to server.
         var dirty=true;
@@ -134,7 +141,7 @@ EkoGabarit.prototype = {
     },
     inject:function(){
         var ekoG = this; // alias for this in callbacks!
-
+        ekoG.clearValues(); // clear the value dictionary.
         this.previewJQ.find('ekko-placeholder').each(function(index){
             debug(this);
             var type = $(this).attr('type') || 'none';
@@ -211,6 +218,7 @@ EkoGabarit.prototype = {
         });
     },
     load: function(gabaritURL){
+        // TODO : prevent simultaneous loading ?
         var ekoG = this; // alias for this in callback!
         $.ajax({
             url: gabaritURL, // url from name ??
@@ -221,6 +229,7 @@ EkoGabarit.prototype = {
                 var htmlString = data;
                 //ckElt.val( htmlString );
                 ekoG.previewJQ.html( htmlString );
+                ekoG.inject();
             }
         });
     },
@@ -233,11 +242,11 @@ EkoGabarit.prototype = {
     genOid: function(){ // static methid! can be used for class-wide (static) counter
         EkoGabarit.prototype.gabaritOid+=1;
         return EkoGabarit.prototype.gabaritOid;
-        }
-        };
+    }
+};
 
 
-        function EkoGabarit(previewSelector) {
+function EkoGabarit(previewSelector) {
     this.setOid();
     this.previewJQ = $(previewSelector);
 }
