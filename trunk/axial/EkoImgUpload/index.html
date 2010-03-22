@@ -2,9 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 <head profile="http://gmpg.org/xfn/11">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>AJAX File Upload - Web Developer Plus Demos</title>
+    <title>AJAX Image Upload</title>
     <script type="text/javascript" src="js/jquery-1.3.2.js" ></script>
     <script type="text/javascript" src="js/ajaxupload.js" ></script>
+    <!-- Required for jQuery dialog demo-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css" type="text/css" media="all" />
+
     <link rel="stylesheet" type="text/css" href="./styles.css" />
     <script type="text/javascript" >
         function debug(message){
@@ -30,7 +34,14 @@
             }
             function addIMG(file){
                 var imgurl = baseURL+file;
-                $('<li></li>').appendTo('#files').html('<img src="'+imgurl+'" alt="" /><br />'+basename(file)).addClass('success');
+                $('<li></li>').appendTo('#files')
+                .html('<img src="'+imgurl+'" alt="'+basename(file)+'" /><br />')
+                .addClass('success')
+                .click(function(){
+                    $('#selectedFile').text(file);
+                    $('#selectedImage').attr('src', imgurl);
+                    $('#dialog').dialog("close");
+                });
             }
             function addERR(file){
                 $('<li></li>').appendTo('#files').text(file).addClass('error');
@@ -39,7 +50,7 @@
                 //aURL = aURL || 'imglist.php';
                 aURL = aURL || baseURL+'imglist.php';
                 aURL+='?'+new Date().getTime();
-                alert('getting: '+aURL);
+                debug('getting: '+aURL);
                 $.ajax({
                     url: aURL, // url from name ??
                     //data: data,
@@ -59,7 +70,7 @@
 
             var btnUpload=$('#upload');
             var status=$('#status');
-            new AjaxUpload(btnUpload, {
+            ajopts = {
                 action: baseURL+'upload-file.php',
                 name: 'uploadfile',
                 onSubmit: function(file, ext){
@@ -69,6 +80,8 @@
                         return false;
                     }
                     status.text('Uploading...');
+                    // what is this diabling ?
+                    this.disable();
                 },
                 onComplete: function(file, response){
                     //On completion clear the status
@@ -81,19 +94,50 @@
                         addERR(file);
                     }
                     getList();
+                    this.enable();
+                }
+            };
+            new AjaxUpload(btnUpload, ajopts);
+
+            /* example4 */
+            $("#dialog").dialog({
+                autoOpen: false,
+                width: 600,
+                height:400,
+                modal: false,
+                buttons: {
+                    'Cancel': function() {
+                        $(this).dialog('close');
+                    }
                 }
             });
+            $('#selectedFile').click(function(){
+                $("#dialog").dialog("open");
+                return false;
+            });
 
-        });
-    </script>
+
+        });/*]]>*/</script>
 </head>
-<body>
-    <div id="mainbody" >
-        <h3>&raquo; AJAX File Upload Form Using jQuery</h3>
-        <!-- Upload Button, use any id you wish-->
-        <div id="upload" ><span>Upload File<span></div><span id="status" ></span>
 
-        <ul id="files" ></ul>
+<body>
+    <!-- Example 4 -->
+    <p>You can use Ajax Uploader with jQuery UI dialog</p>
+    <p>Selected Image <span id="selectedFile" >No Image Selected (click to select)</span>
+      <br />
+      <img id="selectedImage" />
+    </p>
+
+    <div id="dialog" style="display:none;" title="Basic dialog with Upload button">
+        <div id="text">
+            <div id="upload" ><span>Upload Image</span></div><span id="status" ></span>
+            <div id="listwrapper">
+                <ul id="files" ></ul>
+            </div>
+        </div>
     </div>
+
+
+
 
 </body>
