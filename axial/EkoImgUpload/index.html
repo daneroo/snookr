@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>AJAX File Upload - Web Developer Plus Demos</title>
     <script type="text/javascript" src="js/jquery-1.3.2.js" ></script>
-    <script type="text/javascript" src="js/ajaxupload.3.5.js" ></script>
+    <script type="text/javascript" src="js/ajaxupload.js" ></script>
     <link rel="stylesheet" type="text/css" href="./styles.css" />
     <script type="text/javascript" >
         function debug(message){
@@ -17,7 +17,11 @@
         }
 
         $(function(){
-
+            //var baseURL = '';
+            var baseURL = 'http://axial.imetrical.com/EkoImgUpload/';
+            function clear(){
+                $('#files').html('');
+            }
             function seed(data){
                 var images = data.images;
                 for (var i=0;i<images.length;i++){
@@ -25,12 +29,17 @@
                 }
             }
             function addIMG(file){
-                $('<li></li>').appendTo('#files').html('<img src="'+file+'" alt="" /><br />'+basename(file)).addClass('success');
+                var imgurl = baseURL+file;
+                $('<li></li>').appendTo('#files').html('<img src="'+imgurl+'" alt="" /><br />'+basename(file)).addClass('success');
             }
             function addERR(file){
                 $('<li></li>').appendTo('#files').text(file).addClass('error');
             }
             function getList(aURL){
+                //aURL = aURL || 'imglist.php';
+                aURL = aURL || baseURL+'imglist.php';
+                aURL+='?'+new Date().getTime();
+                alert('getting: '+aURL);
                 $.ajax({
                     url: aURL, // url from name ??
                     //data: data,
@@ -40,17 +49,18 @@
                     success: function(data) {
                         debug('success');
                         debug(data);
+                        clear();
                         seed(data);
                     }
                 });
 
             }
-            getList('imglist.php');
+            getList();
 
             var btnUpload=$('#upload');
             var status=$('#status');
             new AjaxUpload(btnUpload, {
-                action: 'upload-file.php',
+                action: baseURL+'upload-file.php',
                 name: 'uploadfile',
                 onSubmit: function(file, ext){
                     if (! (ext && /^(jpg|png|jpeg|gif)$/.test(ext))){
@@ -70,6 +80,7 @@
                         status.text('failed: '+response+' - '+file);
                         addERR(file);
                     }
+                    getList();
                 }
             });
 
