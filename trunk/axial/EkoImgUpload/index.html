@@ -68,7 +68,7 @@
             }
             getList();
 
-            var btnUpload=$('#upload');
+            var uploadBtn=$('#uploadBtn');
             var status=$('#status');
             ajopts = {
                 action: baseURL+'upload-file.php',
@@ -97,12 +97,12 @@
                     this.enable();
                 }
             };
-            new AjaxUpload(btnUpload, ajopts);
+            new AjaxUpload(uploadBtn, ajopts);
 
             /* example4 */
             $("#dialog").dialog({
                 autoOpen: false,
-                width: 600,
+                width: 500,
                 height:400,
                 modal: false,
                 buttons: {
@@ -129,9 +129,10 @@
       <img id="selectedImage" />
     </p>
 
-    <div id="dialog" style="display:none;" title="Basic dialog with Upload button">
-        <div id="text">
-            <div id="upload" ><span>Upload Image</span></div><span id="status" ></span>
+    <div id="dialog" style="display:none;" title="Choose an Image">
+        <div>
+            <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;" id="status" ><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><span>Status goes here</span></div>
+            <div id="uploadBtn" ><span>Upload Image</span></div>
             <div id="listwrapper">
                 <ul id="files" ></ul>
             </div>
