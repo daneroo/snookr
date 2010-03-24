@@ -10,6 +10,18 @@
 	cursor:pointer !important;
 	-moz-border-radius:5px; -webkit-border-radius:5px;
 }
+
+.eko-button {
+   outline: 0;
+   margin:0 4px 0 0;
+   padding: .4em 1em;
+   text-decoration:none !important;
+   cursor:pointer;
+   position: relative;
+   text-align: center;
+   zoom: 1;
+   }
+
 .darkbg{
 	background:#ddd !important;
 }
@@ -20,11 +32,17 @@
 #listwrapper {
     height: 200px;
 }
+
 #selectedFile {
   font-weight:bold;
 }
 ul#files{ list-style:none; padding:0; margin:0; }
 ul#files li{ padding:10px; margin-bottom:2px; width:100px; float:left; margin-right:10px;}
-ul#files li img{ width:50; max-width:100px; max-height:75px;margin-left: auto; margin-right: auto; }
+ul#files li img{ max-width:100px; max-height:75px;margin-left: auto; margin-right: auto; }
+
+ul.eko-fileimglist{ list-style:none; padding:0; margin:0; }
+ul.eko-fileimglist li{ padding:10px; margin-bottom:2px; width:100px; float:left; margin-right:10px;}
+ul.eko-fileimglist li img{ max-width:100px; max-height:75px;margin-left: auto; margin-right: auto; }
+
 .success{ background:#2191c0; border:1px solid #4297d7; }
 .error{ background:#f0c6c3; border:1px solid #cc6622; }
