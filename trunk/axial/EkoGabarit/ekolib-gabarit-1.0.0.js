@@ -18,11 +18,14 @@ EkoGabarit.prototype = {
     dialogElt:null,  // jQ element which is resizeable draggable
     ckElt:null,    // the jQ Object that the CKEditor was replaced into
     ckeditor:null, // the CKEditor object itself
+    ekoIP:null, // eko-image-picker
+    currentPickingImgElt:null, // picking image for image picker
     clearValues: function(){
         var prevEntries = 0;
-        for(var key in this.valueDict){prevEntries++;}
-
-        debug('Clearing value dict: '+prevEntries+' previous entries');
+        for(var key in this.valueDict){
+            prevEntries++;
+        }
+        //debug('Clearing value dict: '+prevEntries+' previous entries');
         this.valueDict = {};
     },
     saveValue: function(key,value){ // Save to valueDict: (on save from different placeholders)
@@ -31,13 +34,12 @@ EkoGabarit.prototype = {
         if (this.valueDict ) {
             dirty = value != this.valueDict[key];
         }
-
         this.valueDict[key] = value;
 
         if (value.length && value.length>23) {
             value = value.substring(0,20)+'...';
         }
-        debug('Save ('+(dirty?'':'not ')+'dirty) ['+key+']='+value);
+    //debug('Save ('+(dirty?'':'not ')+'dirty) ['+key+']='+value);
     },
     render: function (divselector){
         var ekoG = this; // alias for this in callbacks!
@@ -103,6 +105,18 @@ EkoGabarit.prototype = {
         }
         this.ckElt.ckeditor(ck_initCallback,ck_config);
 
+        var baseURL = 'http://axial.imetrical.com/EkoImgUpload/';
+        this.ekoIP = new EkoImagePicker(null,null,baseURL);
+        this.ekoIP.selectedHandler = function(img) {
+            debug(img)
+            debug(ekoG.currentPickingImgElt);
+            var key = ekoG.currentPickingImgElt.attr('id');
+            ekoG.saveValue(key,img.url);
+            ekoG.currentPickingImgElt.find('img').attr('src',img.url);
+            ekoG.currentPickingImgElt = null;
+        };
+        this.ekoIP.render(); // append to body
+
     },
     save: function(){
         var ekoG = this; // alias for this in callbacks!
@@ -142,7 +156,7 @@ EkoGabarit.prototype = {
         var ekoG = this; // alias for this in callbacks!
         ekoG.clearValues(); // clear the value dictionary.
         this.previewJQ.find('ekko-placeholder').each(function(index){
-            debug(this);
+            //debug(this);
             var type = $(this).attr('type') || 'none';
             var key = $(this).attr('id') || 'none';
             if ('text'==type){
@@ -208,11 +222,26 @@ EkoGabarit.prototype = {
                     ekoG.dialogElt.width(nuwidth);
 
                 });
+            } else if ('image'==type) {
+                ekoG.saveValue(key,$(this).find('img').attr('src'));
+
+                $(this).addClass("editable");
+                $(this).hover(  function () {
+                    $(this).addClass("editablehover");
+                },
+                function () {
+                    $(this).removeClass("editablehover");
+                });
+                var ekoParentOfImg = $(this); // alias
+                $(this).find('img').click(function(){
+                    ekoG.currentPickingImgElt = ekoParentOfImg;
+                    ekoG.ekoIP.open();
+                });
             } else {
                 // populate dict with initial value
                 ekoG.saveValue(key,'unknown value for type: '+type);
                 debug(this);
-                debug('eko-tag not in (text|html)');
+                debug('eko-tag type: '+type+' not in (text|html|image)');
             }
         });
     },

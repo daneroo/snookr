@@ -25,6 +25,12 @@ root {
     color:purple !important;
 }
 
+.editable > img {
+    border: 1px solid #777777 !important;
+}
+.editablehover > img {
+    border: 1px solid red  !important;
+}
 #previewWrapper {
     border: solid gray;
     padding:10px;

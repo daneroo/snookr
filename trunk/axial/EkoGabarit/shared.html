@@ -19,21 +19,24 @@ and open the template in the editor.
         <script type="text/javascript" src="js/jquery.timer.js"></script>
         <script type="text/javascript" src="js/jquery.jeditable.mini.js"></script>
         <script type="text/javascript" src="js/sha1-min.js"></script>
-
+        <script type="text/javascript" src="../EkoImgUpload/js/ajaxupload.js" ></script>
         <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>
         <script type="text/javascript" src="js/ckeditor/adapters/jquery.js"></script>
 
         <script type="text/javascript" src="ekolib-gabarit-1.0.0.js"></script>
+        <script type="text/javascript" src="../EkoImgUpload/ekolib-imgpicker-1.0.0.js"></script>
 
+        <link href="../EkoImgUpload/styles.css" rel="stylesheet" type="text/css" />
         <link href="gabarit.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript">
             //<![CDATA[
-            var watchG=null;
+            var imageToReplaceInto = null;
+            var globalImgPicker = null;
             $(function() {
                 var ekoG = new EkoGabarit('#preview');
                 ekoG.render('#editordiv');
 
-                var urls = ['gabarit1.html','gabarit2.html','gabarit3.html','gabarit4.html','gabarit5.html'];
+                var urls = ['gabarit5.html','gabarit1.html','gabarit2.html','gabarit3.html','gabarit4.html','gabarit5.html'];
                 var selElt = $('<select></select>');
                 for (var u=0; u<urls.length; u++) {
                     var url = urls[u];
@@ -70,7 +73,6 @@ and open the template in the editor.
                     });
                 }
 
-                watchG = ekoG;
             });
 
 
