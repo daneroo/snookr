@@ -12,74 +12,22 @@
 
     <link rel="stylesheet" type="text/css" href="./styles.css" />
     <script type="text/javascript" >
-        //var baseURL = '';
-        var baseURL = 'http://axial.imetrical.com/EkoImgUpload/';
-
-        function debug(message){
-            if (window.console && window.console.firebug){
-                console.log(message);
-            }
-        }
-        function basename(path) {
-            return path.replace(/\\/g,'/').replace( /.*\//, '' );
-        }
-
         $(function(){
-            var ekoIP = new EkoImagePicker();
-            ekoIP.render('#dialogHolder');
+            //var ekoIP = new EkoImagePicker();
+            //  initialize with baseURL so local version works...
+            var baseURL = 'http://axial.imetrical.com/EkoImgUpload/';
+            var ekoIP = new EkoImagePicker(null,null,baseURL);
+            ekoIP.selectedHandler = function(img) {
+                $('#selectedFile').text(img.name);
+                $('#selectedImage').attr('src', img.url);
+                $('#selectedImageStruct').text('url:   '+img.url+'\n'+'thumb: '+img.thumb+'\n'+'name:  '+img.name+'\n');
+            };
+            ekoIP.render();
+
             $('#selectedFile').click(function(){
-                getList();
-                ekoIP.dialogElt.dialog("open");
-                ekoIP.status('Coucou '+new Date());
+                ekoIP.open();
                 return false;
             });
-
-            function clear(){
-                ekoIP.fileimglistElt.html('');
-            }
-            function seed(data){
-                var images = data.images;
-                for (var i=0;i<images.length;i++){
-                    addIMG(images[i]);
-                }
-            }
-            function addIMG(file){
-                var imgurl = baseURL+file;
-                $('<li></li>').appendTo(ekoIP.fileimglistElt)
-                .html('<img src="'+imgurl+'" alt="'+basename(file)+'" /><br />')
-                .addClass('success')
-                .click(function(){
-                    $('#selectedFile').text(file);
-                    $('#selectedImage').attr('src', imgurl);
-                    ekoIP.dialogElt.dialog("close");
-                });
-            }
-            function addERR(file){
-                $('<li></li>').appendTo(ekoIP.fileimglistElt).text(file).addClass('error');
-            }
-            function getList(aURL){
-                //aURL = aURL || 'imglist.php';
-                aURL = aURL || baseURL+'imglist.php';
-                aURL+='?'+new Date().getTime();
-                debug('getting: '+aURL);
-                $.ajax({
-                    url: aURL, // url from name ??
-                    //data: data,
-                    dataType: 'jsonp', // html,xml,json,jsonp
-                    jsonp:'jsonp',
-                    async: true,
-                    success: function(data) {
-                        debug('success');
-                        debug(data);
-                        clear();
-                        seed(data);
-                    }
-                });
-
-            }
-            getList();
-
-
         });/*]]>*/</script>
 </head>
 
@@ -88,18 +36,8 @@
     <p>Eko Image Picker, with integrated Uploader</p>
     <p>Selected Image <span id="selectedFile" >No Image Selected (click to select)</span>
         <br />
-        <img id="selectedImage" />
+        <img id="selectedImage" style="max-width:400px; max-height:300px;" />
+        <pre id="selectedImageStruct"></pre>
     </p>
-
-    <div id="dialog" style="display:none;" title="Choose an Image">
-        <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;" id="status" ><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><span>Status goes here</span></div>
-        <div id="uploadBtn" ><span>Upload Image</span></div>
-        <div id="listwrapper">
-            <ul id="files" ></ul>
-        </div>
-    </div>
-
-
-    <div id="dialogHolder"></div>
 
 </body>
