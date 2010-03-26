@@ -97,7 +97,6 @@ EkoGabarit.prototype = {
             height: ck_editor_height
         };
 
-        var ekoG = this; // alias for this in callbacks!
         var ck_initCallback = function(){
             ekoG.ckeditor = ekoG.ckElt.ckeditorGet();
             ekoG.ckeditor.ekoGabarit = ekoG;
