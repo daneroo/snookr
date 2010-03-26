@@ -20,7 +20,7 @@
             ekoIP.selectedHandler = function(img) {
                 $('#selectedFile').text(img.name);
                 $('#selectedImage').attr('src', img.url);
-                $('#selectedImageStruct').text('url:   '+img.url+'\n'+'thumb: '+img.thumb+'\n'+'name:  '+img.name+'\n');
+                $('#selectedImageStruct').text('url:   '+img.url+'\n'+'thumb: '+img.thumb+'\n'+'name:  '+img.name+'\n'+'size:  '+img.width+'x'+img.height+'\n');
             };
             ekoIP.render();
 
