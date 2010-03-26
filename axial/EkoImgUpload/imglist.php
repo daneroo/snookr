@@ -8,8 +8,16 @@ foreach (glob("uploads/*.*") as $filename) {
         //echo "REMOVE $filename size " . filesize($filename) . "<br />\n";
         continue;
     }
+    //print_r(getimagesize($filename));
+    list($width, $height, $type, $attr) = getimagesize($filename);
     $url = $baseURL . $filename;
-    $imgStruct = array ('url'=>$url, 'thumb'=>$url."#thumb", 'name'=>basename($filename) );
+    $imgStruct = array (
+        'url'=>$url,
+        'thumb'=>$url."#thumb",
+        'name'=>basename($filename),
+        'width'=> $width,
+        'height'=> $height,
+    );
     array_push($imglist, $imgStruct);
 }
 //print_r($imglist);
