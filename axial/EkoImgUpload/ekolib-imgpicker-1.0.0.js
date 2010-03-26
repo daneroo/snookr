@@ -186,6 +186,6 @@ function EkoImagePicker(getListURL,uploadURL,baseURL) {
     this.getListURL = baseURL+getListURL;
     uploadURL = uploadURL || 'upload-file.php';
     this.uploadURL = baseURL+uploadURL;
-    debug('get list from: '+this.getListURL);
-    debug('upload to: '+this.uploadURL);
+    //debug('get list from: '+this.getListURL);
+    //debug('upload to: '+this.uploadURL);
 }
