@@ -3,13 +3,17 @@
  * The getList URL expect a JSON structure like this
 {
     "images":[{
-            "url":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/4380362067_b4c12dace2.jpg",
-            "thumb":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/4380362067_b4c12dace2.jpg#thumb",
-            "name":"4380362067_b4c12dace2.jpg"
+        "url":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/4380362067_b4c12dace2.jpg",
+        "thumb":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/4380362067_b4c12dace2.jpg#thumb",
+        "name":"4380362067_b4c12dace2.jpg",
+        "width":500,
+        "height":375
         },{
-            "url":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/LeMeilleurCari.jpg",
-            "thumb":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/LeMeilleurCari.jpg#thumb",
-            "name":"LeMeilleurCari.jpg"
+        "url":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/IMG_5038.JPG",
+        "thumb":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/IMG_5038.JPG#thumb",
+        "name":"IMG_5038.JPG",
+        "width":2272,
+        "height":1704
         }]
 }
  */
@@ -186,6 +190,6 @@ function EkoImagePicker(getListURL,uploadURL,baseURL) {
     this.getListURL = baseURL+getListURL;
     uploadURL = uploadURL || 'upload-file.php';
     this.uploadURL = baseURL+uploadURL;
-    //debug('get list from: '+this.getListURL);
-    //debug('upload to: '+this.uploadURL);
+//debug('get list from: '+this.getListURL);
+//debug('upload to: '+this.uploadURL);
 }
