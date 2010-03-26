@@ -1,5 +1,17 @@
 /* 
  * eko-imgpicker - Image Picker-upload
+ * The getList URL expect a JSON structure like this
+{
+    "images":[{
+            "url":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/4380362067_b4c12dace2.jpg",
+            "thumb":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/4380362067_b4c12dace2.jpg#thumb",
+            "name":"4380362067_b4c12dace2.jpg"
+        },{
+            "url":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/LeMeilleurCari.jpg",
+            "thumb":"http:\/\/axial.imetrical.com\/EkoImgUpload\/uploads\/LeMeilleurCari.jpg#thumb",
+            "name":"LeMeilleurCari.jpg"
+        }]
+}
  */
 
 function debug(message){
@@ -153,6 +165,7 @@ EkoImagePicker.prototype = {
         });
     },
     selectedHandler: function(img){
+        // default do nothing hanlder
         alert('selected: '+img.url);
     },
     open: function(){
