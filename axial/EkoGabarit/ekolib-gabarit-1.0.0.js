@@ -108,6 +108,7 @@ EkoGabarit.prototype = {
         var baseURL = 'http://axial.imetrical.com/EkoImgUpload/';
         this.ekoIP = new EkoImagePicker(null,null,baseURL);
         this.ekoIP.selectedHandler = function(img) {
+            debug('IP:Saving to eko-placehoder:');
             debug(img)
             debug(ekoG.currentPickingImgElt);
             var key = ekoG.currentPickingImgElt.attr('id');
