@@ -1,0 +1,28 @@
+
+#selectedFile {
+    font-weight:bold;
+}
+
+.eko-button {
+    outline: 0;
+    margin:0 4px 0 0;
+    padding: .4em 1em;
+    text-decoration:none !important;
+    cursor:pointer;
+    position: relative;
+    text-align: center;
+    zoom: 1;
+}
+
+
+ul.eko-fileimglist{ list-style:none; padding:0; margin:0; padding-top:1em; }
+ul.eko-fileimglist li{
+    padding:4px; margin-bottom:0px;
+    width:100px; float:left; margin-right:10px;
+    border:1px solid #4297d7;
+    /* leave bg white for now */
+    /*background:#2191c0;*/
+}
+ul.eko-fileimglist li img{ 
+    max-width:100px; max-height:75px;margin-left: auto; margin-right: auto;
+}
