@@ -1,0 +1,4 @@
+Root of facebooke experiments:
+
+sync'em all, from here.
+rsync   -av --progress --exclude nbproject --exclude .svn ./ mirawatt@axial.mirawatt.com:httpdocs/com/imetrical/axial/facebook/
