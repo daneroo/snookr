@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lfm status="ok">
+<playlist version="1" xmlns="http://xspf.org/ns/0/">
+<title>Fromage67’s Loved Tracks</title>
+<creator>Last.fm</creator>
+<date>2010-04-19T18:46:43</date>
+<link rel="http://www.last.fm/expiry">3600</link>
+<trackList>
+    <track>
+        <location>http://play.last.fm/user/d33a7b879639c66157e4f0177bac91be.mp3</location>
+        <title>Heaven Sent</title>
+        <identifier>1067156</identifier>
+        <album>Breath From Another</album>
+        <creator>Esthero</creator>
+        <duration>270000</duration>
+        <image>http://userserve-ak.last.fm/serve/174s/12622403.jpg</image>        
+        
+        <extension application="http://www.last.fm">
+            <trackauth>53490</trackauth>
+            <albumid>1413333</albumid>
+            <artistid>1007673</artistid>        
+            <recording>1067156</recording>
+                
+            <artistpage>http://www.last.fm/music/Esthero</artistpage>
+            <albumpage>http://www.last.fm/music/Esthero/Breath+From+Another</albumpage>
+            <trackpage>http://www.last.fm/music/Esthero/_/Heaven+Sent</trackpage>
+            <buyTrackURL></buyTrackURL>
+            <buyAlbumURL></buyAlbumURL>
+            <freeTrackURL></freeTrackURL>
+            
+            <explicit>0</explicit>
+            <loved>0</loved>
+            <streamid>40be7f65589acad5</streamid>
+                
+        </extension>        
+    </track>
+    <track>
+        <location>http://play.last.fm/user/3fd009608f40f1cea38d7eae94116fcb.mp3</location>
+        <title>Private Road</title>
+        <identifier>31823</identifier>
+        <album>Programmed To Love</album>
+        <creator>Bent</creator>
+        <duration>350000</duration>
+        <image>http://userserve-ak.last.fm/serve/174s/41098311.png</image>        
+        
+        <extension application="http://www.last.fm">
+            <trackauth>75584</trackauth>
+            <albumid>5956</albumid>
+            <artistid>4142</artistid>        
+            <recording>31823</recording>
+                
+            <artistpage>http://www.last.fm/music/Bent</artistpage>
+            <albumpage>http://www.last.fm/music/Bent/Programmed+To+Love</albumpage>
+            <trackpage>http://www.last.fm/music/Bent/_/Private+Road</trackpage>
+            <buyTrackURL></buyTrackURL>
+            <buyAlbumURL></buyAlbumURL>
+            <freeTrackURL></freeTrackURL>
+            
+            <explicit>0</explicit>
+            <loved>0</loved>
+            <streamid>f617f0812148c5e9</streamid>
+                
+        </extension>        
+    </track>
+    <track>
+        <location>http://play.last.fm/user/fb6777d0b21b12d8ed330d043e7a2864.mp3</location>
+        <title>Proper Hoodidge</title>
+        <identifier>1105630</identifier>
+        <album>Out From Out Where</album>
+        <creator>Amon Tobin</creator>
+        <duration>324000</duration>
+        <image>http://userserve-ak.last.fm/serve/174s/41142413.png</image>        
+        
+        <extension application="http://www.last.fm">
+            <trackauth>d2e14</trackauth>
+            <albumid>310725</albumid>
+            <artistid>437</artistid>        
+            <recording>114440371</recording>
+                
+            <artistpage>http://www.last.fm/music/Amon+Tobin</artistpage>
+            <albumpage>http://www.last.fm/music/Amon+Tobin/Out+From+Out+Where</albumpage>
+            <trackpage>http://www.last.fm/music/Amon+Tobin/_/Proper+Hoodidge</trackpage>
+            <buyTrackURL></buyTrackURL>
+            <buyAlbumURL></buyAlbumURL>
+            <freeTrackURL></freeTrackURL>
+            
+            <explicit>0</explicit>
+            <loved>0</loved>
+            <streamid>815ca9e65919f30</streamid>
+                
+        </extension>        
+    </track>
+    <track>
+        <location>http://play.last.fm/user/7f3a533beb39f02375336932eafbef12.mp3</location>
+        <title>Absinthe</title>
+        <identifier>33672702</identifier>
+        <album></album>
+        <creator>Beth Orton</creator>
+        <duration>241000</duration>
+        <image></image>        
+        
+        <extension application="http://www.last.fm">
+            <trackauth>6a439</trackauth>
+            <albumid></albumid>
+            <artistid>1171</artistid>        
+            <recording>33672702</recording>
+                
+            <artistpage>http://www.last.fm/music/Beth+Orton</artistpage>
+            <albumpage></albumpage>
+            <trackpage>http://www.last.fm/music/Beth+Orton/_/Absinthe</trackpage>
+            <buyTrackURL></buyTrackURL>
+            <buyAlbumURL></buyAlbumURL>
+            <freeTrackURL></freeTrackURL>
+            
+            <explicit>0</explicit>
+            <loved>1</loved>
+            <streamid>dd7c975d9de8c6a</streamid>
+                
+        </extension>        
+    </track>
+    <track>
+        <location>http://play.last.fm/user/05eda459917b721528f629e69a9c9e58.mp3</location>
+        <title>Shining Pain</title>
+        <identifier>7214303</identifier>
+        <album>Presents Soel Memento &amp; Living</album>
+        <creator>St. Germain</creator>
+        <duration>227000</duration>
+        <image>http://userserve-ak.last.fm/serve/174s/16248441.jpg</image>        
+        
+        <extension application="http://www.last.fm">
+            <trackauth>773a5</trackauth>
+            <albumid>1418710</albumid>
+            <artistid>1688</artistid>        
+            <recording>7214303</recording>
+                
+            <artistpage>http://www.last.fm/music/St.+Germain</artistpage>
+            <albumpage>http://www.last.fm/music/St.+Germain/Presents%2BSoel%2BMemento%2B%2526%2BLiving</albumpage>
+            <trackpage>http://www.last.fm/music/St.+Germain/_/Shining+Pain</trackpage>
+            <buyTrackURL></buyTrackURL>
+            <buyAlbumURL></buyAlbumURL>
+            <freeTrackURL></freeTrackURL>
+            
+            <explicit>0</explicit>
+            <loved>0</loved>
+            <streamid>5b3ee1d2fdf2349a</streamid>
+                
+        </extension>        
+    </track>
+</trackList>
+</playlist></lfm>

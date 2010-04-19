@@ -1,0 +1,20 @@
+last.fm request:
+----------------
+Timestamp .....: Mon Apr 19 14:46:43 2010 (localtime)
+Timestamp .....: Mon Apr 19 18:46:43 2010 (gmtime)
+Configuration .: cfgfile = lfmCMD.cfg (found)
+Configuration .: display_response = 1
+Configuration .: terminal_encoding = utf8 (expected)
+Configuration .: httpProxy = 
+Configuration .: httpTimeout = 53
+System ........: OSNAME = darwin
+System ........: PERL_VERSION = 
+Parameter .....: api_key = 0996e89f272c714ec0bd463ea17faf6c
+Parameter .....: method = radio.getPlaylist
+Parameter .....: sk = 644253673e0f933b81d6722347a10f8e
+Service URI ...: http://ws.audioscrobbler.com/2.0/?api_key=0996e89f272c714ec0bd463ea17faf6c&api_sig=c03bccb4d960fe55eb1e3c7805958f77&method=radio.getPlaylist&sk=644253673e0f933b81d6722347a10f8e
+
+last.fm response:
+-----------------
+http status ...: 200 OK
+last.fm status : ok
