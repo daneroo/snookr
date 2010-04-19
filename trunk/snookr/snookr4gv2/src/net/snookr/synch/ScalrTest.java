@@ -26,8 +26,8 @@ import net.snookr.util.MD5;
 public class ScalrTest {
 
     final String zipName;
-    static final String postZipURL = "http://localhost:8080/zip";
-    //static final String postZipURL = "http://scalr.appspot.com/zip";
+    //static final String postZipURL = "http://localhost:8080/zip";
+    static final String postZipURL = "http://scalr.appspot.com/zip";
 
     public ScalrTest(String zipName) {
         //this.zipName = "" + hostname + ".json.zip";

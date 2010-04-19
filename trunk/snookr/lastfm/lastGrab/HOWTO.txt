@@ -1,0 +1,40 @@
+LastFM api docs
+  http://www.last.fm/api
+perl Last.fm api tool:
+  http://www.easyclasspage.de/lastfm/index.html
+Python lib for mp3 tags: mutagen:
+   http://code.google.com/p/mutagen/
+
+TODO - 
+  -Convention for storing
+  -Param for daneroo/fromage67 | loved|library-recommenred..
+
+The session key should be good forever...
+      cat SESSION.INFINTE.daneroo.last.fm.Response.xml
+<?xml version="1.0" encoding="utf-8"?>
+<lfm status="ok">
+<session>
+    <name>daneroo</name>
+    <key>644253673e0f933b81d6722347a10f8e</key>
+    <subscriber>1</subscriber>
+</session></lfm>
+
+
+perl lfmCMD.pl method="radio.getPlaylist" sk="644253673e0f933b81d6722347a10f8e"|grep location
+e.g. output:
+        <location>http://play.last.fm/user/c371c72f1a32f675c76a7e9186b8fb45.mp3</location>
+        <location>http://play.last.fm/user/a1cc1bcee44bbb2162c98498296084ad.mp3</location>
+        <location>http://play.last.fm/user/0204ce27b58335c36f453f1d8e883d58.mp3</location>
+        <location>http://play.last.fm/user/90f490bae18cc032136e63423d9ca389.mp3</location>
+        <location>http://play.last.fm/user/2258c74d97f225a82402cc1ac25ca713.mp3</location>
+
+Then curl it in:
+curl -vvv -L  http://play.last.fm/user/c371c72f1a32f675c76a7e9186b8fb45.mp3 >track0010.mp3
+
+
+perl lfmCMD.pl method="radio.getPlaylist" sk="644253673e0f933b81d6722347a10f8e" | grep location | sed -e "s/<\/\{0,1\}location>//g"
+
+for s in `perl lfmCMD.pl method="radio.getPlaylist" sk="644253673e0f933b81d6722347a10f8e" | grep location | sed -e "s/<\/\{0,1\}location>//g"`; do echo $s; curl -vvv -L $s >track-`date +%Y%m%d.%H%M%S`.mp3; done
+
+Now that we hav a python script...
+  while true; do time python lastGrab.py ; done
