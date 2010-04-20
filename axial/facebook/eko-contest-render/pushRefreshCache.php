@@ -13,7 +13,7 @@ http://axial.imetrical.com/facebook/eko-contest-render/pushRefreshCache.php
         Logger::configure('log4php.properties');
 
         $b = 'http://axial.imetrical.com/facebook/eko-contest-render';
-        $extRefUrls = array("$b/fbref001.html","$b/fbref001.php","$b/fbref002.php","$b/fbref001.php?pid=112544522101543","$b/fbref001.php?pid=111211942246289");
+        $extRefUrls = array("$b/fbref001.html","$b/fbref001.php","$b/fbref002.php","$b/fbref003.php","$b/fbref001.php?pid=112544522101543","$b/fbref001.php?pid=111211942246289");
 
         $logger = Logger::getLogger("cache");
         $logger->info("update cache: ".$extRefUrl);
