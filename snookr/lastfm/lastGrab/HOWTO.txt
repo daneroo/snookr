@@ -37,4 +37,4 @@ perl lfmCMD.pl method="radio.getPlaylist" sk="644253673e0f933b81d6722347a10f8e" 
 for s in `perl lfmCMD.pl method="radio.getPlaylist" sk="644253673e0f933b81d6722347a10f8e" | grep location | sed -e "s/<\/\{0,1\}location>//g"`; do echo $s; curl -vvv -L $s >track-`date +%Y%m%d.%H%M%S`.mp3; done
 
 Now that we hav a python script...
-  while true; do time python lastGrab.py ; done
+  while true; do time python lastGrab.py ; sleep 1; done
