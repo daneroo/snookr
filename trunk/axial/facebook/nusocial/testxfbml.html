@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>XFBML test</title>
+    </head>
+    <body>
+        <h1>XFBML test</h1>
+
+        <div id="fb-root"></div>
+        <script>
+            function debug(message){
+                if (window.console && window.console.firebug){
+                    console.log(message);
+                }
+            }
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId  : 'YOUR APP ID',
+                    status : true, // check login status
+                    cookie : true, // enable cookies to allow the server to access the session
+                    xfbml  : true  // parse XFBML
+                });
+            };
+
+            (function() {
+                var e = document.createElement('script');
+                e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+                e.async = true;
+                document.getElementById('fb-root').appendChild(e);
+            }());
+        </script>
+
+        <style>
+            th { border: solid gray; }
+            td { border: solid black; }
+        </style>
+        <table border="0">
+            <thead>
+                <tr>
+                    <th colspan="2">
+                        <div>Here is a like button for this page:</div>
+                        <div>
+                            <fb:like href="http://axial.imetrical.com/com/imetrical/axial/facebook/nusocial/" layout="standard" show_faces="true" width="450" action="like" colorscheme="light" ></fb:like>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th><div>Here is a like box for cobra:</div></th>
+                    <th><div>Here is a comment box:</div></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div>
+                            <fb:like-box id="126872168949" name="cobradumandingue" width="292" connections="10" stream="true" header="false"></fb:like-box>
+                    </div></td>
+                    <td><div>
+                            <fb:comments xid="126872168949" numposts="10" width="420" ></fb:comments>
+                    </div></td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+
+
+
+
+
+    </body>
+</html>
