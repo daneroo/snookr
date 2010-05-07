@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>Demo Editeur</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/start/jquery-ui.css" type="text/css" media="all" />
+        <!-- Includes -->
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js"></script>
+
+        <script type="text/javascript" src="../dist/ekolib.js"></script>
+        <script type="text/javascript">
+            $(function(){
+                var dataPath="../data/"
+                $.ajax({
+                    url: dataPath+'eko-groupsets.json',
+                    //data: data,
+                    dataType: 'html', // html,xml,json,jsonp
+                    async: false,
+                    success: function(data) {
+                        var loadedSets = $.evalJSON(data);
+                        eko.groupsets = loadedSets;
+
+                    }
+                });
+
+                //and now inject choicesets into
+                // eko.contest.FieldTypes['CHOICESET']
+                eko.contest.FieldTypes.CHOICESET=[];
+                for (var k in eko.groupsets){
+                    var cs = eko.groupsets[k];
+                    debug('Choice set '+k+' has length '+cs.length);
+                    eko.contest.FieldTypes.CHOICESET.push({
+                        name:k,
+                        label:k
+                    });
+                }
+
+                /* This works to load a contest, using $.evalJSON
+                 * causes not-well formed error when loading a local file
+                 */
+                $.ajax({
+                    url: dataPath+'eko-groups.json',
+                    //data: data,
+                    dataType: 'html', // html,xml,json,jsonp
+                    async: false,
+                    success: function(data) {
+                        var loadedGroups = $.evalJSON(data);
+                        //alert(loadedContest.name);
+                        eko.groups = loadedGroups.groups;
+                    }
+                });
+                $.ajax({
+                    //url: '../data/eko-templates.json',
+                    url: dataPath+'eko-templates.json',
+                    //data: data,
+                    dataType: 'html', // html,xml,json,jsonp
+                    async: false,
+                    success: function(data) {
+                        var loadedTemplates = $.evalJSON(data);
+                        //alert(loadedContest.name);
+                        eko.templates = loadedTemplates.templates;
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown){
+                        debug(textStatus);
+                    }
+                });
+
+                renderEditorPreviewJSON(contest1,$('#tabs'));
+
+            });
+        </script>
+        <style type="text/css">
+            /*demo page css*/
+            body{ font: 80% "Trebuchet MS", sans-serif; margin: 20px;}
+            h1 {font-size:150%;}
+            .demoHeaders { margin-top: 2em; }
+            .eko-btn { height:20px; padding: .4em 1em .4em 20px;text-decoration: none; position: relative; text-decoration:none;}
+            .eko-btn span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+
+            /* For arrows and such */
+            .eko-action-icon {width:16px; height:20px; padding: 0 0 0 20px;text-decoration: none; position: relative; text-decoration:none;}
+            .eko-action-icon span.ui-icon {margin: 0 0 0 0;position: absolute;left: .1em;top: 50%;margin-top: -8px;}
+
+            /*ul#icons {margin: 0; padding: 0;}
+            ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left;  list-style: none;}
+            ul#icons span.ui-icon {float: left; margin: 0 4px;}
+            */
+
+
+            /* so fillSpace works on accordion..
+            .steps { height:200px;}*/
+
+            .accordioncontrol {float:right;}
+            .choiceeditor {margin-left:4em; font-size:80%; clear:both;}
+            .fieldcontrol {margin-left:2em; font-size:80%; margin-top:25px;}
+            .fieldcontrol a { margin-right:.5em;}
+
+            .field {clear:both;}
+            .fieldtypelabel {width:5em; float:left;}
+            .field select {width:10em;}
+            .field select.field-validation {width:7em;}
+
+            .fieldlabel  {width:10em; float:left; font-style:italic; text-align:right; margin-right:.5em;}
+            .field select.choicesetselect {width:auto;}
+        </style>
+
+    </head>
+    <body>
+        <h1>Editeur de concours Eko</h1>
+        <div id="tabs">
+        </div>
+
+        <h1>Status</h1>
+        <pre id="status">status</pre>
+        <div id="previewpost">preview post</div>
+        <div id="result">result...</div>
+
+    </body>
+</html>

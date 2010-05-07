@@ -1,0 +1,537 @@
+{
+    "groups" : [{
+        "name":"3304",
+        "label":"1-A"
+    },{
+        "name":"3305",
+        "label":"1-B"
+    },{
+        "name":"3306",
+        "label":"1-C"
+    },{
+        "name":"3307",
+        "label":"1-D"
+    },{
+        "name":"3308",
+        "label":"1-E"
+    },{
+        "name":"3309",
+        "label":"2-A"
+    },{
+        "name":"3310",
+        "label":"2-B"
+    },{
+        "name":"3311",
+        "label":"2-C"
+    },{
+        "name":"3312",
+        "label":"2-D"
+    },{
+        "name":"3313",
+        "label":"2-E"
+    },{
+        "name":"3314",
+        "label":"3-A"
+    },{
+        "name":"3315",
+        "label":"3-B"
+    },{
+        "name":"3316",
+        "label":"3-C"
+    },{
+        "name":"3317",
+        "label":"3-D"
+    },{
+        "name":"3318",
+        "label":"3-E"
+    },{
+        "name":"3339",
+        "label":"age +65"
+    },{
+        "name":"3334",
+        "label":"age -18"
+    },{
+        "name":"3335",
+        "label":"age 18-24"
+    },{
+        "name":"3336",
+        "label":"age 25-34"
+    },{
+        "name":"3337",
+        "label":"age 35-49"
+    },{
+        "name":"3338",
+        "label":"age 50-64"
+    },{
+        "name":"3320",
+        "label":"alerte derniere minute"
+    },{
+        "name":"3519",
+        "label":"Allergie"
+    },{
+        "name":"3296",
+        "label":"Anglais"
+    },{
+        "name":"3390",
+        "label":"Annonce d'un tirage"
+    },{
+        "name":"3391",
+        "label":"ASSS  du Bas-Saint-Laurent"
+    },{
+        "name":"3472",
+        "label":"ASSS de Chaudi�re-Appalaches"
+    },{
+        "name":"3452",
+        "label":"ASSS de l'Abitibi-T�miscamingue"
+    },{
+        "name":"3420",
+        "label":"ASSS de l'Estrie"
+    },{
+        "name":"3446",
+        "label":"ASSS de l'Outaouais"
+    },{
+        "name":"3406",
+        "label":"ASSS de la Capitale-Nationale"
+    },{
+        "name":"3459",
+        "label":"ASSS de la C�te-Nord"
+    },{
+        "name":"3469",
+        "label":"ASSS de la Gasp�sie - �les-de-la-Madeleine"
+    },{
+        "name":"3411",
+        "label":"ASSS de la Mauricie et Centre-du-Qu�bec"
+    },{
+        "name":"3491",
+        "label":"ASSS de la Mont�r�gie"
+    },{
+        "name":"3488",
+        "label":"ASSS de Lanaudi�re"
+    },{
+        "name":"3478",
+        "label":"ASSS de Laval"
+    },{
+        "name":"3433",
+        "label":"ASSS de Montr�al"
+    },{
+        "name":"3480",
+        "label":"ASSS des Laurentides"
+    },{
+        "name":"3399",
+        "label":"ASSS du Saguenay - Lac-Saint-Jean"
+    },{
+        "name":"3323",
+        "label":"avec enfants"
+    },{
+        "name":"3536",
+        "label":"CCSSS de la Baie-James"
+    },{
+        "name":"3321",
+        "label":"c�libataire"
+    },{
+        "name":"3463",
+        "label":"CLSC Naskapi"
+    },{
+        "name":"3343",
+        "label":"comm-ami"
+    },{
+        "name":"3341",
+        "label":"comm-pom.ca"
+    },{
+        "name":"3340",
+        "label":"comm-publications"
+    },{
+        "name":"3342",
+        "label":"comm-publisac"
+    },{
+        "name":"3300",
+        "label":"Concours Gagnez un voyage en France"
+    },{
+        "name":"3389",
+        "label":"Connexion Internet"
+    },{
+        "name":"3405",
+        "label":"CSSS  de Chicoutimi"
+    },{
+        "name":"3502",
+        "label":"CSSS  de la Haute-Yamaska"
+    },{
+        "name":"3448",
+        "label":"CSSS  de la Vall�e-de-la-Gatineau"
+    },{
+        "name":"3403",
+        "label":"CSSS  de Lac-Saint-Jean"
+    },{
+        "name":"3451",
+        "label":"CSSS  de Papineau"
+    },{
+        "name":"3449",
+        "label":"CSSS  des Collines"
+    },{
+        "name":"3429",
+        "label":"CSSS  du Val-Saint-Fran�ois"
+    },{
+        "name":"3498",
+        "label":"CSSS  la Pommeraie"
+    },{
+        "name":"3437",
+        "label":"CSSS Cavendish"
+    },{
+        "name":"3494",
+        "label":"CSSS Champlain"
+    },{
+        "name":"3401",
+        "label":"CSSS Cl�ophas-Claveau"
+    },{
+        "name":"3440",
+        "label":"CSSS d'Ahuntsic et Montr�al-Nord"
+    },{
+        "name":"3484",
+        "label":"CSSS d'Antoine-Labelle"
+    },{
+        "name":"3487",
+        "label":"CSSS d'Argenteuil"
+    },{
+        "name":"3523",
+        "label":"CSSS d'Arthabaska-et-de-L'�rable"
+    },{
+        "name":"3477",
+        "label":"CSSS de Beauce"
+    },{
+        "name":"3527",
+        "label":"CSSS de B�cancour -- Nicolet-Yamaska"
+    },{
+        "name":"3528",
+        "label":"CSSS de Brodeaux-Cartierville -- Saint-Laurent"
+    },{
+        "name":"3410",
+        "label":"CSSS de Charlevoix"
+    },{
+        "name":"3435",
+        "label":"CSSS de Dorval-Lachine-LaSalle"
+    },{
+        "name":"3450",
+        "label":"CSSS de Gatineau"
+    },{
+        "name":"3402",
+        "label":"CSSS de Jonqui�re"
+    },{
+        "name":"3393",
+        "label":"CSSS de Kamouraska"
+    },{
+        "name":"3526",
+        "label":"CSSS de l'�nergie"
+    },{
+        "name":"3467",
+        "label":"CSSS de l'H�matite"
+    },{
+        "name":"3434",
+        "label":"CSSS de l'ouest-de-l'�le"
+    },{
+        "name":"3533",
+        "label":"CSSS de la Baie-des-Chaleurs"
+    },{
+        "name":"3468",
+        "label":"CSSS de la Bais-James"
+    },{
+        "name":"3466",
+        "label":"CSSS de la Basse-C�te-Nord"
+    },{
+        "name":"3534",
+        "label":"CSSS de La C�te-de-Gasp�"
+    },{
+        "name":"3460",
+        "label":"CSSS de la Haut-C�te-Nord"
+    },{
+        "name":"3531",
+        "label":"CSSS de la Haute-Gasp�sie"
+    },{
+        "name":"3396",
+        "label":"CSSS de la Matap�dia"
+    },{
+        "name":"3461",
+        "label":"CSSS de la Minganie"
+    },{
+        "name":"3394",
+        "label":"CSSS de la Mitis"
+    },{
+        "name":"3438",
+        "label":"CSSS de la Montagne"
+    },{
+        "name":"3430",
+        "label":"CSSS de la MRC Coaticook"
+    },{
+        "name":"3445",
+        "label":"CSSS de la Pointe-de-l'�le"
+    },{
+        "name":"3535",
+        "label":"CSSS de la r�gion de Thetford"
+    },{
+        "name":"3457",
+        "label":"CSSS de la Vall�e-de-l'Or"
+    },{
+        "name":"3522",
+        "label":"CSSS de la V�ll�e-de-la-Batiscan"
+    },{
+        "name":"3408",
+        "label":"CSSS de la Vieille-Capitale"
+    },{
+        "name":"3479",
+        "label":"CSSS de Laval"
+    },{
+        "name":"3521",
+        "label":"CSSS de Maskinong�"
+    },{
+        "name":"3431",
+        "label":"CSSS de Memphr�magog"
+    },{
+        "name":"3475",
+        "label":"CSSS de Montmagny-L'Islet"
+    },{
+        "name":"3407",
+        "label":"CSSS de Portneuf"
+    },{
+        "name":"3409",
+        "label":"CSSS de Qu�bec-Nord"
+    },{
+        "name":"3397",
+        "label":"CSSS de Rimouski-Neigette"
+    },{
+        "name":"3398",
+        "label":"CSSS de Rivi�re-du-Loup"
+    },{
+        "name":"3456",
+        "label":"CSSS de Rouyn-Noranda"
+    },{
+        "name":"3486",
+        "label":"CSSS de Saint-J�r�me"
+    },{
+        "name":"3443",
+        "label":"CSSS de Saint-L�onard et Saint-Michel"
+    },{
+        "name":"3465",
+        "label":"CSSS de Sept-Iles"
+    },{
+        "name":"3489",
+        "label":"CSSS de Sud de Lanaudi�re"
+    },{
+        "name":"3530",
+        "label":"CSSS de T�miscaming-et-de-Kipawa"
+    },{
+        "name":"3395",
+        "label":"CSSS de T�miscouata"
+    },{
+        "name":"3482",
+        "label":"CSSS de Th�r�se-De Blainville"
+    },{
+        "name":"3524",
+        "label":"CSSS de Trois-Rivi�res"
+    },{
+        "name":"3500",
+        "label":"CSSS de Vaudreuil-Soulanges"
+    },{
+        "name":"3454",
+        "label":"CSSS des Aurores-Bor�ales"
+    },{
+        "name":"3392",
+        "label":"CSSS des Basques"
+    },{
+        "name":"3473",
+        "label":"CSSS des Etchemins"
+    },{
+        "name":"3471",
+        "label":"CSSS des �les"
+    },{
+        "name":"3481",
+        "label":"CSSS des Pays-d'en-Haut"
+    },{
+        "name":"3483",
+        "label":"CSSS des Sommets"
+    },{
+        "name":"3428",
+        "label":"CSSS des Sources"
+    },{
+        "name":"3404",
+        "label":"CSSS Domaine-du-Roy"
+    },{
+        "name":"3525",
+        "label":"CSSS Drummond"
+    },{
+        "name":"3441",
+        "label":"CSSS du Coeur-de-l'�le"
+    },{
+        "name":"3476",
+        "label":"CSSS du Grand Littoral"
+    },{
+        "name":"3432",
+        "label":"CSSS du Granit"
+    },{
+        "name":"3425",
+        "label":"CSSS du Haut-Saint-Fran�ois"
+    },{
+        "name":"3501",
+        "label":"CSSS du Haut-Saint-Laurent"
+    },{
+        "name":"3520",
+        "label":"CSSS du Haut-Saint-Maurice"
+    },{
+        "name":"3485",
+        "label":"CSSS du Lac-des-Deux-Montagnes"
+    },{
+        "name":"3453",
+        "label":"CSSS du Lac-T�mismingue"
+    },{
+        "name":"3490",
+        "label":"CSSS du Nord de Lanaudi�re"
+    },{
+        "name":"3447",
+        "label":"CSSS du Pontiac"
+    },{
+        "name":"3532",
+        "label":"CSSS du Rocher-Perc�"
+    },{
+        "name":"3436",
+        "label":"CSSS du Sud-Ouest -- Verdun"
+    },{
+        "name":"3496",
+        "label":"CSSS du Suro�t"
+    },{
+        "name":"3455",
+        "label":"CSSS Eskers de l'Abitibi"
+    },{
+        "name":"3493",
+        "label":"CSSS Haut-Richelieu -- Rouville"
+    },{
+        "name":"3497",
+        "label":"CSSS Jardins-Roussillon"
+    },{
+        "name":"3442",
+        "label":"CSSS Jeanne-Mance"
+    },{
+        "name":"3444",
+        "label":"CSSS Lucille-Teasdale"
+    },{
+        "name":"3464",
+        "label":"CSSS Manicouagan"
+    },{
+        "name":"3400",
+        "label":"CSSS Maria-Chapdelaine"
+    },{
+        "name":"3492",
+        "label":"CSSS Pierre-Boucher"
+    },{
+        "name":"3495",
+        "label":"CSSS Pierre-De Saurel"
+    },{
+        "name":"3462",
+        "label":"CSSS Port-Cartier"
+    },{
+        "name":"3499",
+        "label":"CSSS Richelieu-Yamaska"
+    },{
+        "name":"3529",
+        "label":"CSSS Universitaire de g�riatrie de Sherbrooke"
+    },{
+        "name":"3322",
+        "label":"en couple"
+    },{
+        "name":"3298",
+        "label":"entre 26 et 50 ans"
+    },{
+        "name":"3295",
+        "label":"Francais"
+    },{
+        "name":"3319",
+        "label":"info lettres"
+    },{
+        "name":"3326",
+        "label":"interet -restaurant"
+    },{
+        "name":"3332",
+        "label":"interet-alerte"
+    },{
+        "name":"3328",
+        "label":"interet-attrait"
+    },{
+        "name":"3330",
+        "label":"interet-concours"
+    },{
+        "name":"3331",
+        "label":"interet-coupons"
+    },{
+        "name":"3327",
+        "label":"interet-evenements"
+    },{
+        "name":"3329",
+        "label":"interet-hebergement"
+    },{
+        "name":"3325",
+        "label":"interet-shopping"
+    },{
+        "name":"3333",
+        "label":"interet-tous"
+    },{
+        "name":"3297",
+        "label":"moins de 25 ans"
+    },{
+        "name":"3515",
+        "label":"Participants au concours #30"
+    },{
+        "name":"3516",
+        "label":"Participants au concours #31"
+    },{
+        "name":"3376",
+        "label":"Participation conjoint"
+    },{
+        "name":"3299",
+        "label":"plus de 51 ans"
+    },{
+        "name":"3374",
+        "label":"R�sidence : R1"
+    },{
+        "name":"3375",
+        "label":"R�sidence : R2"
+    },{
+        "name":"3503",
+        "label":"RRSSS Nunavik"
+    },{
+        "name":"3324",
+        "label":"sans enfants"
+    },{
+        "name":"3373",
+        "label":"UMF Basques-KRTB"
+    },{
+        "name":"3371",
+        "label":"UMF de Gasp�"
+    },{
+        "name":"3368",
+        "label":"UMF de Manicouagan"
+    },{
+        "name":"3370",
+        "label":"UMF de Rimouski"
+    },{
+        "name":"3372",
+        "label":"UMF des Etchemins"
+    },{
+        "name":"3367",
+        "label":"UMF du Grand Littoral"
+    },{
+        "name":"3369",
+        "label":"UMF du Nord de Lanaudi�re"
+    },{
+        "name":"3364",
+        "label":"UMF Haute-Ville"
+    },{
+        "name":"3363",
+        "label":"UMF Laurier"
+    },{
+        "name":"3362",
+        "label":"UMF Laval"
+    },{
+        "name":"3366",
+        "label":"UMF Maizerets"
+    },{
+        "name":"3365",
+        "label":"UMF St-Francois-d'Assises"
+    }]
+}
