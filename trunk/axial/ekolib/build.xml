@@ -1,0 +1,82 @@
+
+<project name="ekolib" default="ekolib" basedir=".">
+
+    <loadfile property="version" srcfile="version.txt" />
+    <property description="Folder for ekolib and min target" name="dist" value="./dist" />
+
+    <property name="EKO" value="${dist}/ekolib.js" />
+    <property name="EKO_MIN" value="${dist}/ekolib.min.js" />
+	
+	
+    <available property="qunit" file="test/qunit" />
+
+    <target name="all" depends="min,lint" description="Builid ekolib, minify, and lint">
+        <echo message="Building ${EKO}, ${EKO_MIN}, and linting" />
+    </target>
+    <target name="ekolib" description="Main ekolib build, concatenates source files and replaces @VERSION">
+        <echo message="Building ${EKO}" />
+        <mkdir dir="${dist}" />
+        <concat destfile="${EKO}">
+            <!-- file list is explicit for ordering purposes -->
+            <!-- this should be in synch with the list for test sources..test/index.html -->
+            <fileset file="src/intro.js" />
+            <fileset file="src/jquery.json-2.2.js" />
+            <fileset file="src/jquery.timer-0.1.js" />
+            <fileset file="src/jquery.dataTables-1.6.2.js" />
+            <fileset file="src/jshash-2.2-md5.js" />
+            <fileset file="src/jshash-2.2-sha1.js" />
+            <fileset file="src/ekolib-core-1.0.0.js" />
+            <fileset file="src/ekolib-constants-1.0.0.js" />
+            <fileset file="src/ekolib-data-1.0.0.js" />
+            <fileset file="src/ekolib-editor-1.0.0.js" />
+            <fileset file="src/ekolib-chained-1.0.0.js" />
+            <fileset file="src/ekolib-render-1.0.0.js" />
+            <fileset file="src/ekolib-lifecycle-1.0.0.js" />
+            <fileset file="src/outro.js" />
+        </concat>
+        <replaceregexp match="@VERSION" replace="${version}" flags="g" byline="true" file="${EKO}" />
+        <echo message="${EKO} built." />
+    </target>
+
+    <target name="min" depends="ekolib" description="Remove all comments and whitespace, no compression, great in combination with GZip">
+        <echo message="Building ${EKO_MIN}" />
+        <apply executable="java" parallel="false" verbose="true" dest="${dist}" >
+            <env key="JAVA_HOME" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home"/>
+            <fileset dir="${dist}">
+                <include name="ekolib.js" />
+            </fileset>
+            <arg line="-jar" />
+            <arg path="build/google-compiler-20091218.jar" />
+            <arg value="--warning_level" />
+            <arg value="QUIET" />
+            <arg value="--js_output_file" />
+            <targetfile />
+            <arg value="--js" />
+            <mapper type="glob" from="ekolib.js" to="tmpmin" />
+        </apply>
+        <concat destfile="${EKO_MIN}">
+            <filelist files="${EKO}, dist/tmpmin"/>
+            <filterchain>
+                <headfilter lines="15"/>
+            </filterchain>
+        </concat>
+        <concat destfile="${EKO_MIN}" append="yes">
+            <filelist files="dist/tmpmin"/>
+        </concat>
+        <delete file="dist/tmpmin"/>
+        <echo message="${EKO_MIN} built." />
+    </target>
+
+    <target name="lint" depends="ekolib" description="Checking ekolib against JSLint...">
+        <echo message="Checking ekolib against JSLint..." />
+        <java jar="build/js.jar" fork="true">
+            <arg path="build/jslint-check.js" />
+        </java>
+        <echo message="JSLint done" />
+    </target>
+
+    <target name="clean">
+        <delete dir="${dist}" />
+    </target>
+
+</project>
