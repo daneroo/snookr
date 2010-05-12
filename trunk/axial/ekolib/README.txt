@@ -19,3 +19,4 @@ Project hierarchy for ekolib:
     test/unit  : the unti tests themselves
     upstream   : upstream distros for build and included js libs.
 
+rsync -n  -av --progress --exclude .DS_Store --exclude .svn --exclude nbproject /Users/daniel/Documents/NetBeansProjects/axial/ekolib/  mirawatt@axial.mirawatt.com:httpdocs/com/imetrical/axial/ekolib/
