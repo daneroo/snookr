@@ -16,8 +16,9 @@ function debug(message){
     }
 }
 
-// namespace
-var eko={};
+// namespace  now defined in core
+//var eko={};
+
 eko.contest={};
 
 

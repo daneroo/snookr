@@ -19,12 +19,16 @@
         <concat destfile="${EKO}">
             <!-- file list is explicit for ordering purposes -->
             <!-- this should be in synch with the list for test sources..test/index.html -->
-            <fileset file="src/intro.js" />
+            <fileset file="src/notice.js" />
             <fileset file="src/jquery.json-2.2.js" />
             <fileset file="src/jquery.timer-0.1.js" />
             <fileset file="src/jquery.dataTables-1.6.2.js" />
             <fileset file="src/jshash-2.2-md5.js" />
             <fileset file="src/jshash-2.2-sha1.js" />
+            <fileset file="src/intro.js" />
+            <fileset file="src/core.js" />
+            <fileset file="src/ajax.js" />
+            <fileset file="src/outro.js" />
             <fileset file="src/ekolib-core-1.0.0.js" />
             <fileset file="src/ekolib-constants-1.0.0.js" />
             <fileset file="src/ekolib-data-1.0.0.js" />
@@ -32,7 +36,6 @@
             <fileset file="src/ekolib-chained-1.0.0.js" />
             <fileset file="src/ekolib-render-1.0.0.js" />
             <fileset file="src/ekolib-lifecycle-1.0.0.js" />
-            <fileset file="src/outro.js" />
         </concat>
         <replaceregexp match="@VERSION" replace="${version}" flags="g" byline="true" file="${EKO}" />
         <echo message="${EKO} built." />
@@ -57,7 +60,7 @@
         <concat destfile="${EKO_MIN}">
             <filelist files="${EKO}, dist/tmpmin"/>
             <filterchain>
-                <headfilter lines="15"/>
+                <headfilter lines="10"/>
             </filterchain>
         </concat>
         <concat destfile="${EKO_MIN}" append="yes">
