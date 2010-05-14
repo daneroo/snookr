@@ -18,7 +18,7 @@
     <!-- style -->
     <style type="text/css" media="screen">@import "iphonenav.css";</style>
 
-    <!-- jQuery Includes
+    <!-- jQuery Includes  -->
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript" src="iphonenav.js"></script>
     <script type="text/javascript">
@@ -26,12 +26,12 @@
             debug("jquery initialized");
         });
     </script>
-    -->
 
     <script type="text/javascript" src="iscroll-3.1b1.js"></script>
 
     <script type="text/javascript">
-        var myScroll;
+        var myScrollH;
+        var myScrollV;
         window.addEventListener('orientationchange', setHeight);
 
         // wrapper heights for portrait and landscape
@@ -44,11 +44,14 @@
         function loaded() {
             setHeight();
             document.addEventListener('touchmove', function(e){ e.preventDefault(); });
-            myScroll = new iScroll('scroller' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
+            myScrollH = new iScroll('scrollerH' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
+            myScrollV = new iScroll('scrollerV' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
             // hide address bar.
-            setTimeout(function() { window.scrollTo(0, 1); status('hidden') }, 1000);
+            setTimeout(function() { window.scrollTo(0, 1); status('hidden') }, 500);
         }
         document.addEventListener('DOMContentLoaded', loaded);
+
+
 
         function status(msg){
             document.getElementById('status').innerText = msg;
@@ -68,6 +71,18 @@
             status('added row');
             return false;
         }
+        function vert(){
+            $('#scrollerV').show();
+            $('#scrollerH').hide();
+            myScrollV.refresh();
+            status('vert');
+        }
+        function horiz(){
+            $('#scrollerH').show();
+            $('#scrollerV').hide();
+            myScrollH.refresh();
+            status('horiz');
+        }
     </script>
 
     <style type="text/css" media="all">
@@ -81,7 +96,7 @@
 
         #footer {
             width:100%;
-            font-size:300%;
+            font-size:200%;
         }
         #footer a {
             text-decoration:none;
@@ -107,6 +122,19 @@
 
             float:left;
             width:100%;
+            padding:0;
+            background:#fff;
+        }
+        #scrollerV {
+            float:left;
+            width:100%; /*for horiz scrolling*/
+            padding:0;
+            background:#fff;
+        }
+        #scrollerH {
+            display:none;
+            float:left;
+            width:1500px; /*for vert scrolling*/
             padding:0;
             background:#fff;
         }
@@ -137,6 +165,9 @@
             width:100%;
             text-align:left;
         }
+        li {
+            float: left;
+        }
         #status {
             color:orange;
         }
@@ -147,19 +178,28 @@
             <div class="rounded title">Title</div>
         </div>
         <div id="wrapper">
-            <div id="scroller">
-                <ul id="thelist">
-                    <li class="rounded w320">Pretty box #1</li>
-                    <li class="rounded w320">Pretty box #2</li>
-                    <li class="rounded w320">Pretty box #3</li>
-                    <li class="rounded w320">Pretty box #4</li>
+            <div id="scrollerH">
+                <ul id="thelistH">
+                    <li class="rounded w320">Pretty Hbox #1</li>
+                    <li class="rounded w320">Pretty Hbox #2</li>
+                    <li class="rounded w320">Pretty Hbox #3</li>
+                    <li class="rounded w320">Pretty Hbox #4</li>
+                </ul>
+            </div>
+            <div id="scrollerV">
+                <ul id="thelistV">
+                    <li class="rounded w320">Pretty Vbox #1</li>
+                    <li class="rounded w320">Pretty Vbox #2</li>
+                    <li class="rounded w320">Pretty Vbox #3</li>
+                    <li class="rounded w320">Pretty Vbox #4</li>
                 </ul>
             </div>
         </div>
 
         <div id="footer">
             <a href="#" onclick="removeRow();">-</a>
-            | <a href="#" onclick="snap();">x</a>
+            | <a href="#" onclick="vert();">V</a>
+            | <a href="#" onclick="horiz();">H</a>
             | <a href="#" onclick="addRow();">+</a>
             <div id="status">status</div>
         </div>
