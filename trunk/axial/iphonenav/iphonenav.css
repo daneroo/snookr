@@ -1,0 +1,35 @@
+/* 
+Document   : iphonenav
+Created on : May 14, 2010, 11:36:30 AM
+Author     : daniel
+Description:
+styling and animation tests for iphone navigation
+*/
+
+body {
+    padding:0;
+    margin:0;
+    font-size:12px;
+    -webkit-user-select:none;
+    -webkit-text-size-adjust: none;
+    -webkit-box-sizing: border-box;
+    font-family:'helvetica neue';
+}
+
+.w320 {
+    width: 300px;
+    height:60px;
+}
+.title {
+    width: 300px;
+    height: 60px;
+}
+.rounded {
+    margin-top:2px;
+    margin-bottom:2px;
+    padding-left:15px;
+    border: 2px solid red;
+    -moz-border-radius: 25px;
+    -webkit-border-radius: 25px;
+}
+

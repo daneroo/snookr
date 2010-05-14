@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <!-- TODO
+    scrollable viewport content : horz, and vert
+    device positioned element
+    css3 animatied transitions
+    css3 rounded corners
+    -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <!--
+    <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=2.3, user-scalable=0;"/>
+    -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>iPhone Nav</title>
+    <meta name="description" content="The following demo works only on iPhone and iPod Touch +2.x">
+    <!-- style -->
+    <style type="text/css" media="screen">@import "iphonenav.css";</style>
+
+    <!-- jQuery Includes
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="iphonenav.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            debug("jquery initialized");
+        });
+    </script>
+    -->
+
+    <script type="text/javascript" src="iscroll-3.1b1.js"></script>
+
+    <script type="text/javascript">
+        var myScroll;
+        window.addEventListener('orientationchange', setHeight);
+
+        // wrapper heights for portrait and landscape
+        var hport="260px";
+        var hland="80px";
+        function setHeight() {
+            document.getElementById('wrapper').style.height = window.orientation == 90 || window.orientation == -90 ? hland : hport;
+        }
+
+        function loaded() {
+            setHeight();
+            document.addEventListener('touchmove', function(e){ e.preventDefault(); });
+            myScroll = new iScroll('scroller' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
+            // hide address bar.
+            setTimeout(function() { window.scrollTo(0, 1); status('hidden') }, 1000);
+        }
+        document.addEventListener('DOMContentLoaded', loaded);
+
+        function status(msg){
+            document.getElementById('status').innerText = msg;
+        }
+        function removeRow(){
+            var liElts=document.getElementsByTagName('li');
+            if(liElts.length){
+                document.getElementById('thelist').removeChild(liElts[liElts.length-1]);
+            }
+            status('remove row');
+            return false;
+        }
+        function addRow(){
+            var newli = this.bar = document.createElement('li');
+            newli.className = 'rounded w320';
+            document.getElementById('thelist').appendChild(newli).innerText = 'Pretty box #' + document.getElementsByTagName('li').length;
+            status('added row');
+            return false;
+        }
+    </script>
+
+    <style type="text/css" media="all">
+        div {
+            text-align:center;
+        }
+
+        #header {
+            width:100%;
+        }
+
+        #footer {
+            width:100%;
+            font-size:300%;
+        }
+        #footer a {
+            text-decoration:none;
+        }
+        #footer, #header {
+            background:#eee;
+        }
+        #wrapper {
+            position:relative;	/* needed */
+            z-index:1;			/* needed and important */
+            width:100%;
+            height:260px;		/* needed */
+            overflow:hidden;	/* suggested */
+            background:#aaa;
+        }
+
+        #scroller {
+            /*	-webkit-touch-callout:none;*/
+            /*	-webkit-tap-highlight-color:rgba(0,0,0,0);*/
+            /*	position:absolute;	/* optional. Seems to work with absolute, relative and without it */
+            /*	top:0;				/* optional */
+            /*	-webkit-box-shadow:0 0 40px rgba(0,0,0,0.8);*/
+
+            float:left;
+            width:100%;
+            padding:0;
+            background:#fff;
+        }
+
+        .scrollbar {
+            position: absolute;
+            z-index: 10;
+            width: 1px;
+            height: 1px;
+            border-width: 3px;
+            -webkit-border-image: url(images/scrollbar.png) 3;
+        }
+
+        .scrollbar.horizontal {
+            bottom: 1px;
+            left: 1px;
+        }
+
+        .scrollbar.vertical {
+            top: 1px;
+            right: 1px;
+        }
+
+        ul {
+            list-style:none;
+            padding:0;
+            margin:0;
+            width:100%;
+            text-align:left;
+        }
+        #status {
+            color:orange;
+        }
+    </style>
+    </head>
+    <body>
+        <div id="header">
+            <div class="rounded title">Title</div>
+        </div>
+        <div id="wrapper">
+            <div id="scroller">
+                <ul id="thelist">
+                    <li class="rounded w320">Pretty box #1</li>
+                    <li class="rounded w320">Pretty box #2</li>
+                    <li class="rounded w320">Pretty box #3</li>
+                    <li class="rounded w320">Pretty box #4</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer">
+            <a href="#" onclick="removeRow();">-</a>
+            | <a href="#" onclick="snap();">x</a>
+            | <a href="#" onclick="addRow();">+</a>
+            <div id="status">status</div>
+        </div>
+    </body>
+</html>
