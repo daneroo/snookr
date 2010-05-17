@@ -1,5 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
     <!-- TODO
     scrollable viewport content : horz, and vert
     device positioned element
@@ -12,9 +13,12 @@
     <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=2.3, user-scalable=0;"/>
     -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!--
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <title>iPhone Nav</title>
-    <meta name="description" content="The following demo works only on iPhone and iPod Touch +2.x">
+    <meta name="description" content="The following demo works only on iPhone and iPod Touch +2.x" />
     <!-- style -->
     <style type="text/css" media="screen">@import "iphonenav.css";</style>
 
@@ -30,8 +34,7 @@
     <script type="text/javascript" src="iscroll-3.1b1.js"></script>
 
     <script type="text/javascript">
-        var myScrollH;
-        var myScrollV;
+        var myScroll;
         window.addEventListener('orientationchange', setHeight);
 
         // wrapper heights for portrait and landscape
@@ -44,8 +47,15 @@
         function loaded() {
             setHeight();
             document.addEventListener('touchmove', function(e){ e.preventDefault(); });
-            myScrollH = new iScroll('scrollerH' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
-            myScrollV = new iScroll('scrollerV' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
+            //myScrollH = new iScroll('scrollerH' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
+            myScroll = new iScroll('scroller' /*,{bounce:false, vScrollBar: false, hScrollBar: false}*/);
+            myScroll.transitionEndCallback = function(){
+                status('tr-end '+this._x+':'+this._y);
+                var newx = Math.round(this._x/310)*310;
+                var newy = Math.round(this._y/256)*256;
+                //myScroll.scrollTo(newx,newy,'400ms');
+            }
+
             // hide address bar.
             setTimeout(function() { window.scrollTo(0, 1); status('hidden') }, 500);
         }
@@ -72,15 +82,26 @@
             return false;
         }
         function vert(){
-            $('#scrollerV').show();
-            $('#scrollerH').hide();
-            myScrollV.refresh();
+            $('#scroller').width(320);
+            myScroll.refresh();
+            myScroll.setPosition(0,0);
+            //myScroll.setPosition(0,-516);
+            myScroll.scrollTo(0,-50,'300ms');
+            setTimeout(function(){
+                myScroll.scrollTo(0,0,'400ms');
+            }, 400);
+
             status('vert');
         }
         function horiz(){
-            $('#scrollerH').show();
-            $('#scrollerV').hide();
-            myScrollH.refresh();
+            $('#scroller').width(1500);
+            myScroll.refresh();
+            myScroll.setPosition(0,0);
+            //myScroll.setPosition(-632,0);
+            myScroll.scrollTo(-50,0,'300ms');
+            setTimeout(function(){
+                myScroll.scrollTo(0,0,'400ms');
+            }, 400);
             status('horiz');
         }
     </script>
@@ -121,24 +142,10 @@
             /*	-webkit-box-shadow:0 0 40px rgba(0,0,0,0.8);*/
 
             float:left;
-            width:100%;
+            width:320px;
             padding:0;
             background:#fff;
         }
-        #scrollerV {
-            float:left;
-            width:100%; /*for horiz scrolling*/
-            padding:0;
-            background:#fff;
-        }
-        #scrollerH {
-            display:none;
-            float:left;
-            width:1500px; /*for vert scrolling*/
-            padding:0;
-            background:#fff;
-        }
-
         .scrollbar {
             position: absolute;
             z-index: 10;
@@ -178,22 +185,16 @@
             <div class="rounded title">Title</div>
         </div>
         <div id="wrapper">
-            <div id="scrollerH">
-                <ul id="thelistH">
-                    <li class="rounded w320">Pretty Hbox #1</li>
-                    <li class="rounded w320">Pretty Hbox #2</li>
-                    <li class="rounded w320">Pretty Hbox #3</li>
-                    <li class="rounded w320">Pretty Hbox #4</li>
+            <div id="scroller">
+                <ul id="thelist">
+                    <li class="rounded w320">Pretty box #1</li>
+                    <li class="rounded w320">Pretty box #2</li>
+                    <li class="rounded w320">Pretty box #3</li>
+                    <li class="rounded w320">Pretty box #4</li>
                 </ul>
             </div>
-            <div id="scrollerV">
-                <ul id="thelistV">
-                    <li class="rounded w320">Pretty Vbox #1</li>
-                    <li class="rounded w320">Pretty Vbox #2</li>
-                    <li class="rounded w320">Pretty Vbox #3</li>
-                    <li class="rounded w320">Pretty Vbox #4</li>
-                </ul>
-            </div>
+            <!-- non-empty div for triggering redraw (toggle()) -->
+            <div id="blinking-light-to-fix-chart-bug" style="/*position:absolute;*/ top:40px; left:10px; color:#000000;">.</div>
         </div>
 
         <div id="footer">

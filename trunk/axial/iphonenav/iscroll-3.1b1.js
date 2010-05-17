@@ -250,9 +250,10 @@ iScroll.prototype = {
 		if (this.scrollBarY) {
 			this.scrollBarY.hide();
 		}
-        this.scrollBarY.show();
-        status('tr-end '+new Date().getSeconds());
-
+		if (this.transitionEndCallback) {
+                    this.transitionEndCallback();
+                }
+                //status('tr-end '+this._x+':'+this._y);
 	},
 
 	resetPosition: function () {
