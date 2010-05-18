@@ -6,8 +6,8 @@
 
     <property name="EKO" value="${dist}/ekolib.js" />
     <property name="EKO_MIN" value="${dist}/ekolib.min.js" />
-	
-	
+
+
     <available property="qunit" file="test/qunit" />
 
     <target name="all" depends="min,lint" description="Builid ekolib, minify, and lint">
@@ -42,31 +42,27 @@
     </target>
 
     <target name="min" depends="ekolib" description="Remove all comments and whitespace, no compression, great in combination with GZip">
-        <echo message="Building ${EKO_MIN}" />
-        <apply executable="java" parallel="false" verbose="true" dest="${dist}" >
-            <env key="JAVA_HOME" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home"/>
-            <fileset dir="${dist}">
-                <include name="ekolib.js" />
-            </fileset>
-            <arg line="-jar" />
-            <arg path="build/google-compiler-20091218.jar" />
+        <echo message="Building ${EKO_MIN} from ${EKO}" />
+        <java jar="build/google-compiler-20091218.jar" fork="false">
             <arg value="--warning_level" />
             <arg value="QUIET" />
             <arg value="--js_output_file" />
-            <targetfile />
+            <arg file="tmpmin" />
             <arg value="--js" />
-            <mapper type="glob" from="ekolib.js" to="tmpmin" />
-        </apply>
+            <arg file="${EKO}" />
+        </java>
+        <!--<echo message=" minified tmpmin" />-->
         <concat destfile="${EKO_MIN}">
-            <filelist files="${EKO}, dist/tmpmin"/>
+            <fileset file="${EKO}"/>
             <filterchain>
                 <headfilter lines="10"/>
             </filterchain>
         </concat>
+        <!--<echo message=" copied header" />-->
         <concat destfile="${EKO_MIN}" append="yes">
-            <filelist files="dist/tmpmin"/>
+            <fileset file="tmpmin"/>
         </concat>
-        <delete file="dist/tmpmin"/>
+        <delete file="tmpmin"/>
         <echo message="${EKO_MIN} built." />
     </target>
 
