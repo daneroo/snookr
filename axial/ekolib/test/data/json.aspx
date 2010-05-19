@@ -27,9 +27,11 @@
     if (ct != null){
         Response.AddHeader("Content-type", ct);
     }
-    System.Web.HttpUtility.HtmlDecode("&eacute;");
-    string eacuteISO = System.Web.HttpUtility.HtmlDecode("&eacute;");
+    
+    // &Atilde;&copy; -- &#195;&#169;   - or &#233; -- &eacute;
     string eacuteUTF = System.Web.HttpUtility.HtmlDecode("&eacute;");
+    string eacuteISO = System.Web.HttpUtility.HtmlDecode("&#233;");
+
     string eacuteOK = eacuteUTF;
     if (cs=="ISO-8859-1"){
         eacuteOK = eacuteISO;
