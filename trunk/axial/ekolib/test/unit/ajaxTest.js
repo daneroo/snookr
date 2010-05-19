@@ -8,9 +8,9 @@ module("ajax", {
             var uri = base+'data/'+fname;
             return uri;
         }
-        //this.objecturi = datauri('object.json');
-        this.objecturi = datauri('object-json.txt');
-        //this.dynuri = datauri('json.php');
+        this.objecturi = datauri('object.json');
+        //this.objecturi = datauri('object-json.txt');
+        this.dynuri = datauri('json.php');
         this.dynuri = datauri('json.aspx');
     }
 });
