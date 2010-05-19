@@ -20,7 +20,8 @@ if (!eachSource) {
 }
 
 function doOne(srcFilename){
-    
+    print( "JSLint checking file: "+srcFilename+".");
+
     var src = readFile(srcFilename);
     JSLINT(src, {
         evil: true,
@@ -44,14 +45,19 @@ function doOne(srcFilename){
 
     var e = JSLINT.errors, found = 0, w;
 
-    for ( var i = 0; i < e.length; i++ ) {
-        w = e[i];
+    try {
+        for ( var i = 0; i < e.length; i++ ) {
+            w = e[i];
 
-        if ( !ok[ w.reason ] ) {
-            found++;
-            print( srcFilename+":" + w.line + " character " + w.character + ": " + w.reason );
-            print( w.evidence + "\n" );
+            if ( !ok[ w.reason ] ) {
+                found++;
+                print( srcFilename+":" + w.line + " character " + w.character + ": " + w.reason );
+                print( w.evidence + "\n" );
+            }
         }
+    } catch (exception) {
+        print( "\n *** caught exception: " +  exception );
+
     }
 
     if ( found > 0 ) {
