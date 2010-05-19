@@ -1,8 +1,20 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Ajax related pattern
  */
-module("ajax");
+module("ajax", {
+    setup: function() {
+        function datauri(fname){
+            var base = window.location.href.replace(/[^\/]*$/, "");
+            var uri = base+'data/'+fname;
+            return uri;
+        }
+        //this.objecturi = datauri('object.json');
+        this.objecturi = datauri('object-json.txt');
+        //this.dynuri = datauri('json.php');
+        this.dynuri = datauri('json.aspx');
+    }
+});
+
 
 test("Basic requirements", function() {
     expect(2);
@@ -18,10 +30,8 @@ test("Settings", function() {
 test("eko.json.get", function() {
     expect(1);
 
-    var base = window.location.href.replace(/[^\/]*$/, "");
-
     stop();
-    eko.json.get(base + "data/object.json", function(json) {
+    eko.json.get(this.objecturi, function(json) {
         equals( json.key, 'value', 'Check JSON: key/value' );
         start();
     });
@@ -37,24 +47,23 @@ test("eko.json.get mime", function() {
         if ( ++count == exp ) start();
     }
 
-    var base = window.location.href.replace(/[^\/]*$/, "");
     var k = "mime";
-    eko.json.get(base + "data/json.php", function(json) {
+    eko.json.get(this.dynuri, function(json) {
         equals( json[k], 'default', 'Content header: default' );
         checkdone();
     });
 
-    eko.json.get(base + "data/json.php?mime=application/json", function(json) {
+    eko.json.get(this.dynuri+"?mime=application/json", function(json) {
         equals( json[k], 'application/json', 'Content header: application/json' );
         checkdone();
     });
 
-    eko.json.get(base + "data/json.php?mime=text/html", function(json) {
+    eko.json.get(this.dynuri+"?mime=text/html", function(json) {
         equals( json[k], 'text/html', 'Content header: text/html' );
         checkdone();
     });
 
-    eko.json.get(base + "data/json.php?mime=text/xml", function(json) {
+    eko.json.get(this.dynuri+"?mime=text/xml", function(json) {
         equals( json[k], 'text/xml', 'Content header: text/xml' );
         checkdone();
     });
@@ -70,22 +79,21 @@ test("eko.json.get charset", function() {
         if ( ++count == exp ) start();
     }
 
-    var base = window.location.href.replace(/[^\/]*$/, "");
     var k = "charset";
 
-    eko.json.get(base + "data/json.php", function(json) {
+    eko.json.get(this.dynuri, function(json) {
         equals( json[k], 'default', 'Content header charset: default' );
         checkdone();
     });
 
     //stop();
-    eko.json.get(base + "data/json.php?cs=utf-8", function(json) {
+    eko.json.get(this.dynuri+"?cs=utf-8", function(json) {
         equals( json[k], 'utf-8', 'Content header charset: utf-8' );
         checkdone();
     });
 
     //stop();
-    eko.json.get(base + "data/json.php?cs=ISO-8859-1", function(json) {
+    eko.json.get(this.dynuri+"?cs=ISO-8859-1", function(json) {
         equals( json[k], 'ISO-8859-1', 'Content header charset: ISO-8859-1' );
         checkdone();
     });
@@ -101,24 +109,23 @@ test("eko.json.get eacute", function() {
         if ( ++count == exp ) start();
     }
 
-    var base = window.location.href.replace(/[^\/]*$/, "");
     var k = "eacuteOK";
 
     var eacute = unescape('%E9');
 
-    eko.json.get(base + "data/json.php", function(json) {
+    eko.json.get(this.dynuri, function(json) {
         equals( json[k], eacute, 'eacute charset: default' );
         checkdone();
     });
 
     //stop();
-    eko.json.get(base + "data/json.php?cs=utf-8", function(json) {
+    eko.json.get(this.dynuri+"?cs=utf-8", function(json) {
         equals( json[k], eacute, 'eacute charset: utf-8' );
         checkdone();
     });
 
     //stop();
-    eko.json.get(base + "data/json.php?cs=ISO-8859-1", function(json) {
+    eko.json.get(this.dynuri+"?cs=ISO-8859-1", function(json) {
         equals( json[k], eacute, 'eacute charset: ISO-8859-1' );
         checkdone();
     });
@@ -128,10 +135,8 @@ test("eko.json.get eacute", function() {
 test("eko.json.post", function() {
     expect(1);
 
-    var base = window.location.href.replace(/[^\/]*$/, "");
-
     stop();
-    eko.json.post(base + "data/object.json",{}, function(json) {
+    eko.json.post(this.dynuri,{}, function(json) {
         equals( json.key, 'value', 'Check JSON: key/value' );
         start();
     });
@@ -151,9 +156,8 @@ test("eko.json.post - mime out", function() {
         input:"param"
     };
 
-    var base = window.location.href.replace(/[^\/]*$/, "");
     var k = "mime";
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'default', 'Content header: default' );
         equals( json.input, 'param', 'Check input param' );
         checkdone();
@@ -162,7 +166,7 @@ test("eko.json.post - mime out", function() {
     $.extend(data,{
         mime:"application/json"
     });
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'application/json', 'Content header: application/json' );
         equals( json.input, 'param', 'Check input param' );
         checkdone();
@@ -171,7 +175,7 @@ test("eko.json.post - mime out", function() {
     $.extend(data,{
         mime:"text/html"
     });
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'text/html', 'Content header: text/html' );
         equals( json.input, 'param', 'Check input param' );
         checkdone();
@@ -180,7 +184,7 @@ test("eko.json.post - mime out", function() {
     $.extend(data,{
         mime:"text/xml"
     });
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'text/xml', 'Content header: text/xml' );
         equals( json.input, 'param', 'Check input param' );
         checkdone();
@@ -199,32 +203,31 @@ test("eko.json.post - contentType up", function() {
     var data  = {
         input:"param"
     };
-    var base = window.location.href.replace(/[^\/]*$/, "");
     var k = "mime";
 
     $.extend(data,{
         mime:"application/json",
         input:eacute
     });
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'application/json', 'Content header: text/xml' );
         equals( json.input, eacute, 'Check input param' );
         checkdone();
     });
 
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'application/json', 'Content header: text/xml' );
         equals( json.input, eacute, 'Check input param' );
         checkdone();
     },'application/x-www-form-urlencoded; charset=UTF-8');
 
-    eko.json.post(base + "data/json.php",data, function(json) {
+    eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'application/json', 'Content header: text/xml' );
         equals( json.input, eacute, 'Check input param' );
         checkdone();
     },'application/x-www-form-urlencoded; charset=ISO-8859-1');
 
-/*eko.json.post(base + "data/json.php",data, function(json) {
+/*eko.json.post(this.dynuri,data, function(json) {
         equals( json[k], 'application/json', 'Content header: text/xml' );
         equals( json.input, eacute, 'Check input param' );
         checkdone();
