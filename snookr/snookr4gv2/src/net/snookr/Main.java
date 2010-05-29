@@ -9,16 +9,14 @@ import java.io.File;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import net.snookr.couchdb.CouchTrial;
 import net.snookr.db.Database;
 import net.snookr.scalr.CloudMap;
-import net.snookr.scalr.ScalrImpl;
 import net.snookr.synch.Filesystem2Database;
 import net.snookr.synch.Flickr2Database;
 import net.snookr.synch.SymmetricDiffs;
@@ -29,7 +27,6 @@ import net.snookr.synch.ReadWriteJSON;
 import net.snookr.synch.ClearFlickrDB;
 import net.snookr.util.Exif;
 import net.snookr.util.MD5;
-import net.snookr.util.Timer;
 import net.snookr.synch.Filesystem2JSON;
 import net.snookr.synch.ScalrTest;
 import net.snookr.transcode.PartitionFSImage;
@@ -122,6 +119,16 @@ public class Main {
 
     public void clearFlickrDB() {
         new ClearFlickrDB().run();
+    }
+
+    class JSON2Couch implements Runnable {
+        final String hostname;
+        JSON2Couch(String hostname) {
+            this.hostname = hostname;
+        }
+        public void run() {
+            new CouchTrial(hostname).run();
+        }
     }
 
     class FS2JSON implements Runnable {
@@ -219,6 +226,7 @@ public class Main {
                 //accepts("push", "synch from filesystem TO flickr").withRequiredArg().describedAs("/path1" + pathSeparatorChar + "/path2:...").ofType(File.class).withValuesSeparatedBy(pathSeparatorChar);
                 accepts("fs2db", "synch filesystem TO db").withRequiredArg().ofType(File.class).describedAs("source directory");
                 accepts("fs2json", "synch filesystem TO <host>.json.zip").withRequiredArg().ofType(File.class).describedAs("source directory");
+                accepts("json2couch", "synch <host>.json.zip to couch");
                 accepts("fli2db", "synch flickr TO db");
             }
         };
@@ -278,8 +286,15 @@ public class Main {
                 if (hostname == null) {
                     throw new RuntimeException("hostname undefined: use --host <hostalias> ");
                 }
-                System.out.println("fs2son: to " + hostname + ".json.zip FROM: " + sourceDir);
+                System.out.println("fs2json: to " + hostname + ".json.zip FROM: " + sourceDir);
                 runParts.add(new FS2JSON(sourceDir, hostname));
+            }
+            if (options.has("json2couch")) {
+                if (hostname == null) {
+                    throw new RuntimeException("hostname undefined: use --host <hostalias> ");
+                }
+                System.out.println("json2couch: from " + hostname + ".json.zip");
+                runParts.add(new JSON2Couch(hostname));
             }
             if (options.has("fli2db")) {
                 System.out.println("fli2db: to db FROM: flickr");
@@ -302,6 +317,13 @@ public class Main {
         }
         for (Runnable r : runParts) {
             System.out.println("will run: " + r.getClass().getSimpleName());
+        }
+        // if nothing to do: print help
+        if (runParts.size() == 0) {
+            try {
+                parser.printHelpOn(System.err);
+            } catch (IOException ex) {
+            }
         }
         return runParts;
     }
