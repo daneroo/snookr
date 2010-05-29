@@ -47,11 +47,14 @@ public class Main {
     public static void main(String[] args) {
         Main m = new Main();
 
-        //m.readWriteJSON();
-        m.scalr();
-        //m.classify();
-        //m.clearFlickrDB();
-        System.exit(0);
+        // These were ongoing experiments with CloudMap, CloudZip
+        if (false) {
+            //m.readWriteJSON();
+            m.scalr();
+            //m.classify();
+            //m.clearFlickrDB();
+            System.exit(0);
+        }
 
         List<Runnable> runParts = m.parse(args);
         for (Runnable r : runParts) {
@@ -74,8 +77,8 @@ public class Main {
     static final String postMapURL = "http://scalr.appspot.com/map";
 
     public void scalr() {
-        if (true){
-            new ScalrTest(getDefaultHost()+".json.zip").run();
+        if (true) {
+            new ScalrTest(getDefaultHost() + ".json.zip").run();
         }
         if (false) { // map stuff
             CloudMap cm = new CloudMap(postMapURL);
