@@ -1,0 +1,1 @@
+function(doc) { emit(Math.round(doc.size/100000)/10,1)}
