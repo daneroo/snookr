@@ -1,0 +1,1 @@
+function(doc) {emit(doc.camera,1);}
