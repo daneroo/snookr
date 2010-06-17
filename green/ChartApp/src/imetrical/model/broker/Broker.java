@@ -14,9 +14,8 @@ public class Broker {
     static Broker instance;
     private static final String DBDRIVER = "com.mysql.jdbc.Driver";
     //private static final String DBURL = "jdbc:mysql://127.0.0.1/ted";
-    //private static final String DBURL = "jdbc:mysql://192.168.5.2/ted";
-    //private static final String DBURL = "jdbc:mysql://192.168.3.200/ted?serverTimezone=GMT&useTimezone=true&useJDBCCompliantTimezoneShift=true";
-    private static final String DBURL = "jdbc:mysql://192.168.3.200/ted";
+    private static final String DBURL = "jdbc:mysql://192.168.5.2/ted";
+    //private static final String DBURL = "jdbc:mysql://192.168.3.200/ted";
     private static final String DBUSER = "aviso";
     private static final String DBPASSWORD = null;
 
