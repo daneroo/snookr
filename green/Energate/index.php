@@ -70,7 +70,7 @@
         <center>
             <div>
                 Energate Prototype Landing Page <br />
-                Redirecting for apprpriate browser <br />
+                Redirecting for appropriate browser <br />
 
             </div>
             <div>
