@@ -12,7 +12,7 @@
 
             $enrgate = new Energate();
             $username="scottdesk";
-            $password="test123";
+            $password="";
             $sessioncookie = $enrgate->login($username,$password);
 
             $dataout = $enrgate->getit($sessioncookie,$username);
