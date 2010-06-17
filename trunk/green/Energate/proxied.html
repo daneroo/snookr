@@ -61,6 +61,9 @@
                 };
                 $('#loginForm').submit(loginCB);
 
+                function round(x){
+                    return Math.round(x*10)/10;
+                }
                 function showTstat(tstat_status){
                     tstat_status = tstat_status || {
                         "high_setpoint":60.9980010986,
@@ -70,9 +73,9 @@
                         "low_setpoint":0
                     };
                     $('#tstat').show();
-                    $('#inside_temp').text(tstat_status.inside_temp);
-                    $('#high_setpoint').text(tstat_status.high_setpoint);
-                    $('#low_setpoint').text(tstat_status.low_setpoint);
+                    $('#inside_temp').text(round(tstat_status.inside_temp));
+                    $('#high_setpoint').text(round(tstat_status.high_setpoint));
+                    $('#low_setpoint').text(round(tstat_status.low_setpoint));
                     $('#status').html(""+new Date()+"<br />"+permanentSessionCookie.split('=')[1]);
 
                 }
@@ -153,10 +156,10 @@
                 Inside Temp: <span id="inside_temp">--</span> &deg;F
             </center>
             <center>
-                Low Setpoint: <span id="low_setpoint">--</span> &deg;F
+                Cooling Setpoint: <span id="low_setpoint">--</span> &deg;F
             </center>
             <center>
-                High Setpoint: <span id="high_setpoint">--</span> &deg;F
+                Heating Setpoint: <span id="high_setpoint">--</span> &deg;F
             </center>
         </div>
         <div id="busyBox">
