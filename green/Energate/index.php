@@ -2,17 +2,21 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title></title>
+        <title>Ernergate protoype</title>
     </head>
     <body>
         <pre>
             <?php
+            /*
+             * Copyright 2010 Daniel Lauzon <daniel.lauzon@gmail.com>
+            */
+
             require_once 'service/Energate.php';
             print("Hello Energate!\n");
 
             $enrgate = new Energate();
-            $username="scottdesk";
-            $password="";
+            $username="insertusername";
+            $password="insertpassword";
             $sessioncookie = $enrgate->login($username,$password);
 
             $dataout = $enrgate->getit($sessioncookie,$username);

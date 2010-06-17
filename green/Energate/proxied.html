@@ -1,103 +1,168 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
     <head>
-        <title></title>
+        <title>Energate prototype</title>
+        <!-- Copyright 2010 Daniel Lauzon <daniel.lauzon@gmail.com> -->
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
         <script type="text/javascript" src="js/jquery.json-2.2.js"></script>
+        <script type="text/javascript" src="js/jquery.timer-0.1.js"></script>
+        <script type="text/javascript" src="js/energate.js"></script>
 
         <script type="text/javascript">
-            function debug(message){
-                if (window.console && window.console.firebug){
-                    console.log(message);
-                } else if (window.console) {
-                    console.log(message);
-                }
-            }
 
-            var nextJsonInvocationId=456
-            function invoke(endpointurl,methodName,params,callbackFunction){
-                endpointurl = endpointurl || "service/proxyService.php";
-                var async=false;
-                if (callbackFunction){
-                    async=true;
-                }
-
-                // JayRock's proxys use text/plain, we will use application/json
-                //var requestContentType="text/plain; charset=utf-8";
-                var requestContentType="application/json; charset=utf-8";
-                var requestParamWrapper = {
-                    id: nextJsonInvocationId++,
-                    method: methodName,
-                    params: params
-                };
-                // not sure if I have to encode myself !
-                var dataToPost = $.toJSON(requestParamWrapper);
-                var response;
-                //debug("invoking: "+dataToPost);
-                $.ajax({
-                    type: 'POST',
-                    async: async,
-                    url: endpointurl,
-                    dataType: 'json',
-                    contentType: requestContentType,
-                    data: dataToPost,
-                    success: function(data, textStatus) {
-                        response=data;
-                        //debug("invoke success");
-                        //debug(data);
-                        if (callbackFunction) {
-                            callbackFunction(response.result);
-                        }
-                    },
-                    error:function(xhr, textStatus, errorThrown){
-                        debug(errorThrown);
-                    }
-                });
-                if (async) {
-                    return requestParamWrapper.id;
-                }
-                return response.result;
-            };
-
-            function login(username,passwd){
-                return invoke(null, "login", [username,passwd], null);
-            }
-            function getit(sessionCookie,username){
-                return invoke(null, "getit", [sessionCookie,username], null);
-            }
             $(function(){
                 debug("Proxied connect!");
 
-                var username='scottdesk';
-                var passwd='';
+                if (0){
 
-                function doOne(name,cookie){
-                    var data = getit(cookie,username);
-                    debug(""+name+": "+$.toJSON(data));
-                    //debug(data);
+                    var username='insertusername';
+                    var passwd='insertpassword';
+
+                    function doOne(name,cookie){
+                        var data = getit(cookie,username);
+                        debug(""+name+": "+$.toJSON(data));
+                        //debug(data);
+                    }
+
+                    doOne("stale", "firstenergystaging_sessionid=36a1ad6d8ff833d111f1a354501c2709");
+                    doOne("bad","firstenergystaging_sessionid=abcdefghijklmnopqrstuvwxyz012345");
+                    doOne("null",null);
+                    doOne("empty","");
+
+                    var sessionCookie = login(username,passwd+"bad");
+                    debug("bad session: "+sessionCookie);
+                    var sessionCookie = login(username,passwd);
+                    debug("good session: "+sessionCookie);
+
+                    doOne("goodAndNew-1",sessionCookie);
+                    doOne("goodAndNew-2",sessionCookie);
                 }
 
-                //doOne("stale", "firstenergystaging_sessionid=36a1ad6d8ff833d111f1a354501c2709");
-                //doOne("bad","firstenergystaging_sessionid=abcdefghijklmnopqrstuvwxyz012345");
-                //doOne("null",null);
-                //doOne("empty","");
+                var permanentSessionCookie=null;
 
-                var sessionCookie = login(username,passwd+"bad");
-                debug("bad session: "+sessionCookie);
-                var sessionCookie = login(username,passwd);
-                debug("good session: "+sessionCookie);
+                var loginCB=function(){
+                    var username=$('#username').val();
+                    var passwd=$('#passwd').val();
+                    var remember=$('#rememberPass').attr('checked');
+                    debug("remember: "+remember);
+                    var sessionCookie = login(username,passwd);
+                    if (sessionCookie=='Login Failed'){
+                        $('#status').html('Login Failed');
+                    } else {
+                        $('#status').html(sessionCookie.split('=')[1]);
+                        $('#loginForm').fadeOut();
+                        permanentSessionCookie=sessionCookie;
+                        start(5000);
+                    }
+                    debug("interactive session: "+sessionCookie);
+                    return false;
+                };
+                $('#loginForm').submit(loginCB);
 
-                doOne("goodAndNew-1",sessionCookie);
-                //doOne("goodAndNew-2",sessionCookie);
+                function showTstat(tstat_status){
+                    tstat_status = tstat_status || {
+                        "high_setpoint":60.9980010986,
+                        "inside_temp":74.4980010986,
+                        "valid":true,
+                        "connected":true,
+                        "low_setpoint":0
+                    };
+                    $('#tstat').show();
+                    $('#inside_temp').text(tstat_status.inside_temp);
+                    $('#high_setpoint').text(tstat_status.high_setpoint);
+                    $('#low_setpoint').text(tstat_status.low_setpoint);
+                    $('#status').html(""+new Date()+"<br />"+permanentSessionCookie.split('=')[1]);
+
+                }
+                function oneIteration(){
+                    debug("iter: "+permanentSessionCookie);
+                    var username=$('#username').val();
+                    $('#busySpinner').show();
+                    var data = getit(permanentSessionCookie,username);
+                    $('#busySpinner').hide();
+                    var tstat = data[0].result[0].tstat_status;
+                    debug("itertstat:");
+                    debug(tstat);
+                    showTstat(tstat);
+
+                }
+                function start(interval){
+                    interval = interval || 5000;
+                    var thing = this;
+                    var cb = function(timer){
+                        oneIteration();
+                    }
+                    $.timer(interval,cb);
+                    oneIteration();
+                }
+
             });
         </script>
-
+        <style type="text/css" media="screen">
+            body {
+                font-family: 'trebuchet ms', verdana, arial;
+                background: rgb(255, 255, 255); /* The Fallback */
+                background: rgba(255, 255, 255, 1.0);
+            }
+            #logo {
+                padding-top: 1em;
+                padding-bottom: 1em;
+            }
+            #tstat {
+                display: none; /* until we have data...*/
+            }
+            #busyBox {
+                margin-top: 2em;
+                height: 20px;
+            }
+            #busySpinner {
+                display: none; /* until we are processing...*/
+            }
+            #status {
+                margin-top: 1em;
+                color: gray;
+                font-size: 80%;
+                text-align: center;
+            }
+        </style>
     </head>
     <body>
-        <div>This test shows a proxied connection client: see <b>Same origin policy</b>.
+        <!--
+        This test shows a proxied connection client: see <b>Same origin policy</b>.
+        -->
+
+        <div id="logo">
+            <center><img src="images/logo.gif" /></center>
         </div>
-        <div>Login to <a target="_new" href="https://firstenergy-staging.getgreenbox.com/accounts/login/">https://firstenergy-staging.getgreenbox.com/accounts/login/</a></div>
-        <div>to access <a target="_new" href="http://firstenergy-staging.getgreenbox.com/">http://firstenergy-staging.getgreenbox.com/</a></div>
+        <form id="loginForm" action="#">
+            <label for="username">Username:</label>
+            <input type="text" id="username" />
+            <label for="password">Password:</label>
+            <input type="password" id="passwd" />
+            <label for="password">Remember?</label>
+            <input type="checkbox" id="rememberPass" />
+            <input type="submit" value="Go!"/>
+        </form>
+        <div id="tstat">
+            <center>
+                Inside: <span id="inside_temp">--</span> &deg;F
+            </center>
+            <center>
+                Low Setpoint: <span id="low_setpoint">--</span> &deg;F
+            </center>
+            <center>
+                High Setpoint: <span id="high_setpoint">--</span> &deg;F
+            </center>
+        </div>
+        <div id="busyBox">
+            <center><img id="busySpinner" src="images/busy20trans.gif" /></center>
+        </div>
+        <div id="status"></div>
+
+        <div style="display: none">
+            <div>Login to <a target="_new" href="https://firstenergy-staging.getgreenbox.com/accounts/login/">https://firstenergy-staging.getgreenbox.com/accounts/login/</a></div>
+            <div>to access <a target="_new" href="http://firstenergy-staging.getgreenbox.com/">http://firstenergy-staging.getgreenbox.com/</a></div>
+        </div>
     </body>
 </html>

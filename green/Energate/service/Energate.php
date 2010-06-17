@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright 2010 Daniel Lauzon <daniel.lauzon@gmail.com>
+*/
 class Energate {
     // login with https, sniff the cookie coming back, and return it.
     public function login($username,$passwd) {
