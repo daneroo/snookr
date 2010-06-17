@@ -26,7 +26,7 @@
                 } else {
                     $('#status').html("You are not on an iPhone");
                 }
-                setTimeout('delayer()', 5000);
+                setTimeout('delayer()', 3000);
 
             });
         </script>
@@ -77,7 +77,7 @@
                 <div id="status">
                 </div>
                 <div>
-                    <span id="browserid">--</span>
+                    <span id="browserid">---</span>
                 </div>
             </div>
 
