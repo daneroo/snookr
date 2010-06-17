@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>iPad To-do</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="http://krosswordr.ru/site_media/invisibleframework.min.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="http://krosswordr.ru/site_media/i/jqtouch/jqtouch.min.css" type="text/css" />
+  <link rel="stylesheet" href="http://krosswordr.ru/site_media/i/themes/apple/theme.min.css" type="text/css" />
+</head>
+<body>
+   <!-- use http://ipadpeek.com to view this -->
+  <div id="main" class="current">
+    <div class="toolbar"><h1>iPad To-do</h1></div>
+    <div class="sideleft">
+      <ul class="rounded">
+        <li class="arrow">Inbox</li>
+        <li class="arrow">Today</li>
+        <li class="arrow">Tomorrow</li>
+        <li class="arrow">Scheduled</li>
+        <li class="arrow">All tasks</li>
+      </ul>
+    </div>
+    <div class="withls">
+      <ul class="rounded">
+        <li><input type="checkbox" /> Buy OS X Upgrade</li>
+        <li><input type="checkbox" /> Write the blog post</li>
+        <li><input type="checkbox" /> Check out Google Analytics</li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://krosswordr.ru/site_media/i/jqtouch/jqtouch.min.js"></script>
+  <script type="text/javascript">
+    $(window).load(function(){
+    $.jQTouch(); // Add functionality here
+    });
+  </script>
+</body>
+</html>
+
