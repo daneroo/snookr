@@ -55,30 +55,51 @@
                         $('#status').html(sessionCookie.split('=')[1]);
                         $('#loginForm').fadeOut();
                         permanentSessionCookie=sessionCookie;
-                        start(10000);
+                        start(5000);
                     }
                     debug("interactive session: "+sessionCookie);
                     return false;
                 };
                 $('#loginForm').submit(loginCB);
 
-                function round(x){
-                    return Math.round(x*10)/10;
+                function tempround(x){
+                    //return Math.round(x*10)/10;
+                    return Math.round(x);
                 }
                 function showTstat(tstat_status){
-                    tstat_status = tstat_status || {
-                        "high_setpoint":60.9980010986,
-                        "inside_temp":74.4980010986,
-                        "valid":true,
-                        "connected":true,
-                        "low_setpoint":0
-                    };
-                    $('#tstat').show();
-                    $('#inside_temp').text(round(tstat_status.inside_temp));
-                    $('#high_setpoint').text(round(tstat_status.high_setpoint));
-                    $('#low_setpoint').text(round(tstat_status.low_setpoint));
-                    $('#status').html(""+new Date()+"<br />"+permanentSessionCookie.split('=')[1]);
+                    if (!tstat_status) {
+                        debug("null tstat_status");
+                        return;
+                    }
+                    $('#inside_temp').text(tempround(tstat_status.inside_temp));
+                    $('#high_setpoint').text(tempround(tstat_status.high_setpoint));
+                    $('#low_setpoint').text(tempround(tstat_status.low_setpoint));
+                }
+                function showWeather(weather){
+                    if (!weather) {
+                        debug("null weather");
+                        return;
+                    }
+                    $('#outside_temp').text(tempround(weather.currentTemp));
 
+                }
+                function showProgram(program){
+                    if (!program) {
+                        debug("null program");
+                        return;
+                    }
+                    debug("mode: "+program.mode); // values are auto,heat,cool,off
+                    debug("fan:  "+program.fan);
+                    debug("hold: "+$.toJSON(program.hold));
+
+                    //now reflect the mode: -should I refresh the whole group ?
+                    $('#mode-'+program.mode).attr("checked","checked");
+                    $('#mode-'+program.mode).button("refresh");
+                    $('#fan-'+program.fan).attr("checked","checked");
+                    $('#fan-'+program.fan).button("refresh");
+                    var hold = (program.hold.type=="none")?"off":"on";
+                    $('#hold-'+hold).attr("checked","checked");
+                    $('#hold-'+hold).button("refresh");
                 }
                 function oneIteration(){
                     debug("iter: "+permanentSessionCookie);
@@ -86,14 +107,31 @@
                     $('#busySpinner').show();
                     var data = getit(permanentSessionCookie,username);
                     $('#busySpinner').hide();
-                    var tstat = data[0].result[0].tstat_status;
-                    debug("itertstat:");
+
+                    //old: var tstat = data[0].result[0].tstat_status;
+                    // data[0].result.hvac[0].tstat_status
+                    var tstat = data[0].result.hvac[0].tstat_status
+                    debug("tstat:");
                     debug(tstat);
                     showTstat(tstat);
 
+                    // data[0].result.weather (.currentTemp|.forecastToday(.min|.max))
+                    var weather  = data[0].result.weather;
+                    debug("weather:");
+                    debug(weather);
+                    showWeather(weather);
+
+                    //  data[0].result.hvac[0].program (.fan|.mode|.hold(.type|.end))
+                    var program  = data[0].result.hvac[0].program;
+                    debug("program:");
+                    debug(program);
+                    showProgram(program);
+
+                    $('#loggedIn').show();
+                    $('#status').html(""+new Date()+"<br />"+permanentSessionCookie.split('=')[1]);
                 }
                 function start(interval){
-                    interval = interval || 5000;
+                    interval = interval || 10000;
                     var thing = this;
                     var cb = function(timer){
                         oneIteration();
@@ -113,16 +151,42 @@
             @import "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css";
 
             body {
+                padding: 0px;
+                margin: 0px;
                 font-family: 'trebuchet ms', verdana, arial;
                 background: rgb(255, 255, 255); /* The Fallback */
-                background: rgba(255, 255, 255, 1.0);
+                /*background: rgba(255, 255, 255, 1.0);*/
             }
+            #wrapper {
+                width: 320px;
+                height: 440px;
+                /*width: 318px;
+                height: 438px;
+                border: 1px solid red;*/
+            }
+
             #logo {
                 padding-top: 1em;
                 padding-bottom: 1em;
             }
-            #tstat {
+            #loginForm {
+                margin-left:30px;
+            }
+            #loginForm label {
+                display: inline-block;
+                width: 100px;
+                text-align: right;
+            }
+            #loggedIn {
                 display: none; /* until we have data...*/
+            }
+            #tstat {
+                margin-left:30px;
+            }
+            .tempsection{
+                display: inline-block;
+                width:140px;
+                text-align: right;
             }
             #busyBox {
                 margin-top: 2em;
@@ -139,17 +203,21 @@
             }
 
             .controls {
-                margin-top: 1em;
+                margin-top: 10px;
+                margin-left: 20px;
             }
 
-            .section {
+            .controlsection {
                 display: inline-block;
-                width:4em;
+                width:40px;
                 text-align: right;
             }
             .radioset {
                 padding-top: 4px;
                 font-size: 70%;
+            }
+            .radioset  label {
+                width: 60px;
             }
         </style>
     </head>
@@ -158,59 +226,70 @@
         This test shows a proxied connection client: see <b>Same origin policy</b>.
         -->
 
-        <div id="logo">
-            <center><img src="images/logo.gif" /></center>
-        </div>
-        <form id="loginForm" action="#">
+        <div id="wrapper">
+            <div id="logo">
+                <center><img src="images/logo.gif" /></center>
+            </div>
+            <form id="loginForm" action="#">
 
-            <label for="username">Username:</label>
-            <input type="text" id="username" /><br />
+                <label for="username">Username:</label>
+                <input type="text" id="username" /><br />
 
-            <label for="password">Password:</label>
-            <input type="password" id="passwd" /><br />
+                <label for="password">Password:</label>
+                <input type="password" id="passwd" /><br />
 
-            <label for="password">Remember?</label>
-            <input type="checkbox" id="rememberPass" />
-            <input type="submit" value="Go!"/>
-        </form>
-        <div id="tstat">
-            <center>
-                Inside Temp: <span id="inside_temp">--</span> &deg;F
-            </center>
-            <center>
-                Cooling Setpoint: <span id="low_setpoint">--</span> &deg;F
-            </center>
-            <center>
-                Heating Setpoint: <span id="high_setpoint">--</span> &deg;F
-            </center>
-            <div class="controls">
-                <div id="mode" class="radioset">
-                    <div class="section">Mode:</div>
-                    <input type="radio" id="mode-auto" name="mode" /><label for="mode-auto">Auto</label>
-                    <input type="radio" id="mode-heat" name="mode" checked="checked" /><label for="mode-heat">Heat</label>
-                    <input type="radio" id="mode-cool" name="mode" /><label for="mode-cool">Cool</label>
-                    <input type="radio" id="mode-off" name="mode" /><label for="mode-off">Off</label>
+                <label for="password">Remember?</label>
+                <input type="checkbox" id="rememberPass" />
+                <input type="submit" value="Go!"/>
+            </form>
+            <div id="loggedIn">
+                <div id="tstat">
+                    <div class="measure">
+                        <div class="tempsection">Inside Temp:</div>
+                        <span id="inside_temp">--</span> &deg;F
+                    </div>
+                    <div class="measure">
+                        <div class="tempsection">Outside Temp:</div>
+                        <span id="outside_temp">--</span> &deg;F
+                    </div>
+                    <div class="measure">
+                        <div class="tempsection">Heating Setpoint:</div>
+                        <span id="low_setpoint">--</span> &deg;F
+                    </div>
+                    <div class="measure">
+                        <div class="tempsection">Cooling Setpoint:</div>
+                        <span id="high_setpoint">--</span> &deg;F
+                    </div>
                 </div>
-                <div id="fan" class="radioset">
-                    <div class="section">Fan:</div>
-                    <input type="radio" id="fan-auto" name="fan" checked="checked" /><label for="fan-auto">Auto</label>
-                    <input type="radio" id="fan-on" name="fan" /><label for="fan-on">On</label>
+                <div class="controls">
+                    <div id="mode" class="radioset">
+                        <div class="controlsection">Mode:</div>
+                        <input type="radio" id="mode-auto" name="mode" /><label for="mode-auto">Auto</label>
+                        <input type="radio" id="mode-heat" name="mode"  /><label for="mode-heat">Heat</label>
+                        <input type="radio" id="mode-cool" name="mode" /><label for="mode-cool">Cool</label>
+                        <input type="radio" id="mode-off" name="mode" checked="checked" /><label for="mode-off">Off</label>
+                    </div>
+                    <div id="fan" class="radioset">
+                        <div class="controlsection">Fan:</div>
+                        <input type="radio" id="fan-auto" name="fan" checked="checked" /><label for="fan-auto">Auto</label>
+                        <input type="radio" id="fan-on" name="fan" /><label for="fan-on">On</label>
+                    </div>
+                    <div id="hold" class="radioset">
+                        <div class="controlsection">Hold:</div>
+                        <input type="radio" id="hold-off" name="hold" checked="checked" /><label for="hold-off">Off</label>
+                        <input type="radio" id="hold-on" name="hold" /><label for="hold-on">On</label>
+                    </div>
                 </div>
-                <div id="hold" class="radioset">
-                    <div class="section">Hold:</div>
-                    <input type="radio" id="hold-off" name="hold" checked="checked" /><label for="hold-off">Off</label>
-                    <input type="radio" id="hold-on" name="hold" /><label for="hold-on">On</label>
+                <div id="busyBox">
+                    <center><img id="busySpinner" src="images/busy20trans.gif" /></center>
                 </div>
             </div>
-        </div>
-        <div id="busyBox">
-            <center><img id="busySpinner" src="images/busy20trans.gif" /></center>
-        </div>
-        <div id="status"></div>
+            <div id="status"></div>
 
-        <div style="display: none">
-            <div>Login to <a target="_new" href="https://firstenergy-staging.getgreenbox.com/accounts/login/">https://firstenergy-staging.getgreenbox.com/accounts/login/</a></div>
-            <div>to access <a target="_new" href="http://firstenergy-staging.getgreenbox.com/">http://firstenergy-staging.getgreenbox.com/</a></div>
+            <div style="font-size: 50%; color:#ccc; position: absolute; top:420px; left:10px">
+                <div><a target="_new" href="https://firstenergy-staging.getgreenbox.com/accounts/login/">Regular Login</a></div>
+                <!--<div>to access <a target="_new" href="http://firstenergy-staging.getgreenbox.com/">http://firstenergy-staging.getgreenbox.com/</a></div>-->
+            </div>
         </div>
     </body>
 </html>

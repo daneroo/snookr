@@ -44,6 +44,16 @@ class Energate {
         return $sessionCookie;
     }
 
+    /*
+     This is the request for graph data
+        var graphPostDataExample = [
+            {"method":"query","url":"scottdesk/electric/annotation/2010/6","id":1},
+            {"method":"query","url":"scottdesk/hvac1/high_setpoint/2010/6","id":2},
+            {"method":"query","url":"scottdesk/hvac1/low_setpoint/2010/6","id":3},
+            {"method":"query","url":"scottdesk/hvac1/inside_temp/2010/6","id":4},
+            {"method":"query","url":"scottdesk/weather/temperature/2010/6","id":5}
+        ];
+    */
     public function getit($sessioncookie,$username) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'http://firstenergy-staging.getgreenbox.com/db/query/');
@@ -52,8 +62,11 @@ class Energate {
         $postdata = array(
                 array(
                         "method"=>"query",
-                        "url"=>"$username/helpers/tstat_helper?test=false",
+                        //"url"=>"$username/helpers/tstat_helper?test=false",
                         //"url"=>"$username/helpers/snapshot_helper?days=7;message=messageHelper;hvac=tstat_helper",
+                        "url"=>"$username/helpers/snapshot_helper?days=7;message=messageHelper;hvac=tstat_helper;weather=1",
+                        //"url"=>"scottdesk/helpers/snapshot_helper?days=7;message=messageHelper;hvac=tstat_helper",
+                        //"url"=>"scottdesk/helpers/snapshot_helper?days=7;message=messageHelper;hvac=tstat_helper;weather=1",
                         "id"=>1
                 )
         );
