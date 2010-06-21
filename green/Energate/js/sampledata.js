@@ -1,7 +1,144 @@
 /*
  * Copyright 2010 Daniel Lauzon <daniel.lauzon@gmail.com>
  */
-
+/*
+ * attempt to post to
+ * http://firstenergy-staging.getgreenbox.com/db/scottdesk/hvac1/settings/properties/program
+ *
+ */
+var postFanOn ='{"price":{"opt_out":false,"comfort":2},"label":"desk","model":"energate","fan":"on","mode":"cool","equipment_type":"FurnaceAndAirConditioner","drlc_opt_out_today_time":1276878032.95,"schedule":{"type":"52","days":[[{"setpoint":0,"time":"6:15"},{"setpoint":1,"time":"8:15"},{"setpoint":2,"time":"16:15"},{"setpoint":3,"time":"21:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":5,"time":"8:00"},{"setpoint":3,"time":"21:30"}],[{"setpoint":5,"time":"8:00"},{"setpoint":3,"time":"21:00"}]]},"drlc_opt_out_today":false,"drlc_opt_out":false,"hold":{"type":"none","heat":63.986000824,"cool":65.9839984894,"ui_units":"hours","setpoint":-1,"end":1276909796.12},"setpoints":[{"cool":84.9920009613,"name":"WAKE ","heat":79.9879997253},{"cool":74.9839984894,"name":"LEAVE ","heat":53.9960004807},{"cool":92.9840019226,"name":"RETURN ","heat":90.986000824},{"cool":60.9980010986,"name":"SLEEP ","heat":54.986000824},{"cool":89.9960021973,"name":"UNOCCUPIED ","heat":59},{"cool":83.9839984894,"name":"OCCUPIED ","heat":63.986000824},{"cool":86,"name":"SETPOINT 7 ","heat":62.995998764},{"cool":78.0079990387,"name":"REMOTE ","heat":64.004001236}]}';
+var postFanOff='{"price":{"opt_out":false,"comfort":2},"label":"desk","model":"energate","fan":"auto","mode":"cool","equipment_type":"FurnaceAndAirConditioner","drlc_opt_out_today_time":1276878032.95,"schedule":{"type":"52","days":[[{"setpoint":0,"time":"6:15"},{"setpoint":1,"time":"8:15"},{"setpoint":2,"time":"16:15"},{"setpoint":3,"time":"21:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":0,"time":"6:00"},{"setpoint":1,"time":"8:00"},{"setpoint":2,"time":"18:00"},{"setpoint":3,"time":"22:00"}],[{"setpoint":5,"time":"8:00"},{"setpoint":3,"time":"21:30"}],[{"setpoint":5,"time":"8:00"},{"setpoint":3,"time":"21:00"}]]},"drlc_opt_out_today":false,"drlc_opt_out":false,"hold":{"type":"none","heat":63.986000824,"cool":65.9839984894,"ui_units":"hours","setpoint":-1,"end":1276909796.12},"setpoints":[{"cool":84.9920009613,"name":"WAKE ","heat":79.9879997253},{"cool":74.9839984894,"name":"LEAVE ","heat":53.9960004807},{"cool":92.9840019226,"name":"RETURN ","heat":90.986000824},{"cool":60.9980010986,"name":"SLEEP ","heat":54.986000824},{"cool":89.9960021973,"name":"UNOCCUPIED ","heat":59},{"cool":83.9839984894,"name":"OCCUPIED ","heat":63.986000824},{"cool":86,"name":"SETPOINT 7 ","heat":62.995998764},{"cool":78.0079990387,"name":"REMOTE ","heat":64.004001236}]}';
+var post={
+    "price":{
+        "opt_out":false,
+        "comfort":2
+    },
+    "label":"desk",
+    "model":"energate",
+    "fan":"on",
+    "mode":"cool",
+    "equipment_type":"FurnaceAndAirConditioner",
+    "drlc_opt_out_today_time":1276878032.95,
+    "schedule":{
+        "type":"52",
+        "days":[[{
+            "setpoint":0,
+            "time":"6:15"
+        },{
+            "setpoint":1,
+            "time":"8:15"
+        },{
+            "setpoint":2,
+            "time":"16:15"
+        },{
+            "setpoint":3,
+            "time":"21:00"
+        }],[{
+            "setpoint":0,
+            "time":"6:00"
+        },{
+            "setpoint":1,
+            "time":"8:00"
+        },{
+            "setpoint":2,
+            "time":"18:00"
+        },{
+            "setpoint":3,
+            "time":"22:00"
+        }],[{
+            "setpoint":0,
+            "time":"6:00"
+        },{
+            "setpoint":1,
+            "time":"8:00"
+        },{
+            "setpoint":2,
+            "time":"18:00"
+        },{
+            "setpoint":3,
+            "time":"22:00"
+        }],[{
+            "setpoint":0,
+            "time":"6:00"
+        },{
+            "setpoint":1,
+            "time":"8:00"
+        },{
+            "setpoint":2,
+            "time":"18:00"
+        },{
+            "setpoint":3,
+            "time":"22:00"
+        }],[{
+            "setpoint":0,
+            "time":"6:00"
+        },{
+            "setpoint":1,
+            "time":"8:00"
+        },{
+            "setpoint":2,
+            "time":"18:00"
+        },{
+            "setpoint":3,
+            "time":"22:00"
+        }],[{
+            "setpoint":5,
+            "time":"8:00"
+        },{
+            "setpoint":3,
+            "time":"21:30"
+        }],[{
+            "setpoint":5,
+            "time":"8:00"
+        },{
+            "setpoint":3,
+            "time":"21:00"
+        }]]
+        },
+    "drlc_opt_out_today":false,
+    "drlc_opt_out":false,
+    "hold":{
+        "type":"none",
+        "heat":63.986000824,
+        "cool":65.9839984894,
+        "ui_units":"hours",
+        "setpoint":-1,
+        "end":1276909796.12
+    },
+    "setpoints":[{
+        "cool":84.9920009613,
+        "name":"WAKE ",
+        "heat":79.9879997253
+    },{
+        "cool":74.9839984894,
+        "name":"LEAVE ",
+        "heat":53.9960004807
+    },{
+        "cool":92.9840019226,
+        "name":"RETURN ",
+        "heat":90.986000824
+    },{
+        "cool":60.9980010986,
+        "name":"SLEEP ",
+        "heat":54.986000824
+    },{
+        "cool":89.9960021973,
+        "name":"UNOCCUPIED ",
+        "heat":59
+    },{
+        "cool":83.9839984894,
+        "name":"OCCUPIED ",
+        "heat":63.986000824
+    },{
+        "cool":86,
+        "name":"SETPOINT 7 ",
+        "heat":62.995998764
+    },{
+        "cool":78.0079990387,
+        "name":"REMOTE ",
+        "heat":64.004001236
+    }]
+    };
 /* so we want
  * data = sampleResultWithWeather
  * 

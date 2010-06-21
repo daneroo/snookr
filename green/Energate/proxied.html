@@ -42,6 +42,8 @@
                 }
 
                 var permanentSessionCookie=null;
+                var lastKnownProgram=null;
+
 
                 var loginCB=function(){
                     var username=$('#username').val();
@@ -88,6 +90,8 @@
                         debug("null program");
                         return;
                     }
+                    lastKnownProgram=program;
+                    
                     debug("mode: "+program.mode); // values are auto,heat,cool,off
                     debug("fan:  "+program.fan);
                     debug("hold: "+$.toJSON(program.hold));
@@ -144,6 +148,10 @@
                 $("#mode").buttonset();
                 $("#fan").buttonset();
                 $("#hold").buttonset();
+
+                $("#mode input").click(function(){
+                    debug("click!");
+                });
 
             });
         </script>
