@@ -57,7 +57,7 @@
                         $('#status').html(sessionCookie.split('=')[1]);
                         $('#loginForm').fadeOut();
                         permanentSessionCookie=sessionCookie;
-                        start(5000);
+                        start(15000);
                     }
                     debug("interactive session: "+sessionCookie);
                     return false;
@@ -135,7 +135,7 @@
                     $('#status').html(""+new Date()+"<br />"+permanentSessionCookie.split('=')[1]);
                 }
                 function start(interval){
-                    interval = interval || 10000;
+                    interval = interval || 15000;
                     var thing = this;
                     var cb = function(timer){
                         oneIteration();
@@ -148,11 +148,27 @@
                 $("#mode").buttonset();
                 $("#fan").buttonset();
                 $("#hold").buttonset();
+                var modeAndFanCB = function(){
+                    var username=$('#username').val();
+                    var kind = $(this).attr("name");
+                    var numode=$(this).attr("id");
+                    debug("callback kind: "+kind+"("+kind.length+") value:"+numode);
+                    numode=numode.substring(kind.length+1); // remove kind and dash
+                    debug("click::"+kind+": "+numode);
+                    //debug("last known program: "+$.toJSON(lastKnownProgram));
+                    var requestedProgram={};
+                    var deep=true;
+                    var nu = {};
+                    nu[kind]=numode;
+                    $.extend(deep,requestedProgram,lastKnownProgram,nu);
+                    debug(" requested program: "+$.toJSON(requestedProgram));
 
-                $("#mode input").click(function(){
-                    debug("click!");
-                });
-
+                    var dataOut = storeit(permanentSessionCookie, username, "hvac1", requestedProgram)
+                    debug( "dataOut: "+ dataOut);
+                };
+                $("#mode input").click(modeAndFanCB);
+                $("#fan input").click(modeAndFanCB);
+                $("#hold input").button({disabled: true });
             });
         </script>
         <style type="text/css" media="screen">

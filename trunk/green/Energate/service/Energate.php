@@ -83,6 +83,27 @@ class Energate {
 
         return $dataoutAsStr;
     }
+    public function storeit($sessioncookie,$username,$hvac,$program) {
+        $ch = curl_init();
+        // http://firstenergy-staging.getgreenbox.com/db/scottdesk/hvac1/settings/properties/program
+        $url = "http://firstenergy-staging.getgreenbox.com/db/$username/$hvac/settings/properties/program";
+        curl_setopt($ch, CURLOPT_URL, "http://firstenergy-staging.getgreenbox.com/db/$username/$hvac/settings/properties/program");
+        curl_setopt($ch,CURLOPT_COOKIE,$sessioncookie);
+
+        $encoded = json_encode($program);
+        // this is not technically correct, but required...
+        // json should escape foward slashes...
+        //$encoded = str_replace("\/", "/", $encoded);
+
+        curl_setopt($ch, CURLOPT_POST, true); // Tell curl that we are posting data
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $encoded);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $dataoutAsStr = curl_exec($ch);
+        curl_close($ch);
+
+        //return $url;
+        return $dataoutAsStr;
+    }
 
 }
 ?>
