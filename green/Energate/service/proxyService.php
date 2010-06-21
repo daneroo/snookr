@@ -39,6 +39,19 @@ class proxyService extends iM_ServiceBase {
         //return "username:$username::$dataAsString";
         return $decoded;
     }
+    /**
+     @JsonRpcHelp("Store the program")
+     */
+    public function storeit($cookie,$username,$hvac,$program) {
+        if (is_null($cookie)||""==$cookie) {
+            return "Authorization Required";
+        }
+        $enrgate = new Energate();
+        $dataAsString = $enrgate->storeit($cookie,$username,$hvac,$program);
+        //$decoded = json_decode($dataAsString,TRUE);
+        //return "username:$username::$dataAsString";
+        return $dataAsString;
+    }
 
 
 }

@@ -61,4 +61,7 @@ function login(username,passwd){
 function getit(sessionCookie,username){
     return invoke(null, "getit", [sessionCookie,username], null);
 }
+function storeit(sessionCookie,username,hvac,program){
+    return invoke(null, "storeit", [sessionCookie,username,hvac,program], null);
+}
 
