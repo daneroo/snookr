@@ -139,6 +139,20 @@
                 });
 
                 $('#player').bind('touchmove', function(e){e.preventDefault()});
+                $('#loginBtn').click(function() {
+                    if ($("#poolname").val()){
+                        debug("poolname: "+$("#poolname").val());
+                        jQT.goTo("#pool");
+                    } else if ($("#username").val()){
+                        debug("username: "+$("#username").val());
+                        jQT.goTo("#pools");
+                    } else {
+                        $('#home input').css("background-color","red");
+                        setTimeout(function(){
+                            $('#home input').css("background-color",null);
+                        }, 200);
+                    }
+                });
             });
         </script>
         <style type="text/css" media="screen">
@@ -174,6 +188,30 @@
     <body>
         <!-- These are my sections -->
         <div id="home" class="current">
+            <div class="toolbar">
+                <h1>Pool Expert</h1>
+                <a class="button slideup" id="infoButton" href="#about">About</a>
+            </div>
+            <h2>Login</h2>
+            <ul class="edit rounded">
+                <li><input type="text" name="username" placeholder="Enter Username" id="username" /></li>
+                <li><input type="password" name="password" placeholder="Enter Password" id="password" /></li>
+            </ul>
+            <h2>or Select Pool</h2>
+            <ul class="edit rounded">
+                <li><input type="text" name="pool"     placeholder="Enter Pool Name" id="poolname"  /></li>
+            </ul>
+            <a id="loginBtn" style="padding: 5px; width:60px; margin-left: 120px; margin-bottom: 60px;" class="whiteButton" href="#">Go!</a>
+            <ul class="individual">
+                <li><a class="flip" id="settingsButton" href="#about">Settings</a></li>
+                <li><a class="dissolve" id="helpButton" href="#about">Help</a></li>
+            </ul>
+            <div class="info">
+                <p>Add this page to your home screen to view the custom icon, startup screen, and full screen mode.</p>
+            </div>
+        </div>
+
+        <div id="oldhome" class="notcurrent">
             <div class="toolbar">
                 <h1>iGabarit</h1>
                 <a class="button slideup" id="infoButton" href="#about">About</a>
