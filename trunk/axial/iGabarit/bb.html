@@ -1,0 +1,194 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!--
+        <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=2.3, user-scalable=0;"/>
+        -->
+        <meta name=”HandheldFriendly” content=”True” />
+        <meta name = "viewport" content="width=device-width,height=device-height" />
+        <style type="text/css" media="screen">@import "jqt/jqtouch/jqtouch.min.css";</style>
+        <style type="text/css" media="screen">@import "jqt/themes/jqt/theme.min.css";</style>
+        <style type="text/css" media="screen">@import "jqt/themes/apple/theme.min.css";</style>
+        <!--
+        That dosn't work... hmmm.
+        <script src="upstream/xui-js/xui-bb-1.0.0.js" type="text/javascript"></script>
+        -->
+        <!--
+        disable for now
+        <script src="xui/lib/xui.js" type="text/javascript"></script>
+        -->
+
+        <script type="text/javascript">
+
+            if (0) {
+                x$(window).load(function(e){
+                    x$('#status').inner('loaded');
+                    x$('a').click(function(e){
+                        // this does not work in the simulator
+                        x$('#status').inner('click');
+                        return false;
+                        // Make sure exactly one child of body has "current" class
+                        /*if ($('body > .current').length == 0) {
+                        currentPage = $('body > *:first');
+                    } else {
+                        currentPage = $('body > .current:first');
+                        $('body > .current').removeClass('current');
+                    }*/
+
+                        // Go to the top of the "current" page
+                        //x$('#player').addClass('current');
+                        //location.hash = 'player';
+                        //addPageToHistory(currentPage);
+                        //scrollTo(0, 0);
+                    });
+                }
+            });
+        </script>
+        <style type="text/css">
+            /* override the jqt theme... */
+            #status {
+                display: none;
+                color: red;
+            }
+            body > * {
+                display: block;
+                position: inherit;
+                min-height: 420px !important;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- These are my sections -->
+        <div id="home" class="current">
+            <div class="status" id="status">Status</div>
+
+            <div class="toolbar">
+                <h1>iGabarit</h1>
+                <a class="button slideup" id="infoButton" href="#about">About</a>
+            </div>
+            <ul class="rounded">
+                <li class="arrow"><a href="#pools">Pools</a> <small class="counter">4</small></li>
+                <li class="arrow"><a href="#friends">Friends</a> <small class="counter">10</small></li>
+                <li class="arrow"><a href="#player">Player 5</a><small class="counter">PPs 14</small></li>
+            </ul>
+            <h2>User Interface</h2>
+            <ul class="rounded">
+                <li class="arrow"><a href="#ui">User Interface</a> <small class="counter">4</small></li>
+                <li class="arrow"><a href="#animations">Animations</a> <small class="counter">8</small></li>
+                <li class="arrow"><a href="#ajax">AJAX</a> <small class="counter">2</small></li>
+                <!-- use this to forwar to other look ?
+                <li class="forward"><a href="this?theme=jqt|apple">Apple|jQt</a></li>
+                -->
+            </ul>
+            <ul class="individual">
+                <li><a class="flip" id="settingsButton" href="#about">Settings</a></li>
+                <li><a class="dissolve" id="helpButton" href="#about">Help</a></li>
+            </ul>
+            <div class="info">
+                <p>Add this page to your home screen to view the custom icon, startup screen, and full screen mode.</p>
+            </div>
+        </div>
+
+        <div id="pools">
+            <div class="toolbar">
+                <h1>Pools</h1>
+                <a class="back" href="#">Home</a>
+            </div>
+
+            <h2>Active</h2>
+            <ul class="rounded">
+                <li class="arrow"><a href="#pool">Pool Name 1</a></li>
+                <li class="arrow"><a href="#pool">Pool Name 2</a></li>
+                <li class="arrow"><a href="#pool">Pool Name 3</a></li>
+            </ul>
+            <h2>Inactive</h2>
+            <ul class="rounded">
+                <li class="arrow"><a href="#pool">Old Pool</a></li>
+            </ul>
+        </div>
+        <div id="pool">
+            <div class="toolbar">
+                <h1>Ranking</h1>
+                <a href="#" class="back">Back</a>
+            </div>
+            <ul id="competitorList" class="edgetoedge">
+                <li class="arrow"><a href="#roster">Competitor 1</a><small class="counter">PPs 24</small></li>
+                <li class="arrow"><a href="#roster">Competitor 2</a><small class="counter">PPs 20</small></li>
+                <li class="arrow"><a href="#roster">Competitor 3</a><small class="counter">PPs 18</small></li>
+                <li class="arrow"><a href="#roster">Competitor 4</a><small class="counter">PPs 15</small></li>
+                <li class="arrow"><a href="#roster">Competitor 5</a><small class="counter">PPs 15</small></li>
+                <li class="arrow"><a href="#roster">Competitor 6</a><small class="counter">PPs 14</small></li>
+                <li class="arrow"><a href="#roster">Competitor 7</a><small class="counter">PPs 8</small></li>
+                <li class="arrow"><a href="#roster">Competitor 8</a><small class="counter">PPs 3</small></li>
+                <li class="arrow"><a href="#roster">Competitor 9</a><small class="counter">PPs 2</small></li>
+                <li class="arrow"><a href="#roster">Competitor 10</a><small class="counter">PPs 2</small></li>
+                <li class="arrow"><a href="#roster">Competitor 11</a><small class="counter">PPs 1</small></li>
+            </ul>
+        </div>
+        <div id="roster">
+            <div class="toolbar">
+                <h1>Rosters</h1>
+                <a href="#" class="back">Back</a>
+            </div>
+            <ul id="competitorList" class="edgetoedge">
+                <!--<li class="sep">Competitor Name</li>-->
+                <li class="sep">
+                    <select>
+                        <option value ="c1">Competitor 1</option>
+                        <option value ="c2">Competitor 2</option>
+                        <option value ="c3" selected="selected">Competitor 3</option>
+                        <option value ="c4">Competitor 4</option>
+                        <option value ="c5">Competitor 5</option>
+                    </select>
+
+                </li>
+                <li class="sep">Active</li>
+                <li class="arrow"><a href="#player">Player 1</a><small class="counter">PPs 20</small></li>
+                <li class="arrow"><a href="#player">Player 2</a><small class="counter">PPs 18</small></li>
+                <li class="arrow"><a href="#player">Player 3</a><small class="counter">PPs 15</small></li>
+                <li class="arrow"><a href="#player">Player 4</a><small class="counter">PPs 15</small></li>
+                <li class="arrow"><a href="#player">Player 5</a><small class="counter">PPs 14</small></li>
+                <li class="sep">Benched</li>
+                <li class="arrow"><a href="#player">Player 6</a><small class="counter">PPs 8</small></li>
+                <li class="arrow"><a href="#player">Player 7</a><small class="counter">PPs 3</small></li>
+                <li class="arrow"><a href="#player">Player 8</a><small class="counter">PPs 1</small></li>
+            </ul>
+        </div>
+
+        <div id="player">
+            <div class="toolbar">
+                <h1 id="playerHeader">Player Profile</h1>
+                <a class="back" href="#">Back</a>
+                <a id="playerNextBtn" class="button" href="#player">Next</a>
+            </div>
+            <!--<h2 style="text-align: right" class="swipeme">Prev/Next</h2>-->
+            <ul  class="rounded">
+                <li class="playerInfoBox">
+                    <img class="swipeme" id="playerIcon" src="images/player.gif" />
+                    <div class="swipeme" id="playerPosition">Forward</div>
+                    <div class="swipeme" id="playerTeam">Vancouver</div>
+                    <div class="swipeme">Salary: <span id="playerSalary">$800k</span></div>
+                </li>
+            </ul>
+            <!--<h2>Cumulative</h2>-->
+            <ul class="rounded">
+                <li>Gloals<small id="playerGoals">23</small></li>
+                <li>Assists<small id="playerAssists">12</small></li>
+                <li>Hat Tricks<small id="playerHattricks">1</small></li>
+                <!--</ul>
+                <! - - <h2>Recent</h2> - - >
+                <ul class="rounded">-->
+                <li>Yesterday<small>1</small></li>
+                <li>Last 7 days<small>8</small></li>
+                <li>Last 30 days<small>23</small></li>
+                <li>Pool Points<small>23</small></li>
+            </ul>
+        </div>
+    </body>
+</html>
