@@ -16,31 +16,6 @@
             $(function(){
                 debug("Proxied connect!");
 
-                if (0){
-
-                    var username='insertusername';
-                    var passwd='insertpassword';
-
-                    function doOne(name,cookie){
-                        var data = getit(cookie,username);
-                        debug(""+name+": "+$.toJSON(data));
-                        //debug(data);
-                    }
-
-                    doOne("stale", "firstenergystaging_sessionid=36a1ad6d8ff833d111f1a354501c2709");
-                    doOne("bad","firstenergystaging_sessionid=abcdefghijklmnopqrstuvwxyz012345");
-                    doOne("null",null);
-                    doOne("empty","");
-
-                    var sessionCookie = login(username,passwd+"bad");
-                    debug("bad session: "+sessionCookie);
-                    var sessionCookie = login(username,passwd);
-                    debug("good session: "+sessionCookie);
-
-                    doOne("goodAndNew-1",sessionCookie);
-                    doOne("goodAndNew-2",sessionCookie);
-                }
-
                 var permanentSessionCookie=null;
                 var lastKnownProgram=null;
 
@@ -201,6 +176,13 @@
                 width: 100px;
                 text-align: right;
             }
+            #loginWarning{
+                display:none;
+                font-style: italic;
+                color: gray;
+                font-size: 80%;
+                text-align: center;
+            }
             #loggedIn {
                 display: none; /* until we have data...*/
             }
@@ -265,6 +247,7 @@
                 <label for="password">Remember?</label>
                 <input type="checkbox" id="rememberPass" />
                 <input type="submit" value="Go!"/>
+                <div id="loginwarning">This prototype transmits the password unencrypted. It is meant for demonstration purposes only</div>
             </form>
             <div id="loggedIn">
                 <div id="tstat">
