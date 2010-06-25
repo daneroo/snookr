@@ -3,10 +3,12 @@
  * Copyright 2010 Daniel Lauzon <daniel.lauzon@gmail.com>
 */
 class Energate {
+    var $host="firstenergy-staging.getgreenbox.com";
+    //var $host="www.myenergate.com"; // This does not work - urls are different - method, etc
     // login with https, sniff the cookie coming back, and return it.
     public function login($username,$passwd) {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://firstenergy-staging.getgreenbox.com/accounts/login/');
+        curl_setopt($ch, CURLOPT_URL, "https://$this->host/accounts/login/");
         $postdata="username=$username&password=$passwd&commit=Sign+in&next=";
 
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -56,7 +58,7 @@ class Energate {
     */
     public function getit($sessioncookie,$username) {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://firstenergy-staging.getgreenbox.com/db/query/');
+        curl_setopt($ch, CURLOPT_URL, "http://$this->host/db/query/");
         curl_setopt($ch,CURLOPT_COOKIE,$sessioncookie);
 
         $postdata = array(
@@ -85,9 +87,8 @@ class Energate {
     }
     public function storeit($sessioncookie,$username,$hvac,$program) {
         $ch = curl_init();
-        // http://firstenergy-staging.getgreenbox.com/db/scottdesk/hvac1/settings/properties/program
-        $url = "http://firstenergy-staging.getgreenbox.com/db/$username/$hvac/settings/properties/program";
-        curl_setopt($ch, CURLOPT_URL, "http://firstenergy-staging.getgreenbox.com/db/$username/$hvac/settings/properties/program");
+        $url = "http://$this->host/db/$username/$hvac/settings/properties/program";
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch,CURLOPT_COOKIE,$sessioncookie);
 
         $encoded = json_encode($program);
