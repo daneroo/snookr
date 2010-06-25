@@ -8,12 +8,18 @@
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
         <script type="text/javascript">
             var imIsIPhone=true;
+            var imIsBlackBerry=true;
             if(!((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))) {
                 imIsIPhone=false;
+            }
+            if(!((navigator.userAgent.match(/BlackBerry/i)) || (navigator.userAgent.match(/iPod/i)))) {
+                imIsBlackBerry=false;
             }
             function delayer(){
                 if (imIsIPhone){
                     window.location = "demo.html";
+                } else if (imIsBlackBerry){
+                    window.location = "bb.html";
                 } else {
                     window.location = "framed.html";
                 }
@@ -22,9 +28,11 @@
             $(function(){
                 $('#browserid').text(navigator.userAgent);
                 if (imIsIPhone){
-                    $('#status').html("You have an iPhone");
+                    $('#status').html("You have an iPhone/iPod");
+                } else if (imIsBlackBerry){
+                    $('#status').html("You have a BlackBerry");
                 } else {
-                    $('#status').html("You are not on an iPhone");
+                    $('#status').html("You are not on an mobile handset");
                 }
                 setTimeout('delayer()', 3000);
 
