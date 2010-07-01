@@ -4,7 +4,7 @@
 <svg onload="init(evt)" width="800" height="400" zoomAndPan="disable"
      xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink">
-    <script type="text/ecmascript" xlink:href="plants.js"></script>
+    <script type="text/ecmascript" xlink:href="treeoflife.js"></script>
     <rect x="0" y="0" width="800" height="400" fill="black"
           rx="10" ry="10"/>
     <g id="stems" fill="none" stroke="#5C3317"/>
