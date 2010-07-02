@@ -38,11 +38,35 @@ button.eko-editor-closebtn {
     width:0px; height:0px;
 }
 .pencilmarkholder .pencilmark {
+    height:20px; /* override height (comes from text in pointed element otherwise) */
     position:absolute;
     top:0px;
-    left:-18px;
-    width:16px;
-    padding: 1px 1px;
-    display: block;
+    left:-18px; /*offset for icon placement */
 }
 
+/* theese will go into jEko _core */
+.ui-widget.jeko-btn {
+    font-size: 1em; /* override ui-widget font-size: 1.1em */
+}
+.jeko-btn .ui-button-text  {
+    line-height: 1.1;
+    text-decoration: none;
+}
+/* like before */
+.jeko-btn .ui-button-text  {
+    padding:0.4em 1em 0.4em 1.6em;
+}
+.jeko-btn .ui-button-icon-primary  {
+    left:0.2em;
+}
+
+/* override .ui-button-icon-only .ui-button-text {padding: 0.4em}*/
+.jeko-action-icon .ui-button-text {
+    padding:0;
+}
+/* override button.ui-button-icon-only {width:2.4em}
+         or .ui-button-icon-only {width:2.2em}
+*/
+.jeko-action-icon.ui-button-icon-only {
+    width: 20px;
+}
