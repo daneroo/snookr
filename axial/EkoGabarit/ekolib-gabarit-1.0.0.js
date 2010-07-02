@@ -153,12 +153,8 @@ EkoGabarit.prototype = {
         return this.currentEditingElt.html()!=this.ckElt.val();
     },
     pencilMark:function(pointedElt){
-        var pencilElt = $('<div class="pencilmark ui-state-default ui-corner-all" title="Editable"><span class="ui-icon ui-icon-pencil"></span></div>');
-        pencilElt.hover(function() {
-            pencilElt.addClass('ui-state-hover');
-        },function() {
-            pencilElt.removeClass('ui-state-hover');
-        })
+        var pencilElt=EkoActionIcon('ui-icon-pencil','Edit');
+        pencilElt.addClass('pencilmark');
         var type = $(pointedElt).attr('type')||'none';
         debug("pencil-type: "+type);
         if ('text'==type || 'html'==type){
