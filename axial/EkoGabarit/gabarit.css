@@ -21,15 +21,28 @@
 .editablehover > img {
     /*border: 1px solid red  !important;*/
 }
-#previewWrapper {
-    border: solid gray;
-    padding:10px;
+
+/* this is the background color of the ckeditor's dialog */
+.eko-editor-dialog {
+    background-color:white;
 }
 
-#topSpace {
-    width: 400px;
+button.eko-editor-closebtn {
+    float:right;
 }
 
-#editordiv {
-    width: 300px;
+.pencilmarkholder {
+    display:block;
+    position:relative;
+    top:0px; left:0px;
+    width:0px; height:0px;
 }
+.pencilmarkholder .pencilmark {
+    position:absolute;
+    top:0px;
+    left:-18px;
+    width:16px;
+    padding: 1px 1px;
+    display: block;
+}
+

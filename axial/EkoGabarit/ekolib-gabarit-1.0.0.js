@@ -47,7 +47,7 @@ EkoGabarit.prototype = {
         this.dialogElt.css('position', 'absolute');
 
         this.dialogElt.addClass('eko-editor-dialog');
-        var closeBtnElt=EkoActionIcon('ui-icon-closethick');
+        var closeBtnElt=EkoActionIcon('ui-icon-closethick','Close');
         closeBtnElt.addClass('eko-editor-closebtn');
         closeBtnElt.click(function(){
             ekoG.discardWithDialog();
@@ -306,30 +306,36 @@ function EkoGabarit(previewSelector) {
     this.previewJQ = $(previewSelector);
 }
 
-/* Theese were stolen from EkoCOncours ekolib-1.0.0.js */
-function EkoActionIcon(iconClass) {
+
+/* Theese were modified from EkoCOncours ekolib-1.0.0.js */
+function EkoActionIcon(iconClass,hint) {
     // calls EkoIconWrapper...
-    return EkoIconWrapper('',iconClass,'eko-action-icon');
+    return EkoIconWrapper('',iconClass,'jeko-action-icon',hint);
 }
 
 function EkoButton(label,iconClass) {
     // calls EkoIconWrapper...
     label = label || "Add";
-    return EkoIconWrapper(label,iconClass,'eko-btn');
+    return EkoIconWrapper(label,iconClass,'jeko-btn');
 }
-function EkoIconWrapper(label,iconClass,cssClass) {
+
+function EkoIconWrapper(label,iconClass,cssClass,hint) {
     /* return a new element for insertion into DOM
      * icon class : e.g. ui-icon-plus, ui-icon-arrowthick-1-n, etc
      * cssClass: eko-btn, eko-action-icon (arrown,..)
      */
     iconClass = iconClass || "ui-icon-plus";
-    cssClass = cssClass || "eko-btn";
-    var btnElt = $('<a href="#" class="'+cssClass+' ui-state-default ui-corner-all"><span class="ui-icon '+iconClass+'"></span>'+label+'</a>');
-    btnElt.hover(function() {
-        $(this).addClass('ui-state-hover');
-    },function() {
-        $(this).removeClass('ui-state-hover');
-    })
+    cssClass = cssClass || "jeko-btn";
+    hint = hint||iconClass; // icon only has to have text set inthe button, used as hint and calculate height!
+    var hasText=(''!=label);
+    var btnElt = $('<button></button>').text(hasText?label:hint);
+    btnElt.addClass(cssClass);
+    btnElt.button({
+        icons: {
+            primary: iconClass
+        },
+        text: hasText
+    });
     return btnElt;
 }
 
