@@ -6,18 +6,8 @@
         Purpose of the stylesheet follows.
 */
 
-/* 
-   TODO customize this sample style
-   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
-*/
-
-root { 
-    display: block;
-}
-
-
 .editable {
-    background-color: #FFFFE0; /* light yellow */
+    /*background-color: #FFFFE0; */ /* light yellow */
 }
 
 .editablehover {
@@ -26,10 +16,10 @@ root {
 }
 
 .editable > img {
-    border: 1px solid #777777 !important;
+    /*border: 1px solid #777777 !important;*/
 }
 .editablehover > img {
-    border: 1px solid red  !important;
+    /*border: 1px solid red  !important;*/
 }
 #previewWrapper {
     border: solid gray;

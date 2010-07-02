@@ -117,7 +117,6 @@ EkoGabarit.prototype = {
             ekoG.currentPickingImgElt = null;
         };
         this.ekoIP.render(); // append to body
-
     },
     save: function(){
         var ekoG = this; // alias for this in callbacks!
@@ -153,6 +152,30 @@ EkoGabarit.prototype = {
         }
         return this.currentEditingElt.html()!=this.ckElt.val();
     },
+    pencilMark:function(pointedElt){
+        var pencilElt = $('<div class="pencilmark ui-state-default ui-corner-all" title="Editable"><span class="ui-icon ui-icon-pencil"></span></div>');
+        pencilElt.hover(function() {
+            pencilElt.addClass('ui-state-hover');
+        },function() {
+            pencilElt.removeClass('ui-state-hover');
+        })
+        var type = $(pointedElt).attr('type')||'none';
+        debug("pencil-type: "+type);
+        if ('text'==type || 'html'==type){
+            pencilElt.click(function(){
+                $(pointedElt).dblclick();
+            });
+        } else if ('image'==type) {
+            pencilElt.click(function(){
+                $(pointedElt).find('img').click();
+            });
+        }
+
+        var pencilholderElt = $('<div class="pencilmarkholder"></div>');
+        pencilholderElt.append(pencilElt);
+
+        $(pointedElt).before(pencilholderElt);
+    },
     inject:function(){
         var ekoG = this; // alias for this in callbacks!
         ekoG.clearValues(); // clear the value dictionary.
@@ -160,6 +183,9 @@ EkoGabarit.prototype = {
             //debug(this);
             var type = $(this).attr('type') || 'none';
             var key = $(this).attr('id') || 'none';
+            // pencil mark
+            ekoG.pencilMark(this);
+
             if ('text'==type){
                 // populate dict with initial value
                 ekoG.saveValue(key,$(this).text());

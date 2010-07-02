@@ -56,6 +56,19 @@ and open the template in the editor.
                 loadBtn.css('margin-left', '10px');
                 $('#lifecycle').append(loadBtn);
 
+                var showHideBtn = $('<a href="#" style="margin-left:5em; color:black;">Hide Edit Marks</a>');
+                showHideBtn.click(function(){
+                    if ($(this).text()=='Hide Edit Marks'){
+                        ekoG.previewJQ.find('.pencilmark').css('display', 'none');
+                        $(this).text('Show Edit Marks');
+                    } else {
+                        ekoG.previewJQ.find('.pencilmark').css('display', null);
+                        $(this).text('Hide Edit Marks');
+                    }
+                });
+                $('#lifecycle').append(showHideBtn);
+
+
                 loadBtn.click();
                 //ekoG.load('gabarit1.html');
 
@@ -96,6 +109,23 @@ and open the template in the editor.
             /* For arrows and such */
             .eko-action-icon {width:16px; height:20px; padding: 0 0 0 20px;text-decoration: none; position: relative; text-decoration:none;}
             .eko-action-icon span.ui-icon {margin: 0 0 0 0;position: absolute;left: .1em;top: 50%;margin-top: -8px;}
+
+
+            .pencilmarkholder {
+                display:block;
+                position:relative;
+                top:0px; left:0px;
+                width:0px; height:0px;
+            }
+            .pencilmarkholder .pencilmark {
+                position:absolute;
+                top:0px;
+                left:-18px;
+                width:16px;
+                padding: 1px 1px;
+                display: block;
+            }
+
         </style>
 
     </head>
