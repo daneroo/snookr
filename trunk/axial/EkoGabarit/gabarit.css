@@ -44,7 +44,7 @@ button.eko-editor-closebtn {
     left:-18px; /*offset for icon placement */
 }
 
-/* theese will go into jEko _core */
+/* these will go into jEko_button */
 .ui-widget.jeko-btn {
     font-size: 1em; /* override ui-widget font-size: 1.1em */
 }
