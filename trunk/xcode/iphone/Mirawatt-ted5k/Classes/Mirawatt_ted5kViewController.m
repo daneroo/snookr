@@ -33,20 +33,6 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
-	//NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-cache" ofType:@"html"];
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-t5k" ofType:@"html" inDirectory:@"html"];
-	//NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-ted" ofType:@"html"];
-	NSFileHandle *readHandle = [NSFileHandle fileHandleForReadingAtPath:path];
-	
-	NSString *htmlString = [[NSString alloc] initWithData: 
-							[readHandle readDataToEndOfFile] encoding:NSUTF8StringEncoding];
-	
-	NSString *imagePath = [[NSBundle mainBundle] resourcePath];
-	imagePath = [imagePath stringByReplacingOccurrencesOfString:@"/" withString:@"//"];
-	imagePath = [imagePath stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
-	
-	NSLog(@"path: %@",path);
-	NSLog(@"imagePath: %@",imagePath);
 	
 	// to make html content transparent to its parent view -
 	// 1) set the webview's backgroundColor property to [UIColor clearColor]
@@ -55,16 +41,13 @@
 	//
 	webView.opaque = NO;
 	webView.backgroundColor = [UIColor clearColor];
-	
-	NSURL *baseURL = nil;
-	baseURL = [NSURL URLWithString: [NSString stringWithFormat:@"file:/%@//html//",imagePath]];
-	[self.webView loadHTMLString:htmlString baseURL:baseURL];
-	
-	//NSURL *fileURL = [NSURL URLWithString: [NSString stringWithFormat:@"file:/%@//en.lproj//webViewContent.html",imagePath]];
-	//NSURLRequest *requestObj = [NSURLRequest requestWithURL:fileURL];
-	//[webView loadRequest:requestObj];
-	
-	[htmlString release];	
+
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"iphone-t5k" ofType:@"html" inDirectory:@"html"];
+	NSLog(@"path: %@",path);
+	NSURL *appURL        = [NSURL fileURLWithPath:path];
+    NSLog(@"appURL: %@",appURL);
+    NSURLRequest *appReq = [NSURLRequest requestWithURL:appURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:20.0];
+    [webView loadRequest:appReq];	
 }
 
 
