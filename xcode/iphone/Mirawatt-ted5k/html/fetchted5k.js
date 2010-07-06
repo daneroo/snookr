@@ -100,6 +100,7 @@ function fetchTed(proxyurl){
         elapsed = new Date().getTime()-lastLongFetched.getTime();
     }
     //$('#error').html('elapsed: '+elapsed);
+    $('#error').html('&nbsp;');// clear any errors
     for (i in scopes){
         var scope = scopes[i];
         if (elapsed<60000 && scope!='second') {
