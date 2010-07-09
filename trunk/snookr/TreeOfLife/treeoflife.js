@@ -36,13 +36,44 @@ function generate() {
 
     // make new plants
     for ( var i = 0; i < plants; i++ ) {
-        makePlant();
+    //makePlant();
     }
 
-    makeLeaf({
-        x: WIDTH/2,
-        y: HEIGHT/2
-    },    20, 20);
+    makeRow(0 ,100,1,1);
+    makeRow(30,170,3,.7);
+    makeRow(0 ,230,7,.7*.7);
+    makeRow(15 ,270,25,.7*.7*.7);
+    makeRow(0  ,300,25,.7*.7*.7*.7);
+}
+
+var xspacing=90;
+var leftMargin=100;
+function makeRow(x,y,n,scale) {
+    for (var l=0;l<n;l++){
+        makeLeaf({
+            x: leftMargin+x+l*xspacing*scale,
+            y: y
+        },    8*scale, 7*scale);
+    }
+}
+
+function makeLeaf(point, scaleX, scaleY) {
+    var gray  = 110 + random(50);
+    var color  = "rgb("+[gray,gray,gray].join(",")+")";
+    var angle  = random(180) - 180;
+    angle=-90;
+    var trans  = "translate(" + point.x + "," + point.y + ")";
+    var scale  = "scale(" + scaleX + "," + scaleY + ")";
+    var rotate = "rotate(" + angle + ")";
+    var t      = trans + " " + rotate + " " + scale;
+    var leaf   = svgDocument.createElementNS(svgns, "path");
+
+    leaf.setAttributeNS(null, "fill", color);
+    leaf.setAttributeNS(null, "stroke", "white");
+    leaf.setAttributeNS(null, "transform", t);
+    leaf.setAttributeNS(null, "d", "M0,0 Q5,-5 10,0 5,5 0,0z");
+
+    leaves.appendChild(leaf);
 }
 
 function makePlant() {
@@ -62,24 +93,6 @@ function makePlant() {
     for ( i = 0; i < leafCount; i++ ) {
         makeLeaf( points[length-1-i], 1+0.1*i, 1+0.05*i );
     }
-}
-
-function makeLeaf(point, scaleX, scaleY) {
-    var green  = 110 + random(50);
-    var color  = "rgb(0," + green + ",0)";
-    var angle  = random(180) - 180;
-    var trans  = "translate(" + point.x + "," + point.y + ")";
-    var scale  = "scale(" + scaleX + "," + scaleY + ")";
-    var rotate = "rotate(" + angle + ")";
-    var t      = trans + " " + rotate + " " + scale;
-    var leaf   = svgDocument.createElementNS(svgns, "path");
-
-    leaf.setAttributeNS(null, "fill", color);
-    leaf.setAttributeNS(null, "stroke", "red");
-    leaf.setAttributeNS(null, "transform", t);
-    leaf.setAttributeNS(null, "d", "M0,0 Q5,-5 10,0 5,5 0,0z");
-
-    leaves.appendChild(leaf);
 }
 
 function makePoints() {
