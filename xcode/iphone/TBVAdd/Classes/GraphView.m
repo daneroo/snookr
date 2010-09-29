@@ -26,10 +26,16 @@
 			desiredScopeInDays=60;
 			break;
 		case 60:
+			desiredScopeInDays=90;
+			break;
+		case 90:
 			desiredScopeInDays=365;
 			break;
 		case 365:
 			desiredScopeInDays=730;
+			break;
+		case 730:
+			desiredScopeInDays=1095;
 			break;
 		default:
 			desiredScopeInDays=7;
@@ -94,7 +100,7 @@ double myLogRandom(double min,double max){
         
         startVal = 190.0 * 1000;
         goalVal = 169.0 * 1000;
-		desiredScopeInDays = 14;
+		desiredScopeInDays = 30;
     }
     return self;
 }
