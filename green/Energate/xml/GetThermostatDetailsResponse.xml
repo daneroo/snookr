@@ -1,0 +1,57 @@
+<!-- Headers
+HTTP/1.1 200 OK
+Content-Length: 1783
+Content-Type: text/xml; charset=utf-8
+Server: Microsoft-IIS/7.0
+X-Powered-By: ASP.NET
+Date: Sat, 02 Oct 2010 17:19:12 GMT
+-->
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+    <s:Body>
+        <GetThermostatDetailsResponse xmlns="http://tempuri.org/">
+            <GetThermostatDetailsResult xmlns:a="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+                <a:CurrHoldName>None</a:CurrHoldName>
+                <a:DataValid>true</a:DataValid>
+                <a:Details>
+                    <a:ActiveCoolTemp>18</a:ActiveCoolTemp>
+                    <a:ActiveHeatTemp>10</a:ActiveHeatTemp>
+                    <a:ConsCoolOffset>0</a:ConsCoolOffset>
+                    <a:ConsCoolTemp>0</a:ConsCoolTemp>
+                    <a:ConsHeatOffset>0</a:ConsHeatOffset>
+                    <a:ConsHeatTemp>0</a:ConsHeatTemp>
+                    <a:ControlModeHeating>true</a:ControlModeHeating>
+                    <a:CoolStages>1</a:CoolStages>
+                    <a:CurrHoldType>None</a:CurrHoldType>
+                    <a:CurrIndoorTemp>23.09</a:CurrIndoorTemp>
+                    <a:DrlcCoolOffset>0</a:DrlcCoolOffset>
+                    <a:DrlcCoolTemp>0</a:DrlcCoolTemp>
+                    <a:DrlcHeatOffset>0</a:DrlcHeatOffset>
+                    <a:DrlcHeatTemp>0</a:DrlcHeatTemp>
+                    <a:DrlcInUse>false</a:DrlcInUse>
+                    <a:DrlcOverridden>false</a:DrlcOverridden>
+                    <a:EqMode>2</a:EqMode>
+                    <a:EqType>3</a:EqType>
+                    <a:FanMode>true</a:FanMode>
+                    <a:FanOn>true</a:FanOn>
+                    <a:FilterFault>false</a:FilterFault>
+                    <a:HeatPumpDisabled>false</a:HeatPumpDisabled>
+                    <a:HeatPumpFault>false</a:HeatPumpFault>
+                    <a:HeatStages>1</a:HeatStages>
+                    <a:HoldEndTime>0</a:HoldEndTime>
+                    <a:HoldSpIndex>0</a:HoldSpIndex>
+                    <a:LowBattery>false</a:LowBattery>
+                    <a:OutdoorTemp>-46.87</a:OutdoorTemp>
+                    <a:RemoteIndoorTemp>0</a:RemoteIndoorTemp>
+                    <a:SchedCoolTemp>18</a:SchedCoolTemp>
+                    <a:SchedHeatTemp>10</a:SchedHeatTemp>
+                    <a:ShortCircuit>false</a:ShortCircuit>
+                    <a:StagesEngaged>0</a:StagesEngaged>
+                    <a:TempSavSpInProgress>false</a:TempSavSpInProgress>
+                    <a:TouInUse>false</a:TouInUse>
+                    <a:TouOverridden>false</a:TouOverridden>
+                </a:Details>
+                <a:InActiveDateTime i:nil="true"/>
+            </GetThermostatDetailsResult>
+        </GetThermostatDetailsResponse>
+    </s:Body>
+</s:Envelope>

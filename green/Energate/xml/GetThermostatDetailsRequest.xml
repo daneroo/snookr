@@ -1,0 +1,1 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><SOAP-ENV:Body><tns:GetThermostatDetails xmlns:tns="http://tempuri.org/"><tns:strMacAddr>001BC500B00015DB</tns:strMacAddr></tns:GetThermostatDetails></SOAP-ENV:Body></SOAP-ENV:Envelope>
