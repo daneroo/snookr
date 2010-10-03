@@ -2,7 +2,22 @@ From this directory:
 main WSDL:
 curl "http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?wsdl"
 
-From the main (authenticated redirection page) we get the url:
+how about a post : not working yet!
+Still Need: cookie, and hiddens
+Cookie	ASP.NET_SessionId=3df3hjwlnkfcymd1yq4hoenv
+
+__EVENTARGUMENT
+__EVENTTARGET
+__EVENTVALIDATION /wEWBwLWyYq/BgL9kpmqCgKQ9M+wAwKG87kGAp37urgHAoLch8sJAqC3sMIII1m4w1nbXxTuMksBUCoe+5cojBOl0Xi+OrAjPA4PMPQ=
+__VIEWSTATE	/wEPDwUKMTc5NDYzNDQ2NQ9kFgICAw9kFgICCQ9kFgJmD2QWBAIBDxYCHgNzcmMFCkltYWdlLmFzcHhkAg4PDxYCHgRUZXh0BRdQaG9uZSBObyAtIDg2Ni05OTktNTAwNmRkZKNlHhBEEe1xXTSlshkyvwi0SOwZGk56dx6wiTqvm5Cz
+btnlogin Login
+txtlogid smckenzie
+txtpwd	XXXXXX
+
+
+curl -i -X POST -F "btnlogin=Login" -F "txtlogid=smckenzie" -F "txtpwd=test-123" "http://opa.myenergate.com/ccdr/webpages/Main_Login.aspx"
+
+From the main (authenticated redirection page (needs a cookie)) we get the url:
 http://opa.myenergate.com/ccdr/webpages/EnergateFlex.aspx?H=1&Z=K1V7P1&P=
 and the body contains: (also in the URL)
     flashvars.HomeId ="1";
