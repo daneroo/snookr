@@ -1,0 +1,20 @@
+<!-- HTTP/1.1 200 OK
+Content-Length: 503
+Content-Type: text/xml; charset=utf-8
+Server: Microsoft-IIS/7.0
+X-Powered-By: ASP.NET
+Date: Sun, 03 Oct 2010 18:41:33 GMT
+-->
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+    <s:Body>
+        <GetThermostatsResponse xmlns="http://tempuri.org/">
+            <GetThermostatsResult xmlns:a="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+                <a:Thermostats>
+                    <a:LastAccessedMacAddr>0</a:LastAccessedMacAddr>
+                    <a:MacAddr>001BC500B00015DB</a:MacAddr>
+                    <a:ThermName>smckenzie tstat</a:ThermName>
+                </a:Thermostats>
+            </GetThermostatsResult>
+        </GetThermostatsResponse>
+    </s:Body>
+</s:Envelope>

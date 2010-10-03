@@ -1,0 +1,1314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions name="Core2ReportService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+    <wsp:Policy wsu:Id="ICore2ReportService_wsHttpBinding_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsaw:UsingAddressing/>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://tempuri.org/Imports">
+            <xsd:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd0" namespace="http://tempuri.org/"/>
+            <xsd:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+            <xsd:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+            <xsd:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+            <xsd:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="ICCDRService_SLGetThermostatStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetThermostatStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetThermostatStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetThermostatStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetDrlcEvent_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetDrlcEvent"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetDrlcEvent_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetDrlcEventResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetEditScheduleDetails_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetEditScheduleDetails"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetEditScheduleDetails_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetEditScheduleDetailsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetAllSetpoint_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetAllSetpoint"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetAllSetpoint_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetAllSetpointResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetThermoSchedule_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetThermoSchedule"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetThermoSchedule_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetThermoScheduleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetUiString_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetUiString"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetUiString_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetUiStringResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetUserConfig_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetUserConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLGetUserConfig_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLGetUserConfigResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRescindEndDevice_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLRescindEndDevice"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRescindEndDevice_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLRescindEndDeviceResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLProvisionZipConnect_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLProvisionZipConnect"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLProvisionZipConnect_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLProvisionZipConnectResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRescindZipConnect_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLRescindZipConnect"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRescindZipConnect_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLRescindZipConnectResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLProvisionEndDevice_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLProvisionEndDevice"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLProvisionEndDevice_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLProvisionEndDeviceResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetDrlcEvent_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetDrlcEvent"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetDrlcEvent_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetDrlcEventResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetMessage_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetMessage"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetMessage_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetMessageResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLCancelMessage_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLCancelMessage"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLCancelMessage_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLCancelMessageResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRemoveDrlcEvent_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLRemoveDrlcEvent"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRemoveDrlcEvent_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLRemoveDrlcEventResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRequestFmProvisionThermo_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLRequestFmProvisionThermo"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRequestFmProvisionThermo_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLRequestFmProvisionThermoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRequestFmRescindDev_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLRequestFmRescindDev"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLRequestFmRescindDev_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLRequestFmRescindDevResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetSetPoint_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetSetPoint"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetSetPoint_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetSetPointResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetThermoSchedule_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetThermoSchedule"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetThermoSchedule_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetThermoScheduleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetUserConfig_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetUserConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetUserConfig_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetUserConfigResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetUiString_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetUiString"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetUiString_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetUiStringResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetHold_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetHold"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetHold_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetHoldResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetMode_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetMode"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetMode_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetModeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetEndDevFilters_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetEndDevFilters"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLSetEndDevFilters_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLSetEndDevFiltersResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermostatTemp_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermostatTemp"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermostatTemp_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermostatTempResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermostatDetails_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermostatDetails"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermostatDetails_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermostatDetailsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetFmConfirmationCode_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetFmConfirmationCode"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetFmConfirmationCode_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetFmConfirmationCodeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermostats_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermostats"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermostats_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermostatsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetSetPoints_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetSetPoints"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetSetPoints_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetSetPointsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermoSchedule_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermoSchedule"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetThermoSchedule_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetThermoScheduleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLDelEditSchedules_InputMessage">
+        <wsdl:part name="parameters" element="tns:SLDelEditSchedules"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SLDelEditSchedules_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SLDelEditSchedulesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetConsumerThermDetails_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetConsumerThermDetails"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetConsumerThermDetails_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetConsumerThermDetailsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetFixedSetPoint_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetFixedSetPoint"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetFixedSetPoint_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetFixedSetPointResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetDRLCMode_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetDRLCMode"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetDRLCMode_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetDRLCModeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetWeatherFeed_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetWeatherFeed"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetWeatherFeed_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetWeatherFeedResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetEventNMessageDetails_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetEventNMessageDetails"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetEventNMessageDetails_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetEventNMessageDetailsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SetLastUsedTherm_InputMessage">
+        <wsdl:part name="parameters" element="tns:SetLastUsedTherm"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_SetLastUsedTherm_OutputMessage">
+        <wsdl:part name="parameters" element="tns:SetLastUsedThermResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetChartData_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetChartData"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetChartData_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetChartDataResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetUserScaleNTime_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetUserScaleNTime"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetUserScaleNTime_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetUserScaleNTimeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetCorePortLocation_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetCorePortLocation"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetCorePortLocation_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetCorePortLocationResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetUIChartData_InputMessage">
+        <wsdl:part name="parameters" element="tns:GetUIChartData"/>
+    </wsdl:message>
+    <wsdl:message name="ICCDRService_GetUIChartData_OutputMessage">
+        <wsdl:part name="parameters" element="tns:GetUIChartDataResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportThermostatStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportThermostatStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportThermostatStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportThermostatStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcEventStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcEventStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcEventStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcEventStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportMessageConfirmation_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportMessageConfirmation"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportMessageConfirmation_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportMessageConfirmationResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsRequestLastMesage_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsRequestLastMesage"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsRequestLastMesage_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsRequestLastMesageResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportUiString_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportUiString"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportUiString_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportUiStringResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportThermoSchedule_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportThermoSchedule"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportThermoSchedule_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportThermoScheduleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportSetpoints_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportSetpoints"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportSetpoints_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportSetpointsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportUserConfig_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportUserConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportUserConfig_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportUserConfigResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsRequestDrlcScheduledEvents_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsRequestDrlcScheduledEvents"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsRequestDrlcScheduledEvents_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsRequestDrlcScheduledEventsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportFault_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportFault"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportFault_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportFaultResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportIdentity_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportIdentity"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportIdentity_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportIdentityResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportNetworkStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportNetworkStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportNetworkStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportNetworkStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportConstructEndpoint_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportConstructEndpoint"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportConstructEndpoint_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportConstructEndpointResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportZipConnectEndDeviceStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportZipConnectEndDeviceStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportZipConnectEndDeviceStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportZipConnectEndDeviceStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDiscoverEndpoint_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDiscoverEndpoint"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDiscoverEndpoint_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDiscoverEndpointResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcEvent_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcEvent"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcEvent_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcEventResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcAttrs_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcAttrs"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcAttrs_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcAttrsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcWriteAttrsStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcWriteAttrsStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportDrlcWriteAttrsStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportDrlcWriteAttrsStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPriceEvent_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPriceEvent"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPriceEvent_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPriceEventResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPriceEventStatus_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPriceEventStatus"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPriceEventStatus_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPriceEventStatusResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPriceCons_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPriceCons"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPriceCons_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPriceConsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportIdentify_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportIdentify"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportIdentify_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportIdentifyResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsRequestCurrentPrice_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsRequestCurrentPrice"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsRequestCurrentPrice_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsRequestCurrentPriceResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPing_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPing"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportPing_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportPingResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportEndDeviceVersion_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportEndDeviceVersion"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportEndDeviceVersion_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportEndDeviceVersionResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportFmCommissionCode_InputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportFmCommissionCode"/>
+    </wsdl:message>
+    <wsdl:message name="ICore2ReportService_WsReportFmCommissionCode_OutputMessage">
+        <wsdl:part name="parameters" element="tns:WsReportFmCommissionCodeResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="ICCDRService">
+        <wsdl:operation name="SLGetThermostatStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetThermostatStatus" message="tns:ICCDRService_SLGetThermostatStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetThermostatStatusResponse" message="tns:ICCDRService_SLGetThermostatStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetDrlcEvent">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetDrlcEvent" message="tns:ICCDRService_SLGetDrlcEvent_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetDrlcEventResponse" message="tns:ICCDRService_SLGetDrlcEvent_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetEditScheduleDetails">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetEditScheduleDetails" message="tns:ICCDRService_SLGetEditScheduleDetails_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetEditScheduleDetailsResponse" message="tns:ICCDRService_SLGetEditScheduleDetails_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetAllSetpoint">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetAllSetpoint" message="tns:ICCDRService_SLGetAllSetpoint_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetAllSetpointResponse" message="tns:ICCDRService_SLGetAllSetpoint_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetThermoSchedule">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetThermoSchedule" message="tns:ICCDRService_SLGetThermoSchedule_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetThermoScheduleResponse" message="tns:ICCDRService_SLGetThermoSchedule_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetUiString">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetUiString" message="tns:ICCDRService_SLGetUiString_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetUiStringResponse" message="tns:ICCDRService_SLGetUiString_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetUserConfig">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLGetUserConfig" message="tns:ICCDRService_SLGetUserConfig_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLGetUserConfigResponse" message="tns:ICCDRService_SLGetUserConfig_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLRescindEndDevice">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLRescindEndDevice" message="tns:ICCDRService_SLRescindEndDevice_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLRescindEndDeviceResponse" message="tns:ICCDRService_SLRescindEndDevice_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLProvisionZipConnect">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLProvisionZipConnect" message="tns:ICCDRService_SLProvisionZipConnect_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLProvisionZipConnectResponse" message="tns:ICCDRService_SLProvisionZipConnect_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLRescindZipConnect">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLRescindZipConnect" message="tns:ICCDRService_SLRescindZipConnect_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLRescindZipConnectResponse" message="tns:ICCDRService_SLRescindZipConnect_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLProvisionEndDevice">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLProvisionEndDevice" message="tns:ICCDRService_SLProvisionEndDevice_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLProvisionEndDeviceResponse" message="tns:ICCDRService_SLProvisionEndDevice_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetDrlcEvent">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetDrlcEvent" message="tns:ICCDRService_SLSetDrlcEvent_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetDrlcEventResponse" message="tns:ICCDRService_SLSetDrlcEvent_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetMessage">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetMessage" message="tns:ICCDRService_SLSetMessage_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetMessageResponse" message="tns:ICCDRService_SLSetMessage_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLCancelMessage">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLCancelMessage" message="tns:ICCDRService_SLCancelMessage_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLCancelMessageResponse" message="tns:ICCDRService_SLCancelMessage_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLRemoveDrlcEvent">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLRemoveDrlcEvent" message="tns:ICCDRService_SLRemoveDrlcEvent_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLRemoveDrlcEventResponse" message="tns:ICCDRService_SLRemoveDrlcEvent_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLRequestFmProvisionThermo">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLRequestFmProvisionThermo" message="tns:ICCDRService_SLRequestFmProvisionThermo_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLRequestFmProvisionThermoResponse" message="tns:ICCDRService_SLRequestFmProvisionThermo_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLRequestFmRescindDev">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLRequestFmRescindDev" message="tns:ICCDRService_SLRequestFmRescindDev_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLRequestFmRescindDevResponse" message="tns:ICCDRService_SLRequestFmRescindDev_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetSetPoint">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetSetPoint" message="tns:ICCDRService_SLSetSetPoint_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetSetPointResponse" message="tns:ICCDRService_SLSetSetPoint_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetThermoSchedule">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetThermoSchedule" message="tns:ICCDRService_SLSetThermoSchedule_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetThermoScheduleResponse" message="tns:ICCDRService_SLSetThermoSchedule_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetUserConfig">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetUserConfig" message="tns:ICCDRService_SLSetUserConfig_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetUserConfigResponse" message="tns:ICCDRService_SLSetUserConfig_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetUiString">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetUiString" message="tns:ICCDRService_SLSetUiString_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetUiStringResponse" message="tns:ICCDRService_SLSetUiString_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetHold">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetHold" message="tns:ICCDRService_SLSetHold_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetHoldResponse" message="tns:ICCDRService_SLSetHold_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetMode">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetMode" message="tns:ICCDRService_SLSetMode_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetModeResponse" message="tns:ICCDRService_SLSetMode_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetEndDevFilters">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLSetEndDevFilters" message="tns:ICCDRService_SLSetEndDevFilters_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLSetEndDevFiltersResponse" message="tns:ICCDRService_SLSetEndDevFilters_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermostatTemp">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetThermostatTemp" message="tns:ICCDRService_GetThermostatTemp_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetThermostatTempResponse" message="tns:ICCDRService_GetThermostatTemp_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermostatDetails">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetThermostatDetails" message="tns:ICCDRService_GetThermostatDetails_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetThermostatDetailsResponse" message="tns:ICCDRService_GetThermostatDetails_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetFmConfirmationCode">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetFmConfirmationCode" message="tns:ICCDRService_GetFmConfirmationCode_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetFmConfirmationCodeResponse" message="tns:ICCDRService_GetFmConfirmationCode_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermostats">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetThermostats" message="tns:ICCDRService_GetThermostats_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetThermostatsResponse" message="tns:ICCDRService_GetThermostats_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetSetPoints">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetSetPoints" message="tns:ICCDRService_GetSetPoints_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetSetPointsResponse" message="tns:ICCDRService_GetSetPoints_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermoSchedule">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetThermoSchedule" message="tns:ICCDRService_GetThermoSchedule_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetThermoScheduleResponse" message="tns:ICCDRService_GetThermoSchedule_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SLDelEditSchedules">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SLDelEditSchedules" message="tns:ICCDRService_SLDelEditSchedules_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SLDelEditSchedulesResponse" message="tns:ICCDRService_SLDelEditSchedules_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetConsumerThermDetails">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetConsumerThermDetails" message="tns:ICCDRService_GetConsumerThermDetails_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetConsumerThermDetailsResponse" message="tns:ICCDRService_GetConsumerThermDetails_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetFixedSetPoint">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetFixedSetPoint" message="tns:ICCDRService_GetFixedSetPoint_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetFixedSetPointResponse" message="tns:ICCDRService_GetFixedSetPoint_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetDRLCMode">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetDRLCMode" message="tns:ICCDRService_GetDRLCMode_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetDRLCModeResponse" message="tns:ICCDRService_GetDRLCMode_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetWeatherFeed">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetWeatherFeed" message="tns:ICCDRService_GetWeatherFeed_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetWeatherFeedResponse" message="tns:ICCDRService_GetWeatherFeed_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetEventNMessageDetails">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetEventNMessageDetails" message="tns:ICCDRService_GetEventNMessageDetails_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetEventNMessageDetailsResponse" message="tns:ICCDRService_GetEventNMessageDetails_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="SetLastUsedTherm">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/SetLastUsedTherm" message="tns:ICCDRService_SetLastUsedTherm_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/SetLastUsedThermResponse" message="tns:ICCDRService_SetLastUsedTherm_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetChartData">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetChartData" message="tns:ICCDRService_GetChartData_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetChartDataResponse" message="tns:ICCDRService_GetChartData_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetUserScaleNTime">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetUserScaleNTime" message="tns:ICCDRService_GetUserScaleNTime_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetUserScaleNTimeResponse" message="tns:ICCDRService_GetUserScaleNTime_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetCorePortLocation">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetCorePortLocation" message="tns:ICCDRService_GetCorePortLocation_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetCorePortLocationResponse" message="tns:ICCDRService_GetCorePortLocation_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetUIChartData">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICCDRService/GetUIChartData" message="tns:ICCDRService_GetUIChartData_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICCDRService/GetUIChartDataResponse" message="tns:ICCDRService_GetUIChartData_OutputMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="ICore2ReportService">
+        <wsdl:operation name="WsReportThermostatStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportThermostatStatus" message="tns:ICore2ReportService_WsReportThermostatStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportThermostatStatusResponse" message="tns:ICore2ReportService_WsReportThermostatStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcEventStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcEventStatus" message="tns:ICore2ReportService_WsReportDrlcEventStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcEventStatusResponse" message="tns:ICore2ReportService_WsReportDrlcEventStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportMessageConfirmation">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportMessageConfirmation" message="tns:ICore2ReportService_WsReportMessageConfirmation_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportMessageConfirmationResponse" message="tns:ICore2ReportService_WsReportMessageConfirmation_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsRequestLastMesage">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsRequestLastMesage" message="tns:ICore2ReportService_WsRequestLastMesage_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsRequestLastMesageResponse" message="tns:ICore2ReportService_WsRequestLastMesage_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportUiString">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportUiString" message="tns:ICore2ReportService_WsReportUiString_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportUiStringResponse" message="tns:ICore2ReportService_WsReportUiString_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportThermoSchedule">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportThermoSchedule" message="tns:ICore2ReportService_WsReportThermoSchedule_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportThermoScheduleResponse" message="tns:ICore2ReportService_WsReportThermoSchedule_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportSetpoints">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportSetpoints" message="tns:ICore2ReportService_WsReportSetpoints_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportSetpointsResponse" message="tns:ICore2ReportService_WsReportSetpoints_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportUserConfig">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportUserConfig" message="tns:ICore2ReportService_WsReportUserConfig_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportUserConfigResponse" message="tns:ICore2ReportService_WsReportUserConfig_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsRequestDrlcScheduledEvents">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsRequestDrlcScheduledEvents" message="tns:ICore2ReportService_WsRequestDrlcScheduledEvents_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsRequestDrlcScheduledEventsResponse" message="tns:ICore2ReportService_WsRequestDrlcScheduledEvents_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportFault">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportFault" message="tns:ICore2ReportService_WsReportFault_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportFaultResponse" message="tns:ICore2ReportService_WsReportFault_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportIdentity">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportIdentity" message="tns:ICore2ReportService_WsReportIdentity_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportIdentityResponse" message="tns:ICore2ReportService_WsReportIdentity_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportNetworkStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportNetworkStatus" message="tns:ICore2ReportService_WsReportNetworkStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportNetworkStatusResponse" message="tns:ICore2ReportService_WsReportNetworkStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportConstructEndpoint">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportConstructEndpoint" message="tns:ICore2ReportService_WsReportConstructEndpoint_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportConstructEndpointResponse" message="tns:ICore2ReportService_WsReportConstructEndpoint_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportZipConnectEndDeviceStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportZipConnectEndDeviceStatus" message="tns:ICore2ReportService_WsReportZipConnectEndDeviceStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportZipConnectEndDeviceStatusResponse" message="tns:ICore2ReportService_WsReportZipConnectEndDeviceStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDiscoverEndpoint">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDiscoverEndpoint" message="tns:ICore2ReportService_WsReportDiscoverEndpoint_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDiscoverEndpointResponse" message="tns:ICore2ReportService_WsReportDiscoverEndpoint_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcEvent">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcEvent" message="tns:ICore2ReportService_WsReportDrlcEvent_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcEventResponse" message="tns:ICore2ReportService_WsReportDrlcEvent_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcAttrs">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcAttrs" message="tns:ICore2ReportService_WsReportDrlcAttrs_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcAttrsResponse" message="tns:ICore2ReportService_WsReportDrlcAttrs_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcWriteAttrsStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcWriteAttrsStatus" message="tns:ICore2ReportService_WsReportDrlcWriteAttrsStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportDrlcWriteAttrsStatusResponse" message="tns:ICore2ReportService_WsReportDrlcWriteAttrsStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPriceEvent">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPriceEvent" message="tns:ICore2ReportService_WsReportPriceEvent_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPriceEventResponse" message="tns:ICore2ReportService_WsReportPriceEvent_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPriceEventStatus">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPriceEventStatus" message="tns:ICore2ReportService_WsReportPriceEventStatus_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPriceEventStatusResponse" message="tns:ICore2ReportService_WsReportPriceEventStatus_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPriceCons">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPriceCons" message="tns:ICore2ReportService_WsReportPriceCons_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPriceConsResponse" message="tns:ICore2ReportService_WsReportPriceCons_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportIdentify">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportIdentify" message="tns:ICore2ReportService_WsReportIdentify_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportIdentifyResponse" message="tns:ICore2ReportService_WsReportIdentify_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsRequestCurrentPrice">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsRequestCurrentPrice" message="tns:ICore2ReportService_WsRequestCurrentPrice_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsRequestCurrentPriceResponse" message="tns:ICore2ReportService_WsRequestCurrentPrice_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPing">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPing" message="tns:ICore2ReportService_WsReportPing_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportPingResponse" message="tns:ICore2ReportService_WsReportPing_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportEndDeviceVersion">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportEndDeviceVersion" message="tns:ICore2ReportService_WsReportEndDeviceVersion_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportEndDeviceVersionResponse" message="tns:ICore2ReportService_WsReportEndDeviceVersion_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportFmCommissionCode">
+            <wsdl:input wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportFmCommissionCode" message="tns:ICore2ReportService_WsReportFmCommissionCode_InputMessage"/>
+            <wsdl:output wsaw:Action="http://tempuri.org/ICore2ReportService/WsReportFmCommissionCodeResponse" message="tns:ICore2ReportService_WsReportFmCommissionCode_OutputMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="ICCDRService_basicHttpBinding" type="tns:ICCDRService">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="SLGetThermostatStatus">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetThermostatStatus" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetDrlcEvent">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetDrlcEvent" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetEditScheduleDetails">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetEditScheduleDetails" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetAllSetpoint">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetAllSetpoint" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetThermoSchedule">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetThermoSchedule" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetUiString">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetUiString" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLGetUserConfig">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLGetUserConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLRescindEndDevice">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLRescindEndDevice" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLProvisionZipConnect">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLProvisionZipConnect" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLRescindZipConnect">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLRescindZipConnect" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLProvisionEndDevice">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLProvisionEndDevice" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetDrlcEvent">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetDrlcEvent" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetMessage">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetMessage" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLCancelMessage">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLCancelMessage" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLRemoveDrlcEvent">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLRemoveDrlcEvent" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLRequestFmProvisionThermo">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLRequestFmProvisionThermo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLRequestFmRescindDev">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLRequestFmRescindDev" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetSetPoint">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetSetPoint" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetThermoSchedule">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetThermoSchedule" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetUserConfig">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetUserConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetUiString">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetUiString" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetHold">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetHold" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetMode">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetMode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLSetEndDevFilters">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLSetEndDevFilters" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermostatTemp">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetThermostatTemp" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermostatDetails">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetThermostatDetails" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetFmConfirmationCode">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetFmConfirmationCode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermostats">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetThermostats" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetSetPoints">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetSetPoints" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetThermoSchedule">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetThermoSchedule" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SLDelEditSchedules">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SLDelEditSchedules" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetConsumerThermDetails">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetConsumerThermDetails" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetFixedSetPoint">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetFixedSetPoint" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetDRLCMode">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetDRLCMode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetWeatherFeed">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetWeatherFeed" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetEventNMessageDetails">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetEventNMessageDetails" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SetLastUsedTherm">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/SetLastUsedTherm" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetChartData">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetChartData" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetUserScaleNTime">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetUserScaleNTime" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetCorePortLocation">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetCorePortLocation" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetUIChartData">
+            <soap:operation soapAction="http://tempuri.org/ICCDRService/GetUIChartData" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ICore2ReportService_wsHttpBinding" type="tns:ICore2ReportService">
+        <wsp:PolicyReference URI="#ICore2ReportService_wsHttpBinding_policy"/>
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="WsReportThermostatStatus">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportThermostatStatus" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcEventStatus">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportDrlcEventStatus" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportMessageConfirmation">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportMessageConfirmation" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsRequestLastMesage">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsRequestLastMesage" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportUiString">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportUiString" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportThermoSchedule">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportThermoSchedule" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportSetpoints">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportSetpoints" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportUserConfig">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportUserConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsRequestDrlcScheduledEvents">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsRequestDrlcScheduledEvents" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportFault">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportFault" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportIdentity">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportIdentity" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportNetworkStatus">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportNetworkStatus" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportConstructEndpoint">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportConstructEndpoint" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportZipConnectEndDeviceStatus">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportZipConnectEndDeviceStatus" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDiscoverEndpoint">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportDiscoverEndpoint" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcEvent">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportDrlcEvent" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcAttrs">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportDrlcAttrs" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportDrlcWriteAttrsStatus">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportDrlcWriteAttrsStatus" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPriceEvent">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportPriceEvent" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPriceEventStatus">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportPriceEventStatus" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPriceCons">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportPriceCons" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportIdentify">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportIdentify" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsRequestCurrentPrice">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsRequestCurrentPrice" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportPing">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportPing" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportEndDeviceVersion">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportEndDeviceVersion" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="WsReportFmCommissionCode">
+            <soap12:operation soapAction="http://tempuri.org/ICore2ReportService/WsReportFmCommissionCode" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="Core2ReportService">
+        <wsdl:port name="ICCDRService_basicHttpBinding" binding="tns:ICCDRService_basicHttpBinding">
+            <soap:address location="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc/basic"/>
+        </wsdl:port>
+        <wsdl:port name="ICore2ReportService_wsHttpBinding" binding="tns:ICore2ReportService_wsHttpBinding">
+            <soap12:address location="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc/secure"/>
+            <wsa10:EndpointReference>
+                <wsa10:Address>http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc/secure</wsa10:Address>
+            </wsa10:EndpointReference>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
