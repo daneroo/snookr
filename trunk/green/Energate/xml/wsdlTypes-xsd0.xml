@@ -1,0 +1,986 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/">
+    <xs:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+    <xs:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+    <xs:import schemaLocation="http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+    <xs:element name="SLGetThermostatStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetThermostatStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetThermostatStatusResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetDrlcEvent">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMAcAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="nEventId" type="xs:unsignedInt"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetDrlcEventResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetDrlcEventResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetEditScheduleDetails">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetEditScheduleDetailsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetEditScheduleDetailsResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetAllSetpoint">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMAcAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetAllSetpointResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetAllSetpointResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetThermoSchedule">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMAcAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetThermoScheduleResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetThermoScheduleResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetUiString">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetUiStringResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetUiStringResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetUserConfig">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMAcAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLGetUserConfigResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLGetUserConfigResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRescindEndDevice">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRescindEndDeviceResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLRescindEndDeviceResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLProvisionZipConnect">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strInstallCode" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLProvisionZipConnectResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLProvisionZipConnectResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRescindZipConnect">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRescindZipConnectResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLRescindZipConnectResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLProvisionEndDevice">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strEndDeviceMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strConnectMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strInstallCode" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="FilterType" nillable="true" type="q1:ArrayOfint" xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="FilterValues" nillable="true" type="q2:ArrayOfint" xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLProvisionEndDeviceResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLProvisionEndDeviceResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetDrlcEvent">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="param" nillable="true" type="q3:WsDrlcEventSet" xmlns:q3="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetDrlcEventResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetDrlcEventResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetMessage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="param" nillable="true" type="q4:WsMessageSet" xmlns:q4="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetMessageResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetMessageResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLCancelMessage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="param" nillable="true" type="q5:WsMessageCancel" xmlns:q5="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLCancelMessageResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLCancelMessageResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRemoveDrlcEvent">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="param" nillable="true" type="q6:WsDrlcEventRemove" xmlns:q6="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRemoveDrlcEventResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLRemoveDrlcEventResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRequestFmProvisionThermo">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="FilterType" nillable="true" type="q7:ArrayOfint" xmlns:q7="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="FilterValues" nillable="true" type="q8:ArrayOfint" xmlns:q8="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRequestFmProvisionThermoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLRequestFmProvisionThermoResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRequestFmRescindDev">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLRequestFmRescindDevResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLRequestFmRescindDevResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetSetPoint">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="nCool" nillable="true" type="q9:ArrayOfint" xmlns:q9="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="nHeat" nillable="true" type="q10:ArrayOfint" xmlns:q10="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="nStartIndex" type="xs:unsignedByte"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetSetPointResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetSetPointResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetThermoSchedule">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strDay" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="SchldHr" nillable="true" type="q11:ArrayOfint" xmlns:q11="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="SchldMin" nillable="true" type="q12:ArrayOfint" xmlns:q12="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="SchldSpIndex" nillable="true" type="q13:ArrayOfint" xmlns:q13="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetThermoScheduleResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetThermoScheduleResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetUserConfig">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strSchldType" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strDRLCMode" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetUserConfigResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetUserConfigResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetUiString">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="nIndex" type="xs:short"/>
+                <xs:element minOccurs="0" name="strText" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetUiStringResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetUiStringResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetHold">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strVacationValue" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strHoldType" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="nCool" nillable="true" type="q14:ArrayOfint" xmlns:q14="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="nHeat" nillable="true" type="q15:ArrayOfint" xmlns:q15="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                <xs:element minOccurs="0" name="btStartIndex" type="xs:unsignedByte"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetHoldResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetHoldResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetMode">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strEqMode" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strFanMode" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetModeResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetModeResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetEndDevFilters">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="param" nillable="true" type="q16:WsEndDevFiltersSet" xmlns:q16="http://schemas.datacontract.org/2004/07/Energate.Core2.CoreService.ToDevsService"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLSetEndDevFiltersResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="SLSetEndDevFiltersResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermostatTemp">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="userid" type="xs:unsignedShort"/>
+                <xs:element minOccurs="0" name="thmstid" type="xs:unsignedShort"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermostatTempResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetThermostatTempResult" nillable="true" type="q17:ArrayOfThermostatTemp" xmlns:q17="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermostatDetails">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermostatDetailsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetThermostatDetailsResult" nillable="true" type="q18:ThermostatDetails" xmlns:q18="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetFmConfirmationCode">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetFmConfirmationCodeResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetFmConfirmationCodeResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermostats">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="nHomeID" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermostatsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetThermostatsResult" nillable="true" type="q19:ArrayOfThermostats" xmlns:q19="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetSetPoints">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetSetPointsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetSetPointsResult" nillable="true" type="q20:ArrayOfSetPoints" xmlns:q20="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermoSchedule">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetThermoScheduleResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetThermoScheduleResult" nillable="true" type="q21:ArrayOfThermoSchedule" xmlns:q21="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLDelEditSchedules">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="HomeID" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SLDelEditSchedulesResponse">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetConsumerThermDetails">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetConsumerThermDetailsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetConsumerThermDetailsResult" nillable="true" type="q22:ConsumerThermDetails" xmlns:q22="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetFixedSetPoint">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="nSpIndex" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetFixedSetPointResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetFixedSetPointResult" nillable="true" type="q23:FixedSetPoint" xmlns:q23="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetDRLCMode">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetDRLCModeResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetDRLCModeResult" type="xs:short"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetWeatherFeed">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strZIP" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetWeatherFeedResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetWeatherFeedResult" nillable="true" type="q24:WeatherFeed" xmlns:q24="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetEventNMessageDetails">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="strMacAddr" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetEventNMessageDetailsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetEventNMessageDetailsResult" nillable="true" type="q25:ArrayOfEventNMessage" xmlns:q25="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SetLastUsedTherm">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="LastAccessedMacAddr" nillable="true" type="xs:string"/>
+                <xs:element minOccurs="0" name="UserID" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SetLastUsedThermResponse">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetChartData">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" name="fromDate" type="xs:string"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="toDate" type="xs:string"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="strMacAddr" type="xs:string"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="periodType" type="xs:int"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="strZipCode" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetChartDataResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" name="GetChartDataResult">
+                    <xs:complexType mixed="true">
+                        <xs:sequence>
+                            <xs:any/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetUserScaleNTime">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="nUserID" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetUserScaleNTimeResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetUserScaleNTimeResult" nillable="true" type="q26:ArrayOfUserScaleNTime" xmlns:q26="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetCorePortLocation">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetCorePortLocationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="GetCorePortLocationResult" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetUIChartData">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" name="fromDate" type="xs:string"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="toDate" type="xs:string"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="strMacAddr" type="xs:string"/>
+                <xs:element minOccurs="1" maxOccurs="1" name="periodType" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="GetUIChartDataResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" name="GetUIChartDataResult">
+                    <xs:complexType mixed="true">
+                        <xs:sequence>
+                            <xs:any/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportThermostatStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q27:WsThermostatStatusReport" xmlns:q27="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportThermostatStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportThermostatStatusResult" nillable="true" type="q28:WsFaultReport" xmlns:q28="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcEventStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q29:WsDrlcEventStatusReport" xmlns:q29="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcEventStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportDrlcEventStatusResult" nillable="true" type="q30:WsFaultReport" xmlns:q30="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportMessageConfirmation">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q31:WsMessageConfirmationReport" xmlns:q31="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportMessageConfirmationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportMessageConfirmationResult" nillable="true" type="q32:WsFaultReport" xmlns:q32="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsRequestLastMesage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="req" nillable="true" type="q33:WsLastMesageRequest" xmlns:q33="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsRequestLastMesageResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsRequestLastMesageResult" nillable="true" type="q34:WsFaultReport" xmlns:q34="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportUiString">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q35:WsUiStringReport" xmlns:q35="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportUiStringResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportUiStringResult" nillable="true" type="q36:WsFaultReport" xmlns:q36="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportThermoSchedule">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q37:WsThermoScheduleReport" xmlns:q37="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportThermoScheduleResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportThermoScheduleResult" nillable="true" type="q38:WsFaultReport" xmlns:q38="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportSetpoints">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q39:WsSetpointsReport" xmlns:q39="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportSetpointsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportSetpointsResult" nillable="true" type="q40:WsFaultReport" xmlns:q40="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportUserConfig">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q41:WsUserConfigReport" xmlns:q41="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportUserConfigResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportUserConfigResult" nillable="true" type="q42:WsFaultReport" xmlns:q42="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsRequestDrlcScheduledEvents">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="request" nillable="true" type="q43:WsDrlcScheduledEventsRequest" xmlns:q43="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsRequestDrlcScheduledEventsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsRequestDrlcScheduledEventsResult" nillable="true" type="q44:WsFaultReport" xmlns:q44="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportFault">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q45:WsFaultReport" xmlns:q45="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportFaultResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportFaultResult" nillable="true" type="q46:WsFaultReport" xmlns:q46="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportIdentity">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q47:WsIdentityReport" xmlns:q47="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportIdentityResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportIdentityResult" nillable="true" type="q48:WsFaultReport" xmlns:q48="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportNetworkStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q49:WsNetworkStatusReport" xmlns:q49="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportNetworkStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportNetworkStatusResult" nillable="true" type="q50:WsFaultReport" xmlns:q50="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportConstructEndpoint">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q51:WsConstructEndPointReport" xmlns:q51="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportConstructEndpointResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportConstructEndpointResult" nillable="true" type="q52:WsFaultReport" xmlns:q52="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportZipConnectEndDeviceStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q53:WsZipConnectEndDeviceStatus" xmlns:q53="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportZipConnectEndDeviceStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportZipConnectEndDeviceStatusResult" nillable="true" type="q54:WsFaultReport" xmlns:q54="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDiscoverEndpoint">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q55:WsDiscoverEndPointReport" xmlns:q55="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDiscoverEndpointResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportDiscoverEndpointResult" nillable="true" type="q56:WsFaultReport" xmlns:q56="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcEvent">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="req" nillable="true" type="q57:WsDrlcEventReport" xmlns:q57="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcEventResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportDrlcEventResult" nillable="true" type="q58:WsFaultReport" xmlns:q58="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcAttrs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q59:WsDrlcAttrsReport" xmlns:q59="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcAttrsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportDrlcAttrsResult" nillable="true" type="q60:WsFaultReport" xmlns:q60="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcWriteAttrsStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q61:WsDrlcWriteAttrsStatusReport" xmlns:q61="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportDrlcWriteAttrsStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportDrlcWriteAttrsStatusResult" nillable="true" type="q62:WsFaultReport" xmlns:q62="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPriceEvent">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q63:WsPriceEventReport" xmlns:q63="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPriceEventResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportPriceEventResult" nillable="true" type="q64:WsFaultReport" xmlns:q64="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPriceEventStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q65:WsPriceEventStatusReport" xmlns:q65="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPriceEventStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportPriceEventStatusResult" nillable="true" type="q66:WsFaultReport" xmlns:q66="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPriceCons">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q67:WsPriceConsReport" xmlns:q67="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPriceConsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportPriceConsResult" nillable="true" type="q68:WsFaultReport" xmlns:q68="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportIdentify">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q69:WsIdentifyReport" xmlns:q69="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportIdentifyResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportIdentifyResult" nillable="true" type="q70:WsFaultReport" xmlns:q70="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsRequestCurrentPrice">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="request" nillable="true" type="q71:WsCurrentPriceRequest" xmlns:q71="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsRequestCurrentPriceResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsRequestCurrentPriceResult" nillable="true" type="q72:WsFaultReport" xmlns:q72="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPing">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="rep" nillable="true" type="q73:WsPingReport" xmlns:q73="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportPingResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportPingResult" nillable="true" type="q74:WsFaultReport" xmlns:q74="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportEndDeviceVersion">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q75:WsEndDeviceVersionReport" xmlns:q75="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportEndDeviceVersionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportEndDeviceVersionResult" nillable="true" type="q76:WsFaultReport" xmlns:q76="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportFmCommissionCode">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="report" nillable="true" type="q77:WsFmCommissionCodeReport" xmlns:q77="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="WsReportFmCommissionCodeResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" name="WsReportFmCommissionCodeResult" nillable="true" type="q78:WsFaultReport" xmlns:q78="http://schemas.datacontract.org/2004/07/Energate.Core2.Reporting"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
