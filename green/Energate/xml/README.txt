@@ -54,6 +54,8 @@ soapaction: "http://tempuri.org/ICCDRService/GetFixedSetPoint"
 
 
 tcpdump -Al -vvv -s 1516 -i br0|grep -A 4 "<SOAP-ENV:Body"
+ -- or -- tcpdump -Al -vvv -s 1516 -i br0|grep  -A 4 "<s:Body"
+ -- or -- tcpdump -Al -vvv -s 1516 -i br0|grep  -A 4 "<SOAP-ENV:Body\|<s:Body"
 
 root@openwrt-rd:~# tcpdump -Al -vvv -s 1516 -i br0|grep -A 4 "<SOAP-ENV:Body"
 tcpdump: listening on br0, link-type EN10MB (Ethernet), capture size 1516 bytes
