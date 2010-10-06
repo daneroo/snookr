@@ -1,6 +1,7 @@
 <pre><?php
 
-//error_reporting(0);
+error_reporting(0);
+require_once 'Badgerfish.php';
 
 function callIt($soapaction, $postdata) {
     $ch = curl_init();
@@ -31,7 +32,6 @@ function callIt($soapaction, $postdata) {
     return $dataoutAsStr;
 }
 
-
 function getT() {
     $homeId = 1;
     $ONE_LINER_postdata = "<?xml version=\"1.0\" encoding=\"utf-8\"?><SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:SOAP-ENC=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:tns=\"http://tempuri.org/\"><SOAP-ENV:Body><tns:GetThermostatDetails xmlns:tns=\"http://tempuri.org/\"><tns:strMacAddr>$macAddr</tns:strMacAddr></tns:GetThermostatDetails></SOAP-ENV:Body></SOAP-ENV:Envelope>";
@@ -49,6 +49,7 @@ EOD;
 
     return callIt($soapaction, $postdata);
 }
+
 function getTD() {
     $macAddr = "001BC500B00015DB";
     $ONE_LINER_postdata = "<?xml version=\"1.0\" encoding=\"utf-8\"?><SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:SOAP-ENC=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:tns=\"http://tempuri.org/\"><SOAP-ENV:Body><tns:GetThermostatDetails xmlns:tns=\"http://tempuri.org/\"><tns:strMacAddr>$macAddr</tns:strMacAddr></tns:GetThermostatDetails></SOAP-ENV:Body></SOAP-ENV:Envelope>";
@@ -81,26 +82,51 @@ function getSFP() {
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
 EOD;
-    $soapaction='"http://tempuri.org/ICCDRService/GetFixedSetPoint"';
+    $soapaction = '"http://tempuri.org/ICCDRService/GetFixedSetPoint"';
     return callIt($soapaction, $postdata);
+}
+
+function getWF() {
+    $zipcode = "K1V7P1";
+    $ONE_LINER_postdata = "<?xml version=\"1.0\" encoding=\"utf-8\"?><SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:SOAP-ENC=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:tns=\"http://tempuri.org/\"><SOAP-ENV:Body><tns:GetThermostatDetails xmlns:tns=\"http://tempuri.org/\"><tns:strMacAddr>$macAddr</tns:strMacAddr></tns:GetThermostatDetails></SOAP-ENV:Body></SOAP-ENV:Envelope>";
+    // < ? xml version="1.0" encoding="utf-8"  ? >
+    $postdata = <<<EOD
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/">
+  <SOAP-ENV:Body>
+    <tns:GetWeatherFeed xmlns:tns="http://tempuri.org/">
+      <tns:strZIP>$zipcode</tns:strZIP>
+    </tns:GetWeatherFeed>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+EOD;
+    $soapaction = '"http://tempuri.org/ICCDRService/GetWeatherFeed"';
+    return callIt($soapaction, $postdata);
+}
+
+function report($name, $xmlresponse, $time) {
+    echo "\n($time s.) $name: " . htmlspecialchars($xmlresponse);
+    $dom = DOMDocument::loadXML($xmlresponse);
+    echo "\n  json: " . BadgerFish::encode($dom);
 }
 
 $start = microtime(TRUE);
 for ($it = 0; $it < 5; $it++) {
-    echo "\ngetT: " . getT();
-    echo "\nsec: " . (( microtime(TRUE) - $start) / 1.0);
+    report("getT", getT(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
 $start = microtime(TRUE);
 for ($it = 0; $it < 5; $it++) {
-    echo "\ngetTD: " . getTD();
-    echo "\nsec: " . (( microtime(TRUE) - $start) / 1.0);
+    report("getSFP", getSFP(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
 $start = microtime(TRUE);
 for ($it = 0; $it < 5; $it++) {
-    echo "\ngetSFP: " . getSFP();
-    echo "\nsec: " . (( microtime(TRUE) - $start) / 1.0);
+    report("getWF", getWF(), ( microtime(TRUE) - $start) / 1.0);
+    $start = microtime(TRUE);
+}
+$start = microtime(TRUE);
+for ($it = 0; $it < 5; $it++) {
+    report("getTD", getTD(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
 ?>
