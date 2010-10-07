@@ -9,9 +9,11 @@ require_once('nusoap-0.9.5/lib/class.wsdlcache.php');
 function enerMakeClient() {
     $endpoint = 'http://opa.myenergate.com/Svc/Energate.Core2.Reporting.Core2ReportService.svc?wsdl';
 
-    $usecache = false;
+    $usecache = true;
     if ($usecache) {
-        $cache = new nusoap_wsdlcache('wsdl-cache', 60);
+        // directory for cache
+        //$cache = new nusoap_wsdlcache('wsdl-cache', 60);
+        $cache = new nusoap_wsdlcache(sys_get_temp_dir(), 3660);
         $wsdl = $cache->get($endpoint);
         if (is_null($wsdl)) {
             $wsdl = new wsdl($endpoint);
@@ -24,7 +26,7 @@ function enerMakeClient() {
             $cache->put($wsdl);
         } else {
             $wsdl->clearDebug();
-            $wsdl->debug('Retrieved from cache');
+            $wsdl->debug('Retrieved from cache: ' . sys_get_temp_dir());
         }
         $client = new nusoap_client($wsdl, 'wsdl');
     } else {
@@ -54,7 +56,7 @@ function enerSoapCall($client, $operation, $params) {
     return $result;
 }
 
-function enerSoapReport($client, $result, $showReqResp=false) {
+function enerSoapReport($client, $result, $showReqResp=false, $start=NULL,$operation='op') {
 // Check for a fault
     echo "<hr />\n";
     if ($client->fault) {
@@ -69,10 +71,14 @@ function enerSoapReport($client, $result, $showReqResp=false) {
             echo '<h2>Error</h2><pre>' . $err . '</pre>';
         } else {
             // Display the result
-            echo '<h4>Result ' . date('Y-m-d H:i:s') . '</h4><pre>';
+            if ($start) {
+                echo '(' . (microtime(true) - $start) . ' s.) '.$operation.': '.json_encode($result);
+            } else {
+                echo '<h4>Result ' . date('Y-m-d H:i:s') . '</h4><pre>';
+                echo json_encode($result);
+                echo '</pre>';
+            }
             //print_r($result);
-            echo json_encode($result);
-            echo '</pre>';
         }
     }
     if ($showReqResp) {
@@ -87,37 +93,62 @@ function enerSoapReport($client, $result, $showReqResp=false) {
     }
 }
 
+$start = microtime(TRUE);
 $client = enerMakeClient();
+echo '<h3>Setup ' . (microtime(true) - $start) . ' s.</h3>';
 
-$operation = "GetThermostatDetails";
-$params = array("strMacAddr" => "001BC500B00015DB");
-$result = enerSoapCall($client, $operation, $params);
-enerSoapReport($client, $result, true);
+$testMap = array(
+    "GetWeatherFeed" => array("strZIP" => "K1V7P1")/* ,
+          "GetThermostats" => array("nHomeID" => 1),
+          "GetThermostatDetails" => array("strMacAddr" => "001BC500B00015DB")
+         *
+         */
+);
 
-if (0) {
+foreach ($testMap as $operation => $params) {
     for ($it = 0; $it < 5; $it++) {
+        $start = microtime(TRUE);
         $result = enerSoapCall($client, $operation, $params);
-        enerSoapReport($client, $result, false);
+        enerSoapReport($client, $result, false, $start, $operation);
+    }
+}
+if (0) {
+    $start = microtime(TRUE);
+    $operation = "GetThermostatDetails";
+    $params = array("strMacAddr" => "001BC500B00015DB");
+    $operation = "GetWeatherFeed";
+    $params = array("strZIP" => "K1V7P1");
+    $result = enerSoapCall($client, $operation, $params);
+    enerSoapReport($client, $result, false, $start);
+}
+if (1) {
+    for ($it = 0; $it < 10; $it++) {
+        $start = microtime(TRUE);
+        $result = enerSoapCall($client, $operation, $params);
+        enerSoapReport($client, $result, false, $start, $operation);
     }
 }
 
 if (0) {
 
+    $start = microtime(TRUE);
     $result = enerSoapCall($client, "GetUserScaleNTime", array("nUserID" => 233));
-    enerSoapReport($client, $result, true);
+    enerSoapReport($client, $result, false, $start);
 
+    $start = microtime(TRUE);
     $result = enerSoapCall($client, "SLDelEditSchedules", array("HomeID" => 1));
-    enerSoapReport($client, $result, true);
+    enerSoapReport($client, $result, false, $start);
 
+    $start = microtime(TRUE);
     $result = enerSoapCall($client, "SLGetEditScheduleDetails", array("strMacAddr" => 1));
-    enerSoapReport($client, $result, true);
+    enerSoapReport($client, $result, false, $start);
+
+    $start = microtime(TRUE);
+    $result = enerSoapCall($client, "GetConsumerThermDetails", array("strMacAddr" => "001BC500B00015DB"));
+    enerSoapReport($client, $result, false, $start);
+
+    $start = microtime(TRUE);
+    $result = enerSoapCall($client, "GetThermostats", array("nHomeID" => 1));
+    enerSoapReport($client, $result, false, $start);
 }
-
-$result = enerSoapCall($client, "GetConsumerThermDetails", array("strMacAddr" => "001BC500B00015DB"));
-enerSoapReport($client, $result, true);
-
-$result = enerSoapCall($client, "GetThermostats", array("nHomeID" => 1));
-enerSoapReport($client, $result, true);
-
-
 ?>

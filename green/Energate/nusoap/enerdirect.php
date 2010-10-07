@@ -1,7 +1,6 @@
 <pre><?php
-
-error_reporting(0);
-require_once 'Badgerfish.php';
+//error_reporting(0);
+require_once 'HackedBadgerfish.php';
 
 function callIt($soapaction, $postdata) {
     $ch = curl_init();
@@ -104,28 +103,47 @@ EOD;
 }
 
 function report($name, $xmlresponse, $time) {
-    echo "\n($time s.) $name: " . htmlspecialchars($xmlresponse);
-    $dom = DOMDocument::loadXML($xmlresponse);
-    echo "\n  json: " . BadgerFish::encode($dom);
+    echo "\n($time s.) $name: " . htmlspecialchars($xmlresponse) . "\n";
+
+    // IDEA use sed to remove namespaces <(xmlns):=""...
+    // remove start tag name spaces
+    /*
+    $xmlresponse = preg_replace ( '/<(\w+:)(\w+)/', '<$2', $xmlresponse );
+    echo " xns " . htmlspecialchars($xmlresponse) . "\n";
+    $xmlresponse = preg_replace ( '/<\/(\w+:)(\w+)/', '</$2', $xmlresponse );
+    echo " xns " . htmlspecialchars($xmlresponse) . "\n";
+    $xmlresponse = preg_replace ( '/(xmlns(:\w+)?)="[^"]+"/', '', $xmlresponse );
+    echo " xns " . htmlspecialchars($xmlresponse) . "\n";
+    */
+    if (1) {
+
+        $dom = DOMDocument::loadXML($xmlresponse);
+        $asphp = HackedBadgerFish::map($dom);
+        $json = json_encode($asphp);
+        echo "\n  json: " . $json, PHP_EOL;
+        //removeStuff($asphp);
+        //var_dump($asphp);
+    }
 }
 
+$iterations = 0;
 $start = microtime(TRUE);
-for ($it = 0; $it < 5; $it++) {
+for ($it = 0; $it < $iterations; $it++) {
     report("getT", getT(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
 $start = microtime(TRUE);
-for ($it = 0; $it < 5; $it++) {
+for ($it = 0; $it < $iterations; $it++) {
     report("getSFP", getSFP(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
 $start = microtime(TRUE);
-for ($it = 0; $it < 5; $it++) {
+for ($it = 0; $it < $iterations+10; $it++) {
     report("getWF", getWF(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
 $start = microtime(TRUE);
-for ($it = 0; $it < 5; $it++) {
+for ($it = 0; $it < $iterations; $it++) {
     report("getTD", getTD(), ( microtime(TRUE) - $start) / 1.0);
     $start = microtime(TRUE);
 }
