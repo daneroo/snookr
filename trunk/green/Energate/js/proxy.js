@@ -29,7 +29,7 @@
             },
             // proxy is generated with generateFromMethods, but methods are fetched from the service itself.
             generateFromService: function(endpointurl){
-                var methods = jEko.proxy.invoke(endpointurl,"system.listMethods",null,null);
+                var methods = jEko.proxy.invoke(endpointurl,"system.listMethods",[],null);
                 //debug("getproxy methods: "+$.toJSON(methods));
                 return jEko.proxy.generateFromMethods(endpointurl,methods);
             },

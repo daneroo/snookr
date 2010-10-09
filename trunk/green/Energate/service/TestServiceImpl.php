@@ -1,9 +1,9 @@
 <?php
 
 //error_reporting(0);
-require_once 'service_base.php';
-require_once('./service/CDDRNusoap.php');
-require_once('./service/CDDRDirect.php');
+require_once(dirname(__FILE__) . '/service_base.php');
+require_once(dirname(__FILE__) . '/CDDRNusoap.php');
+require_once(dirname(__FILE__) . '/CDDRDirect.php');
 
 class TestServiceImpl extends iM_ServiceBase {
 
@@ -54,7 +54,7 @@ class TestServiceImpl extends iM_ServiceBase {
      */
     public function callIt($implName, $operation, $params) {
         $start = microtime(true);
-        $impl = $this->getImpl($implName);
+        $svc = $this->getImpl($implName);
         $result = $svc->callIt($operation, $params);
         return $this->wrap($result, $start);
     }
