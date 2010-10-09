@@ -1,5 +1,6 @@
 <?php
 
+error_reporting(0);
 require_once('../service/CDDRNusoap.php');
 
 $testMap = array(
@@ -16,7 +17,8 @@ echo "<pre>";
 foreach ($testMap as $operation => $params) {
     for ($it = 0; $it < 1; $it++) {
         $start = microtime(TRUE);
-        $result = CDDRNusoap::enerSoapCall($operation, $params);
+        $svc = new CDDRNusoap();
+        $result = $svc->callIt($operation, $params);
         echo '(' . (microtime(true) - $start) . ' s.) ' . $operation . ': ' . json_encode($result).PHP_EOL;
     }
 }

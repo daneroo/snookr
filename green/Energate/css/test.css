@@ -1,0 +1,27 @@
+/* 
+    Document   : test
+    Created on : Oct 6, 2010, 2:36:50 PM
+    Author     : daniel
+    Description:
+        style to accompany test.php
+*/
+
+.time {
+    color: gray;
+}
+
+#testResults {
+    border-collapse: collapse;
+    border-spacing: 2px;
+    border-width: 1px;
+    border-color: black;
+}
+#testResults tr {
+    vertical-align: top;
+}
+#testResults th {
+    text-align: right;
+}
+#testResults td {
+    padding-left: 10px;
+}

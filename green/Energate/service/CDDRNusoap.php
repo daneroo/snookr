@@ -7,22 +7,22 @@
  */
 //error_reporting(0);
 // Pull in the NuSOAP code
-require_once('../nusoap/nusoap-0.9.5/lib/nusoap.php');
-require_once('../nusoap/nusoap-0.9.5/lib/class.wsdlcache.php');
+require_once(dirname(__FILE__) . '/../nusoap/nusoap-0.9.5/lib/nusoap.php');
+require_once(dirname(__FILE__) . '/../nusoap/nusoap-0.9.5/lib/class.wsdlcache.php');
 
 class CDDRNusoap {
 
     private static $client = null;
     private static $cacheClient = true;
 
-    static function enerSoapCall($operation, $params,$client=null) {
+    function callIt($operation, $params,$client=null) {
         if ($client == NULL) {
             $client = CDDRNusoap::enerMakeClient();
         }
         $namespace = "http://tempuri.org/";
         //$result = $client->call($operation, $params, $namespace, $soapAction, $headers, $rpcParams, $style, $use);
         $result = $client->call($operation, $params, $namespace);
-        $verbose = FALSE;
+        $verbose = false;
         if ($verbose) {
             // Display the request and response
             echo '<h4>Request</h4>';
