@@ -80,6 +80,13 @@ class HackedBadgerFish {
                 $r = $r['Envelope'];
                 if (isset($r['Body'])) {
                     $r = $r['Body'];
+                    // extract the response part
+                    //  {"GetWeatherFeedResponse":{"GetWeatherFeedResult":{"CurrTemp":"10"
+                    $level1keys = array_keys($r);
+                    if (1==count($level1keys)){
+                        $responsekey = $level1keys[0];
+                        $r = $r[$responsekey];
+                    }
                 }
             }
             // DL: FIXED to use current json...

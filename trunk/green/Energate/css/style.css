@@ -1,0 +1,53 @@
+/*
+    Document   : style
+    Created on : Oct 5, 2010, 2:46:52 PM
+    Author     : daniel
+    Description:
+        main style sheet for twig template base.html
+*/
+body {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    font-size:120%;
+}
+
+#footer {
+  margin-bottom: 2em;
+  color: gray;
+  font-size: 0.9em;
+  padding: 0.5em;
+  text-align: center;
+}
+
+
+.prose {
+    margin: 1em 1em;
+}
+
+.navigation {
+    color: gray;
+}
+
+form.searchbox {
+    display: inline;
+}
+.fields {
+    margin-left: 2em;
+}
+.fieldname {
+    color: gray;
+}
+
+.fieldvalue.entreprise {
+    font-variant: small-caps;
+    font-weight: bold;
+}
+
+.filename {
+    font-family: monospace;
+    margin-left: 1em;
+}
+
