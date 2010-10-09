@@ -76,6 +76,7 @@ $impls = $tstSvc->getImplementationNames();
                 position: relative;
                 background-color: #ccc;
                 overflow:scroll;
+                width: 400px;
             }
             th {
                 width: 20%;
