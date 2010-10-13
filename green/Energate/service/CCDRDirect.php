@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Description of CDDRDirect
+ * Description of CCDRDirect
  *
  * @author daniel
  */
 require_once(dirname(__FILE__) . '/../nusoap/HackedBadgerfish.php');
 
-class CDDRDirect {
+class CCDRDirect {
 
     function callIt($operation, $params) {
         $xmlparams = "";

@@ -1,7 +1,7 @@
 <?php
 
 error_reporting(0);
-require_once('../service/CDDRNusoap.php');
+require_once('../service/CCDRNusoap.php');
 
 $testMap = array(
     "GetWeatherFeed" => array("strZIP" => "K1V7P1"),
@@ -17,7 +17,7 @@ echo "<pre>";
 foreach ($testMap as $operation => $params) {
     for ($it = 0; $it < 1; $it++) {
         $start = microtime(TRUE);
-        $svc = new CDDRNusoap();
+        $svc = new CCDRNusoap();
         $result = $svc->callIt($operation, $params);
         echo '(' . (microtime(true) - $start) . ' s.) ' . $operation . ': ' . json_encode($result).PHP_EOL;
     }

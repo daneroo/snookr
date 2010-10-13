@@ -2,16 +2,16 @@
 
 //error_reporting(0);
 require_once(dirname(__FILE__) . '/service_base.php');
-require_once(dirname(__FILE__) . '/CDDRNusoap.php');
-require_once(dirname(__FILE__) . '/CDDRDirect.php');
+require_once(dirname(__FILE__) . '/CCDRNusoap.php');
+require_once(dirname(__FILE__) . '/CCDRDirect.php');
 
 class TestServiceImpl extends iM_ServiceBase {
 
     private function getImpl($implName) {
         if ("nusoap" == $implName) {
-            return new CDDRNusoap();
+            return new CCDRNusoap();
         } else if ("direct" == $implName) {
-            return new CDDRDirect();
+            return new CCDRDirect();
         }
         return NULL;
     }

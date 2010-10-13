@@ -13,9 +13,9 @@
             }
             function delayer(){
                 if (imIsIPhone){
-                    window.location = "proxied.html";
+                    window.location = "proxiedv1.html";
                 } else {
-                    window.location = "framed.html";
+                    window.location = "framedv1.html";
                 }
             }
 
@@ -69,7 +69,7 @@
 
         <center>
             <div>
-                Energate CCDR Prototype Landing Page <br />
+                Energate Prototype Landing Page <br />
                 Redirecting for appropriate browser <br />
 
             </div>
