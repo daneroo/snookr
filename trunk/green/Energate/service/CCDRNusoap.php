@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of CDDRNusoap
+ * Description of CCDRNusoap
  *
  * @author daniel
  */
@@ -10,14 +10,14 @@
 require_once(dirname(__FILE__) . '/../nusoap/nusoap-0.9.5/lib/nusoap.php');
 require_once(dirname(__FILE__) . '/../nusoap/nusoap-0.9.5/lib/class.wsdlcache.php');
 
-class CDDRNusoap {
+class CCDRNusoap {
 
     private static $client = null;
     private static $cacheClient = true;
 
     function callIt($operation, $params,$client=null) {
         if ($client == NULL) {
-            $client = CDDRNusoap::enerMakeClient();
+            $client = CCDRNusoap::enerMakeClient();
         }
         $namespace = "http://tempuri.org/";
         //$result = $client->call($operation, $params, $namespace, $soapAction, $headers, $rpcParams, $style, $use);
@@ -45,8 +45,8 @@ class CDDRNusoap {
 
     // Create the client instance
     static function enerMakeClient($forceNew=false) {
-        if (!$forceNew && CDDRNusoap::$client != NULL) {
-            return CDDRNusoap::$client;
+        if (!$forceNew && CCDRNusoap::$client != NULL) {
+            return CCDRNusoap::$client;
         }
 
         //echo "\n\n Making new client\n\n";
@@ -91,8 +91,8 @@ class CDDRNusoap {
         // $client->setUseCurl($useCURL);
         //var_dump($client);
 
-        if (CDDRNusoap::$cacheClient) {
-            CDDRNusoap::$client = $client;
+        if (CCDRNusoap::$cacheClient) {
+            CCDRNusoap::$client = $client;
         }
 
         return $client;

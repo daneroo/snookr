@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Energate CDDR Protoype</title>
+        <title>Energate CCDR Protoype</title>
     </head>
     <body>
         <pre>
@@ -11,8 +11,8 @@
              * Copyright 2010 Daniel Lauzon <daniel.lauzon@gmail.com>
              */
             //error_reporting(0);
-            require_once('service/CDDRNusoap.php');
-            require_once('service/CDDRDirect.php');
+            require_once('service/CCDRNusoap.php');
+            require_once('service/CCDRDirect.php');
             $testMap = array(
                 "GetWeatherFeed" => array("strZIP" => "K1V7P1"),
                 "GetThermostats" => array("nHomeID" => 1),
@@ -24,8 +24,8 @@
             );
 
             $services = array(
-                "nusoap" => new CDDRDirect(),
-                "direct" => new CDDRDirect()
+                "nusoap" => new CCDRDirect(),
+                "direct" => new CCDRDirect()
             );
             echo "<pre>";
             foreach ($testMap as $operation => $params) {

@@ -1,6 +1,6 @@
 <pre><?php
 error_reporting(0);
-require_once ('../service/CDDRDirect.php');
+require_once ('../service/CCDRDirect.php');
 
 
 $testMap = array(
@@ -18,7 +18,7 @@ if (1)
     foreach ($testMap as $operation => $params) {
         for ($it = 0; $it < 1; $it++) {
             $start = microtime(TRUE);
-            $svc = new CDDRDirect();
+            $svc = new CCDRDirect();
             $result = $svc->callIt($operation, $params);
 
             echo '(' . (microtime(true) - $start) . ' s.) ' . $operation . ': ' . json_encode($result) . PHP_EOL;

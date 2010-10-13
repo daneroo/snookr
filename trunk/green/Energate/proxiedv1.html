@@ -9,15 +9,14 @@
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
         <script type="text/javascript" src="js/jquery.json-2.2.js"></script>
         <script type="text/javascript" src="js/jquery.timer-0.1.js"></script>
-        <script type="text/javascript" src="js/energate_ccdr.js"></script>
+        <script type="text/javascript" src="js/energate.js"></script>
 
         <script type="text/javascript">
 
             $(function(){
                 debug("Proxied connect!");
 
-                var permanentSessionVars = null;
-                //  a.k.a {"homeId":"1","zipCode":"K1V7P1","macAddr":"001BC500B00015DB","thermName":"smckenzie tstat"}
+                var permanentSessionCookie=null;
                 var lastKnownProgram=null;
 
 
@@ -26,18 +25,16 @@
                     var passwd=$('#passwd').val();
                     var remember=$('#rememberPass').attr('checked');
                     debug("remember: "+remember);
-                    $('#busySpinner').show();
-                    var sessionVars = login(username,passwd);
-                    $('#busySpinner').hide();
-                    if (sessionVars==null){
+                    var sessionCookie = login(username,passwd);
+                    if (sessionCookie=='Login Failed'){
                         $('#status').html('Login Failed');
                     } else {
-                        $('#status').html(sessionVars["macAddr"]);
+                        $('#status').html(sessionCookie.split('=')[1]);
                         $('#loginForm').fadeOut();
-                        permanentSessionVars=sessionVars;
+                        permanentSessionCookie=sessionCookie;
                         start(15000);
                     }
-                    debug("interactive session: "+$.toJSON(sessionVars));
+                    debug("interactive session: "+sessionCookie);
                     return false;
                 };
                 $('#loginForm').submit(loginCB);
@@ -84,17 +81,11 @@
                     $('#hold-'+hold).button("refresh");
                 }
                 function oneIteration(){
-                    debug("iter: "+permanentSessionVars);
+                    debug("iter: "+permanentSessionCookie);
                     var username=$('#username').val();
                     $('#busySpinner').show();
-
-                    var data = getit(permanentSessionVars,username);
-
+                    var data = getit(permanentSessionCookie,username);
                     $('#busySpinner').hide();
-
-
-                    return;
-
 
                     //old: var tstat = data[0].result[0].tstat_status;
                     // data[0].result.hvac[0].tstat_status
@@ -296,14 +287,14 @@
                         <input type="radio" id="hold-on" name="hold" /><label for="hold-on">On</label>
                     </div>
                 </div>
-            </div>
-            <div id="busyBox">
-                <center><img id="busySpinner" src="images/busy20trans.gif" /></center>
+                <div id="busyBox">
+                    <center><img id="busySpinner" src="images/busy20trans.gif" /></center>
+                </div>
             </div>
             <div id="status"></div>
 
             <div style="font-size: 50%; color:#ccc; position: absolute; top:420px; left:10px">
-                <div><a target="_new" href="http://opa.myenergate.com/">Regular Login</a></div>
+                <div><a target="_new" href="https://firstenergy-staging.getgreenbox.com/accounts/login/">Regular Login</a></div>
                 <!--<div>to access <a target="_new" href="http://firstenergy-staging.getgreenbox.com/">http://firstenergy-staging.getgreenbox.com/</a></div>-->
             </div>
         </div>

@@ -10,7 +10,7 @@
  *
  * @author daniel
  */
-error_reporting(0);
+//error_reporting(0);
 class CCDRLogin {
     /* this function extract <input type="hidden" /> form fields */
 
