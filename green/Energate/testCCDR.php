@@ -22,6 +22,10 @@
                 "SLGetEditScheduleDetails" => array("strMacAddr" => 1),
                 "GetConsumerThermDetails" => array("strMacAddr" => "001BC500B00015DB")
             );
+            /*$testMap = array(
+                "GetWeatherFeed" => array("strZIP" => "K1V7P1"),
+                "GetThermostatDetails" => array("strMacAddr" => "001BC500B00015DB")
+            );*/
 
             $services = array(
                 "nusoap" => new CCDRDirect(),
@@ -34,6 +38,7 @@
                         $start = microtime(TRUE);
                         $result = $svc->callIt($operation, $params);
                         echo "$svcName (" . (microtime(true) - $start) . ' s.) ' . $operation . ': ' . json_encode($result) . PHP_EOL;
+                        //print_r($result);
                     }
                 }
             }

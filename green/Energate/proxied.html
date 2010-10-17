@@ -13,11 +13,11 @@
 
         <script type="text/javascript">
 
+            var permanentSessionVars = null;
+            //  a.k.a {"homeId":"1","zipCode":"K1V7P1","macAddr":"001BC500B00015DB","thermName":"smckenzie tstat"}
             $(function(){
                 debug("Proxied connect!");
 
-                var permanentSessionVars = null;
-                //  a.k.a {"homeId":"1","zipCode":"K1V7P1","macAddr":"001BC500B00015DB","thermName":"smckenzie tstat"}
                 var lastKnownProgram=null;
 
 
@@ -32,47 +32,51 @@
                     if (sessionVars==null){
                         $('#status').html('Login Failed');
                     } else {
-                        $('#status').html(sessionVars["macAddr"]);
-                        $('#loginForm').fadeOut();
                         permanentSessionVars=sessionVars;
+                        $('#status').html(permanentSessionVars["macAddr"]);
+                        $('#loginForm').fadeOut();
                         start(15000);
                     }
-                    debug("interactive session: "+$.toJSON(sessionVars));
                     return false;
                 };
                 $('#loginForm').submit(loginCB);
 
                 function tempround(x){
-                    //return Math.round(x*10)/10;
-                    return Math.round(x);
+                    return Math.round(x*10)/10;
+                    //return Math.round(x);
                 }
-                function showTstat(tstat_status){
-                    if (!tstat_status) {
-                        debug("null tstat_status");
+                function showThermDetails(details){
+                    if (!details) {
+                        debug("null details");
                         return;
                     }
-                    $('#inside_temp').text(tempround(tstat_status.inside_temp));
-                    $('#high_setpoint').text(tempround(tstat_status.high_setpoint));
-                    $('#low_setpoint').text(tempround(tstat_status.low_setpoint));
+                    $('#CurrIndoorTemp').text(tempround(details.CurrIndoorTemp));
+                    $('#ActiveHeatTemp').text(tempround(details.ActiveHeatTemp));
+                    $('#ActiveCoolTemp').text(tempround(details.ActiveCoolTemp));
                 }
                 function showWeather(weather){
                     if (!weather) {
                         debug("null weather");
                         return;
                     }
-                    $('#outside_temp').text(tempround(weather.currentTemp));
+                    $('#CurrTemp').text(tempround(weather.CurrTemp));
 
                 }
-                function showProgram(program){
-                    if (!program) {
-                        debug("null program");
+                function showProgram(details){
+                    if (!details) {
+                        debug("null details");
                         return;
                     }
-                    lastKnownProgram=program;
-                    
-                    debug("mode: "+program.mode); // values are auto,heat,cool,off
-                    debug("fan:  "+program.fan);
-                    debug("hold: "+$.toJSON(program.hold));
+                    //debug({EqMode:details.EqMode,FanMode:details.FanMode});
+                    var program={mode:"--",fan:"--",hold:"--"};
+                    // details.EqMode==0->off,1->cool,2->heat,3->auto
+                    var modes = ["off","cool","heat","auto"];
+                    program.mode=modes[details.EqMode];
+                    program.fan = (details.FanMode=="true")?"on":"auto";
+                    // details.CurrHoldType: "None", "Temporary","TimedHours" (Hous or date)
+                    program.hold = (details.CurrHoldType=="None")?"off":"on";
+
+                    debug("program: "+$.toJSON(program));
 
                     //now reflect the mode: -should I refresh the whole group ?
                     $('#mode-'+program.mode).attr("checked","checked");
@@ -84,39 +88,23 @@
                     $('#hold-'+hold).button("refresh");
                 }
                 function oneIteration(){
-                    debug("iter: "+permanentSessionVars);
-                    var username=$('#username').val();
+                    debug("iter: "+$.toJSON(permanentSessionVars));
                     $('#busySpinner').show();
-
-                    var data = getit(permanentSessionVars,username);
-
+                    var data = getThermostatDetails(permanentSessionVars);
+                    debug("data: "+$.toJSON(data));
                     $('#busySpinner').hide();
 
+                    var details = data.Details;
+                    showThermDetails(details);
+                    showProgram(details);
 
-                    return;
-
-
-                    //old: var tstat = data[0].result[0].tstat_status;
-                    // data[0].result.hvac[0].tstat_status
-                    var tstat = data[0].result.hvac[0].tstat_status
-                    debug("tstat:");
-                    debug(tstat);
-                    showTstat(tstat);
-
-                    // data[0].result.weather (.currentTemp|.forecastToday(.min|.max))
-                    var weather  = data[0].result.weather;
-                    debug("weather:");
-                    debug(weather);
+                    var weather  = getWeather(permanentSessionVars);
+                    debug("weather: "+$.toJSON(weather));
                     showWeather(weather);
 
-                    //  data[0].result.hvac[0].program (.fan|.mode|.hold(.type|.end))
-                    var program  = data[0].result.hvac[0].program;
-                    debug("program:");
-                    debug(program);
-                    showProgram(program);
 
                     $('#loggedIn').show();
-                    $('#status').html(""+new Date()+"<br />"+permanentSessionCookie.split('=')[1]);
+                    $('#status').html(""+new Date()+"<br />"+permanentSessionVars.macAddr);
                 }
                 function start(interval){
                     interval = interval || 15000;
@@ -133,22 +121,17 @@
                 $("#fan").buttonset();
                 $("#hold").buttonset();
                 var modeAndFanCB = function(){
-                    var username=$('#username').val();
-                    var kind = $(this).attr("name");
-                    var numode=$(this).attr("id");
-                    debug("callback kind: "+kind+"("+kind.length+") value:"+numode);
-                    numode=numode.substring(kind.length+1); // remove kind and dash
-                    debug("click::"+kind+": "+numode);
-                    //debug("last known program: "+$.toJSON(lastKnownProgram));
-                    var requestedProgram={};
-                    var deep=true;
-                    var nu = {};
-                    nu[kind]=numode;
-                    $.extend(deep,requestedProgram,lastKnownProgram,nu);
-                    debug(" requested program: "+$.toJSON(requestedProgram));
+                    // get fan and mode:
+                    // mode-auto,mode-heat,mode-cool,mode-off
+                    var mode = $('#mode input:checked').attr('id');
+                    debug(mode);
+                    // fan-auto, fan-on
+                    var fan = $('#fan input:checked').attr('id');
+                    debug(fan);
 
-                    var dataOut = storeit(permanentSessionCookie, username, "hvac1", requestedProgram)
-                    debug( "dataOut: "+ dataOut);
+                    $('#busySpinner').show();
+                    var result = slSetMode(permanentSessionVars, mode, fan);
+                    $('#busySpinner').hide();
                 };
                 $("#mode input").click(modeAndFanCB);
                 $("#fan input").click(modeAndFanCB);
@@ -262,19 +245,19 @@
                 <div id="tstat">
                     <div class="measure">
                         <div class="tempsection">Inside Temp:</div>
-                        <span id="inside_temp">--</span> &deg;F
+                        <span id="CurrIndoorTemp">--</span> &deg;C
                     </div>
                     <div class="measure">
                         <div class="tempsection">Outside Temp:</div>
-                        <span id="outside_temp">--</span> &deg;F
+                        <span id="CurrTemp">--</span> &deg;C
                     </div>
                     <div class="measure">
                         <div class="tempsection">Heating Setpoint:</div>
-                        <span id="low_setpoint">--</span> &deg;F
+                        <span id="ActiveHeatTemp">--</span> &deg;C
                     </div>
                     <div class="measure">
                         <div class="tempsection">Cooling Setpoint:</div>
-                        <span id="high_setpoint">--</span> &deg;F
+                        <span id="ActiveCoolTemp">--</span> &deg;C
                     </div>
                 </div>
                 <div class="controls">
