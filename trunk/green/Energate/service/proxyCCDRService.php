@@ -10,8 +10,8 @@ require_once(dirname(__FILE__) . '/CCDRLogin.php');
 class proxyCCDRService extends iM_ServiceBase {
 
     private function getSvc() {
-        return new CCDRNusoap();
-        //return new CCDRDirect();
+        //return new CCDRNusoap();
+        return new CCDRDirect();
     }
 
     private function callIt($operation, $params) {
@@ -23,6 +23,37 @@ class proxyCCDRService extends iM_ServiceBase {
         }
         // should never reach
         return $result;
+    }
+
+    /**
+      @JsonRpcHelp("get thermostat details")
+     *
+     */
+    public function getThermostatDetails($macAddr) {
+        return $this->callIt("GetThermostatDetails", array("strMacAddr" => $macAddr));
+    }
+
+    /**
+      @JsonRpcHelp("get weather feed")
+     *
+     */
+    public function getWeatherFeed($zipCode) {
+        return $this->callIt("GetWeatherFeed", array("strZIP" => $zipCode));
+    }
+
+    /**
+      @JsonRpcHelp("set mode and fan")
+     *
+     */
+    public function slSetMode($strEqMode, $strFanMode, $macAddr) {
+        return $this->callIt("SLSetMode", array("strEqMode" => $strEqMode, "strFanMode" => $strFanMode, "strMacAddr" => $macAddr));
+        /*
+          <tns:SLSetMode xmlns:tns="http://tempuri.org/">
+          <tns:strEqMode>HeatOnly</tns:strEqMode>
+          <tns:strFanMode>On</tns:strFanMode>
+          <tns:strMacAddr>001BC500B00015DB</tns:strMacAddr>
+          </tns:SLSetMode>
+         */
     }
 
     /**
