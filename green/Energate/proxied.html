@@ -83,9 +83,8 @@
                     $('#mode-'+program.mode).button("refresh");
                     $('#fan-'+program.fan).attr("checked","checked");
                     $('#fan-'+program.fan).button("refresh");
-                    var hold = (program.hold.type=="none")?"off":"on";
-                    $('#hold-'+hold).attr("checked","checked");
-                    $('#hold-'+hold).button("refresh");
+                    $('#hold-'+program.hold).attr("checked","checked");
+                    $('#hold-'+program.hold).button("refresh");
                 }
                 function oneIteration(){
                     debug("iter: "+$.toJSON(permanentSessionVars));
