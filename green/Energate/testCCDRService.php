@@ -25,17 +25,22 @@ $impls = $tstSvc->getImplementationNames();
                 var testId = "#"+impl+"-"+testName;
                 debug("running "+testId);
                 $(testId).html(busy);
-                var result = svc['callIt'](impl,testName,testParams);
-                if(undefined===result.millis || undefined===result.result){
-                    $(testId).text($.toJSON(result));
-                } else {
-                    var h = '<div class="time">'+
-                        result.millis+" ms"+
-                        '</div><div class="showresult">show/hide result<div class="result">'+
-                        $.toJSON(result.result)+
-                        '</div></div>';
-                    $(testId).html(h);
-                }
+                //var result = svc['callIt'](impl,testName,testParams);
+                svc['callIt'](impl,testName,testParams,function(result){
+                    if(undefined===result.millis || undefined===result.result){
+                        $(testId).text($.toJSON(result));
+                    } else {
+                        var h = '<div class="time">'+
+                            result.millis+" ms"+
+                            '</div><div class="showresult">show/hide result<div class="result">'+
+                            $.toJSON(result.result)+
+                            '</div></div>';
+                        $(testId).html(h);
+                    }
+                    $(testId).click(function(){
+                        $(this).find(".result").toggle();
+                    });
+                });
             }
             $(function(){
                 /*
