@@ -67,8 +67,8 @@ function login(username,passwd){
     return invoke(null, "login", [username,passwd], null);
 }
 
-function getWeather(sessionVars){
-    return invoke(null, "getWeatherFeed", [sessionVars.zipCode], null);
+function getWeather(sessionVars,cb){
+    return invoke(null, "getWeatherFeed", [sessionVars.zipCode], cb);
 
     // get weather feed:
     // {"GetWeatherFeed":{"strZIP":"K1V7P1"}
@@ -81,8 +81,8 @@ function getWeather(sessionVars){
         "MinNextForecast":"3"
     };
 }
-function getThermostatDetails(sessionVars){
-    return invoke(null, "getThermostatDetails", [sessionVars.macAddr], null);
+function getThermostatDetails(sessionVars,cb){
+    return invoke(null, "getThermostatDetails", [sessionVars.macAddr], cb);
     return {
         "CurrHoldName":"None",
         "DataValid":"true",
@@ -128,7 +128,7 @@ function getThermostatDetails(sessionVars){
     };
 }
 
-function slSetMode(sessionVars,mode,fan){
+function slSetMode(sessionVars,mode,fan,cb){
     // mode = mode-auto,mode-heat,mode-cool,mode-off
     // strEqMode-> Auto,HeatOnly,CoolOnly,Off
     // fan = fan-auto, fan-on
@@ -144,7 +144,7 @@ function slSetMode(sessionVars,mode,fan){
     var strEqMode = trans[mode];
     var strFanMode = trans[fan];
     //debug(["slSetMode:Params:",strEqMode,strFanMode,sessionVars.macAddr]);
-    return invoke(null, "slSetMode", [strEqMode,strFanMode,sessionVars.macAddr], null);    
+    return invoke(null, "slSetMode", [strEqMode,strFanMode,sessionVars.macAddr], cb);
 }
 
 function slSetHold(sessionVars){
