@@ -15,27 +15,38 @@
 
             var permanentSessionVars = null;
             //  a.k.a {"homeId":"1","zipCode":"K1V7P1","macAddr":"001BC500B00015DB","thermName":"smckenzie tstat"}
+            var busySpinnerStackDepth=0;
+            function makeBusy(delta){ // +1 or -1
+                busySpinnerStackDepth+=delta;
+                if(busySpinnerStackDepth==0){
+                    $('#busySpinner').hide();
+                    $('#busyCounter').text('');
+                } else {
+                    $('#busyCounter').text(''+busySpinnerStackDepth);
+                    $('#busySpinner').show();
+                }
+            }
             $(function(){
                 debug("Proxied connect!");
 
                 var lastKnownProgram=null;
-
+                var defaultRefreshInterval=20;
 
                 var loginCB=function(){
                     var username=$('#username').val();
                     var passwd=$('#passwd').val();
                     var remember=$('#rememberPass').attr('checked');
                     debug("remember: "+remember);
-                    $('#busySpinner').show();
+                    makeBusy(+1);//$('#busySpinner').show();
                     var sessionVars = login(username,passwd);
-                    $('#busySpinner').hide();
+                    makeBusy(-1);//$('#busySpinner').hide();
                     if (sessionVars==null){
                         $('#status').html('Login Failed');
                     } else {
                         permanentSessionVars=sessionVars;
                         $('#status').html(permanentSessionVars["macAddr"]);
                         $('#loginForm').fadeOut();
-                        start(15000);
+                        start(defaultRefreshInterval);
                     }
                     return false;
                 };
@@ -73,8 +84,12 @@
                     var modes = ["off","cool","heat","auto"];
                     program.mode=modes[details.EqMode];
                     program.fan = (details.FanMode=="true")?"on":"auto";
-                    // details.CurrHoldType: "None", "Temporary","TimedHours" (Hous or date)
+                    // details.CurrHoldType: "None", "Temporary","TimedHours|Days","Vacation" (Hours or date)
                     program.hold = (details.CurrHoldType=="None")?"off":"on";
+                    program.holdType = details.CurrHoldType;
+
+                    if (program.holdType=="Temporary") program.holdType="Permanent";
+                    if (program.holdType.substring(0,5)=="Timed") program.holdType="Timed";
 
                     debug("program: "+$.toJSON(program));
 
@@ -85,33 +100,45 @@
                     $('#fan-'+program.fan).button("refresh");
                     $('#hold-'+program.hold).attr("checked","checked");
                     $('#hold-'+program.hold).button("refresh");
+                    $("#holdType option[value='"+program.holdType+"']").attr('selected','selected');
+                    if (program.holdType == 'None'){
+                        $('#holdtemps').hide();
+                    } else {
+                        $('#holdtemps').show();
+                    }
                 }
                 function oneIteration(){
                     debug("iter: "+$.toJSON(permanentSessionVars));
-                    $('#busySpinner').show();
-                    var data = getThermostatDetails(permanentSessionVars);
-                    debug("data: "+$.toJSON(data));
-                    $('#busySpinner').hide();
-
-                    var details = data.Details;
-                    showThermDetails(details);
-                    showProgram(details);
-
-                    var weather  = getWeather(permanentSessionVars);
-                    debug("weather: "+$.toJSON(weather));
-                    showWeather(weather);
-
-
-                    $('#loggedIn').show();
                     $('#status').html(""+new Date()+"<br />"+permanentSessionVars.macAddr);
+                    makeBusy(+1);//$('#busySpinner').show();
+                    //var data = getThermostatDetails(permanentSessionVars); //synch
+                    getThermostatDetails(permanentSessionVars,function(data){
+                        makeBusy(-1);//$('#busySpinner').hide();
+                        debug("data: "+$.toJSON(data));
+                        
+                        var details = data.Details;
+                        showThermDetails(details);
+                        showProgram(details);
+
+                        $('#loggedIn').show();
+
+                    });
+                    makeBusy(+1);//$('#busySpinner').show();
+                    getWeather(permanentSessionVars,function(weather){
+                        makeBusy(-1);//$('#busySpinner').hide();
+                        debug("weather: "+$.toJSON(weather));
+                        showWeather(weather);
+                    });
+
                 }
                 function start(interval){
-                    interval = interval || 15000;
+                    interval = interval || defaultRefreshInterval;
+                    var intervalms = interval*1000;
                     var thing = this;
                     var cb = function(timer){
                         oneIteration();
                     }
-                    $.timer(interval,cb);
+                    $.timer(intervalms,cb);
                     oneIteration();
                 }
 
@@ -128,9 +155,11 @@
                     var fan = $('#fan input:checked').attr('id');
                     debug(fan);
 
-                    $('#busySpinner').show();
-                    var result = slSetMode(permanentSessionVars, mode, fan);
-                    $('#busySpinner').hide();
+                    makeBusy(+1);//$('#busySpinner').show();
+                    slSetMode(permanentSessionVars, mode, fan,function(result){
+                        makeBusy(-1);//$('#busySpinner').hide();
+                        debug("slSetMode: "+$.toJSON(result));
+                    });
                 };
                 $("#mode input").click(modeAndFanCB);
                 $("#fan input").click(modeAndFanCB);
@@ -184,6 +213,12 @@
                 display: inline-block;
                 width:140px;
                 text-align: right;
+            }
+            #holdcontrols, #holdtemps {
+                padding-top: 4px;
+            }
+            #holdtemps {
+                margin-left: 50px;
             }
             #busyBox {
                 margin-top: 2em;
@@ -276,11 +311,34 @@
                         <div class="controlsection">Hold:</div>
                         <input type="radio" id="hold-off" name="hold" checked="checked" /><label for="hold-off">Off</label>
                         <input type="radio" id="hold-on" name="hold" /><label for="hold-on">On</label>
+                        <div id="holdcontrols">
+                            <div class="controlsection">Hold:</div>
+                            <select id="holdType">
+                                <option value="None">None</option>
+                                <option value="Permanent">Permanent</option>
+                                <option value="Timed" disabled="disabled">Timed</option>
+                                <option value="Vacation" disabled="disabled">Vacation</option>
+                            </select>
+                            <div id="holdtemps">
+                                <label for="holdHeat">Heat</label>
+                                <select id="holdHeat">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                                <label for="holdCool">Cool</label>
+                                <select id="holdCool">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div id="busyBox">
-                <center><img id="busySpinner" src="images/busy20trans.gif" /></center>
+                <center><img id="busySpinner" src="images/busy20trans.gif" /><span id="busyCounter"></span></center>
             </div>
             <div id="status"></div>
 
