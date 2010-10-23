@@ -57,6 +57,37 @@ class proxyCCDRService extends iM_ServiceBase {
     }
 
     /**
+      @JsonRpcHelp("set mode and fan")
+     *
+     */
+    public function slSetHold($cool, $heat, $macAddr) {
+        $xmlcool='<tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">'.$cool.'</tns:int>';
+        $xmlheat='<tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">'.$heat.'</tns:int>';
+        return $this->callIt("SLSetHold", array(
+            "strVacationValue" => 0,
+            "strHoldType" => 'Permanent',
+            "strMacAddr" => $macAddr,
+            "nCool" => $xmlcool,
+            "nHeat" => $xmlheat,
+            "btStartIndex" => 7
+        ));
+        /*
+          <tns:SLSetHold xmlns:tns="http://tempuri.org/">
+          <tns:strVacationValue>0</tns:strVacationValue>
+          <tns:strHoldType>Permanent</tns:strHoldType>
+          <tns:strMacAddr>001BC500B00015DB</tns:strMacAddr>
+          <tns:nCool>
+          <tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">37</tns:int>
+          </tns:nCool>
+          <tns:nHeat>
+          <tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">45</tns:int>
+          </tns:nHeat>
+          <tns:btStartIndex>7</tns:btStartIndex>
+          </tns:SLSetHold>
+         */
+    }
+
+    /**
       @JsonRpcHelp("return the array('homeId' => HHHHH, 'zipCode' => ZZZZZ) or null")
      *
      */
