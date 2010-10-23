@@ -147,7 +147,8 @@ function slSetMode(sessionVars,mode,fan,cb){
     return invoke(null, "slSetMode", [strEqMode,strFanMode,sessionVars.macAddr], cb);
 }
 
-function slSetHold(sessionVars){
+function slSetHold(sessionVars,cool,heat,cb){
+    return invoke(null, "slSetHold", [cool,heat,sessionVars.macAddr], cb);
 
 /*
     <tns:SLSetHold xmlns:tns="http://tempuri.org/">
@@ -158,6 +159,20 @@ function slSetHold(sessionVars){
       <tns:nHeat/>
       <tns:btStartIndex>10</tns:btStartIndex>
     </tns:SLSetHold>
+
+    <tns:SLSetHold xmlns:tns="http://tempuri.org/">
+      <tns:strVacationValue>0</tns:strVacationValue>
+      <tns:strHoldType>Permanent</tns:strHoldType>
+      <tns:strMacAddr>001BC500B00015DB</tns:strMacAddr>
+      <tns:nCool>
+        <tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">37</tns:int>
+      </tns:nCool>
+      <tns:nHeat>
+        <tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">45</tns:int>
+      </tns:nHeat>
+      <tns:btStartIndex>7</tns:btStartIndex>
+    </tns:SLSetHold>
+
     */
 }
 

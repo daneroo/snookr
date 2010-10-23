@@ -147,6 +147,7 @@
                 $("#fan").buttonset();
                 $("#hold").buttonset();
                 var modeAndFanCB = function(){
+                    debug("modeAndFanCB")
                     // get fan and mode:
                     // mode-auto,mode-heat,mode-cool,mode-off
                     var mode = $('#mode input:checked').attr('id');
@@ -164,6 +165,27 @@
                 $("#mode input").click(modeAndFanCB);
                 $("#fan input").click(modeAndFanCB);
                 $("#hold input").button({disabled: true });
+                var holdTempCB = function(){
+                    debug("holdTempCB")
+                    // get hold temps:
+                    // $("#holdType option[value='"+program.holdType+"']").attr('selected','selected');
+
+                    var heat=10;
+                    var cool=6;
+
+                    makeBusy(+1);//$('#busySpinner').show();
+                    slSetHold(permanentSessionVars, cool,heat,function(result){
+                        makeBusy(-1);//$('#busySpinner').hide();
+                        debug("slSetHold-1: "+$.toJSON(result));
+                        makeBusy(+1);//$('#busySpinner').show();
+                        slSetHold(permanentSessionVars, cool,heat,function(result){
+                            makeBusy(-1);//$('#busySpinner').hide();
+                            debug("slSetHold-2: "+$.toJSON(result));
+                        });
+                    });
+                };
+                $("#holdCool").change(holdTempCB);
+                $("#holdHeat").change(holdTempCB);
             });
         </script>
         <style type="text/css" media="screen">
