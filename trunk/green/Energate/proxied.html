@@ -26,6 +26,13 @@
                     $('#busySpinner').show();
                 }
             }
+            function fillTemp(selElt){
+                selElt.empty();
+                for (var c=5;c<=50;c++){
+                    selElt.append($('<option value="'+c+'" />').text(c));
+                }
+            }
+
             $(function(){
                 debug("Proxied connect!");
 
@@ -53,17 +60,27 @@
                 $('#loginForm').submit(loginCB);
 
                 function tempround(x){
-                    return Math.round(x*10)/10;
-                    //return Math.round(x);
+                    //return Math.round(x*10)/10; // to 0.1
+                    return Math.round(x);         // to 1.0
                 }
+
+                var setOnlyOnce=true;
                 function showThermDetails(details){
                     if (!details) {
                         debug("null details");
                         return;
                     }
+                    var acCT=tempround(details.ActiveCoolTemp);
+                    var acHT=tempround(details.ActiveHeatTemp);
                     $('#CurrIndoorTemp').text(tempround(details.CurrIndoorTemp));
-                    $('#ActiveHeatTemp').text(tempround(details.ActiveHeatTemp));
-                    $('#ActiveCoolTemp').text(tempround(details.ActiveCoolTemp));
+                    $('#ActiveCoolTemp').text(acCT);
+                    $('#ActiveHeatTemp').text(acHT);
+                    if (setOnlyOnce){
+                        debug("setonlyonce");
+                        setOnlyOnce=false;
+                        $("#holdCool option[value="+acCT+"]").attr('selected','selected');
+                        $("#holdHeat option[value="+acHT+"]").attr('selected','selected');
+                    }
                 }
                 function showWeather(weather){
                     if (!weather) {
@@ -146,6 +163,7 @@
                 $("#mode").buttonset();
                 $("#fan").buttonset();
                 $("#hold").buttonset();
+                
                 var modeAndFanCB = function(){
                     debug("modeAndFanCB")
                     // get fan and mode:
@@ -170,9 +188,18 @@
                     // get hold temps:
                     // $("#holdType option[value='"+program.holdType+"']").attr('selected','selected');
 
-                    var heat=10;
-                    var cool=6;
+                    var holdType=$("#holdType option[selected]=selected").attr('value');
+                    var cool=0;
+                    var heat=0;
+                    if (holdType == 'None'){
+                        $('#holdtemps').hide();
+                    } else {
+                        $('#holdtemps').show();
+                        cool=$("#holdCool option[selected]=selected").attr('value');
+                        heat=$("#holdHeat option[selected]=selected").attr('value');
+                    }
 
+                    debug("setting c:"+cool+" h:"+heat);
                     makeBusy(+1);//$('#busySpinner').show();
                     slSetHold(permanentSessionVars, cool,heat,function(result){
                         makeBusy(-1);//$('#busySpinner').hide();
@@ -184,8 +211,13 @@
                         });
                     });
                 };
-                $("#holdCool").change(holdTempCB);
-                $("#holdHeat").change(holdTempCB);
+                var hCoolElt=$("#holdCool");
+                var hHeatElt=$("#holdHeat");
+                fillTemp(hCoolElt);
+                fillTemp(hHeatElt);
+                $('#holdType').change(holdTempCB);
+                hCoolElt.change(holdTempCB);
+                hHeatElt.change(holdTempCB);
             });
         </script>
         <style type="text/css" media="screen">
@@ -330,9 +362,11 @@
                         <input type="radio" id="fan-on" name="fan" /><label for="fan-on">On</label>
                     </div>
                     <div id="hold" class="radioset">
+                        <!--
                         <div class="controlsection">Hold:</div>
                         <input type="radio" id="hold-off" name="hold" checked="checked" /><label for="hold-off">Off</label>
                         <input type="radio" id="hold-on" name="hold" /><label for="hold-on">On</label>
+                        -->
                         <div id="holdcontrols">
                             <div class="controlsection">Hold:</div>
                             <select id="holdType">
