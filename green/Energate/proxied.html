@@ -16,6 +16,7 @@
             var permanentSessionVars = null;
             //  a.k.a {"homeId":"1","zipCode":"K1V7P1","macAddr":"001BC500B00015DB","thermName":"smckenzie tstat"}
             var busySpinnerStackDepth=0;
+            var holdRequestToken=null;
             function makeBusy(delta){ // +1 or -1
                 busySpinnerStackDepth+=delta;
                 if(busySpinnerStackDepth==0){
@@ -70,13 +71,15 @@
                         debug("null details");
                         return;
                     }
+
+                    $('.pendingHoldRequest').removeClass('unconfirmed');
+
                     var acCT=tempround(details.ActiveCoolTemp);
                     var acHT=tempround(details.ActiveHeatTemp);
                     $('#CurrIndoorTemp').text(tempround(details.CurrIndoorTemp));
                     $('#ActiveCoolTemp').text(acCT);
                     $('#ActiveHeatTemp').text(acHT);
                     if (setOnlyOnce){
-                        debug("setonlyonce");
                         setOnlyOnce=false;
                         $("#holdCool option[value="+acCT+"]").attr('selected','selected');
                         $("#holdHeat option[value="+acHT+"]").attr('selected','selected');
@@ -184,9 +187,8 @@
                 $("#fan input").click(modeAndFanCB);
                 $("#hold input").button({disabled: true });
                 var holdTempCB = function(){
-                    debug("holdTempCB")
-                    // get hold temps:
-                    // $("#holdType option[value='"+program.holdType+"']").attr('selected','selected');
+                    var callingControlId = $(this).attr('id');
+                    debug("holdTempCB called from "+callingControlId);
 
                     var holdType=$("#holdType option[selected]=selected").attr('value');
                     var cool=0;
@@ -198,9 +200,35 @@
                         cool=$("#holdCool option[selected]=selected").attr('value');
                         heat=$("#holdHeat option[selected]=selected").attr('value');
                     }
+                    // implement temp difference:
+                    // enforce heat < cool
+                    if (heat >= cool ){ // must change one of them
+                        debug("heat !< cool: ");
+                        if ('holdHeat'==callingControlId) {
+                            cool = parseInt(heat)+1;
+                            $("#holdCool option[value="+cool+"]").attr('selected','selected');
+                            debug("override cool:"+cool);
+                        } else if ('holdCool'==callingControlId) {
+                            heat = parseInt(cool)-1;
+                            $("#holdHeat option[value="+heat+"]").attr('selected','selected');
+                            debug("override heat:"+heat);
+                        }
+
+                    }
 
                     debug("setting c:"+cool+" h:"+heat);
                     makeBusy(+1);//$('#busySpinner').show();
+                    $('#RequestedCoolTemp').html((cool==0)?"Clear Hold":(""+cool+" &deg;C"));
+                    $('#RequestedHeatTemp').html((heat==0)?"Clear Hold":(""+heat+" &deg;C"));
+                    $('.pendingHoldRequest').addClass('active');
+                    var crossCoolHeat=true;
+                    if (crossCoolHeat){
+                        var swp=cool;
+                        cool=heat;
+                        heat=swp;
+                    }
+                    var thisHoldRequestToken = new Date().getTime();
+                    holdRequestToken = thisHoldRequestToken;
                     slSetHold(permanentSessionVars, cool,heat,function(result){
                         makeBusy(-1);//$('#busySpinner').hide();
                         debug("slSetHold-1: "+$.toJSON(result));
@@ -208,6 +236,10 @@
                         slSetHold(permanentSessionVars, cool,heat,function(result){
                             makeBusy(-1);//$('#busySpinner').hide();
                             debug("slSetHold-2: "+$.toJSON(result));
+                            if (holdRequestToken == thisHoldRequestToken){
+                                $('.pendingHoldRequest').removeClass('active');
+                                $('.pendingHoldRequest').addClass('unconfirmed');
+                            }
                         });
                     });
                 };
@@ -281,6 +313,11 @@
             #busySpinner {
                 display: none; /* until we are processing...*/
             }
+            #busyCounter {
+                /* like superscript */
+                font-size: .7em;
+                vertical-align: super;
+            }
             #status {
                 margin-top: 1em;
                 color: gray;
@@ -304,6 +341,18 @@
             }
             .radioset  label {
                 width: 60px;
+            }
+            .pendingHoldRequest {
+                display: none;
+                color: #ccc;
+            }
+            .pendingHoldRequest.active {
+                display: inline;
+                color: red;
+            }
+            .pendingHoldRequest.unconfirmed {
+                display: inline;
+                color: gray;
             }
         </style>
     </head>
@@ -342,10 +391,12 @@
                     <div class="measure">
                         <div class="tempsection">Heating Setpoint:</div>
                         <span id="ActiveHeatTemp">--</span> &deg;C
+                        <span class="pendingHoldRequest"> &larr; <span id="RequestedHeatTemp"></span></span>
                     </div>
                     <div class="measure">
                         <div class="tempsection">Cooling Setpoint:</div>
                         <span id="ActiveCoolTemp">--</span> &deg;C
+                        <span class="pendingHoldRequest"> &larr; <span id="RequestedCoolTemp"></span></span>
                     </div>
                 </div>
                 <div class="controls">
