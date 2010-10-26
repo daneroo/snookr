@@ -68,8 +68,8 @@ class proxyCCDRService extends iM_ServiceBase {
             $holdType='None';
             $btStartIndex=10;
         } else {
-            $xmlcool='<tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">'.$cool.'</tns:int>';
-            $xmlheat='<tns:int xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">'.$heat.'</tns:int>';
+            $xmlcool='<tns:float xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">'.$cool.'</tns:float>';
+            $xmlheat='<tns:float xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays">'.$heat.'</tns:float>';
             $holdType='Permanent';
             $btStartIndex=7;
         }

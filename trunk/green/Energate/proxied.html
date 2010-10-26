@@ -232,7 +232,12 @@
                     slSetHold(permanentSessionVars, cool,heat,function(result){
                         makeBusy(-1);//$('#busySpinner').hide();
                         debug("slSetHold-1: "+$.toJSON(result));
-                        makeBusy(+1);//$('#busySpinner').show();
+                        if (holdRequestToken == thisHoldRequestToken){
+                            $('.pendingHoldRequest').removeClass('active');
+                            $('.pendingHoldRequest').addClass('unconfirmed');
+                        }
+                        // secon call no longer necessary
+                        /*makeBusy(+1);//$('#busySpinner').show();
                         slSetHold(permanentSessionVars, cool,heat,function(result){
                             makeBusy(-1);//$('#busySpinner').hide();
                             debug("slSetHold-2: "+$.toJSON(result));
@@ -240,7 +245,7 @@
                                 $('.pendingHoldRequest').removeClass('active');
                                 $('.pendingHoldRequest').addClass('unconfirmed');
                             }
-                        });
+                        });*/
                     });
                 };
                 var hCoolElt=$("#holdCool");
