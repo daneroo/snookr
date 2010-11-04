@@ -133,6 +133,13 @@ class proxyCCDRService extends iM_ServiceBase {
         $phase2 = $this->callIt($operation, $params);
         if (isset($phase2["Thermostats"])) {
             $thermostats = $phase2["Thermostats"];
+
+            // Multiple Thermostat FIX
+            // this value can be an array : return the first
+            if (isset($thermostats[0])){
+                $thermostats = $thermostats[0];
+            }
+
             $result = $phase1;
             if (isset($thermostats["MacAddr"])) {
                 $result["macAddr"] = $thermostats["MacAddr"];
