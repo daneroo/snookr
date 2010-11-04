@@ -126,3 +126,7 @@ tcpdump: listening on br0, link-type EN10MB (Ethernet), capture size 1516 bytes
   </SOAP-ENV:Body>
 
 
+-----------------------------------
+With/Without two devices:
+nusoap (3.0215311050415 s.) GetThermostats: {"GetThermostatsResult":{"Thermostats":[{"LastAccessedMacAddr":"0","MacAddr":"001BC500B000159B","ThermName":"OPA demo thermostat"},{"LastAccessedMacAddr":"0","MacAddr":"001BC500B00014C2","ThermName":"demo pool pump"}]}}
+nusoap (2.1537580490112 s.) GetThermostats: {"GetThermostatsResult":{"Thermostats":{"LastAccessedMacAddr":"0","MacAddr":"001BC500B00015DB","ThermName":"smckenzie tstat"}}}
