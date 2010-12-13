@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <title>CSS3 Animations</title>
+        <style type="text/css" media="screen">
+            body{
+                background:#777;
+                margin:0;
+                overflow:hidden;
+                padding:0;
+            }
+
+        </style>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+        <script type="text/javascript">
+            function debug(message){
+                if (window.console && window.console.firebug){
+                    console.log(message);
+                }
+            }
+
+            function isodate(d){
+                var yyyy = d.getFullYear();
+                var mm = d.getMonth();
+                var dd = d.getDate();
+                var datetuple = [yyyy,mm,dd].join('-');
+                return datetuple;
+            }
+            function isotime(d){
+                var hh = d.getHours();
+                var mm = d.getMinutes();
+                var ss = d.getSeconds();
+                var timetuple = [hh,mm,ss].join(':');
+                return timetuple;
+            }
+            function isodatetime(d){
+                var isotuple = [isodate(d),isotime(d)].join('T');
+                return isotuple;
+            }
+
+            var items = null;
+            //Animate the items.
+            function animate() {
+                var now = new Date();
+                $('#dateroo').html(isodate(now));
+                $('#timeroo').html(isotime(now));
+
+                for(i = items.length - 1; i >= 0; i--){
+                    var x = Math.random()*20+40;
+                    var y = Math.random()*20+40;
+                    $(items[i]).css("position", "absolute"); // make sure we can move the text around.
+                    $(items[i]).css("top", x+"%");  // y value
+                    $(items[i]).css("left", y+"%"); // x value
+
+                    //$(items[i]).css("fontSize", zVar+"%"); // font size (illusion of perspective.)
+                    //$(items[i]).css("opacity",(zVar)/2000); // fade in from the distance.
+
+                }
+
+                setTimeout(animate, 1000);
+            }
+
+            $(function(){
+                items = $('div');
+                animate();
+            });
+
+
+        </script>
+    </head>
+    <body>
+        <div id="dateroo">TEXT</div>
+        <div id="timeroo">TEXT</div>
+    </body>
+
+
+</html>
