@@ -47,7 +47,7 @@ def writeThumb(mp3file, thumbfile):
 # lastfm://user/fromage67/library
 # lastfm://user/daneroo/loved
 # lastfm://user/fromage67/loved
-station = 'lastfm://user/daneroo/library'
+station = 'lastfm://user/fromage67/library'
 tuneCMD = 'perl lfmCMD.pl method=radio.tune station=%s sk=644253673e0f933b81d6722347a10f8e >/dev/null' % station
 os.system(tuneCMD)
 
