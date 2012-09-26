@@ -1,8 +1,7 @@
 # 2012-09-26 Note for OSX
  Install Groovy for OSX: with homebrew
   $ brew install groovy
->>You should set the environment variable GROOVY_HOME to
->>  /usr/local/Cellar/groovy/2.0.4/libexec
+  $ export GROOVY_HOME=/usr/local/Cellar/groovy/2.0.4/libexec
 
 Snookr v2 Plan
 
