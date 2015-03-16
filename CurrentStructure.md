@@ -1,0 +1,38 @@
+# Introduction #
+
+As of 2007-10-11 this is the structure of the repository
+
+  * lib/
+  * script4g/
+  * snookr4g/
+  * snookrlib/
+
+# script4g #
+> Client groovy code:
+  * **fs.groovy** : File system synch : fs
+
+&lt;--&gt;
+
+db
+  * **db.groovy** : Perform db4o tests, '(on test.yap)'
+    * Dao patterns/strategy exploation.
+  * **thread.groovy** : show example use of spawner
+  * **flickrClient** : Mostly obsoleted by flickrSynch, but has interesting date stuff to salvage.
+  * **flickrSynch.groovy** : Flickr synch: flickr
+
+&lt;--&gt;
+
+db, should compltete move to DAO from Db byFetching through DAO and also moving createOrUpdate into DAO, otherwise this is done, and using setExtras(..,tags); the tail end compares different strategies for synching db
+
+&lt;--&gt;
+
+flickr list.
+
+# snookr4g #
+Supporting implementation for flickr services...
+
+# snookrlib #
+> Legacy import of the original _org.galo_ java code, sitting on **com.aetrion.flickr** package in  **flickrapi-1.0b4.jar**
+
+  * Closest thing to a workable program is SnookrTest in org.galo
+  * Refactored and rebuilding in SonkrTest2, attempting to make 'searchParams.setExtras(true);' modifiy behavior for tags.

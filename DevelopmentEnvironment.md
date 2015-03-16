@@ -1,0 +1,41 @@
+# Introduction #
+
+Describe project development requirements, compilers,IDE's,librarys
+
+
+# Requirements #
+## Language ##
+  * Java 1.5, may move to 1.6 for gui work.
+  * Groovy 1.0
+
+## IDE ##
+> Current projects builds are using Netbeans 5.5
+
+> GroovyIntegration
+
+## External Dependancies ##
+  * Groovy 1.0 (Moving to 1.1 on release)
+> http://groovy.codehaus.org/ -
+> http://groovy.codehaus.org/Download
+
+  * Exif Library  - metadata-extractor-2.3.1.jar
+> http://www.drewnoakes.com/code/exif/ -
+> http://www.drewnoakes.com/code/exif/releases/
+
+  * db4o Object Database - db4o-6.3-java5.jar
+> Moved to version 6.3 , java5 - nqopt and bloat are used for Native Query Optimisation
+> other jars: db4o-6.3-java1.2.jar db4o-6.3-nqopt.jar and bloat-1.0.jar
+> replaced - db4o-5.2-java1.2.jar
+> http://www.db4o.com/community/testdrive/
+
+
+  * flickrj - flickrapi-1.0b4.jar
+> http://flickrj.sourceforge.net/ -
+> http://sourceforge.net/projects/flickrj/
+
+  * com.Ostermiller.util Utilities - ostermillerutils-1.05.00-java-1.4.jar
+> http://ostermiller.org/utils/ -
+> http://ostermiller.org/utils/download.html
+
+  * commons-lang
+  * jsonrpc

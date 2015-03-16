@@ -1,0 +1,36 @@
+from http://www.jroller.com/ramlog/entry/netbeans_compiling_groovy_files_you
+
+# Groovy Integration #
+If you want to mix Java and Groovy in a NetBeans Java project and compile the groovy code from inside the IDE, you could follow these steps:
+
+  1. Add groovy-all-1.0.jar to Ant's classpath under Options|Miscellaneous|Ant|Manage Classpath...
+  1. Add groovy-all-1.0.jar to the libraries of your Java Project (Project->Properties|Libraries)
+  1. Add the pattern "/**.groovy" to the excludes under Project->Properties|Packaging
+  1. Add the following lines to the build file of your project:
+```
+      <taskdef name="groovyc"
+                  classname="org.codehaus.groovy.ant.Groovyc"/>
+         <target name="compile-groovy">
+             <groovyc 
+               srcdir="${src.dir}" 
+               destdir="${build.classes.dir}">
+               <classpath>
+                  <path path="${javac.classpath}"/>
+               </classpath>
+            </groovyc>
+         </target>
+         <target name="-post-compile">
+           <antcall target="compile-groovy" />
+         </target>			
+```**
+
+
+Add your content here.
+
+
+# Details #
+
+Add your content here.  Format your content with:
+  * Text in **bold** or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
