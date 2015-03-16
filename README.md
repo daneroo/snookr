@@ -1,4 +1,7 @@
-Overview
+
+*2015-03-16: Migrated from https://code.google.com/p/snookr/*
+
+# Overview
 
 Create a framework and simple clients for establishing feasibility of Image repository synchronisation.
 
