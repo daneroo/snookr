@@ -1,14 +1,16 @@
+
+# These crons are now disabled
 cron:
-- description: periodic frienfeed push daniel
-  url: /graph?owner=daniel&postfriend=1
-  schedule: every 2 hours
-  timezone: America/Montreal
-- description: periodic frienfeed push jean
-  url: /graph?owner=jean&postfriend=1
-  schedule: every 2 hours
-  timezone: America/Montreal
-- description: periodic frienfeed push louis
-  url: /graph?owner=louis&postfriend=1
-  schedule: every 2 hours
-  timezone: America/Montreal
+# - description: periodic frienfeed push daniel
+#   url: /graph?owner=daniel&postfriend=1
+#   schedule: every 2 hours
+#   timezone: America/Montreal
+# - description: periodic frienfeed push jean
+#   url: /graph?owner=jean&postfriend=1
+#   schedule: every 2 hours
+#   timezone: America/Montreal
+# - description: periodic frienfeed push louis
+#   url: /graph?owner=louis&postfriend=1
+#   schedule: every 2 hours
+#   timezone: America/Montreal
 
