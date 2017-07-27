@@ -1,8 +1,12 @@
-application: imetrical-web
-version: 2
-runtime: python
+application: imetrical-web-hrd
+version: 3
+runtime: python27
 api_version: 1
+threadsafe: false
 
+# This application is aliased to the old 
+#  http://imetrical-web.appspot.com/
+# 2017-07-27 move to python2.7 https://cloud.google.com/appengine/docs/standard/python/python25/migrate27
 handlers:
 - url: /s
   static_dir: s

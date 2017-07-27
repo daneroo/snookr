@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# 2017-07-27 move to python2.7 https://cloud.google.com/appengine/docs/standard/python/python25/migrate27
+
 #
 # Copyright 2008 Google Inc.
 #
